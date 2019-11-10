@@ -1,6 +1,6 @@
 # iTXTech FlashMaster
 
-Powerful NAND Flash Part Number and Id querying toolbox.
+Powerful NAND Flash Part Number and Id query toolbox.
 
 ## Introduction
 
