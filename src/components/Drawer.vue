@@ -71,6 +71,17 @@
         <span class="mr-2">GitHub</span>
         <v-icon>mdi-open-in-new</v-icon>
       </v-btn>
+
+      <v-menu offset-y>
+        <template v-slot:activator="{ on }">
+          <v-btn color="primary" dark v-on="on">{{$t("lang")}}</v-btn>
+        </template>
+        <v-list>
+          <v-list-item v-for="(item, index) in langs" :key="index" @click="changeLanguage(item)">
+            <v-list-item-title>{{ item }}</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-menu>
     </v-app-bar>
   </v-container>
 </template>
@@ -83,15 +94,39 @@ export default {
 
   data: () => ({
     dialog: false,
-    drawer: true,
-    items: [
-      { icon: "mdi-adjust", text: "料号查询", path: "/decode" },
-      { icon: "mdi-magnify", text: "料号搜索", path: "/searchPn" },
-      { icon: "mdi-flash", text: "闪存ID查询", path: "/searchId" },
-      { icon: "mdi-settings", text: "设置", path: "/settings" },
-      { icon: "mdi-information", text: "关于", path: "/about" }
-    ]
+    drawer: true
   }),
+
+  computed: {
+    langs() {
+      return Object.keys(this.$i18n.messages);
+    },
+    items() {
+      return [
+        {
+          icon: "mdi-adjust",
+          text: this.$t("nav.decodePartNumber"),
+          path: "/decode"
+        },
+        {
+          icon: "mdi-magnify",
+          text: this.$t("nav.searchPartNumber"),
+          path: "/searchPn"
+        },
+        {
+          icon: "mdi-flash",
+          text: this.$t("nav.searchFlashId"),
+          path: "/searchId"
+        },
+        {
+          icon: "mdi-settings",
+          text: this.$t("nav.settings"),
+          path: "/settings"
+        },
+        { icon: "mdi-information", text: this.$t("nav.about"), path: "/about" }
+      ];
+    }
+  },
 
   methods: {
     goToPage(item) {
@@ -101,6 +136,10 @@ export default {
       this.$router.push({
         path: item.path
       });
+    },
+    changeLanguage(item) {
+      this.$i18n.locale = item;
+      localStorage.lang = item;
     }
   }
 };
