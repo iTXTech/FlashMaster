@@ -6,7 +6,7 @@ Vue.use(VueRouter)
 const routes = [
   {
     path: "/",
-    component: () => import("@/views/Decode")
+    redirect: "/decode"
   },
   {
     path: "/decode",
@@ -19,7 +19,7 @@ const routes = [
 ]
 
 const router = new VueRouter({
-  mode: 'history',
+  mode: 'hash',
   base: process.env.BASE_URL,
   scrollBehavior: () => ({ y: 0 }),
   routes
