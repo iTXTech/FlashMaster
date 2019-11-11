@@ -2,48 +2,25 @@
 <template>
   <v-container>
     <v-navigation-drawer v-model="drawer" :clipped="$vuetify.breakpoint.lgAndUp" app>
-      <v-list dense>
-        <template v-for="item in items">
-          <v-row v-if="item.heading" :key="item.heading" align="center">
-            <v-col cols="6">
-              <v-subheader v-if="item.heading">{{ item.heading }}</v-subheader>
-            </v-col>
-            <v-col cols="6" class="text-center">
-              <a href="#!" class="body-2 black--text">EDIT</a>
-            </v-col>
-          </v-row>
-          <v-list-group
-            v-else-if="item.children"
-            :key="item.text"
-            v-model="item.model"
-            :prepend-icon="item.model ? item.icon : item['icon-alt']"
-            append-icon
-          >
-            <template v-slot:activator>
-              <v-list-item>
-                <v-list-item-content>
-                  <v-list-item-title>{{ item.text }}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-            </template>
-            <v-list-item v-for="(child, i) in item.children" :key="i" link>
-              <v-list-item-action v-if="child.icon">
-                <v-icon>{{ child.icon }}</v-icon>
-              </v-list-item-action>
-              <v-list-item-content>
-                <v-list-item-title>{{ child.text }}</v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-          </v-list-group>
-          <v-list-item v-else :key="item.text" link @click="goToPage(item)">
+      <v-list-item>
+        <v-list-item-content>
+          <v-list-item-title class="title">FlashMaster</v-list-item-title>
+          <v-list-item-subtitle>by PeratX@iTXTech.org</v-list-item-subtitle>
+        </v-list-item-content>
+      </v-list-item>
+
+      <v-divider></v-divider>
+      <v-list dense nav>
+        <v-list-item-group v-model="item" color="primary">
+          <v-list-item v-for="(item, i) in items" :key="i" :to="item.path">
             <v-list-item-icon>
-              <v-icon>{{ item.icon }}</v-icon>
+              <v-icon v-text="item.icon"></v-icon>
             </v-list-item-icon>
             <v-list-item-content>
-              <v-list-item-title>{{ item.text }}</v-list-item-title>
+              <v-list-item-title v-text="item.text"></v-list-item-title>
             </v-list-item-content>
           </v-list-item>
-        </template>
+        </v-list-item-group>
       </v-list>
 
       <v-footer absolute class="font-weight-medium">
@@ -94,7 +71,7 @@ export default {
 
   data: () => ({
     dialog: false,
-    drawer: true
+    drawer: false
   }),
 
   computed: {
@@ -129,14 +106,6 @@ export default {
   },
 
   methods: {
-    goToPage(item) {
-      if (this.$route.path === item.path) {
-        return;
-      }
-      this.$router.push({
-        path: item.path
-      });
-    },
     changeLanguage(item) {
       this.$i18n.locale = item;
       localStorage.lang = item;
