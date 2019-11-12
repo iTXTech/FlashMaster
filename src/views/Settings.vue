@@ -14,7 +14,7 @@
             />
             <v-checkbox
               :label="$t('settings.translation')"
-              :change="changeTranslation"
+              v-on:change="changeTranslation"
               v-model="autoTrans"
             />
           </v-card-text>
@@ -47,10 +47,11 @@ export default {
     return {
       servers: [],
       server: Store.getServerAddress(),
-      autoTrans: Store.autoTranslation()
+      autoTrans: false
     };
   },
   created: function() {
+    this.autoTrans = Store.autoTranslation() == "1" ? true : false;
     fetch(
       "https://raw.githubusercontent.com/PeratX/FlashMaster/master/servers.json"
     )

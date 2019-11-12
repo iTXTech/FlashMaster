@@ -7,11 +7,11 @@ const setServerAddress = (addr) => {
 }
 
 const autoTranslation = () => {
-    return localStorage.autoTranslation == "true" ? "1" : "0";
+    return (localStorage.autoTranslation || "1");
 }
 
 const setAutoTranslation = (auto) => {
-    localStorage.autoTranslation = auto ? "true" : "false";
+    localStorage.autoTranslation = auto ? "1" : "0";
 }
 
 export default {
