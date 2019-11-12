@@ -75,6 +75,7 @@
 </style>
 <script>
 import Store from "@/store";
+import router from "@/router";
 export default {
   data() {
     return {
@@ -101,6 +102,12 @@ export default {
   methods: {
     query() {
       if (this.partNumber != "") {
+        if (this.$route.query.pn != this.partNumber) {
+          router.push({
+            path: "/decode",
+            query: { pn: this.partNumber.toUpperCase() }
+          });
+        }
         fetch(
           Store.getServerAddress() +
             "/decode?trans=" +
@@ -120,8 +127,8 @@ export default {
             this.generation = data.generation;
             this.voltage = data.voltage;
             this.pkg = data.package;
-            this.rawVendor = data.rawVendor
-            this.vendorLogo = this.getVendorLogo()
+            this.rawVendor = data.rawVendor;
+            this.vendorLogo = this.getVendorLogo();
 
             if (Object.keys(data.interface).includes("toggle")) {
               this.sync = data.interface.toggle;
@@ -135,6 +142,9 @@ export default {
             this.ch = this.isUnknown(data.classification.ch);
             this.die = this.isUnknown(data.classification.die);
             this.rb = this.isUnknown(data.classification.rnb);
+          })
+          .catch(err => {
+            alert(this.$t("alert.fetchFailed", [err]));
           });
       } else {
         alert(this.$t("alert.missingPartNumber"));
@@ -144,25 +154,31 @@ export default {
     isUnknown(v) {
       return v == -1 ? this.$t("unknown") : v;
     },
-    getVendorLogo(){
-      switch(this.rawVendor){
-        case 'intel':
-          return require('@/assets/intel.svg')
-        case 'micron':
-          return require('@/assets/micron.svg')
-        case 'samsung':
-          return require('@/assets/samsung.svg')
-        case 'skhynix':
-          return require('@/assets/skhynix.svg')
-        case 'spectek':
-          return require('@/assets/spectek.gif')
-        case 'westerndigital':
-          return require('@/assets/wd.svg')
-        case 'kioxia':
-          return require('@/assets/kioxia.svg')
+    getVendorLogo() {
+      switch (this.rawVendor) {
+        case "intel":
+          return require("@/assets/intel.svg");
+        case "micron":
+          return require("@/assets/micron.svg");
+        case "samsung":
+          return require("@/assets/samsung.svg");
+        case "skhynix":
+          return require("@/assets/skhynix.svg");
+        case "spectek":
+          return require("@/assets/spectek.gif");
+        case "westerndigital":
+          return require("@/assets/wd.svg");
+        case "kioxia":
+          return require("@/assets/kioxia.svg");
         default:
-            return ""
+          return "";
       }
+    }
+  },
+  created: function() {
+    if (Object.keys(this.$route.query).includes("pn")) {
+      this.partNumber = this.$route.query.pn;
+      this.query();
     }
   }
 };

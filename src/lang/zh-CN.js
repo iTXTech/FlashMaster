@@ -2,6 +2,7 @@ module.exports = {
     lang: "zh-CN",
     alert: {
         missingPartNumber: '请输入料号',
+        fetchFailed: '获取失败：{0}'
     },
     nav: {
         decodePartNumber: '料号查询',

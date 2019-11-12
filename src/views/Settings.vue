@@ -81,6 +81,9 @@ export default {
               data.info.fdb.controllers
             ])
           );
+        })
+        .catch(err => {
+          alert(this.$t("alert.fetchFailed", [err]));
         });
     }
   }

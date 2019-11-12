@@ -2,6 +2,7 @@ module.exports = {
     lang: "en-US",
     alert: {
         missingPartNumber: 'Please Enter Part Number',
+        fetchFailed: 'Fetch Failed: {0}'
     },
     nav: {
         decodePartNumber: 'Decode Part Number',
