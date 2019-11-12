@@ -18,7 +18,7 @@ const i18n = new VueI18n({
 
 const vuetify = new Vuetify({
   theme: {
-      dark: true,
+    dark: true,
   },
 })
 

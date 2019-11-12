@@ -7,6 +7,13 @@ module.exports = {
         settings: 'Settings',
         about: 'About',
     },
+    settings: {
+        server: 'Server',
+        serverAddr: 'Server Address',
+        translation: 'Auto Translation',
+        serverInfo: 'Server Information',
+        save: 'Save'
+    },
     query: "Query",
     search: "Search",
     partNumber: 'Part Number',

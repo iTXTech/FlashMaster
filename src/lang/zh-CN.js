@@ -7,6 +7,13 @@ module.exports = {
         settings: '设置',
         about: '关于',
     },
+    settings: {
+        server: '服务器',
+        serverAddr: '服务器地址',
+        translation: '自动翻译',
+        serverInfo: '服务器信息',
+        save: '保存'
+    },
     query: '查询',
     search: '搜索',
     partNumber: '料号',
