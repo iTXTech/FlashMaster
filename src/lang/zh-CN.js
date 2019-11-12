@@ -1,5 +1,8 @@
 module.exports = {
     lang: "zh-CN",
+    alert: {
+        missingPartNumber: '请输入料号',
+    },
     nav: {
         decodePartNumber: '料号查询',
         searchPartNumber: '料号搜索',
@@ -12,8 +15,9 @@ module.exports = {
         serverAddr: '服务器地址',
         translation: '自动翻译',
         serverInfo: '服务器信息',
-        save: '保存'
+        info: 'FlashDetector 数据库版本：{0}\n数据库生成时间：{1}\n收录 {2} 闪存料号\n收录 {3} 闪存ID\n收录 {4} 美光 FBGA 码\n收录的控制器：\n{5}'
     },
+    unknown: '未知',
     query: '查询',
     search: '搜索',
     partNumber: '料号',

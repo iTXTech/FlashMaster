@@ -1,5 +1,8 @@
 module.exports = {
     lang: "en-US",
+    alert: {
+        missingPartNumber: 'Please Enter Part Number',
+    },
     nav: {
         decodePartNumber: 'Decode Part Number',
         searchPartNumber: 'Search Part Number',
@@ -12,8 +15,9 @@ module.exports = {
         serverAddr: 'Server Address',
         translation: 'Auto Translation',
         serverInfo: 'Server Information',
-        save: 'Save'
+        info: 'FlashDetector FDB Version: {0}\nFDB Generation Time: {1}\nInclude {2} Part Numbers\nInclude {3} Flash Ids\nInclude {4} Micron FBGA Codes\nSupported Controllers:\n{5}'
     },
+    unknown: 'Unknown',
     query: "Query",
     search: "Search",
     partNumber: 'Part Number',
