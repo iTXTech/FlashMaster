@@ -71,7 +71,7 @@ export default {
 
   data: () => ({
     dialog: false,
-    drawer: false
+    drawer: true
   }),
 
   computed: {
