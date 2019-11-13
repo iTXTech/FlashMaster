@@ -1,30 +1,43 @@
 <template>
-  <v-container grid-list-xl fluid>
-    <v-layout row wrap>
-      <v-flex lg3 sm12 xs12>
-        <v-card>
-          <v-card-title>{{$t('settings.server')}}</v-card-title>
-          <v-card-text>
-            <v-combobox
-              :items="items"
-              :label="$t('settings.serverAddr')"
-              :return-object="false"
-              v-on:change="changeServer"
-              v-model="server"
-            />
-            <v-checkbox
-              :label="$t('settings.translation')"
-              v-on:change="changeTranslation"
-              v-model="autoTrans"
-            />
-          </v-card-text>
-          <v-card-actions>
-            <v-btn text @click="serverInfo">{{$t("settings.serverInfo")}}</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-flex>
-    </v-layout>
-  </v-container>
+  <div>
+    <v-container grid-list-xl fluid>
+      <v-layout row wrap>
+        <v-flex lg3 sm12 xs12>
+          <v-card>
+            <v-card-title>{{$t('settings.server')}}</v-card-title>
+            <v-card-text>
+              <v-combobox
+                :items="items"
+                :label="$t('settings.serverAddr')"
+                :return-object="false"
+                v-on:change="changeServer"
+                v-model="server"
+              />
+              <v-checkbox
+                :label="$t('settings.translation')"
+                v-on:change="changeTranslation"
+                v-model="autoTrans"
+              />
+            </v-card-text>
+            <v-card-actions>
+              <v-btn text @click="serverInfo">{{$t("settings.serverInfo")}}</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-flex>
+      </v-layout>
+    </v-container>
+
+    <v-dialog v-model="dialog.show" max-width="500">
+      <v-card>
+        <v-card-title class="headline">{{$t('settings.fdServerInfo')}}</v-card-title>
+        <v-card-text v-html="dialog.text"></v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="blue" text @click="dialog.show = false">{{$t('close')}}</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+  </div>
 </template>
 <script>
 import Store from "@/store";
@@ -47,7 +60,11 @@ export default {
     return {
       servers: [],
       server: Store.getServerAddress(),
-      autoTrans: false
+      autoTrans: false,
+      dialog: {
+        show: false,
+        text: ""
+      }
     };
   },
   created: function() {
@@ -71,8 +88,9 @@ export default {
       fetch(Store.getServerAddress() + "/info")
         .then(r => r.json())
         .then(data => {
-          alert(
-            this.$t("settings.info", [
+          this.dialog = {
+            show: true,
+            text: this.$t("settings.info", [
               data.ver,
               data.info.fdb.time,
               data.info.flash_cnt,
@@ -80,10 +98,13 @@ export default {
               data.info.mdb_cnt,
               data.info.fdb.controllers
             ])
-          );
+          };
         })
         .catch(err => {
-          alert(this.$t("alert.fetchFailed", [err]));
+          this.dialog = {
+            show: true,
+            text: this.$t("alert.fetchFailed", [err])
+          };
         });
     }
   }

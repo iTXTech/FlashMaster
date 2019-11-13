@@ -16,7 +16,8 @@ module.exports = {
         serverAddr: 'Server Address',
         translation: 'Auto Translation',
         serverInfo: 'Server Information',
-        info: 'FlashDetector FDB Version: {0}\nFDB Generation Time: {1}\nInclude {2} Part Numbers\nInclude {3} Flash Ids\nInclude {4} Micron FBGA Codes\nSupported Controllers:\n{5}'
+        fdServerInfo: 'iTXTech FlashDetector Server Info',
+        info: 'FlashDetector FDB Version: {0}<br/>FDB Generation Time: {1}<br/>Include {2} Part Numbers<br/>Include {3} Flash Ids<br/>Include {4} Micron FBGA Codes<br/>Supported Controllers:<br/>{5}'
     },
     unknown: 'Unknown',
     query: "Query",
@@ -37,4 +38,12 @@ module.exports = {
     ch: 'Channel',
     die: 'Die',
     rb: 'R/B',
+    extraInfo: 'Extra Info',
+    comment: 'Comment',
+    name: 'Name',
+    value: 'Value',
+    copy: 'Copy',
+    copySucc: 'Copy successfully.',
+    copyFail: 'Copy failed: {0}',
+    close: 'Close',
 }

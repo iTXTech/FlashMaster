@@ -16,7 +16,8 @@ module.exports = {
         serverAddr: '服务器地址',
         translation: '自动翻译',
         serverInfo: '服务器信息',
-        info: 'FlashDetector 数据库版本：{0}\n数据库生成时间：{1}\n收录 {2} 闪存料号\n收录 {3} 闪存ID\n收录 {4} 美光 FBGA 码\n收录的控制器：\n{5}'
+        fdServerInfo: 'iTXTech FlashDetector 服务器信息',
+        info: 'FlashDetector 数据库版本：{0}<br/>数据库生成时间：{1}<br/>收录 {2} 闪存料号<br/>收录 {3} 闪存ID<br/>收录 {4} 美光 FBGA 码<br/>收录的控制器：<br/>{5}'
     },
     unknown: '未知',
     query: '查询',
@@ -37,4 +38,12 @@ module.exports = {
     ch: '通道',
     die: 'Die',
     rb: 'R/B',
+    extraInfo: '更多信息',
+    comment: '注释',
+    name: '名称',
+    value: '值',
+    copy: '复制',
+    copySucc: '复制成功',
+    copyFail: '复制失败',
+    close: '关闭',
 }
