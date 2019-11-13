@@ -99,8 +99,7 @@ export default {
           icon: "mdi-settings",
           text: this.$t("nav.settings"),
           path: "/settings"
-        },
-        { icon: "mdi-information", text: this.$t("nav.about"), path: "/about" }
+        }
       ];
     }
   },

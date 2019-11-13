@@ -16,13 +16,6 @@ const routes = [
     }
   },
   {
-    path: "/about",
-    component: () => import("@/views/About"),
-    meta: {
-      title: 'nav.about'
-    }
-  },
-  {
     path: "/settings",
     component: () => import("@/views/Settings"),
     meta: {

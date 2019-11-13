@@ -10,7 +10,6 @@ module.exports = {
         searchPartNumber: 'Search Part Number',
         searchFlashId: 'Search Flash Id',
         settings: 'Settings',
-        about: 'About',
     },
     settings: {
         server: 'Server',

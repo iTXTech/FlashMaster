@@ -10,7 +10,6 @@ module.exports = {
         searchPartNumber: '料号搜索',
         searchFlashId: '闪存ID查询',
         settings: '设置',
-        about: '关于',
     },
     settings: {
         server: '服务器',
@@ -60,5 +59,5 @@ module.exports = {
     close: '关闭',
     flashIds: '闪存ID',
     flashId: '闪存ID',
-    action: '操作',
+    action: '操作'
 }
