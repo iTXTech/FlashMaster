@@ -27,7 +27,7 @@
               class="elevation-1"
               no-data-text
               hide-default-footer
-              items-per-page="100000"
+              :items-per-page="itemsPerPage"
             >
               <template v-slot:item.action="{ item }">
                 <v-btn icon @click="decodeFlashId(item)">
@@ -54,6 +54,7 @@ import router from "@/router";
 export default {
   data: () => {
     return {
+      itemsPerPage: 10000,
       snackbar: {
         timeout: 1000,
         show: false,

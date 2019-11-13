@@ -35,6 +35,13 @@ const routes = [
     meta: {
       title: 'nav.searchPartNumber'
     }
+  },
+  {
+    path: '/searchId',
+    component: () => import("@/views/SearchId"),
+    meta: {
+      title: 'nav.searchFlashId'
+    }
   }
 ]
 

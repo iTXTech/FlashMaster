@@ -3,6 +3,7 @@ module.exports = {
     alert: {
         missingPartNumber: '请输入料号',
         fetchFailed: '获取失败：{0}',
+        missingFlashId: '请输入闪存Id'
     },
     nav: {
         decodePartNumber: '料号查询',
@@ -58,5 +59,6 @@ module.exports = {
     copyFail: '复制失败',
     close: '关闭',
     flashIds: '闪存ID',
+    flashId: '闪存ID',
     action: '操作',
 }

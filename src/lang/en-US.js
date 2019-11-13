@@ -1,8 +1,9 @@
 module.exports = {
     lang: "en-US",
     alert: {
-        missingPartNumber: 'Please Enter Part Number',
-        fetchFailed: 'Fetch Failed: {0}'
+        missingPartNumber: 'Please Input Part Number',
+        fetchFailed: 'Fetch Failed: {0}',
+        missingFlashId: 'Please Input Flash Id'
     },
     nav: {
         decodePartNumber: 'Decode Part Number',
@@ -58,5 +59,6 @@ module.exports = {
     copyFail: 'Copy failed: {0}',
     close: 'Close',
     flashIds: 'Flash Ids',
+    flashId: 'Flash Id',
     action: 'Action',
 }

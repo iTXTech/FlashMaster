@@ -86,7 +86,7 @@
                 disable-sort
                 no-data-text
                 class="elevation-1"
-                items-per-page="100000"
+                :items-per-page="itemsPerPage"
               >
                 <template v-slot:item.copy="{ item }">
                   <v-btn icon @click="copy(item)">
@@ -115,7 +115,7 @@
                 disable-sort
                 class="elevation-1"
                 no-data-text
-                items-per-page="100000"
+                :items-per-page="itemsPerPage"
               >
                 <template v-slot:item.action="{ item }">
                   <v-btn icon @click="searchFlashId(item)">
@@ -144,6 +144,7 @@ import { isString } from "util";
 export default {
   data() {
     return {
+      itemsPerPage: 10000,
       snackbar: {
         timeout: 1000,
         show: false,
@@ -343,7 +344,12 @@ export default {
         query: { pn: this.partNumber }
       });
     },
-    searchFlashId(item) {}
+    searchFlashId(item) {
+      router.push({
+        path: "/searchId",
+        query: { id: item.id }
+      });
+    }
   },
   created: function() {
     if (Object.keys(this.$route.query).includes("pn")) {
