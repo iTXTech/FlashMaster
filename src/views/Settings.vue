@@ -2,7 +2,7 @@
   <div>
     <v-container grid-list-xl fluid>
       <v-layout row wrap>
-        <v-flex lg3 sm12 xs12>
+        <v-flex lg4 sm12 xs12>
           <v-card>
             <v-card-title>{{$t('settings.server')}}</v-card-title>
             <v-card-text>

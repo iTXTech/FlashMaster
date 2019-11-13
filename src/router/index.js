@@ -10,15 +10,31 @@ const routes = [
   },
   {
     path: "/decode",
-    component: () => import("@/views/Decode")
+    component: () => import("@/views/Decode"),
+    meta: {
+      title: 'nav.decodePartNumber'
+    }
   },
   {
     path: "/about",
-    component: () => import("@/views/About")
+    component: () => import("@/views/About"),
+    meta: {
+      title: 'nav.about'
+    }
   },
   {
     path: "/settings",
-    component: () => import("@/views/Settings")
+    component: () => import("@/views/Settings"),
+    meta: {
+      title: 'nav.settings'
+    }
+  },
+  {
+    path: "/searchPn",
+    component: () => import("@/views/SearchPn"),
+    meta: {
+      title: 'nav.searchPartNumber'
+    }
   }
 ]
 

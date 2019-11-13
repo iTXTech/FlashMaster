@@ -15,7 +15,7 @@
           </v-card>
         </v-flex>
 
-        <v-flex lg2 sm12 xs12>
+        <v-flex lg3 sm12 xs12>
           <v-card>
             <v-card-title>{{$t('vendor')}}</v-card-title>
             <v-card-text>
@@ -58,7 +58,7 @@
           </v-card>
         </v-flex>
 
-        <v-flex lg4 sm12 xs12>
+        <v-flex lg5 sm12 xs12>
           <v-card>
             <v-card-text>
               <v-text-field required :label="$t('voltage')" v-model="voltage" />
@@ -84,11 +84,10 @@
                 :items="extraInfo"
                 hide-default-footer
                 disable-sort
+                no-data-text
                 class="elevation-1"
+                items-per-page="100000"
               >
-                <template slot="no-data">
-                  <div></div>
-                </template>
                 <template v-slot:item.copy="{ item }">
                   <v-btn icon @click="copy(item)">
                     <v-icon>mdi-content-copy</v-icon>
@@ -115,10 +114,9 @@
                 hide-default-footer
                 disable-sort
                 class="elevation-1"
+                no-data-text
+                items-per-page="100000"
               >
-                <template slot="no-data">
-                  <div></div>
-                </template>
                 <template v-slot:item.action="{ item }">
                   <v-btn icon @click="searchFlashId(item)">
                     <v-icon>mdi-magnify</v-icon>
@@ -139,13 +137,8 @@
     </v-snackbar>
   </div>
 </template>
-<style>
-.pn input {
-  text-transform: uppercase;
-}
-</style>
 <script>
-import Store from "@/store";
+import store from "@/store";
 import router from "@/router";
 import { isString } from "util";
 export default {
@@ -176,18 +169,24 @@ export default {
       comment: "",
       rawVendor: "",
       controllers: "",
-      extraInfoHeaders: [
+      extraInfo: [],
+      flashIds: []
+    };
+  },
+  computed: {
+    extraInfoHeaders() {
+      return [
         { text: this.$t("name"), value: "name", align: "left" },
         { text: this.$t("value"), value: "value" },
         { text: this.$t("copy"), value: "copy" }
-      ],
-      extraInfo: [],
-      flashIdHeaders: [
+      ];
+    },
+    flashIdHeaders() {
+      return [
         { text: this.$t("flashIds"), value: "id", align: "left" },
         { text: this.$t("action"), value: "action" }
-      ],
-      flashIds: []
-    };
+      ];
+    }
   },
   methods: {
     query() {
@@ -200,9 +199,9 @@ export default {
           });
         }
         fetch(
-          Store.getServerAddress() +
+          store.getServerAddress() +
             "/decode?trans=" +
-            Store.autoTranslation() +
+            store.autoTranslation() +
             "&pn=" +
             this.partNumber
         )
@@ -338,8 +337,13 @@ export default {
     copyFlashId(item) {
       this.c(item.id);
     },
-    searchFlashId(item) {},
-    search() {}
+    search() {
+      router.push({
+        path: "/searchPn",
+        query: { pn: this.partNumber }
+      });
+    },
+    searchFlashId(item) {}
   },
   created: function() {
     if (Object.keys(this.$route.query).includes("pn")) {
