@@ -96,7 +96,7 @@ export default {
               data.info.flash_cnt,
               data.info.id_cnt,
               data.info.mdb_cnt,
-              data.info.fdb.controllers
+              String(data.info.fdb.controllers).replace(/,/g, ", ")
             ])
           };
         })

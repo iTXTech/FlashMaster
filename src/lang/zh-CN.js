@@ -39,6 +39,7 @@ module.exports = {
     die: 'Die',
     rb: 'R/B',
     extraInfo: '更多信息',
+    controllers: '控制器',
     comment: '注释',
     name: '名称',
     value: '值',
@@ -46,4 +47,6 @@ module.exports = {
     copySucc: '复制成功',
     copyFail: '复制失败',
     close: '关闭',
+    flashIds: '闪存ID',
+    action: '操作',
 }

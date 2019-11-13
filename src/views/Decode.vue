@@ -63,6 +63,7 @@
             <v-card-text>
               <v-text-field required :label="$t('voltage')" v-model="voltage" />
               <v-text-field required :label="$t('package')" v-model="pkg" />
+              <v-textarea auto-grow rows="1" :label="$t('controllers')" v-model="controllers" />
               <v-text-field required :label="$t('comment')" v-model="comment" />
             </v-card-text>
           </v-card>
@@ -90,6 +91,39 @@
                 </template>
                 <template v-slot:item.copy="{ item }">
                   <v-btn icon @click="copy(item)">
+                    <v-icon>mdi-content-copy</v-icon>
+                  </v-btn>
+                </template>
+              </v-data-table>
+            </v-card-text>
+          </v-card>
+        </v-flex>
+
+        <v-flex lg3 sm12 xs12>
+          <v-card>
+            <v-app-bar flat dense color="transparent">
+              <v-toolbar-title>{{$t('flashIds')}}</v-toolbar-title>
+              <v-spacer></v-spacer>
+              <v-btn icon @click="copyAllFlashIds">
+                <v-icon>mdi-content-copy</v-icon>
+              </v-btn>
+            </v-app-bar>
+            <v-card-text>
+              <v-data-table
+                :headers="flashIdHeaders"
+                :items="flashIds"
+                hide-default-footer
+                disable-sort
+                class="elevation-1"
+              >
+                <template slot="no-data">
+                  <div></div>
+                </template>
+                <template v-slot:item.action="{ item }">
+                  <v-btn icon @click="searchFlashId(item)">
+                    <v-icon>mdi-magnify</v-icon>
+                  </v-btn>
+                  <v-btn icon @click="copyFlashId(item)">
                     <v-icon>mdi-content-copy</v-icon>
                   </v-btn>
                 </template>
@@ -141,12 +175,18 @@ export default {
       pkg: "",
       comment: "",
       rawVendor: "",
+      controllers: "",
       extraInfoHeaders: [
         { text: this.$t("name"), value: "name", align: "left" },
         { text: this.$t("value"), value: "value" },
         { text: this.$t("copy"), value: "copy" }
       ],
-      extraInfo: []
+      extraInfo: [],
+      flashIdHeaders: [
+        { text: this.$t("flashIds"), value: "id", align: "left" },
+        { text: this.$t("action"), value: "action" }
+      ],
+      flashIds: []
     };
   },
   methods: {
@@ -181,6 +221,7 @@ export default {
             this.rawVendor = data.rawVendor;
             this.vendorLogo = this.getVendorLogo();
             this.comment = data.comment;
+            this.controllers = String(data.controller).replace(/,/g, ", ");
 
             if (data.interface == null) {
               this.sync = false;
@@ -206,6 +247,15 @@ export default {
                 this.extraInfo.push({
                   name: extraInfo,
                   value: data.extraInfo[extraInfo]
+                });
+              }
+            }
+
+            this.flashIds = [];
+            if (data.flashId != null && !isString(data.flashId)) {
+              for (var flashId in data.flashId) {
+                this.flashIds.push({
+                  id: data.flashId[flashId]
                 });
               }
             }
@@ -277,6 +327,18 @@ export default {
         }
       );
     },
+    copyAllFlashIds() {
+      var data = "";
+      for (var id in this.flashIds) {
+        id = this.flashIds[id];
+        data += id.id + ", ";
+      }
+      this.c(data.substring(0, data.length - 2));
+    },
+    copyFlashId(item) {
+      this.c(item.id);
+    },
+    searchFlashId(item) {},
     search() {}
   },
   created: function() {

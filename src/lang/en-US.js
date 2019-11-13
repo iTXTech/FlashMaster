@@ -39,6 +39,7 @@ module.exports = {
     die: 'Die',
     rb: 'R/B',
     extraInfo: 'Extra Info',
+    controllers: 'Controllers',
     comment: 'Comment',
     name: 'Name',
     value: 'Value',
@@ -46,4 +47,6 @@ module.exports = {
     copySucc: 'Copy successfully.',
     copyFail: 'Copy failed: {0}',
     close: 'Close',
+    flashIds: 'Flash Ids',
+    action: 'Action',
 }
