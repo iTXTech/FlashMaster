@@ -4,9 +4,20 @@ Powerful NAND Flash Part Number and Id query toolbox.
 
 ## Introduction
 
-The re-implementation of FlashMaster in Vue.js and Vuetify.
+The re-implementation of [FlashMaster](https://github.com/PeratX/FlashMaster) in [Vue.js](https://vuejs.org/) and [Vuetify](https://vuetifyjs.com/).
+
+Focus to be fast, light-weight and portable.
 
 Backend: [iTXTech FlashDetector](https://github.com/iTXTech/FlashDetector)
+
+## Features
+
+1. Material Design
+1. Full ~~legacy~~ FlashMaster Features (without Embedded Server of course :)
+   1. Decode Part Number
+   1. Search Part Number in FlashDetector Flash Database
+   1. Search Flash Id in FlashDetector Flash Database
+1. No cookies will be stored
 
 ## Setup
 
@@ -16,6 +27,15 @@ cd FlashMaster
 npm install
 npm run serve
 ```
+
+## Build and Deploy
+
+```bash
+npm run build
+```
+
+Upload all files in `dist`.
+
 ## License
 
     Copyright (C) 2019 iTX Technologies

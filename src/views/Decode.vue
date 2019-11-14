@@ -86,6 +86,7 @@
                 disable-sort
                 no-data-text
                 class="elevation-1"
+                :mobile-breakpoint="NaN"
                 :items-per-page="itemsPerPage"
               >
                 <template v-slot:item.copy="{ item }">
@@ -115,6 +116,7 @@
                 disable-sort
                 class="elevation-1"
                 no-data-text
+                :mobile-breakpoint="NaN"
                 :items-per-page="itemsPerPage"
               >
                 <template v-slot:item.action="{ item }">

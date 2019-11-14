@@ -28,6 +28,7 @@
               no-data-text
               hide-default-footer
               :items-per-page="itemsPerPage"
+              :mobile-breakpoint="NaN"
             >
               <template v-slot:item.action="{ item }">
                 <v-btn icon @click="decodeFlashId(item)">
