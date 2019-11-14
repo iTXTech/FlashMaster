@@ -10,6 +10,16 @@
 .pn input {
   text-transform: uppercase;
 }
+
+div.v-application {
+    display: block;
+    th {
+        white-space: nowrap;
+    }
+    div.v-content__wrap {
+        width: 100%;
+    }
+}
 </style>
 <script>
 import Drawer from "@/components/Drawer";

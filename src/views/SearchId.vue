@@ -38,12 +38,8 @@
                     </v-btn>
                   </template>
                   <v-list>
-                    <v-list-item
-                      v-for="(it, index) in item.rawPns"
-                      :key="index"
-                      @click="list(it)"
-                    >
-                      <v-list-item-title>{{ it }}</v-list-item-title>
+                    <v-list-item v-for="(it, index) in item.rawPns" :key="index" @click="list(it)">
+                      <v-list-item-action class="mx-0">{{ it }}</v-list-item-action>
                     </v-list-item>
                   </v-list>
                 </v-menu>
