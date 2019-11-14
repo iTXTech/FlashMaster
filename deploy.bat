@@ -1,5 +1,6 @@
 @echo off
 cd dist
+echo fm.peratx.net > CNAME
 
 git init
 git add -A

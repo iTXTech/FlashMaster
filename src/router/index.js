@@ -35,7 +35,14 @@ const routes = [
     meta: {
       title: 'nav.searchFlashId'
     }
-  }
+  },
+  {
+    path: "/about",
+    component: () => import("@/views/About"),
+    meta: {
+      title: 'nav.about'
+    }
+  },
 ]
 
 const router = new VueRouter({
