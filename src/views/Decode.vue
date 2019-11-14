@@ -4,13 +4,14 @@
       <v-layout row wrap>
         <v-flex lg3 sm12 xs12>
           <v-card>
-            <v-card-title>{{$t('partNumber')}}</v-card-title>
+            <v-card-title>{{$t('partNumberOrFlashId')}}</v-card-title>
             <v-card-text>
               <v-text-field required class="pn" v-model="partNumber" v-on:keyup.enter="query" />
             </v-card-text>
             <v-card-actions>
               <v-btn text @click="query">{{$t("query")}}</v-btn>
               <v-btn text @click="search">{{$t("search")}}</v-btn>
+              <v-btn text @click="searchId">{{$t("searchId")}}</v-btn>
             </v-card-actions>
           </v-card>
         </v-flex>
@@ -341,10 +342,32 @@ export default {
       this.c(item.id);
     },
     search() {
-      router.push({
-        path: "/searchPn",
-        query: { pn: this.partNumber }
-      });
+      if (this.partNumber != "") {
+        router.push({
+          path: "/searchPn",
+          query: { pn: this.partNumber }
+        });
+      } else {
+        this.snackbar = {
+          timeout: 3000,
+          show: true,
+          text: this.$t("alert.missingPartNumber")
+        };
+      }
+    },
+    searchId() {
+      if (this.partNumber != "") {
+        router.push({
+          path: "/searchId",
+          query: { id: this.partNumber }
+        });
+      } else {
+        this.snackbar = {
+          timeout: 3000,
+          show: true,
+          text: this.$t("alert.missingFlashId")
+        };
+      }
     },
     searchFlashId(item) {
       router.push({

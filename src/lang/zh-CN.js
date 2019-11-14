@@ -3,7 +3,7 @@ module.exports = {
     alert: {
         missingPartNumber: '请输入料号',
         fetchFailed: '获取失败：{0}',
-        missingFlashId: '请输入闪存Id'
+        missingFlashId: '请输入闪存ID'
     },
     nav: {
         decodePartNumber: '料号查询',
@@ -31,9 +31,11 @@ module.exports = {
         spectek: '美光白片'
     },
     unknown: '未知',
-    query: '查询',
-    search: '搜索',
+    query: '查询料号',
+    search: '搜索料号',
+    searchId: '搜索闪存ID',
     partNumber: '料号',
+    partNumberOrFlashId: '料号或闪存ID',
     vendor: '厂商',
     type: '类型',
     density: '容量',

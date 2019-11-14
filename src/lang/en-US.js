@@ -31,9 +31,11 @@ module.exports = {
         spectek: 'SpecTek'
     },
     unknown: 'Unknown',
-    query: "Query",
-    search: "Search",
+    query: "Decode PN",
+    search: "Search PN",
+    searchId: 'Search Id',
     partNumber: 'Part Number',
+    partNumberOrFlashId: 'Part Number or Flash Id',
     vendor: 'Vendor',
     type: 'Type',
     density: 'Density',
