@@ -77,8 +77,8 @@ export default {
       return [
         { text: this.$t("flashId"), value: "id", align: "left" },
         { text: this.$t("partNumber"), value: "pns", align: "left" },
-        { text: this.$t("controllers"), value: "cons", aligh: "left" },
-        { text: this.$t("action"), value: "action" }
+        { text: this.$t("action"), value: "action" },
+        { text: this.$t("controllers"), value: "cons", aligh: "left" }
       ];
     }
   },
