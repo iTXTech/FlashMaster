@@ -7,6 +7,7 @@
             <v-text-field
               flat
               solo
+              clearable
               prepend-icon="mdi-magnify"
               :placeholder="$t('flashId')"
               v-model="id"

@@ -7,6 +7,7 @@
             <v-text-field
               flat
               solo
+              clearable
               prepend-icon="mdi-magnify"
               :placeholder="$t('partNumber')"
               v-model="partNumber"

@@ -6,7 +6,7 @@
           <v-card>
             <v-card-title>{{$t('partNumberOrFlashId')}}</v-card-title>
             <v-card-text>
-              <v-text-field required class="pn" v-model="partNumber" v-on:keyup.enter="query" />
+              <v-text-field clearable class="pn" v-model="partNumber" v-on:keyup.enter="query" />
             </v-card-text>
             <v-card-actions>
               <v-btn text @click="query">{{$t("query")}}</v-btn>
@@ -21,7 +21,7 @@
             <v-card-title>{{$t('vendor')}}</v-card-title>
             <v-card-text>
               <v-img :src="vendorLogo" />
-              <v-text-field required v-model="vendor">美光</v-text-field>
+              <v-text-field v-model="vendor">美光</v-text-field>
             </v-card-text>
           </v-card>
         </v-flex>
@@ -29,10 +29,10 @@
         <v-flex lg2 sm12 xs12>
           <v-card>
             <v-card-text>
-              <v-text-field required :label="$t('type')" v-model="type" />
-              <v-text-field required :label="$t('density')" v-model="density" />
-              <v-text-field required :label="$t('deviceWidth')" v-model="deviceWidth" />
-              <v-text-field required :label="$t('cellLevel')" v-model="cellLevel" />
+              <v-text-field :label="$t('type')" v-model="type" />
+              <v-text-field :label="$t('density')" v-model="density" />
+              <v-text-field :label="$t('deviceWidth')" v-model="deviceWidth" />
+              <v-text-field :label="$t('cellLevel')" v-model="cellLevel" />
             </v-card-text>
           </v-card>
         </v-flex>
@@ -40,8 +40,8 @@
         <v-flex lg2 sm12 xs12>
           <v-card>
             <v-card-text>
-              <v-text-field required :label="$t('processNode')" v-model="processNode" />
-              <v-text-field required :label="$t('generation')" v-model="generation" />
+              <v-text-field :label="$t('processNode')" v-model="processNode" />
+              <v-text-field :label="$t('generation')" v-model="generation" />
               <v-checkbox disabled :label="$t('sync')" v-model="sync" />
               <v-checkbox disabled :label="$t('async')" v-model="async" />
             </v-card-text>
@@ -51,10 +51,10 @@
         <v-flex lg2 sm12 xs12>
           <v-card>
             <v-card-text>
-              <v-text-field required :label="$t('ce')" v-model="ce" />
-              <v-text-field required :label="$t('ch')" v-model="ch" />
-              <v-text-field required :label="$t('die')" v-model="die" />
-              <v-text-field required :label="$t('rb')" v-model="rb" />
+              <v-text-field :label="$t('ce')" v-model="ce" />
+              <v-text-field :label="$t('ch')" v-model="ch" />
+              <v-text-field :label="$t('die')" v-model="die" />
+              <v-text-field :label="$t('rb')" v-model="rb" />
             </v-card-text>
           </v-card>
         </v-flex>
@@ -62,10 +62,10 @@
         <v-flex lg5 sm12 xs12>
           <v-card>
             <v-card-text>
-              <v-text-field required :label="$t('voltage')" v-model="voltage" />
-              <v-text-field required :label="$t('package')" v-model="pkg" />
+              <v-text-field :label="$t('voltage')" v-model="voltage" />
+              <v-text-field :label="$t('package')" v-model="pkg" />
               <v-textarea auto-grow rows="1" :label="$t('controllers')" v-model="controllers" />
-              <v-text-field required :label="$t('comment')" v-model="comment" />
+              <v-text-field :label="$t('comment')" v-model="comment" />
             </v-card-text>
           </v-card>
         </v-flex>
