@@ -30,6 +30,7 @@ module.exports = {
         st: '意法半导体',
         spectek: '美光白片'
     },
+    loading: '加载中',
     unknown: '未知',
     query: '查询料号',
     search: '搜索料号',

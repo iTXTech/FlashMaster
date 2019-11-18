@@ -83,6 +83,7 @@ export default {
             query: { pn: this.partNumber }
           });
         }
+        bus.$emit("loading", true);
         fetch(store.getServerAddress() + "/searchPn?pn=" + this.partNumber)
           .then(r => r.json())
           .then(data => {
@@ -94,6 +95,7 @@ export default {
                 pn: pn[1]
               });
             }
+            bus.$emit("loading", false);
           })
           .catch(err => {
             bus.$emit("snackbar", {
@@ -101,6 +103,7 @@ export default {
               show: true,
               text: this.$t("alert.fetchFailed", [err])
             });
+            bus.$emit("loading", false);
           });
       } else {
         bus.$emit("snackbar", {

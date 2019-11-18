@@ -4,6 +4,26 @@
     <v-content>
       <router-view />
     </v-content>
+    <v-dialog
+      v-model="loading"
+      hide-overlay
+      persistent
+      width="300"
+    >
+      <v-card
+        color="primary"
+        dark
+      >
+        <v-card-text>
+          {{$t('loading')}}
+          <v-progress-linear
+            indeterminate
+            color="white"
+            class="mb-0"
+          ></v-progress-linear>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
     <v-snackbar v-model="snackbar.show" :timeout="snackbar.timeout">
       {{snackbar.text}}
       <v-btn text color="blue" @click="snackbar.show = false">{{$t('close')}}</v-btn>
@@ -35,7 +55,8 @@ export default {
         timeout: 1000,
         show: false,
         text: ""
-      }
+      },
+      loading: false
     };
   },
   components: {
@@ -54,6 +75,9 @@ export default {
     var vm = this;
     bus.$on("snackbar", data => {
       vm.snackbar = data;
+    });
+    bus.$on("loading", data => {
+      vm.loading = data;
     });
   }
 };

@@ -1,7 +1,7 @@
 <template>
   <v-container grid-list-xl fluid>
     <v-layout row wrap>
-      <v-flex lg3 sm12 xs12>
+      <v-flex lg4 sm12 xs12>
         <v-card>
           <v-card-title>{{$t('partNumberOrFlashId')}}</v-card-title>
           <v-card-text>
@@ -15,7 +15,7 @@
         </v-card>
       </v-flex>
 
-      <v-flex lg3 sm12 xs12>
+      <v-flex lg2 sm12 xs12>
         <v-card>
           <v-card-title>{{$t('vendor')}}</v-card-title>
           <v-card-text>
@@ -195,6 +195,7 @@ export default {
             query: { pn: this.partNumber }
           });
         }
+        bus.$emit("loading", true);
         fetch(
           store.getServerAddress() +
             "/decode?trans=" +
@@ -255,6 +256,7 @@ export default {
                 });
               }
             }
+            bus.$emit("loading", false);
           })
           .catch(err => {
             bus.$emit("snackbar", {
@@ -262,6 +264,7 @@ export default {
               show: true,
               text: this.$t("alert.fetchFailed", [err])
             });
+            bus.$emit("loading", false);
           });
       } else {
         bus.$emit("snackbar", {
@@ -349,7 +352,7 @@ export default {
       }
     },
     searchId() {
-      if (this.partNumber != "") {
+      if (this.partNumber != null && this.partNumber != "") {
         router.push({
           path: "/searchId",
           query: { id: this.partNumber }

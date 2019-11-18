@@ -86,6 +86,7 @@ export default {
             query: { id: this.id }
           });
         }
+        bus.$emit("loading", true);
         fetch(store.getServerAddress() + "/searchId?id=" + this.id)
           .then(r => r.json())
           .then(data => {
@@ -118,6 +119,7 @@ export default {
                   i++;
                 }
                 this.ids = this.tids;
+                bus.$emit("loading", false);
               });
           })
           .catch(err => {
@@ -126,6 +128,7 @@ export default {
               show: true,
               text: this.$t("alert.fetchFailed", [err])
             });
+            bus.$emit("loading", false);
           });
       } else {
         bus.$emit("snackbar", {

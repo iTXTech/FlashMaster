@@ -30,6 +30,7 @@ module.exports = {
         st: 'STMicroelectronics',
         spectek: 'SpecTek'
     },
+    loading: 'Loading',
     unknown: 'Unknown',
     query: "Decode PN",
     search: "Search PN",
