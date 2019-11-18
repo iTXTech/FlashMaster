@@ -1,158 +1,148 @@
 <template>
-  <div>
-    <v-container grid-list-xl fluid>
-      <v-layout row wrap>
-        <v-flex lg3 sm12 xs12>
-          <v-card>
-            <v-card-title>{{$t('partNumberOrFlashId')}}</v-card-title>
-            <v-card-text>
-              <v-text-field clearable class="pn" v-model="partNumber" v-on:keyup.enter="query" />
-            </v-card-text>
-            <v-card-actions>
-              <v-btn text @click="query">{{$t("query")}}</v-btn>
-              <v-btn text @click="search">{{$t("search")}}</v-btn>
-              <v-btn text @click="searchId">{{$t("searchId")}}</v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-flex>
+  <v-container grid-list-xl fluid>
+    <v-layout row wrap>
+      <v-flex lg3 sm12 xs12>
+        <v-card>
+          <v-card-title>{{$t('partNumberOrFlashId')}}</v-card-title>
+          <v-card-text>
+            <v-text-field clearable class="pn" v-model="partNumber" v-on:keyup.enter="query" />
+          </v-card-text>
+          <v-card-actions>
+            <v-btn text @click="query">{{$t("query")}}</v-btn>
+            <v-btn text @click="search">{{$t("search")}}</v-btn>
+            <v-btn text @click="searchId">{{$t("searchId")}}</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-flex>
 
-        <v-flex lg3 sm12 xs12>
-          <v-card>
-            <v-card-title>{{$t('vendor')}}</v-card-title>
-            <v-card-text>
-              <v-img :src="vendorLogo" />
-              <v-text-field v-model="vendor">美光</v-text-field>
-            </v-card-text>
-          </v-card>
-        </v-flex>
+      <v-flex lg3 sm12 xs12>
+        <v-card>
+          <v-card-title>{{$t('vendor')}}</v-card-title>
+          <v-card-text>
+            <v-img :src="vendorLogo" />
+            <v-text-field v-model="vendor">美光</v-text-field>
+          </v-card-text>
+        </v-card>
+      </v-flex>
 
-        <v-flex lg2 sm12 xs12>
-          <v-card>
-            <v-card-text>
-              <v-text-field :label="$t('type')" v-model="type" />
-              <v-text-field :label="$t('density')" v-model="density" />
-              <v-text-field :label="$t('deviceWidth')" v-model="deviceWidth" />
-              <v-text-field :label="$t('cellLevel')" v-model="cellLevel" />
-            </v-card-text>
-          </v-card>
-        </v-flex>
+      <v-flex lg2 sm12 xs12>
+        <v-card>
+          <v-card-text>
+            <v-text-field :label="$t('type')" v-model="type" />
+            <v-text-field :label="$t('density')" v-model="density" />
+            <v-text-field :label="$t('deviceWidth')" v-model="deviceWidth" />
+            <v-text-field :label="$t('cellLevel')" v-model="cellLevel" />
+          </v-card-text>
+        </v-card>
+      </v-flex>
 
-        <v-flex lg2 sm12 xs12>
-          <v-card>
-            <v-card-text>
-              <v-text-field :label="$t('processNode')" v-model="processNode" />
-              <v-text-field :label="$t('generation')" v-model="generation" />
-              <v-checkbox disabled :label="$t('sync')" v-model="sync" />
-              <v-checkbox disabled :label="$t('async')" v-model="async" />
-            </v-card-text>
-          </v-card>
-        </v-flex>
+      <v-flex lg2 sm12 xs12>
+        <v-card>
+          <v-card-text>
+            <v-text-field :label="$t('processNode')" v-model="processNode" />
+            <v-text-field :label="$t('generation')" v-model="generation" />
+            <v-checkbox disabled :label="$t('sync')" v-model="sync" />
+            <v-checkbox disabled :label="$t('async')" v-model="async" />
+          </v-card-text>
+        </v-card>
+      </v-flex>
 
-        <v-flex lg2 sm12 xs12>
-          <v-card>
-            <v-card-text>
-              <v-text-field :label="$t('ce')" v-model="ce" />
-              <v-text-field :label="$t('ch')" v-model="ch" />
-              <v-text-field :label="$t('die')" v-model="die" />
-              <v-text-field :label="$t('rb')" v-model="rb" />
-            </v-card-text>
-          </v-card>
-        </v-flex>
+      <v-flex lg2 sm12 xs12>
+        <v-card>
+          <v-card-text>
+            <v-text-field :label="$t('ce')" v-model="ce" />
+            <v-text-field :label="$t('ch')" v-model="ch" />
+            <v-text-field :label="$t('die')" v-model="die" />
+            <v-text-field :label="$t('rb')" v-model="rb" />
+          </v-card-text>
+        </v-card>
+      </v-flex>
 
-        <v-flex lg5 sm12 xs12>
-          <v-card>
-            <v-card-text>
-              <v-text-field :label="$t('voltage')" v-model="voltage" />
-              <v-text-field :label="$t('package')" v-model="pkg" />
-              <v-textarea auto-grow rows="1" :label="$t('controllers')" v-model="controllers" />
-              <v-text-field :label="$t('comment')" v-model="comment" />
-            </v-card-text>
-          </v-card>
-        </v-flex>
+      <v-flex lg5 sm12 xs12>
+        <v-card>
+          <v-card-text>
+            <v-text-field :label="$t('voltage')" v-model="voltage" />
+            <v-text-field :label="$t('package')" v-model="pkg" />
+            <v-textarea auto-grow rows="1" :label="$t('controllers')" v-model="controllers" />
+            <v-text-field :label="$t('comment')" v-model="comment" />
+          </v-card-text>
+        </v-card>
+      </v-flex>
 
-        <v-flex lg4 sm12 xs12>
-          <v-card>
-            <v-app-bar flat dense color="transparent">
-              <v-toolbar-title>{{$t('extraInfo')}}</v-toolbar-title>
-              <v-spacer></v-spacer>
-              <v-btn icon @click="copyAll">
-                <v-icon>mdi-content-copy</v-icon>
-              </v-btn>
-            </v-app-bar>
-            <v-card-text>
-              <v-data-table
-                :headers="extraInfoHeaders"
-                :items="extraInfo"
-                hide-default-footer
-                disable-sort
-                no-data-text
-                class="elevation-1"
-                :mobile-breakpoint="NaN"
-                :items-per-page="itemsPerPage"
-              >
-                <template v-slot:item.copy="{ item }">
-                  <v-btn icon @click="copy(item)">
-                    <v-icon>mdi-content-copy</v-icon>
-                  </v-btn>
-                </template>
-              </v-data-table>
-            </v-card-text>
-          </v-card>
-        </v-flex>
+      <v-flex lg4 sm12 xs12>
+        <v-card>
+          <v-app-bar flat dense color="transparent">
+            <v-toolbar-title>{{$t('extraInfo')}}</v-toolbar-title>
+            <v-spacer></v-spacer>
+            <v-btn icon @click="copyAll">
+              <v-icon>mdi-content-copy</v-icon>
+            </v-btn>
+          </v-app-bar>
+          <v-card-text>
+            <v-data-table
+              :headers="extraInfoHeaders"
+              :items="extraInfo"
+              hide-default-footer
+              disable-sort
+              no-data-text
+              class="elevation-1"
+              :mobile-breakpoint="NaN"
+              :items-per-page="itemsPerPage"
+            >
+              <template v-slot:item.copy="{ item }">
+                <v-btn icon @click="copy(item)">
+                  <v-icon>mdi-content-copy</v-icon>
+                </v-btn>
+              </template>
+            </v-data-table>
+          </v-card-text>
+        </v-card>
+      </v-flex>
 
-        <v-flex lg3 sm12 xs12>
-          <v-card>
-            <v-app-bar flat dense color="transparent">
-              <v-toolbar-title>{{$t('flashIds')}}</v-toolbar-title>
-              <v-spacer></v-spacer>
-              <v-btn icon @click="copyAllFlashIds">
-                <v-icon>mdi-content-copy</v-icon>
-              </v-btn>
-            </v-app-bar>
-            <v-card-text>
-              <v-data-table
-                :headers="flashIdHeaders"
-                :items="flashIds"
-                hide-default-footer
-                disable-sort
-                class="elevation-1"
-                no-data-text
-                :mobile-breakpoint="NaN"
-                :items-per-page="itemsPerPage"
-              >
-                <template v-slot:item.action="{ item }">
-                  <v-btn icon @click="searchFlashId(item)">
-                    <v-icon>mdi-magnify</v-icon>
-                  </v-btn>
-                  <v-btn icon @click="copyFlashId(item)">
-                    <v-icon>mdi-content-copy</v-icon>
-                  </v-btn>
-                </template>
-              </v-data-table>
-            </v-card-text>
-          </v-card>
-        </v-flex>
-      </v-layout>
-    </v-container>
-    <v-snackbar v-model="snackbar.show" :timeout="snackbar.timeout">
-      {{snackbar.text}}
-      <v-btn text color="blue" @click="snackbar.show = false">{{$t('close')}}</v-btn>
-    </v-snackbar>
-  </div>
+      <v-flex lg3 sm12 xs12>
+        <v-card>
+          <v-app-bar flat dense color="transparent">
+            <v-toolbar-title>{{$t('flashIds')}}</v-toolbar-title>
+            <v-spacer></v-spacer>
+            <v-btn icon @click="copyAllFlashIds">
+              <v-icon>mdi-content-copy</v-icon>
+            </v-btn>
+          </v-app-bar>
+          <v-card-text>
+            <v-data-table
+              :headers="flashIdHeaders"
+              :items="flashIds"
+              hide-default-footer
+              disable-sort
+              class="elevation-1"
+              no-data-text
+              :mobile-breakpoint="NaN"
+              :items-per-page="itemsPerPage"
+            >
+              <template v-slot:item.action="{ item }">
+                <v-btn icon @click="searchFlashId(item)">
+                  <v-icon>mdi-magnify</v-icon>
+                </v-btn>
+                <v-btn icon @click="copyFlashId(item)">
+                  <v-icon>mdi-content-copy</v-icon>
+                </v-btn>
+              </template>
+            </v-data-table>
+          </v-card-text>
+        </v-card>
+      </v-flex>
+    </v-layout>
+  </v-container>
 </template>
 <script>
 import store from "@/store";
 import router from "@/router";
+import bus from "@/store/bus.js";
 import { isString } from "util";
 export default {
   data() {
     return {
       itemsPerPage: 10000,
-      snackbar: {
-        timeout: 1000,
-        show: false,
-        text: ""
-      },
       vendorLogo: "",
       partNumber: "",
       vendor: "",
@@ -194,8 +184,11 @@ export default {
   },
   methods: {
     query() {
-      if (this.partNumber != "") {
-        this.partNumber = this.partNumber.toUpperCase();
+      if (this.partNumber != null && this.partNumber != "") {
+        this.partNumber = this.partNumber
+          .toUpperCase()
+          .replace(/,/g, "")
+          .replace(/ /g, "");
         if (this.$route.query.pn != this.partNumber) {
           router.push({
             path: "/decode",
@@ -264,18 +257,18 @@ export default {
             }
           })
           .catch(err => {
-            this.snackbar = {
+            bus.$emit("snackbar", {
               timeout: 3000,
               show: true,
               text: this.$t("alert.fetchFailed", [err])
-            };
+            });
           });
       } else {
-        this.snackbar = {
+        bus.$emit("snackbar", {
           timeout: 3000,
           show: true,
           text: this.$t("alert.missingPartNumber")
-        };
+        });
       }
     },
     isUnknown(v) {
@@ -315,18 +308,18 @@ export default {
     c(t) {
       this.$copyText(t).then(
         e => {
-          this.snackbar = {
+          bus.$emit("snackbar", {
             timeout: 3000,
             show: true,
             text: this.$t("copySucc")
-          };
+          });
         },
         e => {
-          this.snackbar = {
+          bus.$emit("snackbar", {
             timeout: 3000,
             show: true,
             text: this.$t("copyFail", [e])
-          };
+          });
         }
       );
     },
@@ -342,17 +335,17 @@ export default {
       this.c(item.id);
     },
     search() {
-      if (this.partNumber != "") {
+      if (this.partNumber != null && this.partNumber != "") {
         router.push({
           path: "/searchPn",
           query: { pn: this.partNumber }
         });
       } else {
-        this.snackbar = {
+        bus.$emit("snackbar", {
           timeout: 3000,
           show: true,
           text: this.$t("alert.missingPartNumber")
-        };
+        });
       }
     },
     searchId() {
@@ -362,11 +355,11 @@ export default {
           query: { id: this.partNumber }
         });
       } else {
-        this.snackbar = {
+        bus.$emit("snackbar", {
           timeout: 3000,
           show: true,
           text: this.$t("alert.missingFlashId")
-        };
+        });
       }
     },
     searchFlashId(item) {

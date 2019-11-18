@@ -40,7 +40,8 @@
   </div>
 </template>
 <script>
-import Store from "@/store";
+import store from "@/store";
+import bus from "@/store/bus.js";
 export default {
   computed: {
     items() {
@@ -59,7 +60,7 @@ export default {
   data() {
     return {
       servers: [],
-      server: Store.getServerAddress(),
+      server: store.getServerAddress(),
       autoTrans: false,
       dialog: {
         show: false,
@@ -68,7 +69,7 @@ export default {
     };
   },
   created: function() {
-    this.autoTrans = Store.autoTranslation() == "1" ? true : false;
+    this.autoTrans = store.autoTranslation() == "1" ? true : false;
     fetch(
       "https://raw.githubusercontent.com/PeratX/FlashMaster/master/servers.json"
     )
@@ -79,13 +80,13 @@ export default {
   },
   methods: {
     changeServer(server) {
-      Store.setServerAddress(server);
+      store.setServerAddress(server);
     },
     changeTranslation(value) {
-      Store.setAutoTranslation(value);
+      store.setAutoTranslation(value);
     },
     serverInfo() {
-      fetch(Store.getServerAddress() + "/info")
+      fetch(store.getServerAddress() + "/info")
         .then(r => r.json())
         .then(data => {
           this.dialog = {
@@ -101,10 +102,11 @@ export default {
           };
         })
         .catch(err => {
-          this.dialog = {
+          bus.$emit("snackbar", {
+            timeout: 3000,
             show: true,
             text: this.$t("alert.fetchFailed", [err])
-          };
+          });
         });
     }
   }

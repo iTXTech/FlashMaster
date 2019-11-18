@@ -1,73 +1,63 @@
 <template>
-  <div>
-    <v-container grid-list-xl fluid>
-      <v-flex lg12>
-        <v-card>
-          <v-app-bar flat dense color="transparent">
-            <v-text-field
-              flat
-              solo
-              clearable
-              prepend-icon="mdi-magnify"
-              :placeholder="$t('flashId')"
-              v-model="id"
-              hide-details
-              class="pn"
-              v-on:keyup.enter="search"
-            ></v-text-field>
-            <v-btn icon @click="search">
-              <v-icon>mdi-arrow-right</v-icon>
-            </v-btn>
-          </v-app-bar>
-          <v-divider></v-divider>
-          <v-card-text>
-            <v-data-table
-              :headers="idHeaders"
-              :items="ids"
-              disable-sort
-              class="elevation-1"
-              no-data-text
-              hide-default-footer
-              :mobile-breakpoint="NaN"
-              :items-per-page="itemsPerPage"
-            >
-              <template v-slot:item.action="{ item }">
-                <v-menu offset-y>
-                  <template v-slot:activator="{ on }">
-                    <v-btn icon v-on="on">
-                      <v-icon>mdi-animation</v-icon>
-                    </v-btn>
-                  </template>
-                  <v-list>
-                    <v-list-item v-for="(it, index) in item.rawPns" :key="index" @click="list(it)">
-                      <v-list-item-action class="mx-0">{{ it }}</v-list-item-action>
-                    </v-list-item>
-                  </v-list>
-                </v-menu>
-              </template>
-            </v-data-table>
-          </v-card-text>
-        </v-card>
-      </v-flex>
-    </v-container>
-    <v-snackbar v-model="snackbar.show" :timeout="snackbar.timeout">
-      {{snackbar.text}}
-      <v-btn text color="blue" @click="snackbar.show = false">{{$t('close')}}</v-btn>
-    </v-snackbar>
-  </div>
+  <v-container grid-list-xl fluid>
+    <v-flex lg12>
+      <v-card>
+        <v-app-bar flat dense color="transparent">
+          <v-text-field
+            flat
+            solo
+            clearable
+            prepend-icon="mdi-magnify"
+            :placeholder="$t('flashId')"
+            v-model="id"
+            hide-details
+            class="pn"
+            v-on:keyup.enter="search"
+          ></v-text-field>
+          <v-btn icon @click="search">
+            <v-icon>mdi-arrow-right</v-icon>
+          </v-btn>
+        </v-app-bar>
+        <v-divider></v-divider>
+        <v-card-text>
+          <v-data-table
+            :headers="idHeaders"
+            :items="ids"
+            disable-sort
+            class="elevation-1"
+            no-data-text
+            hide-default-footer
+            :mobile-breakpoint="NaN"
+            :items-per-page="itemsPerPage"
+          >
+            <template v-slot:item.action="{ item }">
+              <v-menu offset-y>
+                <template v-slot:activator="{ on }">
+                  <v-btn icon v-on="on">
+                    <v-icon>mdi-animation</v-icon>
+                  </v-btn>
+                </template>
+                <v-list>
+                  <v-list-item v-for="(it, index) in item.rawPns" :key="index" @click="list(it)">
+                    <v-list-item-action class="mx-0">{{ it }}</v-list-item-action>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
+            </template>
+          </v-data-table>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+  </v-container>
 </template>
 <script>
 import store from "@/store";
 import router from "@/router";
+import bus from "@/store/bus.js";
 export default {
   data: () => {
     return {
       itemsPerPage: 10000,
-      snackbar: {
-        timeout: 1000,
-        show: false,
-        text: ""
-      },
       id: "",
       ids: [],
       tids: []
@@ -85,8 +75,11 @@ export default {
   },
   methods: {
     search() {
-      if (this.id != "") {
-        this.id = this.id.toUpperCase();
+      if (this.id != null && this.id != "") {
+        this.id = this.id
+          .toUpperCase()
+          .replace(/,/g, "")
+          .replace(/ /g, "");
         if (this.$route.query.id != this.id) {
           router.push({
             path: "/searchId",
@@ -128,18 +121,18 @@ export default {
               });
           })
           .catch(err => {
-            this.snackbar = {
+            bus.$emit("snackbar", {
               timeout: 3000,
               show: true,
               text: this.$t("alert.fetchFailed", [err])
-            };
+            });
           });
       } else {
-        this.snackbar = {
+        bus.$emit("snackbar", {
           timeout: 3000,
           show: true,
           text: this.$t("alert.missingFlashId")
-        };
+        });
       }
     },
     list(item) {
