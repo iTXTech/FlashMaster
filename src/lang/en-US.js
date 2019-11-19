@@ -64,5 +64,7 @@ module.exports = {
     flashIds: 'Flash Ids',
     flashId: 'Flash Id',
     action: 'Action',
+    supportUsAlipay: 'Support Us - Alipay',
+    supportUsWeChat: 'Support Us - WeChat',
     about: '<a href="https://github.com/iTXTech/FlashMaster" target="_blank">iTXTech FlashMaster</a><br/>Built with <a href="https://vuejs.org" target="_blank">Vue.js</a> and <a href="https://vuetifyjs.com/" target="_blank">Vuetify</a><br/>This program is licensed under Apache License 2.0<br/><br/>Maintainers:<br/><a href="https://peratx.net" target="_blank">PeratX</a><br/><br/>Copyright (C) 2019 <a href="https://itxtech.org" target="_blank">iTX Technologies</a>'
 }
