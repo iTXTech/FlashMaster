@@ -96,6 +96,7 @@ export default {
               });
             }
             bus.$emit("loading", false);
+            store.statSearchPnInc();
           })
           .catch(err => {
             bus.$emit("snackbar", {

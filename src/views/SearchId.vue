@@ -120,6 +120,7 @@ export default {
                 }
                 this.ids = this.tids;
                 bus.$emit("loading", false);
+                store.statSearchIdInc();
               });
           })
           .catch(err => {

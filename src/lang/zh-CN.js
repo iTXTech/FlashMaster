@@ -30,6 +30,18 @@ module.exports = {
         st: '意法半导体',
         spectek: '美光白片'
     },
+    support: {
+        alipay: '支持作者 - 支付宝（推荐）',
+        wechat: '支持作者 - 微信',
+        alipayUrl: '打开支付宝',
+        saveQrCode: '保存二维码'
+    },
+    statistic: {
+        title: '统计',
+        reset: '重置',
+        resetInfo: '统计数据已重置。',
+        content: '共查询料号 {0} 次。<br/>共搜索料号 {1} 个。<br/>共搜索闪存ID {2} 个。'
+    },
     loading: '加载中',
     unknown: '未知',
     query: '查询料号',
@@ -64,7 +76,5 @@ module.exports = {
     flashIds: '闪存ID',
     flashId: '闪存ID',
     action: '操作',
-    supportUsAlipay: '支持作者 - 支付宝',
-    supportUsWeChat: '支持作者 - 微信',
     about: '<a href="https://github.com/iTXTech/FlashMaster" target="_blank">iTXTech FlashMaster</a><br/>使用 <a href="https://vuejs.org" target="_blank">Vue.js</a> 和 <a href="https://vuetifyjs.com/" target="_blank">Vuetify</a> 构建<br/>本程序遵循 Apache License 2.0 开源<br/><br/>主要维护者：<br/><a href="https://peratx.net" target="_blank">PeratX</a><br/><br/><a href="https://market.m.taobao.com/app/idleFish-F2e/IdleFishWeexPersonalPage/PersonalHome?ut_sk=1.WmC0tf46/fADAD7YJeN2DyOW_12431167_1573698250610.QRCode.mypage.894797966.894797966&userid=894797966&wh_weex=true&forceFlush=1" target="_blank">去作者的闲鱼主页看看</a><br/><br/>Copyright (C) 2019 <a href="https://itxtech.org" target="_blank">iTX Technologies</a>'
 }

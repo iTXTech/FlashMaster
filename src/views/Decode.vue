@@ -257,6 +257,7 @@ export default {
               }
             }
             bus.$emit("loading", false);
+            store.statDecodeIdInc();
           })
           .catch(err => {
             bus.$emit("snackbar", {

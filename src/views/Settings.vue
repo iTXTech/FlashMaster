@@ -24,6 +24,16 @@
             </v-card-actions>
           </v-card>
         </v-flex>
+
+        <v-flex lg3 sm12 xs12>
+          <v-card>
+            <v-card-title>{{$t('statistic.title')}}</v-card-title>
+            <v-card-text v-html="statContent" />
+            <v-card-actions>
+              <v-btn text @click="resetStat">{{$t("statistic.reset")}}</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-flex>
       </v-layout>
     </v-container>
 
@@ -55,6 +65,9 @@ export default {
         }
       }
       return s;
+    },
+    transStat() {
+      return this.updateStat();
     }
   },
   data() {
@@ -65,10 +78,12 @@ export default {
       dialog: {
         show: false,
         text: ""
-      }
+      },
+      statContent: ""
     };
   },
   created: function() {
+    this.statContent = this.updateStat();
     this.autoTrans = store.autoTranslation() == "1" ? true : false;
     fetch(
       "https://raw.githubusercontent.com/PeratX/FlashMaster/master/servers.json"
@@ -108,6 +123,27 @@ export default {
             text: this.$t("alert.fetchFailed", [err])
           });
         });
+    },
+    resetStat() {
+      store.resetStat();
+      this.statContent = this.updateStat();
+      bus.$emit("snackbar", {
+        timeout: 3000,
+        show: true,
+        text: this.$t("statistic.resetInfo")
+      });
+    },
+    updateStat() {
+      return this.$t("statistic.content", [
+        store.statDecodeId(),
+        store.statSearchPn(),
+        store.statSearchId()
+      ]);
+    }
+  },
+  watch: {
+    transStat(v) {
+      this.statContent = v;
     }
   }
 };

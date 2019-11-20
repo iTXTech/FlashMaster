@@ -1,5 +1,7 @@
 # iTXTech FlashMaster
 
+[![Donate](https://img.shields.io/badge/alipay-donate-yellow.svg)](https://qr.alipay.com/FKX04751EZDP0SQ0BOT137)
+
 Powerful NAND Flash Part Number and Id query toolbox.
 
 ## Introduction
