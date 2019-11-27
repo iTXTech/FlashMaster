@@ -1,39 +1,45 @@
 <template>
-  <v-container grid-list-xl fluid>
-    <v-layout row wrap>
-      <v-flex lg4 sm12 xs12>
-        <v-card>
-          <v-card-title>{{$t('nav.about')}}</v-card-title>
-          <v-card-text>
-            <p v-html="$t('about')"></p>
-          </v-card-text>
-        </v-card>
-      </v-flex>
+    <v-container grid-list-xl fluid>
+        <v-layout row wrap>
+            <v-flex lg4 sm12 xs12>
+                <v-card>
+                    <v-card-title>{{$t('nav.about')}}</v-card-title>
+                    <v-card-text>
+                        <p v-html="$t('about')"></p>
+                    </v-card-text>
+                </v-card>
+            </v-flex>
 
-      <v-flex lg3 sm12 xs12>
-        <v-card>
-          <v-card-title>{{$t('support.alipay')}}</v-card-title>
-          <v-card-text>
-            <v-img :src="require('@/assets/alipay.jpg')" />
-          </v-card-text>
-          <v-card-actions>
-            <v-btn href="https://qr.alipay.com/FKX04751EZDP0SQ0BOT137" target="_blank" text>{{$t('support.alipayUrl')}}</v-btn>
-            <v-btn text :href="require('@/assets/alipay.jpg')" download="alipay.jpg">{{$t('support.saveQrCode')}}</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-flex>
+            <v-flex lg3 sm12 xs12>
+                <v-card>
+                    <v-card-title>{{$t('support.alipay')}}</v-card-title>
+                    <v-card-text>
+                        <v-img :src="require('@/assets/alipay.jpg')"/>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-btn href="https://qr.alipay.com/FKX04751EZDP0SQ0BOT137" target="_blank" text>
+                            {{$t('support.alipayUrl')}}
+                        </v-btn>
+                        <v-btn text :href="require('@/assets/alipay.jpg')" download="alipay.jpg">
+                            {{$t('support.saveQrCode')}}
+                        </v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-flex>
 
-      <v-flex lg3 sm12 xs12>
-        <v-card>
-          <v-card-title>{{$t('support.wechat')}}</v-card-title>
-          <v-card-text>
-            <v-img :src="require('@/assets/wechat.jpg')" />
-          </v-card-text>
-          <v-card-actions>
-            <v-btn text :href="require('@/assets/wechat.jpg')" download="wechat.jpg">{{$t('support.saveQrCode')}}</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-flex>
-    </v-layout>
-  </v-container>
+            <v-flex lg3 sm12 xs12>
+                <v-card>
+                    <v-card-title>{{$t('support.wechat')}}</v-card-title>
+                    <v-card-text>
+                        <v-img :src="require('@/assets/wechat.jpg')"/>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-btn text :href="require('@/assets/wechat.jpg')" download="wechat.jpg">
+                            {{$t('support.saveQrCode')}}
+                        </v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-flex>
+        </v-layout>
+    </v-container>
 </template>
