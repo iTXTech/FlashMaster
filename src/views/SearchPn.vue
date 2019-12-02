@@ -67,6 +67,7 @@
                 return [
                     {text: this.$t("vendor"), value: "vendor", align: "left"},
                     {text: this.$t("partNumber"), value: "pn", align: "left"},
+                    {text: this.$t("remark"), value: "remark", align: "left"},
                     {text: this.$t("action"), value: "action"}
                 ];
             }
@@ -93,7 +94,8 @@
                                 let pn = String(data.data[d]).split(" ");
                                 this.pns.push({
                                     vendor: this.$t("vendors." + pn[0]),
-                                    pn: pn[1]
+                                    pn: pn[1],
+                                    remark: pn[2]
                                 });
                             }
                             bus.$emit("loading", false);
