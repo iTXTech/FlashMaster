@@ -8,15 +8,15 @@
                 </v-list-item-content>
             </v-list-item>
 
-            <v-divider></v-divider>
+            <v-divider/>
             <v-list dense nav>
                 <v-list-item-group color="primary">
                     <v-list-item v-for="(item, i) in items" :key="i" :to="item.path">
                         <v-list-item-icon>
-                            <v-icon v-text="item.icon"></v-icon>
+                            <v-icon v-text="item.icon"/>
                         </v-list-item-icon>
                         <v-list-item-content>
-                            <v-list-item-title v-text="item.text"></v-list-item-title>
+                            <v-list-item-title v-text="item.text"/>
                         </v-list-item-content>
                     </v-list-item>
                 </v-list-item-group>
@@ -53,8 +53,8 @@
                     <v-btn color="primary" dark v-on="on">{{$t("lang")}}</v-btn>
                 </template>
                 <v-list>
-                    <v-list-item v-for="(item, index) in langs" :key="index" @click="changeLanguage(item)">
-                        <v-list-item-title>{{ item }}</v-list-item-title>
+                    <v-list-item v-for="(item, index) in langs" :key="index" @click="changeLanguage(item.code)">
+                        <v-list-item-title>{{ item.name }}</v-list-item-title>
                     </v-list-item>
                 </v-list>
             </v-menu>
@@ -75,7 +75,14 @@
 
         computed: {
             langs() {
-                return Object.keys(this.$i18n.messages);
+                let lang = [];
+                for (let msg in this.$i18n.messages) {
+                    lang.push({
+                        name: this.$i18n.messages[msg].lang,
+                        code: msg
+                    })
+                }
+                return lang
             },
             items() {
                 return [
@@ -107,10 +114,10 @@
                 ];
             }
         },
-
         methods: {
             changeLanguage(item) {
                 this.$i18n.locale = item;
+                this.$vuetify.lang.current = item;
                 localStorage.lang = item;
             }
         }

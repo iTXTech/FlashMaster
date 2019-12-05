@@ -40,9 +40,9 @@
         <v-dialog v-model="dialog.show" max-width="500">
             <v-card>
                 <v-card-title class="headline">{{$t('settings.fdServerInfo')}}</v-card-title>
-                <v-card-text v-html="dialog.text"></v-card-text>
+                <v-card-text v-html="dialog.text"/>
                 <v-card-actions>
-                    <v-spacer></v-spacer>
+                    <v-spacer/>
                     <v-btn color="blue" text @click="dialog.show = false">{{$t('close')}}</v-btn>
                 </v-card-actions>
             </v-card>

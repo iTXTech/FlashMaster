@@ -4,7 +4,9 @@ import App from './App.vue'
 import Vuetify from 'vuetify/lib';
 import router from './router'
 import VueI18n from 'vue-i18n';
-import VueClipboard from 'vue-clipboard2'
+import VueClipboard from 'vue-clipboard2';
+import chs from 'vuetify/es5/locale/zh-Hans';
+import eng from 'vuetify/es5/locale/en';
 
 Vue.use(Vuetify);
 Vue.use(VueI18n);
@@ -13,14 +15,18 @@ VueClipboard.config.autoSetContainer = true;
 Vue.config.productionTip = false;
 
 const i18n = new VueI18n({
-    locale: localStorage.lang || 'zh-CN',
+    locale: localStorage.lang || 'chs',
     messages: {
-        'zh-CN': require('./lang/zh-CN'),
-        'en-US': require('./lang/en-US')
+        'chs': require('./lang/chs'),
+        'eng': require('./lang/eng')
     }
 });
 
 const vuetify = new Vuetify({
+    lang: {
+        locales: {chs, eng},
+        current: localStorage.lang || 'chs',
+    },
     theme: {
         dark: true,
     },

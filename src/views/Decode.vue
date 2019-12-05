@@ -73,7 +73,7 @@
                 <v-card>
                     <v-app-bar flat dense color="transparent">
                         <v-toolbar-title>{{$t('extraInfo')}}</v-toolbar-title>
-                        <v-spacer></v-spacer>
+                        <v-spacer/>
                         <v-btn icon @click="copyAll">
                             <v-icon>mdi-content-copy</v-icon>
                         </v-btn>
@@ -103,7 +103,7 @@
                 <v-card>
                     <v-app-bar flat dense color="transparent">
                         <v-toolbar-title>{{$t('flashIds')}}</v-toolbar-title>
-                        <v-spacer></v-spacer>
+                        <v-spacer/>
                         <v-btn icon @click="copyAllFlashIds">
                             <v-icon>mdi-content-copy</v-icon>
                         </v-btn>

@@ -1,5 +1,5 @@
 module.exports = {
-    lang: "en-US",
+    lang: "English",
     alert: {
         missingPartNumber: 'Please Input Part Number',
         fetchFailed: 'Fetch Failed: {0}',

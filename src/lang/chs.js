@@ -1,5 +1,5 @@
 module.exports = {
-    lang: "zh-CN",
+    lang: "简体中文",
     alert: {
         missingPartNumber: '请输入料号',
         fetchFailed: '获取失败：{0}',

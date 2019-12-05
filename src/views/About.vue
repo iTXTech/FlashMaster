@@ -5,7 +5,7 @@
                 <v-card>
                     <v-card-title>{{$t('nav.about')}}</v-card-title>
                     <v-card-text>
-                        <p v-html="$t('about')"></p>
+                        <p v-html="$t('about')"/>
                     </v-card-text>
                 </v-card>
             </v-flex>

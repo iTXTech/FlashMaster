@@ -13,12 +13,12 @@
                             hide-details
                             class="pn"
                             v-on:keyup.enter="search"
-                    ></v-text-field>
+                    />
                     <v-btn icon @click="search">
                         <v-icon>mdi-arrow-right</v-icon>
                     </v-btn>
                 </v-app-bar>
-                <v-divider></v-divider>
+                <v-divider/>
                 <v-card-text>
                     <v-data-table
                             :headers="pnHeaders"
@@ -26,9 +26,12 @@
                             disable-sort
                             class="elevation-1"
                             no-data-text=""
-                            hide-default-footer
-                            :items-per-page="itemsPerPage"
                             :mobile-breakpoint="NaN"
+                            :items-per-page="15"
+                            :footer-props="{
+                                showFirstLastPage: true,
+                                itemsPerPageOptions: [15, 30, 50, 100]
+                            }"
                     >
                         <template v-slot:item.action="{ item }">
                             <v-btn icon @click="decodeFlashId(item)">
@@ -52,7 +55,6 @@
     export default {
         data: () => {
             return {
-                itemsPerPage: 10000,
                 snackbar: {
                     timeout: 1000,
                     show: false,
