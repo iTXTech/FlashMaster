@@ -28,6 +28,7 @@
                             no-data-text=""
                             :mobile-breakpoint="NaN"
                             :items-per-page="15"
+                            :page.sync="page"
                             :footer-props="{
                                 showFirstLastPage: true,
                                 itemsPerPageOptions: [15, 30, 50, 100]
@@ -63,7 +64,8 @@
             return {
                 id: "",
                 ids: [],
-                tids: []
+                tids: [],
+                page: 1
             };
         },
         computed: {
@@ -89,6 +91,7 @@
                             query: {id: this.id}
                         });
                     }
+                    this.page = 1;
                     bus.$emit("loading", true);
                     fetch(store.getServerAddress() + "/searchId?id=" + this.id)
                         .then(r => r.json())

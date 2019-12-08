@@ -28,6 +28,7 @@
                             no-data-text=""
                             :mobile-breakpoint="NaN"
                             :items-per-page="15"
+                            :page.sync="page"
                             :footer-props="{
                                 showFirstLastPage: true,
                                 itemsPerPageOptions: [15, 30, 50, 100]
@@ -61,7 +62,8 @@
                     text: ""
                 },
                 partNumber: "",
-                pns: []
+                pns: [],
+                page: 1
             };
         },
         computed: {
@@ -87,6 +89,7 @@
                             query: {pn: this.partNumber}
                         });
                     }
+                    this.page = 1;
                     bus.$emit("loading", true);
                     fetch(store.getServerAddress() + "/searchPn?pn=" + this.partNumber)
                         .then(r => r.json())

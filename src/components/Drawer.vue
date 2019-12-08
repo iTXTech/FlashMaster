@@ -43,10 +43,6 @@
                 <span class="hidden-sm-and-down">iTXTech FlashMaster</span>
             </v-toolbar-title>
             <v-spacer/>
-            <v-btn href="https://github.com/iTXTech/FlashMaster" target="_blank" text>
-                <span class="mr-2">GitHub</span>
-                <v-icon>mdi-open-in-new</v-icon>
-            </v-btn>
 
             <v-menu offset-y>
                 <template v-slot:activator="{ on }">
