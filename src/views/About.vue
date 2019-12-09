@@ -17,10 +17,10 @@
                         <v-img :src="require('@/assets/alipay.jpg')"/>
                     </v-card-text>
                     <v-card-actions>
-                        <v-btn href="https://qr.alipay.com/FKX04751EZDP0SQ0BOT137" target="_blank" text>
+                        <v-btn color="primary" href="https://qr.alipay.com/FKX04751EZDP0SQ0BOT137" target="_blank" text>
                             {{$t('support.alipayUrl')}}
                         </v-btn>
-                        <v-btn text :href="require('@/assets/alipay.jpg')" download="alipay.jpg">
+                        <v-btn color="primary" text :href="require('@/assets/alipay.jpg')" download="alipay.jpg">
                             {{$t('support.saveQrCode')}}
                         </v-btn>
                     </v-card-actions>
@@ -34,7 +34,7 @@
                         <v-img :src="require('@/assets/wechat.jpg')"/>
                     </v-card-text>
                     <v-card-actions>
-                        <v-btn text :href="require('@/assets/wechat.jpg')" download="wechat.jpg">
+                        <v-btn color="primary" text :href="require('@/assets/wechat.jpg')" download="wechat.jpg">
                             {{$t('support.saveQrCode')}}
                         </v-btn>
                     </v-card-actions>

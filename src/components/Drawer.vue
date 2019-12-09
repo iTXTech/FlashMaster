@@ -29,7 +29,7 @@
             </v-footer>
         </v-navigation-drawer>
 
-        <v-app-bar :clipped-left="$vuetify.breakpoint.lgAndUp" app color="blue darken-3" dark>
+        <v-app-bar :clipped-left="$vuetify.breakpoint.lgAndUp" app color="primary" dark>
             <v-app-bar-nav-icon @click.stop="drawer = !drawer"/>
             <v-img
                     alt="FlashMaster Logo"
@@ -46,7 +46,9 @@
 
             <v-menu offset-y>
                 <template v-slot:activator="{ on }">
-                    <v-btn color="primary" dark v-on="on">{{$t("lang")}}</v-btn>
+                    <v-btn text dark v-on="on">
+                        <v-icon>mdi-earth</v-icon>
+                    </v-btn>
                 </template>
                 <v-list>
                     <v-list-item v-for="(item, index) in langs" :key="index" @click="changeLanguage(item.code)">

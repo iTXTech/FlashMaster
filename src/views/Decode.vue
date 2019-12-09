@@ -8,9 +8,9 @@
                         <v-text-field clearable class="pn" v-model="partNumber" v-on:keyup.enter="query"/>
                     </v-card-text>
                     <v-card-actions>
-                        <v-btn text @click="query">{{$t("query")}}</v-btn>
-                        <v-btn text @click="search">{{$t("search")}}</v-btn>
-                        <v-btn text @click="searchId">{{$t("searchId")}}</v-btn>
+                        <v-btn text color="primary" @click="query">{{$t("query")}}</v-btn>
+                        <v-btn text color="primary" @click="search">{{$t("search")}}</v-btn>
+                        <v-btn text color="primary" @click="searchId">{{$t("searchId")}}</v-btn>
                     </v-card-actions>
                 </v-card>
             </v-flex>
