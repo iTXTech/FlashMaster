@@ -86,12 +86,18 @@
         created: function () {
             this.statContent = this.updateStat();
             this.autoTrans = store.autoTranslation() === "1";
-            fetch(
-                "https://raw.githubusercontent.com/PeratX/FlashMaster/master/servers.json"
-            )
+            fetch("https://raw.githubusercontent.com/PeratX/FlashMaster/master/servers.json")
                 .then(r => r.json())
                 .then(data => {
                     this.servers = data;
+                })
+                .catch(err => {
+                    bus.$emit("snackbar", {
+                        timeout: 3000,
+                        show: true,
+                        text: this.$t("alert.fetchFailed", [err])
+                    });
+                    bus.$emit("loading", false);
                 });
         },
         methods: {
