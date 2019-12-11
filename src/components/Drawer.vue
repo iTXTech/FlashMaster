@@ -39,8 +39,8 @@
                     transition="scale-transition"
                     width="40"
             />
-            <v-toolbar-title class="mr-12 align-center">
-                <span class="hidden-sm-and-down">iTXTech FlashMaster</span>
+            <v-toolbar-title class="title">
+                FlashMaster
             </v-toolbar-title>
             <v-spacer/>
 
@@ -114,6 +114,7 @@
         },
         methods: {
             changeLanguage(item) {
+                console.log(this.$vuetify.breakpoint.width)
                 this.$i18n.locale = item;
                 this.$vuetify.lang.current = item;
                 localStorage.lang = item;

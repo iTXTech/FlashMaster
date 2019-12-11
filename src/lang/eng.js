@@ -3,7 +3,8 @@ module.exports = {
     alert: {
         missingPartNumber: 'Please Input Part Number',
         fetchFailed: 'Fetch Failed: {0}',
-        missingFlashId: 'Please Input Flash Id'
+        missingFlashId: 'Please Input Flash Id',
+        fetchServerListFailed: 'Fetch Server List Failed: {0}',
     },
     nav: {
         decodePartNumber: 'Decode Part Number',

@@ -3,7 +3,8 @@ module.exports = {
     alert: {
         missingPartNumber: '请输入料号',
         fetchFailed: '获取失败：{0}',
-        missingFlashId: '请输入闪存ID'
+        missingFlashId: '请输入闪存ID',
+        fetchServerListFailed: '服务器列表获取失败：{0}',
     },
     nav: {
         decodePartNumber: '料号查询',

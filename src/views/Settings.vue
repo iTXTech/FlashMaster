@@ -95,9 +95,8 @@
                     bus.$emit("snackbar", {
                         timeout: 3000,
                         show: true,
-                        text: this.$t("alert.fetchFailed", [err])
+                        text: this.$t("alert.fetchServerListFailed", [err])
                     });
-                    bus.$emit("loading", false);
                 });
         },
         methods: {
