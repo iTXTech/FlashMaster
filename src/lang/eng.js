@@ -43,6 +43,7 @@ module.exports = {
         resetInfo: 'Statistic data have reseted.',
         content: '{0} Part Numbers have been decoded.<br/>{1} Part Numbers have been searched.<br/>{2} Flash Ids have been searched.'
     },
+    version: 'Version: {0}',
     loading: 'Loading',
     unknown: 'Unknown',
     query: "Decode PN",

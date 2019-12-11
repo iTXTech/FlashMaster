@@ -53,6 +53,15 @@ const resetStat = () => {
     localStorage.statSearchPn = "0";
 };
 
+const getProjectVersion = () => {
+    if (typeof VERSION !== undefined) {
+        // eslint-disable-next-line no-undef
+        return VERSION
+    } else {
+        return "DEBUG"
+    }
+};
+
 export default {
     getServerAddress,
     setServerAddress,
@@ -64,5 +73,6 @@ export default {
     statSearchPn,
     statSearchIdInc,
     statSearchId,
-    resetStat
+    resetStat,
+    getProjectVersion,
 }

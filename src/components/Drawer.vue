@@ -4,6 +4,7 @@
             <v-list-item>
                 <v-list-item-content>
                     <v-list-item-title class="title">FlashMaster</v-list-item-title>
+                    <v-list-item-subtitle>{{this.ver}}</v-list-item-subtitle>
                     <v-list-item-subtitle>by PeratX@iTXTech.org</v-list-item-subtitle>
                 </v-list-item-content>
             </v-list-item>
@@ -61,6 +62,8 @@
 </template>
 
 <script>
+    import store from "@/store";
+
     export default {
         props: {
             source: String
@@ -72,6 +75,9 @@
         }),
 
         computed: {
+            ver() {
+                return this.$t("version", [store.getProjectVersion()])
+            },
             langs() {
                 let lang = [];
                 for (let msg in this.$i18n.messages) {
@@ -114,7 +120,6 @@
         },
         methods: {
             changeLanguage(item) {
-                console.log(this.$vuetify.breakpoint.width)
                 this.$i18n.locale = item;
                 this.$vuetify.lang.current = item;
                 localStorage.lang = item;
