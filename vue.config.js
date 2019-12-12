@@ -1,4 +1,7 @@
 const webpack = require('webpack');
+let commitHash = require('child_process')
+    .execSync('git rev-parse --short HEAD')
+    .toString();
 
 module.exports = {
     "transpileDependencies": [
@@ -10,7 +13,7 @@ module.exports = {
         return {
             plugins: [
                 new webpack.DefinePlugin({
-                    'VERSION': JSON.stringify(require('./package.json').version),
+                    'VERSION': JSON.stringify(commitHash),
                 })
             ]
         }
