@@ -20,7 +20,7 @@
                     <v-card-title>{{$t('vendor')}}</v-card-title>
                     <v-card-text>
                         <v-img :src="vendorLogo"/>
-                        <v-text-field v-model="vendor">美光</v-text-field>
+                        <v-text-field v-model="vendor"/>
                     </v-card-text>
                 </v-card>
             </v-flex>
@@ -196,13 +196,7 @@
                         });
                     }
                     bus.$emit("loading", true);
-                    fetch(
-                        store.getServerAddress() +
-                        "/decode?trans=" +
-                        store.autoTranslation() +
-                        "&pn=" +
-                        this.partNumber
-                    )
+                    fetch(store.getServerAddress() + "/decode?trans=" + store.autoTranslation() + "&pn=" + this.partNumber)
                         .then(r => r.json())
                         .then(data => {
                             data = data.data;

@@ -63,17 +63,22 @@
 
 <script>
     import store from "@/store";
+    import bus from "@/store/bus.js";
 
     export default {
         props: {
             source: String
         },
-
         data: () => ({
             dialog: false,
             drawer: false
         }),
-
+        mounted: function () {
+            let vm = this;
+            bus.$on("drawer", data => {
+                vm.drawer = data;
+            });
+        },
         computed: {
             ver() {
                 return this.$t("version", [store.getProjectVersion()])

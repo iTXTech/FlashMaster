@@ -1,5 +1,5 @@
 <template>
-    <v-app id="app">
+    <v-app id="app" v-touch="{right: () => drawer(true), left: () => drawer(false)}">
         <Drawer/>
         <v-content>
             <router-view/>
@@ -32,7 +32,7 @@
     }
 
     div.v-content__wrap {
-      width: 100%;
+        width: 100%;
     }
 </style>
 <script>
@@ -52,6 +52,11 @@
         },
         components: {
             Drawer
+        },
+        methods: {
+            drawer(v) {
+                bus.$emit("drawer", v)
+            }
         },
         watch: {
             $route(to, from) {

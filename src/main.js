@@ -1,14 +1,19 @@
 import 'whatwg-fetch'
 import Vue from 'vue'
 import App from './App.vue'
-import Vuetify from 'vuetify/lib';
+import Vuetify from 'vuetify/lib'
 import router from './router'
-import VueI18n from 'vue-i18n';
-import VueClipboard from 'vue-clipboard2';
-import chs from 'vuetify/es5/locale/zh-Hans';
-import eng from 'vuetify/es5/locale/en';
+import VueI18n from 'vue-i18n'
+import VueClipboard from 'vue-clipboard2'
+import chs from 'vuetify/es5/locale/zh-Hans'
+import eng from 'vuetify/es5/locale/en'
+import {Touch} from 'vuetify/lib/directives'
 
-Vue.use(Vuetify);
+Vue.use(Vuetify, {
+    directives: {
+        Touch
+    }
+});
 Vue.use(VueI18n);
 Vue.use(VueClipboard);
 VueClipboard.config.autoSetContainer = true;
