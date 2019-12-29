@@ -79,5 +79,8 @@ module.exports = {
     flashId: '闪存ID',
     action: '操作',
     remark: '备注',
+    pageSize: '页大小',
+    blocks: '块',
+    pagesPerBlock: '页/块',
     about: '<a href="https://github.com/iTXTech/FlashMaster" target="_blank">iTXTech FlashMaster</a><br/>使用 <a href="https://vuejs.org" target="_blank">Vue.js</a> 和 <a href="https://vuetifyjs.com/" target="_blank">Vuetify</a> 构建<br/>本程序遵循 Apache License 2.0 开源<br/><br/>主要维护者：<br/><a href="https://peratx.net" target="_blank">PeratX</a><br/><br/><a href="https://market.m.taobao.com/app/idleFish-F2e/IdleFishWeexPersonalPage/PersonalHome?ut_sk=1.WmC0tf46/fADAD7YJeN2DyOW_12431167_1573698250610.QRCode.mypage.894797966.894797966&userid=894797966&wh_weex=true&forceFlush=1" target="_blank">去作者的闲鱼主页看看</a><br/><br/>Copyright (C) 2019 <a href="https://itxtech.org" target="_blank">iTX Technologies</a>'
 }

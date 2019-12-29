@@ -229,7 +229,7 @@
                                 this.ce = this.isUnknown(data.classification.ce);
                                 this.ch = this.isUnknown(data.classification.ch);
                                 this.die = this.isUnknown(data.classification.die);
-                                this.rb = this.isUnknown(data.classification.rnb);
+                                this.rb = this.isUnknown(data.classification.rb);
                             }
 
                             this.extraInfo = [];

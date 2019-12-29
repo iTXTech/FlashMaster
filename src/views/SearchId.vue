@@ -42,7 +42,8 @@
                                     </v-btn>
                                 </template>
                                 <v-list>
-                                    <v-list-item v-for="(it, index) in item.rawPns" :key="index" @click="list(it)">
+                                    <v-list-item v-for="(it, index) in item.partNumberList" :key="index"
+                                                 @click="list(it)">
                                         <v-list-item-action class="mx-0">{{ it }}</v-list-item-action>
                                     </v-list-item>
                                 </v-list>
@@ -64,7 +65,6 @@
             return {
                 id: "",
                 ids: [],
-                tids: [],
                 page: 1
             };
         },
@@ -72,9 +72,12 @@
             idHeaders() {
                 return [
                     {text: this.$t("flashId"), value: "id", align: "left"},
-                    {text: this.$t("partNumber"), value: "pns", align: "left"},
+                    {text: this.$t("partNumber"), value: "partNumbers", align: "left"},
+                    {text: this.$t("pageSize"), value: "pageSize", align: "left"},
+                    {text: this.$t("blocks"), value: "blocks", align: "left"},
+                    {text: this.$t("pagesPerBlock"), value: "pagesPerBlock", align: "left"},
                     {text: this.$t("action"), value: "action"},
-                    {text: this.$t("controllers"), value: "cons", aligh: "left"}
+                    {text: this.$t("controllers"), value: "controllers", aligh: "left"}
                 ];
             }
         },
@@ -96,38 +99,32 @@
                     fetch(store.getServerAddress() + "/searchId?id=" + this.id)
                         .then(r => r.json())
                         .then(data => {
-                            this.tids = [];
+                            this.ids = [];
                             for (let d in data.data) {
                                 let pns = "";
-                                let raw = [];
-                                for (let pn in data.data[d]) {
-                                    pns += String(data.data[d][pn]).split(" ")[1] + ", ";
-                                    raw.push(String(data.data[d][pn]).split(" ")[1]);
+                                let pnList = [];
+                                for (let pn in data.data[d]["partNumbers"]) {
+                                    pns += String(data.data[d]["partNumbers"][pn]).split(" ")[1] + ", ";
+                                    pnList.push(String(data.data[d]["partNumbers"][pn]).split(" ")[1]);
                                 }
+                                let cons = "";
+                                for (let con in data.data[d]["controllers"]) {
+                                    cons += String(data.data[d]["controllers"][con]) + ", ";
+                                }
+                                cons = cons.substring(0, cons.length - 2);
                                 pns = pns.substring(0, pns.length - 2);
-                                this.tids.push({
+                                this.ids.push({
                                     id: d,
-                                    pns: pns,
-                                    rawPns: raw
+                                    partNumbers: pns,
+                                    partNumberList: pnList,
+                                    pageSize: this.checkPageSize(data.data[d]["pageSize"]),
+                                    blocks: this.isUnknown(data.data[d]["blocks"]),
+                                    pagesPerBlock: this.isUnknown(data.data[d]["pagesPerBlock"]),
+                                    controllers: cons
                                 });
                             }
-                            fetch(store.getServerAddress() + "/searchController?id=" + this.id)
-                                .then(r => r.json())
-                                .then(data => {
-                                    let i = 0;
-                                    for (let d in data.data) {
-                                        let cons = "";
-                                        for (let con in data.data[d]) {
-                                            cons += String(data.data[d][con]) + ", ";
-                                        }
-                                        cons = cons.substring(0, cons.length - 2);
-                                        this.tids[i].cons = cons;
-                                        i++;
-                                    }
-                                    this.ids = this.tids;
-                                    bus.$emit("loading", false);
-                                    store.statSearchIdInc();
-                                });
+                            bus.$emit("loading", false);
+                            store.statSearchIdInc();
                         })
                         .catch(err => {
                             bus.$emit("snackbar", {
@@ -150,6 +147,18 @@
                     path: "/decode",
                     query: {pn: item}
                 });
+            },
+            checkPageSize(size) {
+                if (size === -1) {
+                    return this.$t("unknown");
+                } else if (size < 1) {
+                    return (size * 1024) + "B";
+                } else {
+                    return (size) + "K";
+                }
+            },
+            isUnknown(v) {
+                return v === -1 ? this.$t("unknown") : v;
             }
         },
         created: function () {
