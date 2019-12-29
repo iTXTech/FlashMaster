@@ -38,6 +38,7 @@
 <script>
     import Drawer from "@/components/Drawer";
     import bus from "@/store/bus.js";
+    import router from "./router";
 
     export default {
         data: () => {
@@ -55,7 +56,10 @@
         },
         methods: {
             drawer(v) {
-                bus.$emit("drawer", v)
+                let path = this.$router.currentRoute.path;
+                if (path !== "/searchId" && path !== "/searchPn") {
+                    bus.$emit("drawer", v)
+                }
             }
         },
         watch: {

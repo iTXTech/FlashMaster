@@ -72,10 +72,10 @@
             idHeaders() {
                 return [
                     {text: this.$t("flashId"), value: "id", align: "left"},
-                    {text: this.$t("partNumber"), value: "partNumbers", align: "left"},
                     {text: this.$t("pageSize"), value: "pageSize", align: "left"},
                     {text: this.$t("blocks"), value: "blocks", align: "left"},
                     {text: this.$t("pagesPerBlock"), value: "pagesPerBlock", align: "left"},
+                    {text: this.$t("partNumber"), value: "partNumbers", align: "left"},
                     {text: this.$t("action"), value: "action"},
                     {text: this.$t("controllers"), value: "controllers", aligh: "left"}
                 ];
