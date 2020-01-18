@@ -3,7 +3,13 @@
         <v-layout row wrap>
             <v-flex lg4 sm12 xs12>
                 <v-card>
-                    <v-card-title>{{$t('partNumberOrFlashId')}}</v-card-title>
+                    <v-app-bar flat dense color="transparent">
+                        <v-toolbar-title>{{$t('partNumberOrFlashId')}}</v-toolbar-title>
+                        <v-spacer/>
+                        <v-btn icon @click="summary">
+                            <v-icon>mdi-book-information-variant</v-icon>
+                        </v-btn>
+                    </v-app-bar>
                     <v-card-text>
                         <v-text-field clearable class="pn" v-model="partNumber" v-on:keyup.enter="query"/>
                     </v-card-text>
@@ -183,12 +189,15 @@
             }
         },
         methods: {
+            processPn() {
+                this.partNumber = this.partNumber
+                    .toUpperCase()
+                    .replace(/,/g, "")
+                    .replace(/ /g, "");
+            },
             query() {
                 if (this.partNumber != null && this.partNumber !== "") {
-                    this.partNumber = this.partNumber
-                        .toUpperCase()
-                        .replace(/,/g, "")
-                        .replace(/ /g, "");
+                    this.processPn();
                     if (this.$route.query.pn !== this.partNumber) {
                         router.push({
                             path: "/decode",
@@ -366,6 +375,26 @@
                     path: "/searchId",
                     query: {id: item.id}
                 });
+            },
+            summary() {
+                if (this.partNumber != null && this.partNumber !== "") {
+                    this.processPn();
+                    bus.$emit("loading", true);
+                    fetch(store.getServerAddress() + "/summary?pn=" + this.partNumber)
+                        .then(r => r.json())
+                        .then(data => {
+                            this.c(data.data);
+                            bus.$emit("loading", false);
+                        })
+                        .catch(err => {
+                            bus.$emit("snackbar", {
+                                timeout: 3000,
+                                show: true,
+                                text: this.$t("alert.fetchFailed", [err])
+                            });
+                            bus.$emit("loading", false);
+                        });
+                }
             }
         },
         created: function () {
