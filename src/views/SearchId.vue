@@ -96,7 +96,7 @@
                     }
                     this.page = 1;
                     bus.$emit("loading", true);
-                    fetch(store.getServerAddress() + "/searchId?id=" + this.id)
+                    fetch(store.getServerAddress() + "/searchId?trans=" + store.autoTranslation() + "&id=" + this.id)
                         .then(r => r.json())
                         .then(data => {
                             this.ids = [];
@@ -117,9 +117,9 @@
                                     id: d,
                                     partNumbers: pns,
                                     partNumberList: pnList,
-                                    pageSize: this.checkPageSize(data.data[d]["pageSize"]),
-                                    blocks: this.isUnknown(data.data[d]["blocks"]),
-                                    pagesPerBlock: this.isUnknown(data.data[d]["pagesPerBlock"]),
+                                    pageSize: data.data[d]["pageSize"],
+                                    blocks: data.data[d]["blocks"],
+                                    pagesPerBlock: data.data[d]["pagesPerBlock"],
                                     controllers: cons
                                 });
                             }
@@ -147,18 +147,6 @@
                     path: "/decode",
                     query: {pn: item}
                 });
-            },
-            checkPageSize(size) {
-                if (size === -1) {
-                    return this.$t("unknown");
-                } else if (size < 1) {
-                    return (size * 1024) + "B";
-                } else {
-                    return (size) + "K";
-                }
-            },
-            isUnknown(v) {
-                return v === -1 ? this.$t("unknown") : v;
             }
         },
         created: function () {

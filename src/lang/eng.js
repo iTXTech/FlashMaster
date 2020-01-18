@@ -21,16 +21,6 @@ module.exports = {
         fdServerInfo: 'iTXTech FlashDetector Server Info',
         info: 'FlashDetector FDB Version: {0}<br/>FDB Generation Time: {1}<br/>Include {2} Part Numbers<br/>Include {3} Flash Ids<br/>Include {4} Micron FBGA Codes<br/>Supported Controllers:<br/>{5}'
     },
-    vendors: {
-        samsung: 'Samsung',
-        skhynix: 'SK Hynix',
-        micron: 'Micron',
-        intel: 'Intel',
-        westerndigital: 'Western Digital',
-        kioxia: 'Kioxia',
-        st: 'STMicroelectronics',
-        spectek: 'SpecTek'
-    },
     support: {
         alipay: 'Support Us - Alipay',
         wechat: 'Support Us - WeChat',

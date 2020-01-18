@@ -91,14 +91,14 @@
                     }
                     this.page = 1;
                     bus.$emit("loading", true);
-                    fetch(store.getServerAddress() + "/searchPn?pn=" + this.partNumber)
+                    fetch(store.getServerAddress() + "/searchPn?trans=" + store.autoTranslation() + "&pn=" + this.partNumber)
                         .then(r => r.json())
                         .then(data => {
                             this.pns = [];
                             for (let d in data.data) {
                                 let pn = String(data.data[d]).split(" ");
                                 this.pns.push({
-                                    vendor: this.$t("vendors." + pn[0]),
+                                    vendor: pn[0],
                                     pn: pn[1],
                                     remark: pn[2]
                                 });

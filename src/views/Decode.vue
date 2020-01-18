@@ -226,10 +226,14 @@
                             }
 
                             if (data.classification != null) {
-                                this.ce = this.isUnknown(data.classification.ce);
-                                this.ch = this.isUnknown(data.classification.ch);
-                                this.die = this.isUnknown(data.classification.die);
-                                this.rb = this.isUnknown(data.classification.rb);
+                                this.ce = data.classification.ce;
+                                this.ch = data.classification.ch;
+                                this.die = data.classification.die;
+                                this.rb = data.classification.rb;
+
+                                if (this.ch === -2) {
+                                    this.ch = 2;
+                                }
                             }
 
                             this.extraInfo = [];
@@ -268,9 +272,6 @@
                         text: this.$t("alert.missingPartNumber")
                     });
                 }
-            },
-            isUnknown(v) {
-                return v === -2 ? 2 : v === -1 ? this.$t("unknown") : v;
             },
             getVendorLogo() {
                 switch (this.rawVendor) {

@@ -21,16 +21,6 @@ module.exports = {
         fdServerInfo: 'iTXTech FlashDetector 服务器信息',
         info: 'FlashDetector 数据库版本：{0}<br/>数据库生成时间：{1}<br/>收录 {2} 闪存料号<br/>收录 {3} 闪存ID<br/>收录 {4} 美光 FBGA 码<br/>收录的控制器：<br/>{5}'
     },
-    vendors: {
-        samsung: '三星',
-        skhynix: 'SK海力士',
-        micron: '美光',
-        intel: '英特尔',
-        westerndigital: '西数',
-        kioxia: '铠侠',
-        st: '意法半导体',
-        spectek: '美光白片'
-    },
     support: {
         alipay: '支持作者 - 支付宝（推荐）',
         wechat: '支持作者 - 微信',
