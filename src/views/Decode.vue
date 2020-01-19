@@ -137,6 +137,30 @@
                     </v-card-text>
                 </v-card>
             </v-flex>
+
+            <v-flex lg5 sm12 xs12>
+                <v-card>
+                    <v-card-title>链接</v-card-title>
+                    <v-card-text>
+                        <v-data-table
+                                :headers="urlHeaders"
+                                :items="urls"
+                                hide-default-footer
+                                disable-sort
+                                class="elevation-1"
+                                no-data-text=""
+                                :mobile-breakpoint="NaN"
+                                :items-per-page="itemsPerPage"
+                        >
+                            <template v-slot:item.action="{ item }">
+                                <v-btn icon @click="open(item.url)">
+                                    <v-icon>mdi-open-in-new</v-icon>
+                                </v-btn>
+                            </template>
+                        </v-data-table>
+                    </v-card-text>
+                </v-card>
+            </v-flex>
         </v-layout>
     </v-container>
 </template>
@@ -170,7 +194,9 @@
                 rawVendor: "",
                 controllers: "",
                 extraInfo: [],
-                flashIds: []
+                flashIds: [],
+                urls: [],
+                sum: "",
             };
         },
         computed: {
@@ -186,6 +212,12 @@
                     {text: this.$t("flashIds"), value: "id", align: "left"},
                     {text: this.$t("action"), value: "action"}
                 ];
+            },
+            urlHeaders() {
+                return [
+                    {text: this.$t("description"), value: "description", align: "left"},
+                    {text: this.$t("action"), value: "action"}
+                ]
             }
         },
         methods: {
@@ -205,6 +237,7 @@
                         });
                     }
                     bus.$emit("loading", true);
+                    this.fetchSummary();
                     fetch(store.getServerAddress() + "/decode?trans=" + store.autoTranslation() + "&pn=" + this.partNumber)
                         .then(r => r.json())
                         .then(data => {
@@ -261,6 +294,16 @@
                                     this.flashIds.push({
                                         id: data.flashId[flashId]
                                     });
+                                }
+                            }
+
+                            this.urls = [];
+                            if (data.url != null && typeof data.url !== "string") {
+                                for (let url in data.url) {
+                                    this.urls.push({
+                                        description: url,
+                                        url: data.url[url]
+                                    })
                                 }
                             }
                             bus.$emit("loading", false);
@@ -326,7 +369,7 @@
                         bus.$emit("snackbar", {
                             timeout: 3000,
                             show: true,
-                            text: this.$t("copyFail", [e])
+                            text: this.$t("copyFail")
                         });
                     }
                 );
@@ -376,14 +419,13 @@
                     query: {id: item.id}
                 });
             },
-            summary() {
+            fetchSummary() {
                 if (this.partNumber != null && this.partNumber !== "") {
                     this.processPn();
-                    bus.$emit("loading", true);
                     fetch(store.getServerAddress() + "/summary?pn=" + this.partNumber)
                         .then(r => r.json())
                         .then(data => {
-                            this.c(data.data);
+                            this.sum = data.data;
                             bus.$emit("loading", false);
                         })
                         .catch(err => {
@@ -392,9 +434,14 @@
                                 show: true,
                                 text: this.$t("alert.fetchFailed", [err])
                             });
-                            bus.$emit("loading", false);
                         });
                 }
+            },
+            summary() {
+                this.c(this.sum);
+            },
+            open(url) {
+                window.open(url, '_blank')
             }
         },
         created: function () {

@@ -38,9 +38,6 @@
                             <v-btn icon @click="decodeFlashId(item)">
                                 <v-icon>mdi-arrow-top-left-thick</v-icon>
                             </v-btn>
-                            <v-btn icon @click="copyFlashId(item)">
-                                <v-icon>mdi-content-copy</v-icon>
-                            </v-btn>
                         </template>
                     </v-data-table>
                 </v-card-text>
@@ -121,24 +118,6 @@
                         text: this.$t("alert.missingPartNumber")
                     });
                 }
-            },
-            copyFlashId(item) {
-                this.$copyText(item.pn).then(
-                    e => {
-                        bus.$emit("snackbar", {
-                            timeout: 3000,
-                            show: true,
-                            text: this.$t("copySucc")
-                        });
-                    },
-                    e => {
-                        bus.$emit("snackbar", {
-                            timeout: 3000,
-                            show: true,
-                            text: this.$t("copyFail", [e])
-                        });
-                    }
-                );
             },
             decodeFlashId(item) {
                 router.push({

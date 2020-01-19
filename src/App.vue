@@ -38,7 +38,6 @@
 <script>
     import Drawer from "@/components/Drawer";
     import bus from "@/store/bus.js";
-    import router from "./router";
 
     export default {
         data: () => {
