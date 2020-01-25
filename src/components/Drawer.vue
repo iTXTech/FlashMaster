@@ -25,7 +25,7 @@
 
             <v-footer absolute class="font-weight-medium">
                 <v-col class="text-center" cols="12">
-                    <h6>(C) 2019-2020 iTX Technologies</h6>
+                    <h6>© 2019-2020 iTX Technologies</h6>
                 </v-col>
             </v-footer>
         </v-navigation-drawer>

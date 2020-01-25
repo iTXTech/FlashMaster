@@ -140,7 +140,7 @@
 
             <v-flex lg5 sm12 xs12>
                 <v-card>
-                    <v-card-title>链接</v-card-title>
+                    <v-card-title>{{$t('urls')}}</v-card-title>
                     <v-card-text>
                         <v-data-table
                                 :headers="urlHeaders"
@@ -162,6 +162,20 @@
                 </v-card>
             </v-flex>
         </v-layout>
+
+        <v-dialog v-model="dialog.show" max-width="500">
+            <v-card>
+                <v-card-title class="headline">{{$t('copyManually')}}</v-card-title>
+                <v-card-text>
+                    <v-textarea auto-grow rows="1" v-model="dialog.content"/>
+                </v-card-text>
+                <v-card-actions>
+                    <v-spacer/>
+                    <v-btn color="primary" text @click="copyFromDialog">{{$t('copy')}}</v-btn>
+                    <v-btn color="primary" text @click="dialog.show = false">{{$t('close')}}</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </v-container>
 </template>
 <script>
@@ -172,6 +186,10 @@
     export default {
         data() {
             return {
+                dialog: {
+                    show: false,
+                    content: ""
+                },
                 itemsPerPage: 10000,
                 vendorLogo: "",
                 partNumber: "",
@@ -237,7 +255,6 @@
                         });
                     }
                     bus.$emit("loading", true);
-                    this.fetchSummary();
                     fetch(store.getServerAddress() + "/decode?trans=" + store.autoTranslation() + "&pn=" + this.partNumber)
                         .then(r => r.json())
                         .then(data => {
@@ -419,13 +436,28 @@
                     query: {id: item.id}
                 });
             },
-            fetchSummary() {
+            summary() {
                 if (this.partNumber != null && this.partNumber !== "") {
                     this.processPn();
+                    bus.$emit("loading", true);
                     fetch(store.getServerAddress() + "/summary?pn=" + this.partNumber)
                         .then(r => r.json())
                         .then(data => {
-                            this.sum = data.data;
+                            this.$copyText(data.data).then(
+                                e => {
+                                    bus.$emit("snackbar", {
+                                        timeout: 3000,
+                                        show: true,
+                                        text: this.$t("copySucc")
+                                    });
+                                },
+                                e => {
+                                    this.dialog = {
+                                        show: true,
+                                        content: e.text
+                                    }
+                                }
+                            );
                             bus.$emit("loading", false);
                         })
                         .catch(err => {
@@ -435,10 +467,32 @@
                                 text: this.$t("alert.fetchFailed", [err])
                             });
                         });
+                } else {
+                    bus.$emit("snackbar", {
+                        timeout: 3000,
+                        show: true,
+                        text: this.$t("alert.missingPartNumber")
+                    });
                 }
             },
-            summary() {
-                this.c(this.sum);
+            copyFromDialog() {
+                this.$copyText(this.dialog.content).then(
+                    e => {
+                        bus.$emit("snackbar", {
+                            timeout: 3000,
+                            show: true,
+                            text: this.$t("copySucc")
+                        });
+                        this.dialog.show = false;
+                    },
+                    e => {
+                        bus.$emit("snackbar", {
+                            timeout: 3000,
+                            show: true,
+                            text: this.$t("copySucc")
+                        });
+                    }
+                );
             },
             open(url) {
                 window.open(url, '_blank')
