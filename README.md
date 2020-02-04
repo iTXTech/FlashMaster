@@ -17,9 +17,10 @@ Backend: [iTXTech FlashDetector](https://github.com/iTXTech/FlashDetector)
 1. Material Design
 1. Full ~~legacy~~ FlashMaster Features (without Embedded Server of course :)
    1. Decode Part Number
+   1. Fetch summary for Part Number
    1. Search Part Number in FlashDetector Flash Database
    1. Search Flash Id in FlashDetector Flash Database
-1. No cookies will be stored
+1. Use localStorage for persistence storage 
 
 ## Setup
 
@@ -37,6 +38,11 @@ npm run build
 ```
 
 Upload all files in `dist`.
+
+## Apps
+
+* [FlashMasterAndroid](https://github.com/iTXTech/FlashMasterAndroid) - iTXTech FlashMaster App for Android 4.4+ 
+* [FlashMasteriOS](https://github.com/iTXTech/FlashMasteriOS) - iTXTech FlashMaster App for iOS 9.0+ and iPadOS 13.0+
 
 ## License
 
