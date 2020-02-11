@@ -466,6 +466,7 @@
                                 show: true,
                                 text: this.$t("alert.fetchFailed", [err])
                             });
+                            bus.$emit("loading", false);
                         });
                 } else {
                     bus.$emit("snackbar", {
