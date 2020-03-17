@@ -111,7 +111,7 @@
                         path: "/searchId"
                     },
                     {
-                        icon: "mdi-settings",
+                        icon: "mdi-cog-outline",
                         text: this.$t("nav.settings"),
                         path: "/settings"
                     },
