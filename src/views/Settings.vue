@@ -13,11 +13,6 @@
                                     v-on:change="changeServer"
                                     v-model="server"
                             />
-                            <v-checkbox
-                                    :label="$t('settings.translation')"
-                                    v-on:change="changeTranslation"
-                                    v-model="autoTrans"
-                            />
                         </v-card-text>
                         <v-card-actions>
                             <v-btn text color="primary" @click="serverInfo">{{$t("settings.serverInfo")}}</v-btn>
@@ -75,7 +70,6 @@
             return {
                 servers: [],
                 server: store.getServerAddress(),
-                autoTrans: false,
                 dialog: {
                     show: false,
                     text: ""
@@ -85,7 +79,6 @@
         },
         created: function () {
             this.statContent = this.updateStat();
-            this.autoTrans = store.autoTranslation() === "1";
             fetch("https://raw.githubusercontent.com/PeratX/FlashMaster/master/servers.json")
                 .then(r => r.json())
                 .then(data => {
@@ -102,9 +95,6 @@
         methods: {
             changeServer(server) {
                 store.setServerAddress(server);
-            },
-            changeTranslation(value) {
-                store.setAutoTranslation(value);
             },
             serverInfo() {
                 fetch(store.getServerAddress() + "/info")

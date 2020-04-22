@@ -96,7 +96,7 @@
                     }
                     this.page = 1;
                     bus.$emit("loading", true);
-                    fetch(store.getServerAddress() + "/searchId?trans=" + store.autoTranslation() + "&id=" + this.id)
+                    fetch(store.getServerAddress() + "/searchId?lang=" + store.getLang() + "&id=" + this.id)
                         .then(r => r.json())
                         .then(data => {
                             this.ids = [];

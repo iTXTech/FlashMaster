@@ -5,15 +5,6 @@ const getServerAddress = () => {
 const setServerAddress = (addr) => {
     localStorage.server = addr
 };
-
-const autoTranslation = () => {
-    return (localStorage.autoTranslation || "1");
-};
-
-const setAutoTranslation = (auto) => {
-    localStorage.autoTranslation = auto ? "1" : "0";
-};
-
 const statDecodeIdInc = () => {
     if (isNaN(Number(localStorage.statDecodeId))) {
         localStorage.statDecodeId = "0";
@@ -62,11 +53,13 @@ const getProjectVersion = () => {
     }
 };
 
+const getLang = () => {
+    return localStorage.lang || "chs"
+}
+
 export default {
     getServerAddress,
     setServerAddress,
-    autoTranslation,
-    setAutoTranslation,
     statDecodeIdInc,
     statDecodeId,
     statSearchPnInc,
@@ -75,4 +68,5 @@ export default {
     statSearchId,
     resetStat,
     getProjectVersion,
+    getLang
 }

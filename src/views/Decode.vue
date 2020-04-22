@@ -255,7 +255,7 @@
                         });
                     }
                     bus.$emit("loading", true);
-                    fetch(store.getServerAddress() + "/decode?trans=" + store.autoTranslation() + "&pn=" + this.partNumber)
+                    fetch(store.getServerAddress() + "/decode?lang=" + store.getLang() + "&pn=" + this.partNumber)
                         .then(r => r.json())
                         .then(data => {
                             data = data.data;

@@ -8,6 +8,7 @@ import VueClipboard from 'vue-clipboard2'
 import chs from 'vuetify/es5/locale/zh-Hans'
 import eng from 'vuetify/es5/locale/en'
 import {Touch} from 'vuetify/lib/directives'
+import store from './store/index'
 
 Vue.use(Vuetify, {
     directives: {
@@ -20,7 +21,7 @@ VueClipboard.config.autoSetContainer = true;
 Vue.config.productionTip = false;
 
 const i18n = new VueI18n({
-    locale: localStorage.lang || 'chs',
+    locale: store.getLang(),
     messages: {
         'chs': require('./lang/chs'),
         'eng': require('./lang/eng')
@@ -30,7 +31,7 @@ const i18n = new VueI18n({
 const vuetify = new Vuetify({
     lang: {
         locales: {chs, eng},
-        current: localStorage.lang || 'chs',
+        current: store.getLang(),
     },
     theme: {
         dark: true,

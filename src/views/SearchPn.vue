@@ -88,7 +88,7 @@
                     }
                     this.page = 1;
                     bus.$emit("loading", true);
-                    fetch(store.getServerAddress() + "/searchPn?trans=" + store.autoTranslation() + "&pn=" + this.partNumber)
+                    fetch(store.getServerAddress() + "/searchPn?lang=" + store.getLang() + "&pn=" + this.partNumber)
                         .then(r => r.json())
                         .then(data => {
                             this.pns = [];
