@@ -96,7 +96,7 @@
             items() {
                 return [
                     {
-                        icon: "mdi-adjust",
+                        icon: "mdi-crosshairs-gps",
                         text: this.$t("nav.decodePartNumber"),
                         path: "/decode"
                     },
