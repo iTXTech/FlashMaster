@@ -440,7 +440,7 @@
                 if (this.partNumber != null && this.partNumber !== "") {
                     this.processPn();
                     bus.$emit("loading", true);
-                    fetch(store.getServerAddress() + "/summary?pn=" + this.partNumber)
+                    fetch(store.getServerAddress() + "/summary?lang=" + store.getLang() + "&pn=" + this.partNumber)
                         .then(r => r.json())
                         .then(data => {
                             this.$copyText(data.data).then(
