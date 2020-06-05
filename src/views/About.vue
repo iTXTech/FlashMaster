@@ -26,20 +26,6 @@
                     </v-card-actions>
                 </v-card>
             </v-flex>
-
-            <v-flex lg3 sm12 xs12>
-                <v-card>
-                    <v-card-title>{{$t('support.wechat')}}</v-card-title>
-                    <v-card-text>
-                        <v-img :src="require('@/assets/wechat.jpg')"/>
-                    </v-card-text>
-                    <v-card-actions>
-                        <v-btn color="primary" text :href="require('@/assets/wechat.jpg')" download="wechat.jpg">
-                            {{$t('support.saveQrCode')}}
-                        </v-btn>
-                    </v-card-actions>
-                </v-card>
-            </v-flex>
         </v-layout>
     </v-container>
 </template>

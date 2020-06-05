@@ -23,7 +23,6 @@ module.exports = {
     },
     support: {
         alipay: 'Support Us - Alipay',
-        wechat: 'Support Us - WeChat',
         alipayUrl: 'Open Alipay',
         saveQrCode: 'Save QR Code'
     },

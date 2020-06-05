@@ -22,8 +22,7 @@ module.exports = {
         info: 'FlashDetector 数据库版本：{0}<br/>数据库生成时间：{1}<br/>收录 {2} 闪存料号<br/>收录 {3} 闪存ID<br/>收录 {4} 美光 FBGA 码<br/>收录的控制器：<br/>{5}'
     },
     support: {
-        alipay: '支持作者 - 支付宝（推荐）',
-        wechat: '支持作者 - 微信',
+        alipay: '支持作者 - 支付宝',
         alipayUrl: '打开支付宝',
         saveQrCode: '保存二维码'
     },
