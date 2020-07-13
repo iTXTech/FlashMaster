@@ -13,7 +13,7 @@
                             hide-details
                             class="pn"
                             v-on:keyup.enter="search"
-                            autofocus
+                            ref="idInput"
                     />
                     <v-btn icon @click="search">
                         <v-icon>mdi-arrow-right</v-icon>
@@ -154,6 +154,10 @@
             if (Object.keys(this.$route.query).includes("id")) {
                 this.id = this.$route.query.id;
                 this.search();
+            } else {
+                setTimeout(() => {
+                    this.$refs["idInput"].$refs.input.focus()
+                })
             }
         }
     };

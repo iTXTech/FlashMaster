@@ -13,7 +13,7 @@
                             hide-details
                             class="pn"
                             v-on:keyup.enter="search"
-                            autofocus
+                            ref="pnInput"
                     />
                     <v-btn icon @click="search">
                         <v-icon>mdi-arrow-right</v-icon>
@@ -131,6 +131,10 @@
             if (Object.keys(this.$route.query).includes("pn")) {
                 this.partNumber = this.$route.query.pn;
                 this.search();
+            } else {
+                setTimeout(() => {
+                    this.$refs["pnInput"].$refs.input.focus()
+                })
             }
         }
     };

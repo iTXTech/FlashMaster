@@ -12,7 +12,6 @@
                                     :return-object="false"
                                     v-on:input="changeServer"
                                     v-model="server"
-                                    autofocus
                             />
                         </v-card-text>
                         <v-card-actions>

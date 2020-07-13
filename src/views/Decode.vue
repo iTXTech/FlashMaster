@@ -20,7 +20,7 @@
                                 v-on:keyup.enter="query"
                                 v-on:input="query"
                                 v-on:update:search-input="searchPnDirectly"
-                                autofocus
+                                ref="pnInput"
                         />
                     </v-card-text>
                     <v-card-actions>
@@ -524,6 +524,10 @@
             if (Object.keys(this.$route.query).includes("pn")) {
                 this.partNumber = this.$route.query.pn;
                 this.query();
+            } else {
+                setTimeout(() => {
+                    this.$refs["pnInput"].$refs.input.focus()
+                })
             }
         }
     };
