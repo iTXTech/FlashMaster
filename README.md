@@ -15,7 +15,7 @@ Backend: [iTXTech FlashDetector](https://github.com/iTXTech/FlashDetector)
 ## Features
 
 1. Material Design
-1. Full ~~legacy~~ FlashMaster Features (without Embedded Server of course :)
+1. Full ~~legacy~~ [FlashMaster](https://github.com/PeratX/FlashMaster) Features (without Embedded Server of course :)
    1. Decode Part Number
    1. Fetch summary for Part Number
    1. Search Part Number in FlashDetector Flash Database
@@ -27,7 +27,7 @@ Backend: [iTXTech FlashDetector](https://github.com/iTXTech/FlashDetector)
 ```bash
 git clone https://github.com/iTXTech/FlashMaster
 cd FlashMaster
-npm install
+npm i
 npm run serve
 ```
 

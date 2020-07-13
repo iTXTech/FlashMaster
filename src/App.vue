@@ -14,7 +14,9 @@
         </v-dialog>
         <v-snackbar v-model="snackbar.show" :timeout="snackbar.timeout">
             {{snackbar.text}}
-            <v-btn text color="blue" @click="snackbar.show = false">{{$t('close')}}</v-btn>
+            <template v-slot:action="{ attrs }">
+                <v-btn v-bind="attrs" text color="blue" @click="snackbar.show = false">{{$t('close')}}</v-btn>
+            </template>
         </v-snackbar>
     </v-app>
 </template>
