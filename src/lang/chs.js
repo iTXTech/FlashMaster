@@ -1,5 +1,6 @@
 module.exports = {
     lang: "简体中文",
+    group: "QQ群：1139052001",
     alert: {
         missingPartNumber: '请输入料号',
         fetchFailed: '获取失败：{0}',

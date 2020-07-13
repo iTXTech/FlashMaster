@@ -1,5 +1,6 @@
 module.exports = {
     lang: "English",
+    group: "QQ Group: 1139052001",
     alert: {
         missingPartNumber: 'Please Input Part Number',
         fetchFailed: 'Fetch Failed: {0}',

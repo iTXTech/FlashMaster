@@ -13,6 +13,7 @@
                             hide-details
                             class="pn"
                             v-on:keyup.enter="search"
+                            autofocus
                     />
                     <v-btn icon @click="search">
                         <v-icon>mdi-arrow-right</v-icon>

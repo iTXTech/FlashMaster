@@ -11,7 +11,7 @@
                         </v-btn>
                     </v-app-bar>
                     <v-card-text>
-                        <v-text-field clearable class="pn" v-model="partNumber" v-on:keyup.enter="query"/>
+                        <v-text-field clearable class="pn" v-model="partNumber" v-on:keyup.enter="query" autofocus/>
                     </v-card-text>
                     <v-card-actions>
                         <v-btn text color="primary" @click="query">{{$t("query")}}</v-btn>

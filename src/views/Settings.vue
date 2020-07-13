@@ -12,6 +12,7 @@
                                     :return-object="false"
                                     v-on:change="changeServer"
                                     v-model="server"
+                                    autofocus
                             />
                         </v-card-text>
                         <v-card-actions>
