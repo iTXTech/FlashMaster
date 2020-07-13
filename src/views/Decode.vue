@@ -11,7 +11,17 @@
                         </v-btn>
                     </v-app-bar>
                     <v-card-text>
-                        <v-text-field clearable class="pn" v-model="partNumber" v-on:keyup.enter="query" autofocus/>
+                        <v-combobox
+                                :items="searchedPns"
+                                :return-object="false"
+                                clearable
+                                class="pn"
+                                v-model="partNumber"
+                                v-on:keyup.enter="query"
+                                v-on:input="query"
+                                v-on:update:search-input="searchPnDirectly"
+                                autofocus
+                        />
                     </v-card-text>
                     <v-card-actions>
                         <v-btn text color="primary" @click="query">{{$t("query")}}</v-btn>
@@ -215,6 +225,7 @@
                 flashIds: [],
                 urls: [],
                 sum: "",
+                searchedPns: []
             };
         },
         computed: {
@@ -239,6 +250,22 @@
             }
         },
         methods: {
+            searchPnDirectly(pn) {
+                this.searchedPns = [];
+                if (pn.length >= 3) {
+                    fetch(store.getServerAddress() + "/searchPn?limit=10&lang=" + store.getLang() + "&pn=" + pn)
+                        .then(r => r.json())
+                        .then(data => {
+                            for (let d in data.data) {
+                                let pn = String(data.data[d]).split(" ");
+                                this.searchedPns.push({
+                                    value: pn[1],
+                                    text: pn[0] + " / " + pn[1] + (pn[2] != null ? (" / " + pn[2]) : "")
+                                });
+                            }
+                        });
+                }
+            },
             processPn() {
                 this.partNumber = this.partNumber
                     .toUpperCase()
@@ -334,12 +361,6 @@
                             });
                             bus.$emit("loading", false);
                         });
-                } else {
-                    bus.$emit("snackbar", {
-                        timeout: 3000,
-                        show: true,
-                        text: this.$t("alert.missingPartNumber")
-                    });
                 }
             },
             getVendorLogo() {

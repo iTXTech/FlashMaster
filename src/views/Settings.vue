@@ -10,7 +10,7 @@
                                     :items="items"
                                     :label="$t('settings.serverAddr')"
                                     :return-object="false"
-                                    v-on:change="changeServer"
+                                    v-on:input="changeServer"
                                     v-model="server"
                                     autofocus
                             />
