@@ -34,7 +34,6 @@ module.exports = {
         content: '共查询料号 {0} 次。<br/>共搜索料号 {1} 个。<br/>共搜索闪存ID {2} 个。'
     },
     version: '版本：{0}',
-    loading: '加载中',
     unknown: '未知',
     query: '查询料号',
     search: '搜索料号',

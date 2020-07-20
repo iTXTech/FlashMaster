@@ -4,14 +4,6 @@
         <v-content>
             <router-view/>
         </v-content>
-        <v-dialog v-model="loading" hide-overlay persistent width="300">
-            <v-card color="primary" dark>
-                <v-card-text>
-                    {{$t('loading')}}
-                    <v-progress-linear indeterminate color="white" class="mb-0"/>
-                </v-card-text>
-            </v-card>
-        </v-dialog>
         <v-snackbar v-model="snackbar.show" :timeout="snackbar.timeout">
             {{snackbar.text}}
             <template v-slot:action="{ attrs }">
@@ -48,12 +40,16 @@
                     timeout: 1000,
                     show: false,
                     text: ""
-                },
-                loading: false
+                }
             };
         },
         components: {
             Drawer
+        },
+        computed: {
+            translateEvent() {
+                return this.$t("lang")
+            }
         },
         methods: {
             drawer(v) {
@@ -61,24 +57,27 @@
                 if (path !== "/searchId" && path !== "/searchPn") {
                     bus.$emit("drawer", v)
                 }
+            },
+            updateTitle(meta) {
+                if (meta.title) {
+                    document.title = "FlashMaster - " + this.$t(meta.title);
+                } else {
+                    document.title = "iTXTech FlashMaster";
+                }
             }
         },
         watch: {
             $route(to, from) {
-                if (to.meta.title) {
-                    document.title = "FlashMaster - " + this.$t(to.meta.title);
-                } else {
-                    document.title = "iTXTech FlashMaster";
-                }
+                this.updateTitle(to.meta)
+            },
+            translateEvent() {
+                this.updateTitle(this.$router.currentRoute.meta)
             }
         },
         mounted: function () {
             let vm = this;
             bus.$on("snackbar", data => {
                 vm.snackbar = data;
-            });
-            bus.$on("loading", data => {
-                vm.loading = data;
             });
         }
     };

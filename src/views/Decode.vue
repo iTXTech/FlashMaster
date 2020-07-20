@@ -16,11 +16,11 @@
                                 :return-object="false"
                                 clearable
                                 class="pn"
-                                v-model="partNumber"
                                 v-on:keyup.enter="query"
-                                v-on:input="query"
                                 v-on:update:search-input="searchPnDirectly"
                                 ref="pnInput"
+                                no-filter
+                                v-bind:loading="loading"
                         />
                     </v-card-text>
                     <v-card-actions>
@@ -225,7 +225,8 @@
                 flashIds: [],
                 urls: [],
                 sum: "",
-                searchedPns: []
+                searchedPns: [],
+                loading: false
             };
         },
         computed: {
@@ -250,10 +251,19 @@
             }
         },
         methods: {
-            searchPnDirectly(pn) {
+            showLoading(open) {
+                if (open === false) {
+                    this.loading = false
+                } else {
+                    this.loading = "primary"
+                }
+            },
+            searchPnDirectly(input) {
                 this.searchedPns = [];
-                if (pn.length >= 3) {
-                    fetch(store.getServerAddress() + "/searchPn?limit=10&lang=" + store.getLang() + "&pn=" + pn)
+                input = String(input).trim()
+                this.partNumber = input
+                if (input.length >= 3) {
+                    fetch(store.getServerAddress() + "/searchPn?limit=10&lang=" + store.getLang() + "&pn=" + input)
                         .then(r => r.json())
                         .then(data => {
                             for (let d in data.data) {
@@ -281,7 +291,7 @@
                             query: {pn: this.partNumber}
                         });
                     }
-                    bus.$emit("loading", true);
+                    this.showLoading(true);
                     fetch(store.getServerAddress() + "/decode?lang=" + store.getLang() + "&pn=" + this.partNumber)
                         .then(r => r.json())
                         .then(data => {
@@ -350,7 +360,7 @@
                                     })
                                 }
                             }
-                            bus.$emit("loading", false);
+                            this.showLoading(false);
                             store.statDecodeIdInc();
                         })
                         .catch(err => {
@@ -359,7 +369,7 @@
                                 show: true,
                                 text: this.$t("alert.fetchFailed", [err])
                             });
-                            bus.$emit("loading", false);
+                            this.showLoading(false);
                         });
                 }
             },
@@ -460,7 +470,7 @@
             summary() {
                 if (this.partNumber != null && this.partNumber !== "") {
                     this.processPn();
-                    bus.$emit("loading", true);
+                    this.showLoading(true);
                     fetch(store.getServerAddress() + "/summary?lang=" + store.getLang() + "&pn=" + this.partNumber)
                         .then(r => r.json())
                         .then(data => {
@@ -479,7 +489,7 @@
                                     }
                                 }
                             );
-                            bus.$emit("loading", false);
+                            this.showLoading(false);
                         })
                         .catch(err => {
                             bus.$emit("snackbar", {
@@ -487,7 +497,7 @@
                                 show: true,
                                 text: this.$t("alert.fetchFailed", [err])
                             });
-                            bus.$emit("loading", false);
+                            this.showLoading(false);
                         });
                 } else {
                     bus.$emit("snackbar", {

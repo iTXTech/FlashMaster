@@ -14,6 +14,7 @@
                             class="pn"
                             v-on:keyup.enter="search"
                             ref="idInput"
+                            v-bind:loading="loading"
                     />
                     <v-btn icon @click="search">
                         <v-icon>mdi-arrow-right</v-icon>
@@ -66,7 +67,8 @@
             return {
                 id: "",
                 ids: [],
-                page: 1
+                page: 1,
+                loading: false
             };
         },
         computed: {
@@ -83,6 +85,13 @@
             }
         },
         methods: {
+            showLoading(open) {
+                if (open === false) {
+                    this.loading = false
+                } else {
+                    this.loading = "primary"
+                }
+            },
             search() {
                 if (this.id != null && this.id !== "") {
                     this.id = this.id
@@ -96,7 +105,7 @@
                         });
                     }
                     this.page = 1;
-                    bus.$emit("loading", true);
+                    this.showLoading(true);
                     fetch(store.getServerAddress() + "/searchId?lang=" + store.getLang() + "&id=" + this.id)
                         .then(r => r.json())
                         .then(data => {
@@ -124,7 +133,7 @@
                                     controllers: cons
                                 });
                             }
-                            bus.$emit("loading", false);
+                            this.showLoading(false);
                             store.statSearchIdInc();
                         })
                         .catch(err => {
@@ -133,7 +142,7 @@
                                 show: true,
                                 text: this.$t("alert.fetchFailed", [err])
                             });
-                            bus.$emit("loading", false);
+                            this.showLoading(false);
                         });
                 } else {
                     bus.$emit("snackbar", {
