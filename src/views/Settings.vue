@@ -24,8 +24,13 @@
                     <v-card>
                         <v-card-title>{{$t('customization.title')}}</v-card-title>
                         <v-card-text>
+                            <v-select
+                                    :items="themes"
+                                    :return-object="false"
+                                    v-on:change="changeTheme"
+                                    :label="$t('customization.theme')"
+                            />
                             <v-checkbox
-                                    v-model="hideKeyboard"
                                     v-on:change="togHideKeyboard"
                                     :label="$t('customization.autoHideSoftKeyboard')"
                             />
@@ -79,6 +84,22 @@
             },
             transStat() {
                 return this.updateStat();
+            },
+            themes() {
+                return [
+                    {
+                        text: this.$t("customization.darkTheme"),
+                        value: "0"
+                    },
+                    {
+                        text: this.$t("customization.lightTheme"),
+                        value: "1"
+                    },
+                    {
+                        text: this.$t("customization.systemTheme"),
+                        value: "2"
+                    }
+                ];
             }
         },
         data() {
@@ -89,8 +110,7 @@
                     show: false,
                     text: ""
                 },
-                statContent: "",
-                hideKeyboard: false
+                statContent: ""
             };
         },
         created() {
@@ -110,8 +130,12 @@
                 });
         },
         methods: {
-            togHideKeyboard() {
-                store.setAutoHideSoftKeyboard(this.hideKeyboard);
+            changeTheme(theme) {
+                store.setTheme(theme)
+                bus.$emit("theme");
+            },
+            togHideKeyboard(value) {
+                store.setAutoHideSoftKeyboard(value);
             },
             changeServer(server) {
                 store.setServerAddress(server);

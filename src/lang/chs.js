@@ -35,7 +35,11 @@ module.exports = {
     },
     customization: {
         title: '个性化',
-        autoHideSoftKeyboard: '自动隐藏软键盘'
+        autoHideSoftKeyboard: '自动隐藏软键盘',
+        theme: '主题',
+        darkTheme: '深色',
+        lightTheme: '浅色',
+        systemTheme: '跟随系统'
     },
     version: '版本：{0}',
     unknown: '未知',
