@@ -29,9 +29,11 @@
                                     :return-object="false"
                                     v-on:change="changeTheme"
                                     :label="$t('customization.theme')"
+                                    v-model="currentTheme"
                             />
                             <v-checkbox
                                     v-on:change="togHideKeyboard"
+                                    v-model="hideKeyboard"
                                     :label="$t('customization.autoHideSoftKeyboard')"
                             />
                         </v-card-text>
@@ -110,10 +112,13 @@
                     show: false,
                     text: ""
                 },
-                statContent: ""
+                statContent: "",
+                hideKeyboard: false,
+                currentTheme: "0"
             };
         },
         created() {
+            this.currentTheme = store.getTheme();
             this.hideKeyboard = store.isAutoHideSoftKeyboard();
             this.statContent = this.updateStat();
             fetch("https://raw.githubusercontent.com/PeratX/FlashMaster/master/servers.json")
