@@ -16,7 +16,7 @@
                             ref="pnInput"
                             v-bind:loading="loading"
                     />
-                    <v-btn icon @click="search">
+                    <v-btn icon v-on:click="search">
                         <v-icon>mdi-arrow-right</v-icon>
                     </v-btn>
                 </v-app-bar>
@@ -37,7 +37,7 @@
                             }"
                     >
                         <template v-slot:item.action="{ item }">
-                            <v-btn icon @click="decodeFlashId(item)">
+                            <v-btn icon v-on:click="decodeFlashId(item)">
                                 <v-icon>mdi-arrow-top-left-thick</v-icon>
                             </v-btn>
                         </template>
@@ -142,7 +142,7 @@
                 this.search();
             } else {
                 setTimeout(() => {
-                    this.$refs["pnInput"].$refs.input.focus()
+                    this.$refs.pnInput.$refs.input.focus()
                 })
             }
         }

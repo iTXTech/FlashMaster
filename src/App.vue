@@ -1,13 +1,13 @@
 <template>
     <v-app id="app" v-touch="{right: () => drawer(true), left: () => drawer(false)}">
         <Drawer/>
-        <v-content>
+        <v-main>
             <router-view/>
-        </v-content>
+        </v-main>
         <v-snackbar v-model="snackbar.show" :timeout="snackbar.timeout">
             {{snackbar.text}}
             <template v-slot:action="{ attrs }">
-                <v-btn v-bind="attrs" text color="blue" @click="snackbar.show = false">{{$t('close')}}</v-btn>
+                <v-btn v-bind="attrs" text color="blue" v-on:click="snackbar.show = false">{{$t('close')}}</v-btn>
             </template>
         </v-snackbar>
     </v-app>

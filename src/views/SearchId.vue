@@ -16,7 +16,7 @@
                             ref="idInput"
                             v-bind:loading="loading"
                     />
-                    <v-btn icon @click="search">
+                    <v-btn icon v-on:click="search">
                         <v-icon>mdi-arrow-right</v-icon>
                     </v-btn>
                 </v-app-bar>
@@ -45,7 +45,7 @@
                                 </template>
                                 <v-list>
                                     <v-list-item v-for="(it, index) in item.partNumberList" :key="index"
-                                                 @click="list(it)">
+                                                 v-on:click="list(it)">
                                         <v-list-item-action class="mx-0">{{ it }}</v-list-item-action>
                                     </v-list-item>
                                 </v-list>
@@ -165,7 +165,7 @@
                 this.search();
             } else {
                 setTimeout(() => {
-                    this.$refs["idInput"].$refs.input.focus()
+                    this.$refs.idInput.$refs.input.focus()
                 })
             }
         }

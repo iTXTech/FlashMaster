@@ -32,7 +32,7 @@
         </v-navigation-drawer>
 
         <v-app-bar :clipped-left="$vuetify.breakpoint.lgAndUp" app color="primary" dark>
-            <v-app-bar-nav-icon @click.stop="drawer = !drawer"/>
+            <v-app-bar-nav-icon v-on:click.stop="drawer = !drawer"/>
             <v-img
                     alt="FlashMaster Logo"
                     :src="require('@/assets/logo.png')"
@@ -53,7 +53,7 @@
                     </v-btn>
                 </template>
                 <v-list>
-                    <v-list-item v-for="(item, index) in langs" :key="index" @click="changeLanguage(item.code)">
+                    <v-list-item v-for="(item, index) in langs" :key="index" v-on:click="changeLanguage(item.code)">
                         <v-list-item-title>{{ item.name }}</v-list-item-title>
                     </v-list-item>
                 </v-list>

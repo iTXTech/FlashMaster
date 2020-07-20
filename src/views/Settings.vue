@@ -15,7 +15,7 @@
                             />
                         </v-card-text>
                         <v-card-actions>
-                            <v-btn text color="primary" @click="serverInfo">{{$t("settings.serverInfo")}}</v-btn>
+                            <v-btn text color="primary" v-on:click="serverInfo">{{$t("settings.serverInfo")}}</v-btn>
                         </v-card-actions>
                     </v-card>
                 </v-flex>
@@ -25,7 +25,7 @@
                         <v-card-title>{{$t('statistic.title')}}</v-card-title>
                         <v-card-text v-html="statContent"/>
                         <v-card-actions>
-                            <v-btn text color="primary" @click="resetStat">{{$t("statistic.reset")}}</v-btn>
+                            <v-btn text color="primary" v-on:click="resetStat">{{$t("statistic.reset")}}</v-btn>
                         </v-card-actions>
                     </v-card>
                 </v-flex>
@@ -38,7 +38,7 @@
                 <v-card-text v-html="dialog.text"/>
                 <v-card-actions>
                     <v-spacer/>
-                    <v-btn color="primary" text @click="dialog.show = false">{{$t('close')}}</v-btn>
+                    <v-btn color="primary" text v-on:click="dialog.show = false">{{$t('close')}}</v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>

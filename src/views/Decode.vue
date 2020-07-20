@@ -6,7 +6,7 @@
                     <v-app-bar flat dense color="transparent">
                         <v-toolbar-title>{{$t('partNumberOrFlashId')}}</v-toolbar-title>
                         <v-spacer/>
-                        <v-btn icon @click="summary">
+                        <v-btn icon v-on:click="summary">
                             <v-icon>mdi-book-information-variant</v-icon>
                         </v-btn>
                     </v-app-bar>
@@ -16,6 +16,7 @@
                                 :return-object="false"
                                 clearable
                                 class="pn"
+                                v-model="box"
                                 v-on:keyup.enter="query"
                                 v-on:update:search-input="searchPnDirectly"
                                 ref="pnInput"
@@ -24,9 +25,9 @@
                         />
                     </v-card-text>
                     <v-card-actions>
-                        <v-btn text color="primary" @click="query">{{$t("query")}}</v-btn>
-                        <v-btn text color="primary" @click="search">{{$t("search")}}</v-btn>
-                        <v-btn text color="primary" @click="searchId">{{$t("searchId")}}</v-btn>
+                        <v-btn text color="primary" v-on:click="query">{{$t("query")}}</v-btn>
+                        <v-btn text color="primary" v-on:click="search">{{$t("search")}}</v-btn>
+                        <v-btn text color="primary" v-on:click="searchId">{{$t("searchId")}}</v-btn>
                     </v-card-actions>
                 </v-card>
             </v-flex>
@@ -90,7 +91,7 @@
                     <v-app-bar flat dense color="transparent">
                         <v-toolbar-title>{{$t('extraInfo')}}</v-toolbar-title>
                         <v-spacer/>
-                        <v-btn icon @click="copyAll">
+                        <v-btn icon v-on:click="copyAll">
                             <v-icon>mdi-content-copy</v-icon>
                         </v-btn>
                     </v-app-bar>
@@ -106,7 +107,7 @@
                                 :items-per-page="itemsPerPage"
                         >
                             <template v-slot:item.copy="{ item }">
-                                <v-btn icon @click="copy(item)">
+                                <v-btn icon v-on:click="copy(item)">
                                     <v-icon>mdi-content-copy</v-icon>
                                 </v-btn>
                             </template>
@@ -120,7 +121,7 @@
                     <v-app-bar flat dense color="transparent">
                         <v-toolbar-title>{{$t('flashIds')}}</v-toolbar-title>
                         <v-spacer/>
-                        <v-btn icon @click="copyAllFlashIds">
+                        <v-btn icon v-on:click="copyAllFlashIds">
                             <v-icon>mdi-content-copy</v-icon>
                         </v-btn>
                     </v-app-bar>
@@ -136,10 +137,10 @@
                                 :items-per-page="itemsPerPage"
                         >
                             <template v-slot:item.action="{ item }">
-                                <v-btn icon @click="searchFlashId(item)">
+                                <v-btn icon v-on:click="searchFlashId(item)">
                                     <v-icon>mdi-magnify</v-icon>
                                 </v-btn>
-                                <v-btn icon @click="copyFlashId(item)">
+                                <v-btn icon v-on:click="copyFlashId(item)">
                                     <v-icon>mdi-content-copy</v-icon>
                                 </v-btn>
                             </template>
@@ -163,7 +164,7 @@
                                 :items-per-page="itemsPerPage"
                         >
                             <template v-slot:item.action="{ item }">
-                                <v-btn icon @click="open(item.url)">
+                                <v-btn icon v-on:click="open(item.url)">
                                     <v-icon>mdi-open-in-new</v-icon>
                                 </v-btn>
                             </template>
@@ -181,8 +182,8 @@
                 </v-card-text>
                 <v-card-actions>
                     <v-spacer/>
-                    <v-btn color="primary" text @click="copyFromDialog">{{$t('copy')}}</v-btn>
-                    <v-btn color="primary" text @click="dialog.show = false">{{$t('close')}}</v-btn>
+                    <v-btn color="primary" text v-on:click="copyFromDialog">{{$t('copy')}}</v-btn>
+                    <v-btn color="primary" text v-on:click="dialog.show = false">{{$t('close')}}</v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
@@ -226,7 +227,8 @@
                 urls: [],
                 sum: "",
                 searchedPns: [],
-                loading: false
+                loading: false,
+                box: ""
             };
         },
         computed: {
@@ -273,6 +275,16 @@
                                     text: pn[0] + " / " + pn[1] + (pn[2] != null ? (" / " + pn[2]) : "")
                                 });
                             }
+                            setTimeout(() => {
+                                if (this.$refs.pnInput.$refs.menu.$children.length > 0) {
+                                    let list = this.$refs.pnInput.$refs.menu.$children[0].$children[0]
+                                    list.$on("select", e => {
+                                        this.box = e.value;
+                                        this.partNumber = this.box;
+                                        this.query();
+                                    })
+                                }
+                            }, 100)
                         });
                 }
             },
@@ -532,11 +544,12 @@
         },
         created: function () {
             if (Object.keys(this.$route.query).includes("pn")) {
-                this.partNumber = this.$route.query.pn;
+                this.box = this.$route.query.pn;
+                this.partNumber = this.box
                 this.query();
             } else {
                 setTimeout(() => {
-                    this.$refs["pnInput"].$refs.input.focus()
+                    this.$refs.pnInput.$refs.input.focus()
                 })
             }
         }
