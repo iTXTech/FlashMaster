@@ -58,7 +58,7 @@ const getLang = () => {
 }
 
 const isMobile = () => {
-    return true
+    return /Mobi/i.test(window.navigator.userAgent)
 }
 
 const setAutoHideSoftKeyboard = (b) => {
@@ -67,7 +67,7 @@ const setAutoHideSoftKeyboard = (b) => {
 
 const isAutoHideSoftKeyboard = () => {
     if (isNaN(Number(localStorage.autoHideSoftKeyboard))) {
-        localStorage.autoHideSoftKeyboard = isMobile();
+        setAutoHideSoftKeyboard(isMobile());
     }
     return localStorage.autoHideSoftKeyboard === "1"
 }
