@@ -78,6 +78,17 @@ const partNumberFormat = str => {
         .replace(/ /g, "");
 }
 
+const setTheme = theme => {
+    localStorage.theme = theme;
+}
+
+const getTheme = () => {
+    if (isNaN(Number(localStorage.theme))) {
+        setTheme("0");
+    }
+    return localStorage.theme
+}
+
 export default {
     getServerAddress,
     setServerAddress,
@@ -92,5 +103,7 @@ export default {
     getLang,
     setAutoHideSoftKeyboard,
     isAutoHideSoftKeyboard,
-    partNumberFormat
+    partNumberFormat,
+    setTheme,
+    getTheme
 }

@@ -161,7 +161,7 @@
                 });
             }
         },
-        created: function () {
+        created() {
             if (Object.keys(this.$route.query).includes("id")) {
                 this.id = this.$route.query.id;
                 this.search();

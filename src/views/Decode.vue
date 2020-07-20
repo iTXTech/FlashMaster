@@ -545,7 +545,7 @@
                 window.open(url, '_blank')
             }
         },
-        created: function () {
+        created() {
             if (Object.keys(this.$route.query).includes("pn")) {
                 this.box = this.$route.query.pn;
                 this.partNumber = this.box

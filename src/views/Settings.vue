@@ -93,7 +93,7 @@
                 hideKeyboard: false
             };
         },
-        created: function () {
+        created() {
             this.hideKeyboard = store.isAutoHideSoftKeyboard();
             this.statContent = this.updateStat();
             fetch("https://raw.githubusercontent.com/PeratX/FlashMaster/master/servers.json")

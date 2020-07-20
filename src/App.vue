@@ -32,6 +32,7 @@
 <script>
     import Drawer from "@/components/Drawer";
     import bus from "@/store/bus.js";
+    import store from "@/store";
 
     export default {
         data: () => {
@@ -64,6 +65,20 @@
                 } else {
                     document.title = "iTXTech FlashMaster";
                 }
+            },
+            updateTheme() {
+                let theme = store.getTheme();
+                switch (theme) {
+                    case "0":
+                        this.$vuetify.theme.dark = true;
+                        break;
+                    case "1":
+                        this.$vuetify.theme.dark = false;
+                        break;
+                    case "2":
+                        this.$vuetify.theme.dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                        break;
+                }
             }
         },
         watch: {
@@ -79,6 +94,17 @@
             bus.$on("snackbar", data => {
                 vm.snackbar = data;
             });
+            bus.$on("theme", () => {
+                vm.updateTheme();
+            })
+        },
+        created() {
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+                if (store.getTheme() === "2") {
+                    this.updateTheme();
+                }
+            });
+            this.updateTheme();
         }
     };
 </script>

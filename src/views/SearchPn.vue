@@ -138,7 +138,7 @@
                 });
             }
         },
-        created: function () {
+        created() {
             if (Object.keys(this.$route.query).includes("pn")) {
                 this.partNumber = this.$route.query.pn;
                 this.search();
