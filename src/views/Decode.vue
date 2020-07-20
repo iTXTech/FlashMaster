@@ -261,8 +261,8 @@
                 }
             },
             searchPnDirectly(input) {
-                this.searchedPns = [];
                 input = String(input).trim()
+                this.searchedPns = [];
                 this.partNumber = input
                 if (input.length >= 3) {
                     fetch(store.getServerAddress() + "/searchPn?limit=10&lang=" + store.getLang() + "&pn=" + input)
@@ -289,13 +289,16 @@
                 }
             },
             processPn() {
-                this.partNumber = this.partNumber
-                    .toUpperCase()
-                    .replace(/,/g, "")
-                    .replace(/ /g, "");
+                this.partNumber = store.partNumberFormat(this.partNumber);
             },
             query() {
                 if (this.partNumber != null && this.partNumber !== "") {
+                    setTimeout(() => {
+                        this.$refs.pnInput.isMenuActive = false;
+                        if (store.isAutoHideSoftKeyboard()) {
+                            this.$refs.pnInput.blur();
+                        }
+                    });
                     this.processPn();
                     if (this.$route.query.pn !== this.partNumber) {
                         router.push({

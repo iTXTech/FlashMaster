@@ -86,10 +86,12 @@
             },
             search() {
                 if (this.partNumber != null && this.partNumber !== "") {
-                    this.partNumber = this.partNumber
-                        .toUpperCase()
-                        .replace(/,/g, "")
-                        .replace(/ /g, "");
+                    if (store.isAutoHideSoftKeyboard()) {
+                        setTimeout(() => {
+                            this.$refs.pnInput.blur();
+                        });
+                    }
+                    this.partNumber = store.partNumberFormat(this.partNumber);
                     if (this.$route.query.pn !== this.partNumber) {
                         router.push({
                             path: "/searchPn",

@@ -80,7 +80,7 @@
                     {text: this.$t("pagesPerBlock"), value: "pagesPerBlock", align: "left"},
                     {text: this.$t("partNumber"), value: "partNumbers", align: "left"},
                     {text: this.$t("action"), value: "action"},
-                    {text: this.$t("controllers"), value: "controllers", aligh: "left"}
+                    {text: this.$t("controllers"), value: "controllers", align: "left"}
                 ];
             }
         },
@@ -94,10 +94,12 @@
             },
             search() {
                 if (this.id != null && this.id !== "") {
-                    this.id = this.id
-                        .toUpperCase()
-                        .replace(/,/g, "")
-                        .replace(/ /g, "");
+                    if (store.isAutoHideSoftKeyboard()) {
+                        setTimeout(() => {
+                            this.$refs.idInput.blur();
+                        });
+                    }
+                    this.id = store.partNumberFormat(this.id);
                     if (this.$route.query.id !== this.id) {
                         router.push({
                             path: "/searchId",

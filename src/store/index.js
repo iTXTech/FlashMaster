@@ -57,6 +57,27 @@ const getLang = () => {
     return localStorage.lang || "chs"
 }
 
+const isMobile = () => {
+    return true
+}
+
+const setAutoHideSoftKeyboard = (b) => {
+    localStorage.autoHideSoftKeyboard = b ? "1" : "0"
+}
+
+const isAutoHideSoftKeyboard = () => {
+    if (isNaN(Number(localStorage.autoHideSoftKeyboard))) {
+        localStorage.autoHideSoftKeyboard = isMobile();
+    }
+    return localStorage.autoHideSoftKeyboard === "1"
+}
+
+const partNumberFormat = str => {
+    return str.toUpperCase()
+        .replace(/,/g, "")
+        .replace(/ /g, "");
+}
+
 export default {
     getServerAddress,
     setServerAddress,
@@ -68,5 +89,8 @@ export default {
     statSearchId,
     resetStat,
     getProjectVersion,
-    getLang
+    getLang,
+    setAutoHideSoftKeyboard,
+    isAutoHideSoftKeyboard,
+    partNumberFormat
 }

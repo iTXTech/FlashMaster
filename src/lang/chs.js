@@ -33,6 +33,10 @@ module.exports = {
         resetInfo: '统计数据已重置。',
         content: '共查询料号 {0} 次。<br/>共搜索料号 {1} 个。<br/>共搜索闪存ID {2} 个。'
     },
+    customization: {
+        title: '个性化',
+        autoHideSoftKeyboard: '自动隐藏软键盘'
+    },
     version: '版本：{0}',
     unknown: '未知',
     query: '查询料号',

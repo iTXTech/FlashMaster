@@ -15,7 +15,22 @@
                             />
                         </v-card-text>
                         <v-card-actions>
-                            <v-btn text color="primary" v-on:click="serverInfo">{{$t("settings.serverInfo")}}</v-btn>
+                            <v-btn text color="primary" v-on:click="serverInfo">{{$t('settings.serverInfo')}}</v-btn>
+                        </v-card-actions>
+                    </v-card>
+                </v-flex>
+
+                <v-flex lg3 sm12 xs12>
+                    <v-card>
+                        <v-card-title>{{$t('customization.title')}}</v-card-title>
+                        <v-card-text>
+                            <v-checkbox
+                                    v-model="hideKeyboard"
+                                    v-on:change="togHideKeyboard"
+                                    :label="$t('customization.autoHideSoftKeyboard')"
+                            />
+                        </v-card-text>
+                        <v-card-actions>
                         </v-card-actions>
                     </v-card>
                 </v-flex>
@@ -25,7 +40,7 @@
                         <v-card-title>{{$t('statistic.title')}}</v-card-title>
                         <v-card-text v-html="statContent"/>
                         <v-card-actions>
-                            <v-btn text color="primary" v-on:click="resetStat">{{$t("statistic.reset")}}</v-btn>
+                            <v-btn text color="primary" v-on:click="resetStat">{{$t('statistic.reset')}}</v-btn>
                         </v-card-actions>
                     </v-card>
                 </v-flex>
@@ -74,10 +89,12 @@
                     show: false,
                     text: ""
                 },
-                statContent: ""
+                statContent: "",
+                hideKeyboard: false
             };
         },
         created: function () {
+            this.hideKeyboard = store.isAutoHideSoftKeyboard();
             this.statContent = this.updateStat();
             fetch("https://raw.githubusercontent.com/PeratX/FlashMaster/master/servers.json")
                 .then(r => r.json())
@@ -93,6 +110,9 @@
                 });
         },
         methods: {
+            togHideKeyboard() {
+                store.setAutoHideSoftKeyboard(this.hideKeyboard);
+            },
             changeServer(server) {
                 store.setServerAddress(server);
             },
