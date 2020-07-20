@@ -14,7 +14,7 @@
                             class="pn"
                             v-on:keyup.enter="search"
                             ref="idInput"
-                            v-bind:loading="loading"
+                            :loading="loading"
                     />
                     <v-btn icon v-on:click="search">
                         <v-icon>mdi-arrow-right</v-icon>

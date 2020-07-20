@@ -21,7 +21,7 @@
                                 v-on:update:search-input="searchPnDirectly"
                                 ref="pnInput"
                                 no-filter
-                                v-bind:loading="loading"
+                                :loading="loading"
                         />
                     </v-card-text>
                     <v-card-actions>
