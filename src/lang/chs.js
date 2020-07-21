@@ -37,9 +37,10 @@ module.exports = {
         title: '个性化',
         autoHideSoftKeyboard: '自动隐藏软键盘',
         theme: '主题',
-        darkTheme: '深色',
-        lightTheme: '浅色',
-        systemTheme: '跟随系统'
+        theme_0: '深色',
+        theme_1: '浅色',
+        theme_2: '跟随系统',
+        theme_3: '粉红'
     },
     version: '版本：{0}',
     unknown: '未知',

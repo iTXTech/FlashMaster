@@ -32,24 +32,7 @@ const vuetify = new Vuetify({
     lang: {
         locales: {chs, eng},
         current: store.getLang(),
-    },
-    theme: {
-        dark: true,
-        themes: {
-            dark: {
-                primary: '#1e88e5',
-                secondary: '#005cb2',
-                accent: '#6ab7ff',
-                error: '#b71c1c',
-            },
-            light: {
-                primary: '#1e88e5',
-                secondary: '#005cb2',
-                accent: '#6ab7ff',
-                error: '#b71c1c',
-            }
-        },
-    },
+    }
 });
 
 new Vue({

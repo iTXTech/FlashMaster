@@ -1,7 +1,7 @@
 <template>
     <v-container grid-list-xl fluid>
         <v-flex lg12>
-            <v-card>
+            <v-card class="fm-bg">
                 <v-app-bar flat dense color="transparent">
                     <v-text-field
                             flat
@@ -15,6 +15,7 @@
                             v-on:keyup.enter="search"
                             ref="idInput"
                             :loading="loading"
+                            background-color="transparent"
                     />
                     <v-btn icon v-on:click="search">
                         <v-icon>mdi-arrow-right</v-icon>
@@ -26,7 +27,7 @@
                             :headers="idHeaders"
                             :items="ids"
                             disable-sort
-                            class="elevation-1"
+                            class="elevation-1 fm-bg"
                             no-data-text=""
                             :mobile-breakpoint="NaN"
                             :items-per-page="15"

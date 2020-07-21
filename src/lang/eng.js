@@ -37,9 +37,10 @@ module.exports = {
         title: 'Customization',
         autoHideSoftKeyboard: 'Auto hide soft keyboard',
         theme: 'Theme',
-        darkTheme: 'Dark',
-        lightTheme: 'Light',
-        systemTheme: 'System'
+        theme_0: 'Dark',
+        theme_1: 'Light',
+        theme_2: 'System',
+        theme_3: 'Pink'
     },
     version: 'Version: {0}',
     unknown: 'Unknown',

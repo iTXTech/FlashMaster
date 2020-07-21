@@ -13,6 +13,10 @@
     </v-app>
 </template>
 <style>
+    .fm-bg {
+        background-color: var(--card-color) !important;
+    }
+
     .pn input {
         text-transform: uppercase;
     }
@@ -33,6 +37,7 @@
     import Drawer from "@/components/Drawer";
     import bus from "@/store/bus.js";
     import store from "@/store";
+    import themeManager from "@/theme";
 
     export default {
         data: () => {
@@ -41,7 +46,8 @@
                     timeout: 1000,
                     show: false,
                     text: ""
-                }
+                },
+                themeStyle: ""
             };
         },
         components: {
@@ -67,18 +73,27 @@
                 }
             },
             updateTheme() {
-                let theme = store.getTheme();
-                switch (theme) {
-                    case "0":
-                        this.$vuetify.theme.dark = true;
-                        break;
-                    case "1":
-                        this.$vuetify.theme.dark = false;
-                        break;
-                    case "2":
-                        this.$vuetify.theme.dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-                        break;
+                let t = store.getTheme();
+                if (t === themeManager.THEME_SYSTEM) {
+                    t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? themeManager.THEME_DARK : themeManager.THEME_LIGHT;
                 }
+                let theme = themeManager.THEMES[t];
+                this.$vuetify.theme.dark = theme.dark;
+                let color;
+                if ("color" in theme) {
+                    color = theme.color;
+                } else {
+                    color = themeManager.DEFAULT_COLOR;
+                }
+                for (let key in color) {
+                    this.$vuetify.theme.themes[theme.dark ? "dark" : "light"][key] = color[key];
+                }
+                if ("style" in theme) {
+                    this.themeStyle = theme.style;
+                } else {
+                    this.themeStyle = "";
+                }
+                this.themeStyle = "--card-color: " + theme.card + ";" + this.themeStyle;
             }
         },
         watch: {
@@ -100,7 +115,7 @@
         },
         created() {
             window.matchMedia('(prefers-color-scheme: dark)').addListener(e => {
-                if (store.getTheme() === "2") {
+                if (store.getTheme() === themeManager.THEME_SYSTEM) {
                     this.updateTheme();
                 }
             });

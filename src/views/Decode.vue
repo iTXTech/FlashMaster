@@ -2,7 +2,7 @@
     <v-container grid-list-xl fluid>
         <v-layout row wrap>
             <v-flex lg4 sm12 xs12>
-                <v-card>
+                <v-card class="fm-bg">
                     <v-app-bar flat dense color="transparent">
                         <v-toolbar-title>{{$t('partNumberOrFlashId')}}</v-toolbar-title>
                         <v-spacer/>
@@ -25,15 +25,15 @@
                         />
                     </v-card-text>
                     <v-card-actions>
-                        <v-btn text color="primary" v-on:click="query">{{$t("query")}}</v-btn>
-                        <v-btn text color="primary" v-on:click="search">{{$t("search")}}</v-btn>
-                        <v-btn text color="primary" v-on:click="searchId">{{$t("searchId")}}</v-btn>
+                        <v-btn color="accent" text v-on:click="query">{{$t("query")}}</v-btn>
+                        <v-btn color="accent" text v-on:click="search">{{$t("search")}}</v-btn>
+                        <v-btn color="accent" text v-on:click="searchId">{{$t("searchId")}}</v-btn>
                     </v-card-actions>
                 </v-card>
             </v-flex>
 
             <v-flex lg2 sm12 xs12>
-                <v-card>
+                <v-card class="fm-bg">
                     <v-card-title>{{$t('vendor')}}</v-card-title>
                     <v-card-text>
                         <v-img :src="vendorLogo"/>
@@ -43,7 +43,7 @@
             </v-flex>
 
             <v-flex lg2 sm12 xs12>
-                <v-card>
+                <v-card class="fm-bg">
                     <v-card-text>
                         <v-text-field :label="$t('type')" v-model="type"/>
                         <v-text-field :label="$t('density')" v-model="density"/>
@@ -54,7 +54,7 @@
             </v-flex>
 
             <v-flex lg2 sm12 xs12>
-                <v-card>
+                <v-card class="fm-bg">
                     <v-card-text>
                         <v-text-field :label="$t('processNode')" v-model="processNode"/>
                         <v-text-field :label="$t('generation')" v-model="generation"/>
@@ -65,7 +65,7 @@
             </v-flex>
 
             <v-flex lg2 sm12 xs12>
-                <v-card>
+                <v-card class="fm-bg">
                     <v-card-text>
                         <v-text-field :label="$t('ce')" v-model="ce"/>
                         <v-text-field :label="$t('ch')" v-model="ch"/>
@@ -76,7 +76,7 @@
             </v-flex>
 
             <v-flex lg5 sm12 xs12>
-                <v-card>
+                <v-card class="fm-bg">
                     <v-card-text>
                         <v-text-field :label="$t('voltage')" v-model="voltage"/>
                         <v-text-field :label="$t('package')" v-model="pkg"/>
@@ -87,7 +87,7 @@
             </v-flex>
 
             <v-flex lg4 sm12 xs12>
-                <v-card>
+                <v-card class="fm-bg">
                     <v-app-bar flat dense color="transparent">
                         <v-toolbar-title>{{$t('extraInfo')}}</v-toolbar-title>
                         <v-spacer/>
@@ -102,7 +102,7 @@
                                 hide-default-footer
                                 disable-sort
                                 no-data-text=""
-                                class="elevation-1"
+                                class="elevation-1 fm-bg"
                                 :mobile-breakpoint="NaN"
                                 :items-per-page="itemsPerPage"
                         >
@@ -117,7 +117,7 @@
             </v-flex>
 
             <v-flex lg3 sm12 xs12>
-                <v-card>
+                <v-card class="fm-bg">
                     <v-app-bar flat dense color="transparent">
                         <v-toolbar-title>{{$t('flashIds')}}</v-toolbar-title>
                         <v-spacer/>
@@ -131,7 +131,7 @@
                                 :items="flashIds"
                                 hide-default-footer
                                 disable-sort
-                                class="elevation-1"
+                                class="elevation-1 fm-bg"
                                 no-data-text=""
                                 :mobile-breakpoint="NaN"
                                 :items-per-page="itemsPerPage"
@@ -150,7 +150,7 @@
             </v-flex>
 
             <v-flex lg5 sm12 xs12>
-                <v-card>
+                <v-card class="fm-bg">
                     <v-card-title>{{$t('urls')}}</v-card-title>
                     <v-card-text>
                         <v-data-table
@@ -158,7 +158,7 @@
                                 :items="urls"
                                 hide-default-footer
                                 disable-sort
-                                class="elevation-1"
+                                class="elevation-1 fm-bg"
                                 no-data-text=""
                                 :mobile-breakpoint="NaN"
                                 :items-per-page="itemsPerPage"
@@ -175,15 +175,15 @@
         </v-layout>
 
         <v-dialog v-model="dialog.show" max-width="500">
-            <v-card>
+            <v-card class="fm-bg">
                 <v-card-title class="headline">{{$t('copyManually')}}</v-card-title>
                 <v-card-text>
                     <v-textarea auto-grow rows="1" v-model="dialog.content"/>
                 </v-card-text>
                 <v-card-actions>
                     <v-spacer/>
-                    <v-btn color="primary" text v-on:click="copyFromDialog">{{$t('copy')}}</v-btn>
-                    <v-btn color="primary" text v-on:click="dialog.show = false">{{$t('close')}}</v-btn>
+                    <v-btn color="accent" text v-on:click="copyFromDialog">{{$t('copy')}}</v-btn>
+                    <v-btn color="accent" text v-on:click="dialog.show = false">{{$t('close')}}</v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>

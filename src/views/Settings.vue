@@ -1,74 +1,73 @@
 <template>
-    <div>
-        <v-container grid-list-xl fluid>
-            <v-layout row wrap>
-                <v-flex lg4 sm12 xs12>
-                    <v-card>
-                        <v-card-title>{{$t('settings.server')}}</v-card-title>
-                        <v-card-text>
-                            <v-combobox
-                                    :items="items"
-                                    :label="$t('settings.serverAddr')"
-                                    :return-object="false"
-                                    v-on:input="changeServer"
-                                    v-model="server"
-                            />
-                        </v-card-text>
-                        <v-card-actions>
-                            <v-btn text color="primary" v-on:click="serverInfo">{{$t('settings.serverInfo')}}</v-btn>
-                        </v-card-actions>
-                    </v-card>
-                </v-flex>
+    <v-container grid-list-xl fluid>
+        <v-layout row wrap>
+            <v-flex lg4 sm12 xs12>
+                <v-card class="fm-bg">
+                    <v-card-title>{{$t('settings.server')}}</v-card-title>
+                    <v-card-text>
+                        <v-combobox
+                                :items="items"
+                                :label="$t('settings.serverAddr')"
+                                :return-object="false"
+                                v-on:input="changeServer"
+                                v-model="server"
+                        />
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-btn color="accent" text v-on:click="serverInfo">{{$t('settings.serverInfo')}}</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-flex>
 
-                <v-flex lg3 sm12 xs12>
-                    <v-card>
-                        <v-card-title>{{$t('customization.title')}}</v-card-title>
-                        <v-card-text>
-                            <v-select
-                                    :items="themes"
-                                    :return-object="false"
-                                    v-on:change="changeTheme"
-                                    :label="$t('customization.theme')"
-                                    v-model="currentTheme"
-                            />
-                            <v-checkbox
-                                    v-on:change="togHideKeyboard"
-                                    v-model="hideKeyboard"
-                                    :label="$t('customization.autoHideSoftKeyboard')"
-                            />
-                        </v-card-text>
-                        <v-card-actions>
-                        </v-card-actions>
-                    </v-card>
-                </v-flex>
+            <v-flex lg3 sm12 xs12>
+                <v-card class="fm-bg">
+                    <v-card-title>{{$t('customization.title')}}</v-card-title>
+                    <v-card-text>
+                        <v-select
+                                :items="themes"
+                                :return-object="false"
+                                v-on:change="changeTheme"
+                                :label="$t('customization.theme')"
+                                v-model="currentTheme"
+                        />
+                        <v-checkbox
+                                v-on:change="togHideKeyboard"
+                                v-model="hideKeyboard"
+                                :label="$t('customization.autoHideSoftKeyboard')"
+                        />
+                    </v-card-text>
+                    <v-card-actions>
+                    </v-card-actions>
+                </v-card>
+            </v-flex>
 
-                <v-flex lg3 sm12 xs12>
-                    <v-card>
-                        <v-card-title>{{$t('statistic.title')}}</v-card-title>
-                        <v-card-text v-html="statContent"/>
-                        <v-card-actions>
-                            <v-btn text color="primary" v-on:click="resetStat">{{$t('statistic.reset')}}</v-btn>
-                        </v-card-actions>
-                    </v-card>
-                </v-flex>
-            </v-layout>
-        </v-container>
+            <v-flex lg3 sm12 xs12>
+                <v-card class="fm-bg">
+                    <v-card-title>{{$t('statistic.title')}}</v-card-title>
+                    <v-card-text v-html="statContent"/>
+                    <v-card-actions>
+                        <v-btn color="accent" text v-on:click="resetStat">{{$t('statistic.reset')}}</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-flex>
+        </v-layout>
 
         <v-dialog v-model="dialog.show" max-width="500">
-            <v-card>
+            <v-card class="fm-bg">
                 <v-card-title class="headline">{{$t('settings.fdServerInfo')}}</v-card-title>
                 <v-card-text v-html="dialog.text"/>
                 <v-card-actions>
                     <v-spacer/>
-                    <v-btn color="primary" text v-on:click="dialog.show = false">{{$t('close')}}</v-btn>
+                    <v-btn color="accent" text v-on:click="dialog.show = false">{{$t('close')}}</v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
-    </div>
+    </v-container>
 </template>
 <script>
     import store from "@/store";
     import bus from "@/store/bus.js";
+    import theme from "@/theme";
 
     export default {
         computed: {
@@ -88,20 +87,14 @@
                 return this.updateStat();
             },
             themes() {
-                return [
-                    {
-                        text: this.$t("customization.darkTheme"),
-                        value: "0"
-                    },
-                    {
-                        text: this.$t("customization.lightTheme"),
-                        value: "1"
-                    },
-                    {
-                        text: this.$t("customization.systemTheme"),
-                        value: "2"
-                    }
-                ];
+                let data = [];
+                for (let key in theme.THEMES) {
+                    data.push({
+                        text: this.$t("customization.theme_" + key),
+                        value: key
+                    })
+                }
+                return data;
             }
         },
         data() {
