@@ -99,7 +99,7 @@
             })
         },
         created() {
-            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+            window.matchMedia('(prefers-color-scheme: dark)').addListener(e => {
                 if (store.getTheme() === "2") {
                     this.updateTheme();
                 }
