@@ -1,7 +1,7 @@
 <template>
     <v-app id="app" v-touch="{right: () => drawer(true), left: () => drawer(false)}">
         <Drawer/>
-        <v-main>
+        <v-main :style="themeStyle">
             <router-view/>
         </v-main>
         <v-snackbar v-model="snackbar.show" :timeout="snackbar.timeout">

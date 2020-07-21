@@ -31,7 +31,7 @@ THEMES[THEME_PINK] = {
         error: '#b71c1c'
     },
     card: "rgb(10,10,10,0.5)",
-    style: 'background: #233333; object-fit: cover; background-position: center center; background-repeat: no-repeat; background-image: url("https://konachan.net/jpeg/615010d6dd655340bb79eaeafef963d4/Konachan.com%20-%20311258%20black_hair%20blue_eyes%20blush%20breasts%20couch%20long_hair%20original%20pantyhose%20p%21nta%20school_uniform%20skirt%20tie.jpg");'
+    style: 'background: #FFFFFF; background-attachment: fixed; background-position: center center; background-repeat: no-repeat; background-image: url("http://fanglitech.com/images/logo.png");'
 }
 
 export default {
