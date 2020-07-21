@@ -16,7 +16,7 @@
                                 :return-object="false"
                                 clearable
                                 class="pn"
-                                v-model="box"
+                                v-model="partNumber"
                                 v-on:keyup.enter="query"
                                 v-on:update:search-input="searchPnDirectly"
                                 ref="pnInput"
@@ -227,8 +227,7 @@
                 urls: [],
                 sum: "",
                 searchedPns: [],
-                loading: false,
-                box: ""
+                loading: false
             };
         },
         computed: {
@@ -263,7 +262,6 @@
             searchPnDirectly(input) {
                 input = String(input).trim()
                 this.searchedPns = [];
-                this.partNumber = input
                 if (input.length >= 3) {
                     fetch(store.getServerAddress() + "/searchPn?limit=10&lang=" + store.getLang() + "&pn=" + input)
                         .then(r => r.json())
@@ -279,8 +277,7 @@
                                 if (this.$refs.pnInput.$refs.menu.$children.length > 0) {
                                     let list = this.$refs.pnInput.$refs.menu.$children[0].$children[0]
                                     list.$on("select", e => {
-                                        this.box = e.value;
-                                        this.partNumber = this.box;
+                                        this.partNumber = e.value;
                                         this.query();
                                     })
                                 }
@@ -386,6 +383,12 @@
                             });
                             this.showLoading(false);
                         });
+                } else {
+                    bus.$emit("snackbar", {
+                        timeout: 3000,
+                        show: true,
+                        text: this.$t("alert.missingPartNumber")
+                    });
                 }
             },
             getVendorLogo() {
@@ -547,8 +550,7 @@
         },
         created() {
             if (Object.keys(this.$route.query).includes("pn")) {
-                this.box = this.$route.query.pn;
-                this.partNumber = this.box
+                this.partNumber = this.$route.query.pn;
                 this.query();
             } else {
                 setTimeout(() => {
