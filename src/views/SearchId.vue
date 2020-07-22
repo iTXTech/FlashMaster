@@ -64,7 +64,7 @@
     import bus from "@/store/bus.js";
 
     export default {
-        data: () => {
+        data() {
             return {
                 id: "",
                 ids: [],

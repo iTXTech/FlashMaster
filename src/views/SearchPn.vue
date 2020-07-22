@@ -54,7 +54,7 @@
     import bus from "@/store/bus.js";
 
     export default {
-        data: () => {
+        data() {
             return {
                 snackbar: {
                     timeout: 1000,

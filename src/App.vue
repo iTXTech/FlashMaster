@@ -44,7 +44,7 @@
     import themeManager from "@/theme";
 
     export default {
-        data: () => {
+        data() {
             return {
                 snackbar: {
                     timeout: 1000,
@@ -52,8 +52,17 @@
                     text: ""
                 },
                 themeStyle: "",
-                appStyle: ""
+                appStyle: "",
+                primaryColor: ""
             };
+        },
+        metaInfo() {
+            return {
+                meta: [
+                    {name: 'theme-color', content: this.primaryColor},
+                    {name: 'msapplication-navbutton-color', content: this.primaryColor}
+                ]
+            }
         },
         components: {
             Drawer
@@ -93,6 +102,7 @@
                 } else {
                     color = themeManager.DEFAULT_COLOR;
                 }
+                this.primaryColor = color.primary;
                 for (let key in color) {
                     this.$vuetify.theme.themes[theme.dark ? "dark" : "light"][key] = color[key];
                 }

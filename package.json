@@ -12,8 +12,9 @@
     "vue": "^2.6.11",
     "vue-clipboard2": "^0.3.1",
     "vue-i18n": "^8.18.2",
+    "vue-meta": "^2.4.0",
     "vue-router": "^3.3.4",
-    "vuetify": "^2.3.4",
+    "vuetify": "^2.3.5",
     "whatwg-fetch": "^3.2.0"
   },
   "devDependencies": {
@@ -26,7 +27,7 @@
     "eslint-plugin-vue": "^6.2.2",
     "sass": "^1.26.10",
     "sass-loader": "^9.0.2",
-    "vue-cli-plugin-vuetify": "^2.0.6",
+    "vue-cli-plugin-vuetify": "^2.0.7",
     "vue-template-compiler": "^2.6.11",
     "vuetify-loader": "^1.6.0"
   },

@@ -9,6 +9,7 @@ import chs from 'vuetify/es5/locale/zh-Hans'
 import eng from 'vuetify/es5/locale/en'
 import {Touch} from 'vuetify/lib/directives'
 import store from './store/index'
+import VueMeta from 'vue-meta'
 
 Vue.use(Vuetify, {
     directives: {
@@ -16,6 +17,7 @@ Vue.use(Vuetify, {
     }
 });
 Vue.use(VueI18n);
+Vue.use(VueMeta);
 Vue.use(VueClipboard);
 VueClipboard.config.autoSetContainer = true;
 Vue.config.productionTip = false;
