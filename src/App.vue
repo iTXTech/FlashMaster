@@ -1,16 +1,20 @@
 <template>
-    <v-app id="app" v-touch="{right: () => drawer(true), left: () => drawer(false)}">
-        <Drawer/>
-        <v-main :style="themeStyle">
-            <router-view/>
-        </v-main>
-        <v-snackbar v-model="snackbar.show" :timeout="snackbar.timeout">
-            {{snackbar.text}}
-            <template v-slot:action="{ attrs }">
-                <v-btn v-bind="attrs" text color="blue" v-on:click="snackbar.show = false">{{$t('close')}}</v-btn>
-            </template>
-        </v-snackbar>
-    </v-app>
+    <div>
+        <div :style="themeStyle"/>
+        <v-app id="app" :style="appStyle"
+               v-touch="{right: () => drawer(true), left: () => drawer(false)}">
+            <Drawer/>
+            <v-main>
+                <router-view/>
+            </v-main>
+            <v-snackbar v-model="snackbar.show" :timeout="snackbar.timeout">
+                {{snackbar.text}}
+                <template v-slot:action="{ attrs }">
+                    <v-btn v-bind="attrs" text color="blue" v-on:click="snackbar.show = false">{{$t('close')}}</v-btn>
+                </template>
+            </v-snackbar>
+        </v-app>
+    </div>
 </template>
 <style>
     .fm-bg {
@@ -47,7 +51,8 @@
                     show: false,
                     text: ""
                 },
-                themeStyle: ""
+                themeStyle: "",
+                appStyle: ""
             };
         },
         components: {
@@ -93,7 +98,7 @@
                 } else {
                     this.themeStyle = "";
                 }
-                this.themeStyle = "--card-color: " + theme.card + ";" + this.themeStyle;
+                this.appStyle = "--card-color: " + theme.card + ";";
             }
         },
         watch: {
