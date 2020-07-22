@@ -3,7 +3,7 @@
         <div :style="themeStyle"/>
         <v-app id="app" :style="appStyle"
                v-touch="{right: () => drawer(true), left: () => drawer(false)}">
-            <Drawer/>
+            <Drawer @hook:mounted="onDrawerMounted"/>
             <v-main>
                 <router-view/>
             </v-main>
@@ -77,6 +77,9 @@
                     document.title = "iTXTech FlashMaster";
                 }
             },
+            onDrawerMounted() {
+                this.updateTheme();
+            },
             updateTheme() {
                 let t = store.getTheme();
                 if (t === themeManager.THEME_SYSTEM) {
@@ -99,6 +102,11 @@
                     this.themeStyle = "";
                 }
                 this.appStyle = "--card-color: " + theme.card + ";";
+                if ("appBar" in theme) {
+                    bus.$emit("barColor", theme.appBar);
+                } else {
+                    bus.$emit("barColor", "primary");
+                }
             }
         },
         watch: {
@@ -124,7 +132,6 @@
                     this.updateTheme();
                 }
             });
-            this.updateTheme();
         }
     };
 </script>

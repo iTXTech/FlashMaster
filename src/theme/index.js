@@ -30,7 +30,8 @@ THEMES[THEME_PINK] = {
         accent: colors.pink.base,
         error: '#b71c1c'
     },
-    card: "rgba(37,37,40,0.5); background: rgba(0,0,0,0)",
+    card: "rgba(50,50,50,0.6); background: rgba(0,0,0,0)",
+    appBar: "rgba(236,64,122,0.7)",
     style: {
         position: "fixed",
         zIndex: -1,

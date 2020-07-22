@@ -31,7 +31,7 @@
             </v-footer>
         </v-navigation-drawer>
 
-        <v-app-bar :clipped-left="$vuetify.breakpoint.lgAndUp" app color="primary" dark>
+        <v-app-bar :clipped-left="$vuetify.breakpoint.lgAndUp" app :color="barColor" dark>
             <v-app-bar-nav-icon v-on:click.stop="drawer = !drawer"/>
             <v-img
                     alt="FlashMaster Logo"
@@ -72,13 +72,17 @@
         },
         data: () => ({
             dialog: false,
-            drawer: false
+            drawer: false,
+            barColor: "primary"
         }),
         mounted: function () {
             let vm = this;
             bus.$on("drawer", data => {
                 vm.drawer = data;
             });
+            bus.$on("barColor", color => {
+                vm.barColor = color;
+            })
         },
         computed: {
             ver() {
