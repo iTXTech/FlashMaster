@@ -30,8 +30,19 @@ THEMES[THEME_PINK] = {
         accent: colors.pink.base,
         error: '#b71c1c'
     },
-    card: "rgba(10,10,10,0.33); background: rgba(0,0,0,0)",
-    style: 'position: fixed; z-index: -1; top: 0; right: 0; bottom: 0; left: 0; background: url("http://fanglitech.com/images/logo.png") center center no-repeat;'
+    card: "rgba(37,37,40,0.5); background: rgba(0,0,0,0)",
+    style: {
+        position: "fixed",
+        zIndex: -1,
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0,
+        background: "#000000",
+        backgroundImage: `url(${require('@/assets/bg.jpg')}`,
+        backgroundPosition: "center center",
+        backgroundRepeat: "no-repeat"
+    }
 }
 
 export default {
