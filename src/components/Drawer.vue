@@ -70,12 +70,14 @@
         props: {
             source: String
         },
-        data: () => ({
-            dialog: false,
-            drawer: false,
-            barColor: "primary"
-        }),
-        mounted: function () {
+        data() {
+            return {
+                dialog: false,
+                drawer: false,
+                barColor: "primary"
+            }
+        },
+        mounted() {
             let vm = this;
             bus.$on("drawer", data => {
                 vm.drawer = data;

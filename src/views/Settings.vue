@@ -90,7 +90,7 @@
                 let data = [];
                 for (let key in theme.THEMES) {
                     data.push({
-                        text: this.$t("customization.theme_" + key),
+                        text: this.$t(`customization.theme_${key}`),
                         value: key
                     })
                 }

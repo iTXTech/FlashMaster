@@ -101,7 +101,7 @@
                     }
                     this.page = 1;
                     this.showLoading(true);
-                    fetch(store.getServerAddress() + "/searchPn?lang=" + store.getLang() + "&pn=" + this.partNumber)
+                    fetch(`${store.getServerAddress()}/searchPn?lang=${store.getLang()}&pn=${this.partNumber}`)
                         .then(r => r.json())
                         .then(data => {
                             this.pns = [];

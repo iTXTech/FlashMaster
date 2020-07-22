@@ -81,13 +81,13 @@
             },
             updateTitle(meta) {
                 if (meta.title) {
-                    document.title = "FlashMaster - " + this.$t(meta.title);
+                    document.title = `FlashMaster - ${this.$t(meta.title)}`;
                 } else {
                     document.title = "iTXTech FlashMaster";
                 }
             },
             onDrawerMounted() {
-                this.updateTheme();
+                this.$nextTick(() => this.updateTheme());
             },
             updateTheme() {
                 let t = store.getTheme();
@@ -111,7 +111,7 @@
                 } else {
                     this.themeStyle = "";
                 }
-                this.appStyle = "--card-color: " + theme.card + ";";
+                this.appStyle = `--card-color: ${theme.card};`;
                 if ("appBar" in theme) {
                     bus.$emit("barColor", theme.appBar);
                 } else {
@@ -127,7 +127,7 @@
                 this.updateTitle(this.$router.currentRoute.meta)
             }
         },
-        mounted: function () {
+        mounted() {
             let vm = this;
             bus.$on("snackbar", data => {
                 vm.snackbar = data;

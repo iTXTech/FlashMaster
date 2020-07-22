@@ -263,17 +263,17 @@
                 input = String(input).trim()
                 this.searchedPns = [];
                 if (input.length >= 3) {
-                    fetch(store.getServerAddress() + "/searchPn?limit=10&lang=" + store.getLang() + "&pn=" + input)
+                    fetch(`${store.getServerAddress()}/searchPn?limit=10&lang=${store.getLang()}&pn=${input}`)
                         .then(r => r.json())
                         .then(data => {
                             for (let d in data.data) {
                                 let pn = String(data.data[d]).split(" ");
                                 this.searchedPns.push({
                                     value: pn[1],
-                                    text: pn[0] + " / " + pn[1] + (pn[2] != null ? (" / " + pn[2]) : "")
+                                    text: `${pn[0]} / ${pn[1]}${pn[2] != null ? (" / " + pn[2]) : ""}`
                                 });
                             }
-                            setTimeout(() => {
+                            this.$nextTick(() => {
                                 if (this.$refs.pnInput.$refs.menu.$children.length > 0) {
                                     let list = this.$refs.pnInput.$refs.menu.$children[0].$children[0]
                                     list.$on("select", e => {
@@ -281,7 +281,7 @@
                                         this.query();
                                     })
                                 }
-                            }, 100)
+                            });
                         });
                 }
             },
@@ -304,7 +304,7 @@
                         });
                     }
                     this.showLoading(true);
-                    fetch(store.getServerAddress() + "/decode?lang=" + store.getLang() + "&pn=" + this.partNumber)
+                    fetch(`${store.getServerAddress()}/decode?lang=${store.getLang()}&pn=${this.partNumber}`)
                         .then(r => r.json())
                         .then(data => {
                             data = data.data;
@@ -412,13 +412,13 @@
                 }
             },
             copy(item) {
-                this.c(item.name + ": " + item.value);
+                this.c(`${item.name}: ${item.value}`);
             },
             copyAll() {
                 let data = "";
                 for (let info in this.extraInfo) {
                     info = this.extraInfo[info];
-                    data += info.name + ": " + info.value + ", ";
+                    data += `${info.name}: ${info.value}, `;
                 }
                 this.c(data.substring(0, data.length - 2));
             },
@@ -489,7 +489,7 @@
                 if (this.partNumber != null && this.partNumber !== "") {
                     this.processPn();
                     this.showLoading(true);
-                    fetch(store.getServerAddress() + "/summary?lang=" + store.getLang() + "&pn=" + this.partNumber)
+                    fetch(`${store.getServerAddress()}/summary?lang=${store.getLang()}&pn=${this.partNumber}`)
                         .then(r => r.json())
                         .then(data => {
                             this.$copyText(data.data).then(

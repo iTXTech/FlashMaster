@@ -109,7 +109,7 @@
                     }
                     this.page = 1;
                     this.showLoading(true);
-                    fetch(store.getServerAddress() + "/searchId?lang=" + store.getLang() + "&id=" + this.id)
+                    fetch(`${store.getServerAddress()}/searchId?lang=${store.getLang()}&id=${this.id}`)
                         .then(r => r.json())
                         .then(data => {
                             this.ids = [];
