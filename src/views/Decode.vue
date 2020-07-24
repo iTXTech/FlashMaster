@@ -260,6 +260,9 @@
                 }
             },
             searchPnDirectly(input) {
+                if (input == null) {
+                    return;
+                }
                 input = String(input).trim()
                 this.searchedPns = [];
                 if (input.length >= 3) {
