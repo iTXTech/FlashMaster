@@ -264,6 +264,7 @@
                     return;
                 }
                 input = String(input).trim()
+                this.partNumber = input;
                 this.searchedPns = [];
                 if (input.length >= 3) {
                     fetch(`${store.getServerAddress()}/searchPn?limit=10&lang=${store.getLang()}&pn=${input}`)

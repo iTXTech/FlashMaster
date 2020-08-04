@@ -11,11 +11,11 @@
     "core-js": "^3.6.5",
     "vue": "^2.6.11",
     "vue-clipboard2": "^0.3.1",
-    "vue-i18n": "^8.18.2",
+    "vue-i18n": "^8.20.0",
     "vue-meta": "^2.4.0",
     "vue-router": "^3.3.4",
-    "vuetify": "^2.3.5",
-    "whatwg-fetch": "^3.2.0"
+    "vuetify": "^2.3.7",
+    "whatwg-fetch": "^3.3.1"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^4.4.6",
@@ -23,7 +23,7 @@
     "@vue/cli-plugin-router": "^4.4.6",
     "@vue/cli-service": "^4.4.6",
     "babel-eslint": "^10.1.0",
-    "eslint": "^7.5.0",
+    "eslint": "^7.6.0",
     "eslint-plugin-vue": "^6.2.2",
     "sass": "^1.26.10",
     "sass-loader": "^9.0.2",
