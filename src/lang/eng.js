@@ -83,5 +83,5 @@ module.exports = {
     description: 'Description',
     urls: 'URLs',
     copyManually: 'Please copy manually',
-    about: '<a href="https://github.com/iTXTech/FlashMaster" target="_blank">iTXTech FlashMaster</a><br/>Built with <a href="https://vuejs.org" target="_blank">Vue.js</a> and <a href="https://vuetifyjs.com/" target="_blank">Vuetify</a>.<br/>This program is licensed under GNU AGPLv3.<br/><br/>Maintainers:<br/><a href="https://peratx.net" target="_blank">PeratX</a><br/><br/>Copyright © 2019-2021 <a href="https://itxtech.org" target="_blank">iTX Technologies</a>'
+    about: '<a href="https://github.com/iTXTech/FlashMaster" target="_blank">iTXTech FlashMaster</a><br/>Built with <a href="https://vuejs.org" target="_blank">Vue.js</a> and <a href="https://vuetifyjs.com/" target="_blank">Vuetify</a>.<br/>This program is licensed under GNU AGPLv3.<br/><br/>Maintainers:<br/><a href="https://peratx.net" target="_blank">PeratX</a><br/><br/>Client: {0}<br/><br/>Copyright © 2019-2021 <a href="https://itxtech.org" target="_blank">iTX Technologies</a>'
 }
