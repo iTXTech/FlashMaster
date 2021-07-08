@@ -5,6 +5,7 @@ const getServerAddress = () => {
 const setServerAddress = (addr) => {
     localStorage.server = addr
 };
+
 const statDecodeIdInc = () => {
     if (isNaN(Number(localStorage.statDecodeId))) {
         localStorage.statDecodeId = "0";
@@ -84,6 +85,17 @@ const isAutoHideSoftKeyboard = () => {
     return localStorage.autoHideSoftKeyboard === "1"
 }
 
+const setBitUnit = (b) => {
+    localStorage.bitUnit = b ? "1" : "0"
+}
+
+const isBitUnit = () => {
+    if (isNaN(Number(localStorage.bitUnit))) {
+        setAutoHideSoftKeyboard(false);
+    }
+    return localStorage.bitUnit === "1"
+}
+
 const partNumberFormat = str => {
     return str.toUpperCase()
         .replace(/,/g, "")
@@ -130,6 +142,8 @@ export default {
     getLang,
     setAutoHideSoftKeyboard,
     isAutoHideSoftKeyboard,
+    setBitUnit,
+    isBitUnit,
     partNumberFormat,
     setTheme,
     getTheme,

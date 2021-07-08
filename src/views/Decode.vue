@@ -314,7 +314,7 @@ export default {
                         data = data.data;
                         this.vendor = data.vendor;
                         this.type = data.type;
-                        this.density = data.density;
+                        this.density = store.formatNumber(data.rawDensity, 2, true, store.isBitUnit());
                         this.deviceWidth = data.deviceWidth;
                         this.cellLevel = data.cellLevel;
                         this.processNode = data.processNode;

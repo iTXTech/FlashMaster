@@ -37,6 +37,7 @@ module.exports = {
     customization: {
         title: '个性化',
         autoHideSoftKeyboard: '自动隐藏软键盘',
+        bitUnit: '使用 bit 作为容量单位',
         theme: '主题',
         theme_0: '深色',
         theme_1: '浅色',

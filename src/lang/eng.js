@@ -31,12 +31,13 @@ module.exports = {
     statistic: {
         title: 'Statistic',
         reset: 'Reset',
-        resetInfo: 'Statistic data have reseted.',
+        resetInfo: 'Statistic data have been reset.',
         content: '{0} Part Numbers have been decoded.<br/>{1} Part Numbers have been searched.<br/>{2} Flash Ids have been decoded.<br/>{3} Flash Ids have been searched.'
     },
     customization: {
         title: 'Customization',
         autoHideSoftKeyboard: 'Auto hide soft keyboard',
+        bitUnit: 'Use bit as density unit',
         theme: 'Theme',
         theme_0: 'Dark',
         theme_1: 'Light',

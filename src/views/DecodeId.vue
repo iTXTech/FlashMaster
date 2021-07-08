@@ -288,7 +288,7 @@ export default {
                     .then(data => {
                         data = data.data;
                         this.vendor = data.vendor;
-                        this.density = data.density;
+                        this.density = store.formatNumber(data.density, 2, true, store.isBitUnit());
                         this.cellLevel = data.cellLevel;
                         this.processNode = data.processNode;
                         this.pageSize = store.formatNumber(data.pageSize);
