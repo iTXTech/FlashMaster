@@ -4,11 +4,8 @@
             <v-flex lg4 sm12 xs12>
                 <v-card class="fm-bg">
                     <v-app-bar flat dense color="transparent">
-                        <v-toolbar-title>{{ $t('partNumberOrFlashId') }}</v-toolbar-title>
+                        <v-toolbar-title>{{ $t('flashId') }}</v-toolbar-title>
                         <v-spacer/>
-                        <v-btn icon v-on:click="summary">
-                            <v-icon>mdi-book-information-variant</v-icon>
-                        </v-btn>
                     </v-app-bar>
                     <v-card-text>
                         <v-combobox
@@ -25,9 +22,8 @@
                         />
                     </v-card-text>
                     <v-card-actions>
-                        <v-btn color="accent" text v-on:click="query">{{ $t("query") }}</v-btn>
-                        <v-btn color="accent" text v-on:click="search">{{ $t("search") }}</v-btn>
-                        <v-btn color="accent" text v-on:click="searchId">{{ $t("searchId") }}</v-btn>
+                        <v-btn color="accent" text v-on:click="query">{{ $t("searchIdPage.query") }}</v-btn>
+                        <v-btn color="accent" text v-on:click="search">{{ $t("searchIdPage.search") }}</v-btn>
                     </v-card-actions>
                 </v-card>
             </v-flex>
@@ -45,21 +41,10 @@
             <v-flex lg2 sm12 xs12>
                 <v-card class="fm-bg">
                     <v-card-text>
-                        <v-text-field :label="$t('type')" v-model="type"/>
-                        <v-text-field :label="$t('density')" v-model="density"/>
-                        <v-text-field :label="$t('deviceWidth')" v-model="deviceWidth"/>
                         <v-text-field :label="$t('cellLevel')" v-model="cellLevel"/>
-                    </v-card-text>
-                </v-card>
-            </v-flex>
-
-            <v-flex lg2 sm12 xs12>
-                <v-card class="fm-bg">
-                    <v-card-text>
+                        <v-text-field :label="$t('density')" v-model="density"/>
                         <v-text-field :label="$t('processNode')" v-model="processNode"/>
-                        <v-text-field :label="$t('generation')" v-model="generation"/>
-                        <v-checkbox disabled :label="$t('sync')" v-model="sync"/>
-                        <v-checkbox disabled :label="$t('async')" v-model="async"/>
+                        <v-text-field :label="$t('pageSize')" v-model="pageSize"/>
                     </v-card-text>
                 </v-card>
             </v-flex>
@@ -67,21 +52,18 @@
             <v-flex lg2 sm12 xs12>
                 <v-card class="fm-bg">
                     <v-card-text>
-                        <v-text-field :label="$t('ce')" v-model="ce"/>
-                        <v-text-field :label="$t('ch')" v-model="ch"/>
                         <v-text-field :label="$t('die')" v-model="die"/>
-                        <v-text-field :label="$t('rb')" v-model="rb"/>
+                        <v-text-field :label="$t('plane')" v-model="plane"/>
+                        <v-text-field :label="$t('blockSize')" v-model="blockSize"/>
+                        <v-text-field :label="$t('voltage')" v-model="voltage"/>
                     </v-card-text>
                 </v-card>
             </v-flex>
 
-            <v-flex lg5 sm12 xs12>
+            <v-flex lg2 sm12 xs12>
                 <v-card class="fm-bg">
                     <v-card-text>
-                        <v-text-field :label="$t('voltage')" v-model="voltage"/>
-                        <v-text-field :label="$t('package')" v-model="pkg"/>
                         <v-textarea auto-grow rows="1" :label="$t('controllers')" v-model="controllers"/>
-                        <v-text-field :label="$t('comment')" v-model="comment"/>
                     </v-card-text>
                 </v-card>
             </v-flex>
@@ -116,10 +98,10 @@
                 </v-card>
             </v-flex>
 
-            <v-flex lg3 sm12 xs12>
+            <v-flex lg4 sm12 xs12>
                 <v-card class="fm-bg">
                     <v-app-bar flat dense color="transparent">
-                        <v-toolbar-title>{{ $t('flashIds') }}</v-toolbar-title>
+                        <v-toolbar-title>{{ $t('searchIdPage.pns') }}</v-toolbar-title>
                         <v-spacer/>
                         <v-btn icon v-on:click="copyAllFlashIds">
                             <v-icon>mdi-content-copy</v-icon>
@@ -128,7 +110,7 @@
                     <v-card-text>
                         <v-data-table
                             :headers="flashIdHeaders"
-                            :items="flashIds"
+                            :items="partNumbers"
                             hide-default-footer
                             disable-sort
                             class="elevation-1 fm-bg"
@@ -149,7 +131,7 @@
                 </v-card>
             </v-flex>
 
-            <v-flex lg5 sm12 xs12>
+            <v-flex lg4 sm12 xs12>
                 <v-card class="fm-bg">
                     <v-card-title>{{ $t('urls') }}</v-card-title>
                     <v-card-text>
@@ -205,25 +187,18 @@ export default {
             vendorLogo: "",
             partNumber: "",
             vendor: "",
-            type: "",
             density: "",
-            deviceWidth: "",
             cellLevel: "",
             processNode: "",
-            generation: "",
-            sync: false,
-            async: false,
-            ce: "",
-            ch: "",
+            pageSize: "",
+            blockSize: "",
             die: "",
-            rb: "",
+            plane: "",
             voltage: "",
-            pkg: "",
-            comment: "",
             rawVendor: "",
             controllers: "",
             extraInfo: [],
-            flashIds: [],
+            partNumbers: [],
             urls: [],
             sum: "",
             searchedPns: [],
@@ -240,7 +215,8 @@ export default {
         },
         flashIdHeaders() {
             return [
-                {text: this.$t("flashIds"), value: "id", align: "left"},
+                {text: this.$t("vendor"), value: "vendor", align: "left"},
+                {text: this.$t("partNumber"), value: "pn"},
                 {text: this.$t("action"), value: "action"}
             ];
         },
@@ -267,14 +243,13 @@ export default {
             this.partNumber = input;
             this.searchedPns = [];
             if (input.length >= 3) {
-                fetch(`${store.getServerAddress()}/searchPn?limit=10&lang=${store.getLang()}&pn=${input}`)
+                fetch(`${store.getServerAddress()}/searchId?limit=10&lang=${store.getLang()}&id=${input}`)
                     .then(r => r.json())
                     .then(data => {
                         for (let d in data.data) {
-                            let pn = String(data.data[d]).split(" ");
                             this.searchedPns.push({
-                                value: pn[1],
-                                text: `${pn[0]} / ${pn[1]}${pn[2] != null ? (" / " + pn[2]) : ""}`
+                                value: d,
+                                text: d
                             });
                         }
                         this.$nextTick(() => {
@@ -301,68 +276,48 @@ export default {
                     }
                 });
                 this.processPn();
-                if (this.$route.query.pn !== this.partNumber) {
+                if (this.$route.query.id !== this.partNumber) {
                     router.push({
-                        path: "/decode",
-                        query: {pn: this.partNumber}
+                        path: "/decodeId",
+                        query: {id: this.partNumber}
                     });
                 }
                 this.showLoading(true);
-                fetch(`${store.getServerAddress()}/decode?lang=${store.getLang()}&pn=${this.partNumber}`)
+                fetch(`${store.getServerAddress()}/decodeId?lang=${store.getLang()}&id=${this.partNumber}`)
                     .then(r => r.json())
                     .then(data => {
                         data = data.data;
                         this.vendor = data.vendor;
-                        this.type = data.type;
                         this.density = data.density;
-                        this.deviceWidth = data.deviceWidth;
                         this.cellLevel = data.cellLevel;
                         this.processNode = data.processNode;
-                        this.generation = data.generation;
+                        this.pageSize = store.formatNumber(data.pageSize);
                         this.voltage = data.voltage;
-                        this.pkg = data.package;
+                        this.blockSize = store.formatNumber(data.blockSize);
+                        this.voltage = data.voltage;
+                        this.die = data.die;
+                        this.plane = data.plane;
                         this.rawVendor = data.rawVendor;
                         this.vendorLogo = this.getVendorLogo();
-                        this.comment = data.comment;
-                        this.controllers = String(data.controller).replace(/,/g, ", ");
-
-                        if (data.interface == null) {
-                            this.sync = false;
-                            this.async = false;
-                        } else if (Object.keys(data.interface).includes("toggle")) {
-                            this.sync = data.interface.toggle;
-                            this.async = true;
-                        } else {
-                            this.sync = data.interface.sync;
-                            this.async = data.interface.async;
-                        }
-
-                        if (data.classification != null) {
-                            this.ce = data.classification.ce;
-                            this.ch = data.classification.ch;
-                            this.die = data.classification.die;
-                            this.rb = data.classification.rb;
-
-                            if (this.ch === -2) {
-                                this.ch = 2;
-                            }
-                        }
+                        this.controllers = String(data.controllers).replace(/,/g, ", ");
 
                         this.extraInfo = [];
-                        if (data.extraInfo != null && typeof data.extraInfo !== "string") {
-                            for (let extraInfo in data.extraInfo) {
+                        if (data.ext != null && typeof data.ext !== "string") {
+                            for (let extraInfo in data.ext) {
                                 this.extraInfo.push({
                                     name: extraInfo,
-                                    value: data.extraInfo[extraInfo]
+                                    value: data.ext[extraInfo]
                                 });
                             }
                         }
 
-                        this.flashIds = [];
-                        if (data.flashId != null && typeof data.flashId !== "string") {
-                            for (let flashId in data.flashId) {
-                                this.flashIds.push({
-                                    id: data.flashId[flashId]
+                        this.partNumbers = [];
+                        if (data.partNumbers != null && typeof data.partNumbers !== "string") {
+                            for (let flashId in data.partNumbers) {
+                                let pn = String(data.partNumbers[flashId]).split(" ");
+                                this.partNumbers.push({
+                                    vendor: pn[0],
+                                    pn: pn[1]
                                 });
                             }
                         }
@@ -377,7 +332,7 @@ export default {
                             }
                         }
                         this.showLoading(false);
-                        store.statDecodeIdInc();
+                        store.statDecodeFidInc();
                     })
                     .catch(err => {
                         bus.$emit("snackbar", {
@@ -386,12 +341,13 @@ export default {
                             text: this.$t("alert.fetchFailed", [err])
                         });
                         this.showLoading(false);
+                        console.error(err)
                     });
             } else {
                 bus.$emit("snackbar", {
                     timeout: 3000,
                     show: true,
-                    text: this.$t("alert.missingPartNumber")
+                    text: this.$t("alert.missingFlashId")
                 });
             }
         },
@@ -448,30 +404,16 @@ export default {
         },
         copyAllFlashIds() {
             let data = "";
-            for (let id in this.flashIds) {
-                id = this.flashIds[id];
-                data += id.id + ", ";
+            for (let id in this.partNumbers) {
+                id = this.partNumbers[id];
+                data += `${id.pn}, `;
             }
             this.c(data.substring(0, data.length - 2));
         },
         copyFlashId(item) {
-            this.c(item.id);
+            this.c(item.pn);
         },
         search() {
-            if (this.partNumber != null && this.partNumber !== "") {
-                router.push({
-                    path: "/searchPn",
-                    query: {pn: this.partNumber}
-                });
-            } else {
-                bus.$emit("snackbar", {
-                    timeout: 3000,
-                    show: true,
-                    text: this.$t("alert.missingPartNumber")
-                });
-            }
-        },
-        searchId() {
             if (this.partNumber != null && this.partNumber !== "") {
                 router.push({
                     path: "/searchId",
@@ -487,49 +429,9 @@ export default {
         },
         searchFlashId(item) {
             router.push({
-                path: "/decodeId",
-                query: {id: item.id}
+                path: "/decode",
+                query: {pn: item.pn}
             });
-        },
-        summary() {
-            if (this.partNumber != null && this.partNumber !== "") {
-                this.processPn();
-                this.showLoading(true);
-                fetch(`${store.getServerAddress()}/summary?lang=${store.getLang()}&pn=${this.partNumber}`)
-                    .then(r => r.json())
-                    .then(data => {
-                        this.$copyText(data.data).then(
-                            e => {
-                                bus.$emit("snackbar", {
-                                    timeout: 3000,
-                                    show: true,
-                                    text: this.$t("copySucc")
-                                });
-                            },
-                            e => {
-                                this.dialog = {
-                                    show: true,
-                                    content: e.text
-                                }
-                            }
-                        );
-                        this.showLoading(false);
-                    })
-                    .catch(err => {
-                        bus.$emit("snackbar", {
-                            timeout: 3000,
-                            show: true,
-                            text: this.$t("alert.fetchFailed", [err])
-                        });
-                        this.showLoading(false);
-                    });
-            } else {
-                bus.$emit("snackbar", {
-                    timeout: 3000,
-                    show: true,
-                    text: this.$t("alert.missingPartNumber")
-                });
-            }
         },
         copyFromDialog() {
             this.$copyText(this.dialog.content).then(
@@ -555,8 +457,8 @@ export default {
         }
     },
     created() {
-        if (Object.keys(this.$route.query).includes("pn")) {
-            this.partNumber = this.$route.query.pn;
+        if (Object.keys(this.$route.query).includes("id")) {
+            this.partNumber = this.$route.query.id;
             this.query();
         } else {
             setTimeout(() => {

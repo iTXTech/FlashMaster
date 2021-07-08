@@ -175,6 +175,7 @@
                 return this.$t("statistic.content", [
                     store.statDecodeId(),
                     store.statSearchPn(),
+                    store.statDecodeFid(),
                     store.statSearchId()
                 ]);
             }

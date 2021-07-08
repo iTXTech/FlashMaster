@@ -113,6 +113,11 @@
                         path: "/searchPn"
                     },
                     {
+                        icon: "mdi-book-open",
+                        text: this.$t("nav.decodeId"),
+                        path: "/decodeId"
+                    },
+                    {
                         icon: "mdi-flash",
                         text: this.$t("nav.searchFlashId"),
                         path: "/searchId"

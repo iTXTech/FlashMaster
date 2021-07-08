@@ -12,7 +12,8 @@ module.exports = {
         searchPartNumber: 'Search Part Number',
         searchFlashId: 'Search Flash Id',
         settings: 'Settings',
-        about: 'About'
+        about: 'About',
+        decodeId: 'Decode Flash Id'
     },
     settings: {
         server: 'Server',
@@ -31,7 +32,7 @@ module.exports = {
         title: 'Statistic',
         reset: 'Reset',
         resetInfo: 'Statistic data have reseted.',
-        content: '{0} Part Numbers have been decoded.<br/>{1} Part Numbers have been searched.<br/>{2} Flash Ids have been searched.'
+        content: '{0} Part Numbers have been decoded.<br/>{1} Part Numbers have been searched.<br/>{2} Flash Ids have been decoded.<br/>{3} Flash Ids have been searched.'
     },
     customization: {
         title: 'Customization',
@@ -41,6 +42,11 @@ module.exports = {
         theme_1: 'Light',
         theme_2: 'System',
         theme_3: 'Pink'
+    },
+    searchIdPage: {
+        query: 'Decode Id',
+        search: 'Search Id',
+        pns: 'Part Numbers'
     },
     version: 'Version: {0}',
     unknown: 'Unknown',
@@ -64,6 +70,7 @@ module.exports = {
     ch: 'Channel',
     die: 'Die',
     rb: 'R/B',
+    plane: 'Plane',
     extraInfo: 'Extra Info',
     controllers: 'Controllers',
     comment: 'Comment',
@@ -78,6 +85,7 @@ module.exports = {
     action: 'Action',
     remark: 'Remark',
     pageSize: 'Page Size',
+    blockSize: 'Block Size',
     blocks: 'Blocks',
     pagesPerBlock: 'Pages/Block',
     description: 'Description',

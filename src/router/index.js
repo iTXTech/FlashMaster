@@ -16,6 +16,13 @@ const routes = [
         }
     },
     {
+        path: "/decodeId",
+        component: () => import("@/views/DecodeId"),
+        meta: {
+            title: 'nav.decodeId'
+        }
+    },
+    {
         path: "/settings",
         component: () => import("@/views/Settings"),
         meta: {

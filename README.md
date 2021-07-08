@@ -4,6 +4,8 @@
 
 Powerful NAND Flash Part Number and Id query toolbox.
 
+# [Launch Now - 立即使用](https://flashm.cf)
+
 ## Introduction
 
 The re-implementation of [FlashMaster](https://github.com/PeratX/FlashMaster) in [Vue.js](https://vuejs.org/) and [Vuetify](https://vuetifyjs.com/).
@@ -27,14 +29,14 @@ Backend: [iTXTech FlashDetector](https://github.com/iTXTech/FlashDetector)
 ```bash
 git clone https://github.com/iTXTech/FlashMaster
 cd FlashMaster
-npm i
-npm run serve
+yarn
+yarn serve
 ```
 
 ## Build and Deploy
 
 ```bash
-npm run build
+yarn build
 ```
 
 Upload all files in `dist`.

@@ -38,10 +38,22 @@ const statSearchId = () => {
     return localStorage.statSearchId || 0;
 };
 
+const statDecodeFidInc = () => {
+    if (isNaN(Number(localStorage.statDecodeFid))) {
+        localStorage.statDecodeFid = "0";
+    }
+    localStorage.statDecodeFid = String(Number(localStorage.statDecodeFid) + 1);
+};
+
+const statDecodeFid = () => {
+    return localStorage.statDecodeFid || 0;
+};
+
 const resetStat = () => {
     localStorage.statDecodeId = "0";
     localStorage.statSearchId = "0";
     localStorage.statSearchPn = "0";
+    localStorage.statDecodeFid = "0";
 };
 
 const getProjectVersion = () => {
@@ -89,6 +101,19 @@ const getTheme = () => {
     return localStorage.theme
 }
 
+const formatNumber = (bytes, unit = 1, inBit = false, outBit = false) => {
+    if (typeof bytes !== "number") return bytes;
+    if (bytes === 0) return '0 b';
+    const k = 1024;
+    //const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['b', 'Kb', 'Mb', 'Gb', 'Tb', 'Pb', 'Eb', 'Zb', 'Yb'];
+    if (inBit && !outBit) bytes /= 8;
+    if (!inBit && outBit) bytes *= 8;
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    const r = parseFloat((bytes / Math.pow(k, i)).toFixed(0)) + ' ' + sizes[i + unit];
+    return outBit ? r : r.toUpperCase();
+}
+
 export default {
     getServerAddress,
     setServerAddress,
@@ -98,6 +123,8 @@ export default {
     statSearchPn,
     statSearchIdInc,
     statSearchId,
+    statDecodeFidInc,
+    statDecodeFid,
     resetStat,
     getProjectVersion,
     getLang,
@@ -105,5 +132,6 @@ export default {
     isAutoHideSoftKeyboard,
     partNumberFormat,
     setTheme,
-    getTheme
+    getTheme,
+    formatNumber
 }

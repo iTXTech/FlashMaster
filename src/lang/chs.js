@@ -10,9 +10,10 @@ module.exports = {
     nav: {
         decodePartNumber: '料号查询',
         searchPartNumber: '料号搜索',
-        searchFlashId: '闪存ID查询',
+        searchFlashId: '闪存ID搜索',
         settings: '设置',
-        about: '关于'
+        about: '关于',
+        decodeId: '闪存ID查询'
     },
     settings: {
         server: '服务器',
@@ -31,7 +32,7 @@ module.exports = {
         title: '统计',
         reset: '重置',
         resetInfo: '统计数据已重置。',
-        content: '共查询料号 {0} 次。<br/>共搜索料号 {1} 个。<br/>共搜索闪存ID {2} 个。'
+        content: '共查询料号 {0} 次。<br/>共搜索料号 {1} 个。<br/>共查询闪存ID {2} 次。<br/>共搜索闪存ID {3} 个。'
     },
     customization: {
         title: '个性化',
@@ -41,6 +42,11 @@ module.exports = {
         theme_1: '浅色',
         theme_2: '跟随系统',
         theme_3: '粉红'
+    },
+    searchIdPage: {
+        query: '查询ID',
+        search: '搜索Id',
+        pns: '料号'
     },
     version: '版本：{0}',
     unknown: '未知',
@@ -64,6 +70,7 @@ module.exports = {
     ch: '通道',
     die: 'Die',
     rb: 'R/B',
+    plane: 'Plane',
     extraInfo: '更多信息',
     controllers: '控制器',
     comment: '注释',
@@ -78,6 +85,7 @@ module.exports = {
     action: '操作',
     remark: '备注',
     pageSize: '页大小',
+    blockSize: '块大小',
     blocks: '块',
     pagesPerBlock: '页/块',
     description: '描述',
