@@ -22,7 +22,7 @@ Backend: [iTXTech FlashDetector](https://github.com/iTXTech/FlashDetector)
    1. Fetch summary for Part Number
    1. Search Part Number in FlashDetector Flash Database
    1. Search Flash Id in FlashDetector Flash Database
-1. Use localStorage for persistence storage 
+1. Use localStorage for persistence storage
 
 ## Setup
 
