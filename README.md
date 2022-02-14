@@ -4,7 +4,7 @@
 
 Powerful NAND Flash Part Number and Id query toolbox.
 
-# [Launch Now - 立即使用](https://flashm.cf)
+# [Launch Now - 立即使用](https://nand.gq)
 
 ## Introduction
 
