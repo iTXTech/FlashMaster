@@ -5,7 +5,7 @@
         <v-card class="fm-bg">
           <v-app-bar flat dense color="transparent">
             <v-toolbar-title>{{ $t('flashId') }}</v-toolbar-title>
-            <v-spacer/>
+            <v-spacer />
             <v-btn icon v-on:click="summary">
               <v-icon>mdi-book-information-variant</v-icon>
             </v-btn>
@@ -35,8 +35,8 @@
         <v-card class="fm-bg">
           <v-card-title>{{ $t('vendor') }}</v-card-title>
           <v-card-text>
-            <v-img :src="vendorLogo"/>
-            <v-text-field v-model="vendor"/>
+            <v-img :src="vendorLogo" />
+            <v-text-field v-model="vendor" />
           </v-card-text>
         </v-card>
       </v-flex>
@@ -44,10 +44,10 @@
       <v-flex lg2 sm12 xs12>
         <v-card class="fm-bg">
           <v-card-text>
-            <v-text-field :label="$t('cellLevel')" v-model="cellLevel"/>
-            <v-text-field :label="$t('density')" v-model="density"/>
-            <v-text-field :label="$t('processNode')" v-model="processNode"/>
-            <v-text-field :label="$t('pageSize')" v-model="pageSize"/>
+            <v-text-field :label="$t('cellLevel')" v-model="cellLevel" />
+            <v-text-field :label="$t('density')" v-model="density" />
+            <v-text-field :label="$t('processNode')" v-model="processNode" />
+            <v-text-field :label="$t('pageSize')" v-model="pageSize" />
           </v-card-text>
         </v-card>
       </v-flex>
@@ -55,10 +55,10 @@
       <v-flex lg2 sm12 xs12>
         <v-card class="fm-bg">
           <v-card-text>
-            <v-text-field :label="$t('die')" v-model="die"/>
-            <v-text-field :label="$t('plane')" v-model="plane"/>
-            <v-text-field :label="$t('blockSize')" v-model="blockSize"/>
-            <v-text-field :label="$t('voltage')" v-model="voltage"/>
+            <v-text-field :label="$t('die')" v-model="die" />
+            <v-text-field :label="$t('plane')" v-model="plane" />
+            <v-text-field :label="$t('blockSize')" v-model="blockSize" />
+            <v-text-field :label="$t('voltage')" v-model="voltage" />
           </v-card-text>
         </v-card>
       </v-flex>
@@ -66,7 +66,7 @@
       <v-flex lg2 sm12 xs12>
         <v-card class="fm-bg">
           <v-card-text>
-            <v-textarea auto-grow rows="1" :label="$t('controllers')" v-model="controllers"/>
+            <v-textarea auto-grow rows="1" :label="$t('controllers')" v-model="controllers" />
           </v-card-text>
         </v-card>
       </v-flex>
@@ -75,7 +75,7 @@
         <v-card class="fm-bg">
           <v-app-bar flat dense color="transparent">
             <v-toolbar-title>{{ $t('extraInfo') }}</v-toolbar-title>
-            <v-spacer/>
+            <v-spacer />
             <v-btn icon v-on:click="copyAll">
               <v-icon>mdi-content-copy</v-icon>
             </v-btn>
@@ -105,7 +105,7 @@
         <v-card class="fm-bg">
           <v-app-bar flat dense color="transparent">
             <v-toolbar-title>{{ $t('searchIdPage.pns') }}</v-toolbar-title>
-            <v-spacer/>
+            <v-spacer />
             <v-btn icon v-on:click="copyAllFlashIds">
               <v-icon>mdi-content-copy</v-icon>
             </v-btn>
@@ -163,10 +163,10 @@
       <v-card class="fm-bg">
         <v-card-title class="headline">{{ $t('copyManually') }}</v-card-title>
         <v-card-text>
-          <v-textarea auto-grow rows="1" v-model="dialog.content"/>
+          <v-textarea auto-grow rows="1" v-model="dialog.content" />
         </v-card-text>
         <v-card-actions>
-          <v-spacer/>
+          <v-spacer />
           <v-btn color="accent" text v-on:click="copyFromDialog">{{ $t('copy') }}</v-btn>
           <v-btn color="accent" text v-on:click="dialog.show = false">{{ $t('close') }}</v-btn>
         </v-card-actions>
@@ -205,28 +205,29 @@ export default {
       urls: [],
       sum: "",
       searchedPns: [],
-      loading: false
+      loading: false,
+      decodingId: ""
     };
   },
   computed: {
     extraInfoHeaders() {
       return [
-        {text: this.$t("name"), value: "name", align: "left"},
-        {text: this.$t("value"), value: "value"},
-        {text: this.$t("copy"), value: "copy"}
+        { text: this.$t("name"), value: "name", align: "left" },
+        { text: this.$t("value"), value: "value" },
+        { text: this.$t("copy"), value: "copy" }
       ];
     },
     flashIdHeaders() {
       return [
-        {text: this.$t("vendor"), value: "vendor", align: "left"},
-        {text: this.$t("partNumber"), value: "pn"},
-        {text: this.$t("action"), value: "action"}
+        { text: this.$t("vendor"), value: "vendor", align: "left" },
+        { text: this.$t("partNumber"), value: "pn" },
+        { text: this.$t("action"), value: "action" }
       ];
     },
     urlHeaders() {
       return [
-        {text: this.$t("description"), value: "description", align: "left"},
-        {text: this.$t("action"), value: "action"}
+        { text: this.$t("description"), value: "description", align: "left" },
+        { text: this.$t("action"), value: "action" }
       ]
     }
   },
@@ -272,80 +273,85 @@ export default {
     },
     query() {
       if (this.partNumber != null && this.partNumber !== "") {
-        setTimeout(() => {
-          this.$refs.pnInput.isMenuActive = false;
-          if (store.isAutoHideSoftKeyboard()) {
-            this.$refs.pnInput.blur();
-          }
-        });
-        this.processPn();
-        if (this.$route.query.id !== this.partNumber) {
-          router.push({
-            path: "/decodeId",
-            query: {id: this.partNumber}
+        if (this.decodingId !== this.partNumber) {
+          setTimeout(() => {
+            this.$refs.pnInput.isMenuActive = false;
+            if (store.isAutoHideSoftKeyboard()) {
+              this.$refs.pnInput.blur();
+            }
           });
-        }
-        this.showLoading(true);
-        fetch(`${store.getServerAddress()}/decodeId?lang=${store.getLang()}&id=${this.partNumber}`)
-            .then(r => r.json())
-            .then(data => {
-              data = data.data;
-              this.vendor = data.vendor;
-              this.density = store.formatNumber(data.density, 2, true, store.isBitUnit());
-              this.cellLevel = data.cellLevel;
-              this.processNode = data.processNode;
-              this.pageSize = store.formatNumber(data.pageSize);
-              this.voltage = data.voltage;
-              this.blockSize = store.formatNumber(data.blockSize);
-              this.voltage = data.voltage;
-              this.die = data.die;
-              this.plane = data.plane;
-              this.rawVendor = data.rawVendor;
-              this.vendorLogo = this.getVendorLogo();
-              this.controllers = String(data.controllers).replace(/,/g, ", ");
-
-              this.extraInfo = [];
-              if (data.ext != null && typeof data.ext !== "string") {
-                for (let extraInfo in data.ext) {
-                  this.extraInfo.push({
-                    name: extraInfo,
-                    value: data.ext[extraInfo]
-                  });
-                }
-              }
-
-              this.partNumbers = [];
-              if (data.partNumbers != null && typeof data.partNumbers !== "string") {
-                for (let flashId in data.partNumbers) {
-                  let pn = String(data.partNumbers[flashId]).split(" ");
-                  this.partNumbers.push({
-                    vendor: pn[0],
-                    pn: pn[1]
-                  });
-                }
-              }
-
-              this.urls = [];
-              if (data.url != null && typeof data.url !== "string") {
-                for (let url in data.url) {
-                  this.urls.push({
-                    description: url,
-                    url: data.url[url]
-                  })
-                }
-              }
-              this.showLoading(false);
-              store.statDecodeFidInc();
-            })
-            .catch(err => {
-              bus.$emit("snackbar", {
-                timeout: 3000,
-                show: true,
-                text: this.$t("alert.fetchFailed", [err])
-              });
-              this.showLoading(false);
-              console.error(err)
+          this.processPn();
+          if (this.$route.query.id !== this.partNumber) {
+            router.push({
+              path: "/decodeId",
+              query: { id: this.partNumber }
             });
+          }
+          this.showLoading(true);
+          this.decodingId = this.partNumber;
+          fetch(`${store.getServerAddress()}/decodeId?lang=${store.getLang()}&id=${this.partNumber}`)
+              .then(r => r.json())
+              .then(data => {
+                data = data.data;
+                this.vendor = data.vendor;
+                this.density = store.formatNumber(data.density, 2, true, store.isBitUnit());
+                this.cellLevel = data.cellLevel;
+                this.processNode = data.processNode;
+                this.pageSize = store.formatNumber(data.pageSize);
+                this.voltage = data.voltage;
+                this.blockSize = store.formatNumber(data.blockSize);
+                this.voltage = data.voltage;
+                this.die = data.die;
+                this.plane = data.plane;
+                this.rawVendor = data.rawVendor;
+                this.vendorLogo = this.getVendorLogo();
+                this.controllers = String(data.controllers).replace(/,/g, ", ");
+
+                this.extraInfo = [];
+                if (data.ext != null && typeof data.ext !== "string") {
+                  for (let extraInfo in data.ext) {
+                    this.extraInfo.push({
+                      name: extraInfo,
+                      value: data.ext[extraInfo]
+                    });
+                  }
+                }
+
+                this.partNumbers = [];
+                if (data.partNumbers != null && typeof data.partNumbers !== "string") {
+                  for (let flashId in data.partNumbers) {
+                    let pn = String(data.partNumbers[flashId]).split(" ");
+                    this.partNumbers.push({
+                      vendor: pn[0],
+                      pn: pn[1]
+                    });
+                  }
+                }
+
+                this.urls = [];
+                if (data.url != null && typeof data.url !== "string") {
+                  for (let url in data.url) {
+                    this.urls.push({
+                      description: url,
+                      url: data.url[url]
+                    })
+                  }
+                }
+                this.showLoading(false);
+                this.decodingId = "";
+                store.statDecodeFidInc();
+              })
+              .catch(err => {
+                bus.$emit("snackbar", {
+                  timeout: 3000,
+                  show: true,
+                  text: this.$t("alert.fetchFailed", [err])
+                });
+                this.showLoading(false);
+                this.decodingId = "";
+                console.error(err)
+              });
+        }
       } else {
         bus.$emit("snackbar", {
           timeout: 3000,
@@ -460,7 +466,7 @@ export default {
       if (this.partNumber != null && this.partNumber !== "") {
         router.push({
           path: "/searchId",
-          query: {id: this.partNumber}
+          query: { id: this.partNumber }
         });
       } else {
         bus.$emit("snackbar", {
@@ -473,7 +479,7 @@ export default {
     searchFlashId(item) {
       router.push({
         path: "/decode",
-        query: {pn: item.pn}
+        query: { pn: item.pn }
       });
     },
     copyFromDialog() {
