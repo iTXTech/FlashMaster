@@ -419,6 +419,8 @@ export default {
           return require("@/assets/kioxia.svg");
         case "ymtc":
           return require("@/assets/ymtc.png");
+        case "phison":
+          return require("@/assets/phison.svg");
         default:
           return "";
       }
