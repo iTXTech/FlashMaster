@@ -60,7 +60,8 @@
             return {
                 meta: [
                     {name: 'theme-color', content: this.primaryColor},
-                    {name: 'msapplication-navbutton-color', content: this.primaryColor}
+                    {name: 'msapplication-navbutton-color', content: this.primaryColor},
+                    {name: 'apple-mobile-web-app-status-bar-style', content: this.primaryColor}
                 ]
             }
         },
