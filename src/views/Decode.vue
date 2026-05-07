@@ -43,14 +43,14 @@
         <div class="panel-header">
           <div>
             <div class="panel-title">{{ $t('dashboard.decodeResult') }}</div>
-            <div class="panel-meta">{{ result?.partNumber || $t('dashboard.empty') }}</div>
+            <div v-if="!result" class="panel-meta">{{ $t('dashboard.empty') }}</div>
           </div>
           <v-btn icon="mdi-content-copy" variant="text" :disabled="!result" @click="copyOverview" />
         </div>
         <div class="panel-body">
           <div class="workspace-grid single">
-            <div class="metric-grid">
-              <div class="metric">
+            <div class="decode-primary-grid">
+              <div class="metric decode-vendor-metric">
                 <div class="metric-label">{{ $t('vendor') }}</div>
                 <div class="vendor-logo-wrap" v-if="vendorLogo">
                   <img :src="vendorLogo" :alt="result?.vendor" class="vendor-logo" />
@@ -154,7 +154,7 @@ const vendorLogo = computed(() => getVendorLogo(result.value?.rawVendor));
 const controllers = computed(() => displayValue(toList(result.value?.controller).join(', ')));
 
 const identityMetrics = computed(() => [
-  { label: t('partNumber'), value: result.value?.partNumber },
+  ...promotedExtraMetrics.value,
   { label: t('type'), value: result.value?.type },
   { label: t('density'), value: formatDensity(result.value?.rawDensity, true) },
   { label: t('deviceWidth'), value: result.value?.deviceWidth },
@@ -184,7 +184,11 @@ const electricalMetrics = computed(() => {
   ];
 });
 
-const extraInfo = computed(() => objectRows(result.value?.extraInfo));
+const extraInfoRows = computed(() => sortExtraInfoRows(objectRows(result.value?.extraInfo)));
+const promotedExtraMetrics = computed(() => extraInfoRows.value
+  .filter(item => getExtraInfoPriority(item.name) === 0)
+  .map(item => ({ label: item.name, value: item.value })));
+const extraInfo = computed(() => extraInfoRows.value.filter(item => getExtraInfoPriority(item.name) !== 0));
 const flashIds = computed(() => toList(result.value?.flashId).map(id => ({ id })));
 const urls = computed(() => urlRows(result.value));
 
@@ -209,6 +213,28 @@ function toList(value) {
 function objectRows(value) {
   if (!value || Array.isArray(value) || typeof value !== 'object') return [];
   return Object.entries(value).map(([name, value]) => ({ name, value: String(value) }));
+}
+
+function getExtraInfoPriority(name) {
+  const normalized = String(name || '').toLowerCase().replace(/\s+/g, '');
+  if (
+    normalized.includes('美光料号')
+    || normalized.includes('micronpartnumber')
+    || normalized.includes('micronpn')
+  ) {
+    return 0;
+  }
+  if (normalized.includes('fbga')) {
+    return 1;
+  }
+  return 10;
+}
+
+function sortExtraInfoRows(rows) {
+  return rows
+    .map((item, index) => ({ ...item, index }))
+    .sort((a, b) => getExtraInfoPriority(a.name) - getExtraInfoPriority(b.name) || a.index - b.index)
+    .map(({ index, ...item }) => item);
 }
 
 function urlRows(data) {

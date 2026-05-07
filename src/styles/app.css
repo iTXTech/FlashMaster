@@ -243,6 +243,16 @@ a {
   line-height: 1.25;
 }
 
+.decode-primary-grid {
+  display: grid;
+  grid-template-columns: minmax(136px, 176px) minmax(260px, 1fr);
+  gap: 8px;
+}
+
+.decode-vendor-metric {
+  min-width: 0;
+}
+
 .vendor-logo-wrap {
   display: flex;
   min-height: 56px;
@@ -399,6 +409,10 @@ a {
   .metric-grid {
     grid-template-columns: repeat(auto-fit, minmax(156px, 1fr));
   }
+
+  .decode-primary-grid {
+    grid-template-columns: minmax(156px, 196px) minmax(320px, 1fr);
+  }
 }
 
 @media (max-width: 1100px) {
@@ -414,6 +428,10 @@ a {
   }
 
   .metric-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .decode-primary-grid {
     grid-template-columns: 1fr 1fr;
   }
 }
