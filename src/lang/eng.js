@@ -1,3 +1,5 @@
+import changelogText from '../../CHANGELOG.txt?raw';
+
 export default {
     lang: 'English',
     group: 'QQ Group: 1139052001',
@@ -60,6 +62,14 @@ export default {
         theme_0: 'Dark',
         theme_1: 'Light',
         theme_2: 'System'
+    },
+    changelog: {
+        title: 'Changelog',
+        subtitle: 'Current version {0}',
+        appVersion: 'FlashMaster {0}',
+        fdnextVersion: 'fdnext {0}',
+        gotIt: 'Got it',
+        content: changelogText.trim()
     },
     searchIdPage: {
         query: 'Decode ID',

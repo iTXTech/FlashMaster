@@ -1,3 +1,5 @@
+import changelogText from '../../CHANGELOG-zh.txt?raw';
+
 export default {
     lang: '简体中文',
     group: 'QQ群：1139052001',
@@ -60,6 +62,14 @@ export default {
         theme_0: '深色',
         theme_1: '浅色',
         theme_2: '跟随系统'
+    },
+    changelog: {
+        title: '更新日志',
+        subtitle: '当前版本 {0}',
+        appVersion: 'FlashMaster {0}',
+        fdnextVersion: 'fdnext {0}',
+        gotIt: '知道了',
+        content: changelogText.trim()
     },
     searchIdPage: {
         query: '查询ID',

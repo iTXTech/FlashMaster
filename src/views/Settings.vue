@@ -110,7 +110,7 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { getEmbeddedVersion } from '@/services/fdnextApi';
+import { getEmbeddedVersion } from '@/services/versionInfo';
 import { getServerInfo, loadServerList } from '@/services/flashApi';
 import bus from '@/store/bus';
 import store from '@/store';

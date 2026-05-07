@@ -1,0 +1,10 @@
+FlashMaster by PeratX <peratx@itxtech.org>
+版权所有 (c) 2019-2026 iTX Technologies
+===================================
+版本 2.0.0
+- 升级项目工具链到 Vite、Vue 3、Vuetify 3 和 pnpm。
+- 新增内嵌 fdnext 解析器，默认在浏览器本地完成解析。
+- 保留 FlashDetector HTTP API 兼容模式，可在设置中切换服务端后端。
+- 将 UI 重编排为更高信息密度的工作台，覆盖查询、搜索、设置、关于、表格、链接和厂商 Logo 展示。
+- 优化联想查询、复制操作、主题与语言切换、默认输入焦点和设置持久化。
+- 新增按主版本显示一次的 ChangeLog 对话框，并可从关于页面再次打开。

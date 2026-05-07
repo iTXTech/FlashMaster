@@ -44,8 +44,6 @@ function dispatch(endpoint, context = {}) {
 
 export const getEmbeddedInfo = () => dispatch('info');
 
-export const getEmbeddedVersion = () => typeof FDNEXT_VERSION !== 'undefined' ? FDNEXT_VERSION : 'dev';
-
 export const decodeEmbeddedPartNumber = pn => dispatch('decode', { pn });
 
 export const searchEmbeddedPartNumber = (pn, limit = 0) => dispatch('searchPn', { pn, limit });

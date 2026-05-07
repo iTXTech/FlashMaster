@@ -89,6 +89,23 @@ const getProjectVersion = () => {
     }
 };
 
+const getChangelogVersion = (version = getProjectVersion()) => {
+    return String(version || "").split("-").at(0) || "";
+};
+
+const getSeenChangelogVersion = () => {
+    return getChangelogVersion(localStorage.seenChangelogVersion || "");
+};
+
+const setSeenChangelogVersion = version => {
+    localStorage.seenChangelogVersion = getChangelogVersion(version);
+};
+
+const shouldShowChangelog = version => {
+    const normalized = getChangelogVersion(version);
+    return normalized && getSeenChangelogVersion() !== normalized;
+};
+
 const getLang = () => {
     return localStorage.lang || "chs"
 }
@@ -172,6 +189,10 @@ export default {
     statDecodeFid,
     resetStat,
     getProjectVersion,
+    getChangelogVersion,
+    getSeenChangelogVersion,
+    setSeenChangelogVersion,
+    shouldShowChangelog,
     getLang,
     setLang,
     setAutoHideSoftKeyboard,

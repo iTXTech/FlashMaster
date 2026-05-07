@@ -6,6 +6,7 @@
           <div>
             <div class="panel-title">{{ $t('nav.about') }}</div>
           </div>
+          <v-btn variant="tonal" prepend-icon="mdi-history" @click="openChangelog">{{ $t('changelog.title') }}</v-btn>
         </div>
         <div class="panel-body">
           <div class="about-copy text-body-2" v-html="$t('about', [client, fdnextVersion])" />
@@ -18,7 +19,8 @@
 
 <script setup>
 import { computed } from 'vue';
-import { getEmbeddedVersion } from '@/services/fdnextApi';
+import { getEmbeddedVersion } from '@/services/versionInfo';
+import bus from '@/store/bus';
 
 const fdnextVersion = getEmbeddedVersion();
 
@@ -43,6 +45,10 @@ const client = computed(() => {
   }
   return `${match[0]} ${match[1]}`;
 });
+
+function openChangelog() {
+  bus.emit('changelog');
+}
 </script>
 
 <style scoped>

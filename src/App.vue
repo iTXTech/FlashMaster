@@ -72,6 +72,8 @@
         <v-btn color="primary" variant="text" @click="snackbar.show = false">{{ $t('close') }}</v-btn>
       </template>
     </v-snackbar>
+
+    <ChangelogDialog v-model="changelogDialog" :app-version="changelogVersion" />
   </v-app>
 </template>
 
@@ -80,6 +82,7 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useDisplay, useTheme } from 'vuetify';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
+import ChangelogDialog from '@/components/ChangelogDialog.vue';
 import logo from '@/assets/logo.png';
 import bus from '@/store/bus';
 import store from '@/store';
@@ -96,6 +99,7 @@ const snackbar = ref({
   show: false,
   text: ''
 });
+const changelogDialog = ref(false);
 
 const navItems = [
   { icon: 'mdi-crosshairs-gps', title: 'nav.decodePartNumber', path: '/decode' },
@@ -112,6 +116,7 @@ const languages = computed(() => Object.entries(messages.value).map(([code, mess
 })));
 
 const projectVersion = computed(() => store.getProjectVersion());
+const changelogVersion = computed(() => store.getChangelogVersion(projectVersion.value));
 const pageTitle = computed(() => route.meta.title ? `FlashMaster / ${t(route.meta.title)}` : 'FlashMaster');
 
 const applyTheme = () => {
@@ -139,6 +144,7 @@ const updateTitle = () => {
 
 let offSnackbar;
 let offTheme;
+let offChangelog;
 let mediaQuery;
 
 onMounted(() => {
@@ -150,18 +156,30 @@ onMounted(() => {
   offTheme = bus.on('theme', () => {
     applyTheme();
   });
+  offChangelog = bus.on('changelog', () => {
+    changelogDialog.value = true;
+  });
   mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
   mediaQuery.addEventListener?.('change', applyTheme);
+  if (store.shouldShowChangelog(changelogVersion.value)) {
+    changelogDialog.value = true;
+  }
 });
 
 onUnmounted(() => {
   offSnackbar?.();
   offTheme?.();
+  offChangelog?.();
   mediaQuery?.removeEventListener?.('change', applyTheme);
 });
 
 watch([() => route.meta.title, locale, () => vuetifyTheme.global.name.value], updateTitle);
 watch(mobile, value => {
   drawer.value = !value;
+});
+watch(changelogDialog, value => {
+  if (!value) {
+    store.setSeenChangelogVersion(changelogVersion.value);
+  }
 });
 </script>

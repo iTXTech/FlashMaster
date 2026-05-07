@@ -1,0 +1,10 @@
+FlashMaster by PeratX <peratx@itxtech.org>
+Copyright (c) 2019-2026 iTX Technologies
+===================================
+Version 2.0.0
+- Migrated the application to Vite, Vue 3, Vuetify 3, and pnpm.
+- Added the embedded fdnext parser as the default local decoding engine.
+- Kept FlashDetector HTTP API compatibility as an optional server-backed mode.
+- Reworked the UI into a denser workstation layout for decoding, searching, settings, About, tables, links, and vendor logos.
+- Improved suggestion handling, copy actions, theme and language switching, default input focus, and settings persistence.
+- Added a per-major-version ChangeLog dialog that can also be reopened from the About page.
