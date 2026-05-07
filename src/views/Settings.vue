@@ -1,199 +1,253 @@
 <template>
-    <v-container grid-list-xl fluid>
-        <v-layout row wrap>
-            <v-flex lg4 sm12 xs12>
-                <v-card class="fm-bg">
-                    <v-card-title>{{ $t('settings.server') }}</v-card-title>
-                    <v-card-text>
-                        <v-combobox
-                            :items="items"
-                            :label="$t('settings.serverAddr')"
-                            :return-object="false"
-                            v-on:input="changeServer"
-                            v-model="server"
-                        />
-                    </v-card-text>
-                    <v-card-actions>
-                        <v-btn color="accent" text v-on:click="serverInfo">{{ $t('settings.serverInfo') }}</v-btn>
-                    </v-card-actions>
-                </v-card>
-            </v-flex>
+  <div class="workspace">
+    <div class="settings-grid">
+      <section class="panel">
+        <div class="panel-header">
+          <div class="panel-title">{{ $t('settings.server') }}</div>
+        </div>
+        <div class="panel-body query-stack">
+          <v-combobox
+            v-model="server"
+            :items="serverItems"
+            item-title="title"
+            item-value="address"
+            :return-object="false"
+            hide-details
+            clearable
+            :label="$t('settings.serverAddr')"
+            @update:model-value="changeServer"
+            @blur="commitServer"
+          >
+            <template #item="{ props, item }">
+              <v-list-item v-bind="props" :title="item.raw.title" :subtitle="item.raw.subtitle" />
+            </template>
+          </v-combobox>
+          <div class="server-address-line">
+            <v-icon icon="mdi-paperclip" size="18" />
+            <span>{{ activeServerAddress }}</span>
+          </div>
+          <div class="action-row">
+            <v-btn color="primary" prepend-icon="mdi-information-outline" @click="serverInfo">{{ $t('settings.serverInfo') }}</v-btn>
+            <v-btn variant="tonal" prepend-icon="mdi-refresh" :loading="loadingServers" @click="loadServers">{{ $t('settings.refreshServers') }}</v-btn>
+          </div>
+          <v-progress-linear v-if="loadingServers || loadingInfo" indeterminate color="primary" />
+        </div>
+      </section>
 
-            <v-flex lg3 sm12 xs12>
-                <v-card class="fm-bg">
-                    <v-card-title>{{ $t('customization.title') }}</v-card-title>
-                    <v-card-text>
-                        <v-select
-                            :items="themes"
-                            :return-object="false"
-                            v-on:change="changeTheme"
-                            :label="$t('customization.theme')"
-                            v-model="currentTheme"
-                        />
-                        <v-checkbox
-                            v-on:change="togHideKeyboard"
-                            v-model="hideKeyboard"
-                            :label="$t('customization.autoHideSoftKeyboard')"
-                        />
-                        <v-checkbox
-                            v-on:change="togBitUnit"
-                            v-model="bitUnit"
-                            :label="$t('customization.bitUnit')"
-                        />
-                    </v-card-text>
-                    <v-card-actions>
-                    </v-card-actions>
-                </v-card>
-            </v-flex>
+      <section class="panel">
+        <div class="panel-header">
+          <div class="panel-title">{{ $t('customization.title') }}</div>
+        </div>
+        <div class="panel-body query-stack">
+          <v-select
+            v-model="currentTheme"
+            :items="themes"
+            item-title="title"
+            item-value="value"
+            hide-details
+            :label="$t('customization.theme')"
+            @update:model-value="changeTheme"
+          />
+          <v-checkbox
+            v-model="hideKeyboard"
+            :label="$t('customization.autoHideSoftKeyboard')"
+            @update:model-value="value => store.setAutoHideSoftKeyboard(value)"
+          />
+          <v-checkbox
+            v-model="bitUnit"
+            :label="$t('customization.bitUnit')"
+            @update:model-value="value => store.setBitUnit(value)"
+          />
+        </div>
+      </section>
 
-            <v-flex lg3 sm12 xs12>
-                <v-card class="fm-bg">
-                    <v-card-title>{{ $t('statistic.title') }}</v-card-title>
-                    <v-card-text v-html="statContent"/>
-                    <v-card-actions>
-                        <v-btn color="accent" text v-on:click="resetStat">{{ $t('statistic.reset') }}</v-btn>
-                    </v-card-actions>
-                </v-card>
-            </v-flex>
-        </v-layout>
+      <section class="panel">
+        <div class="panel-header">
+          <div class="panel-title">{{ $t('statistic.title') }}</div>
+        </div>
+        <div class="panel-body">
+          <div class="metric-grid">
+            <div v-for="item in stats" :key="item.label" class="metric">
+              <div class="metric-label">{{ item.label }}</div>
+              <div class="metric-value">{{ item.value }}</div>
+            </div>
+          </div>
+          <div class="action-row mt-3">
+            <v-btn variant="tonal" prepend-icon="mdi-refresh" @click="resetStat">{{ $t('statistic.reset') }}</v-btn>
+          </div>
+        </div>
+      </section>
+    </div>
 
-        <v-dialog v-model="dialog.show" max-width="500">
-            <v-card class="fm-bg">
-                <v-card-title class="headline">{{ $t('settings.fdServerInfo') }}</v-card-title>
-                <v-card-text v-html="dialog.text"/>
-                <v-card-actions>
-                    <v-spacer/>
-                    <v-btn color="accent" text v-on:click="dialog.show = false">{{ $t('close') }}</v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
-    </v-container>
+    <v-dialog v-model="dialog.show" max-width="560">
+      <section class="panel">
+        <div class="panel-header">
+          <div class="panel-title">{{ $t('settings.fdServerInfo') }}</div>
+          <v-btn icon="mdi-close" variant="text" @click="dialog.show = false" />
+        </div>
+        <div class="panel-body">
+          <div v-html="dialog.text" />
+        </div>
+      </section>
+    </v-dialog>
+  </div>
 </template>
-<script>
-import store from "@/store";
-import bus from "@/store/bus.js";
-import theme from "@/theme";
 
-export default {
-    computed: {
-        items() {
-            let s = [];
-            if (this.servers !== []) {
-                for (let server in this.servers) {
-                    s.push({
-                        value: this.servers[server],
-                        text: server
-                    });
-                }
-            }
-            return s;
-        },
-        transStat() {
-            return this.updateStat();
-        },
-        themes() {
-            let data = [];
-            for (let key in theme.THEMES) {
-                data.push({
-                    text: this.$t(`customization.theme_${key}`),
-                    value: key
-                })
-            }
-            return data;
-        }
-    },
-    data() {
-        return {
-            servers: [],
-            server: store.getServerAddress(),
-            dialog: {
-                show: false,
-                text: ""
-            },
-            statContent: "",
-            hideKeyboard: false,
-            bitUnit: false,
-            currentTheme: "0"
-        };
-    },
-    created() {
-        this.currentTheme = store.getTheme();
-        this.hideKeyboard = store.isAutoHideSoftKeyboard();
-        this.bitUnit = store.isBitUnit();
-        this.statContent = this.updateStat();
-        fetch("https://raw.githubusercontent.com/PeratX/FlashMaster/master/servers.json")
-            .then(r => r.json())
-            .then(data => {
-                this.servers = data;
-            })
-            .catch(err => {
-                bus.$emit("snackbar", {
-                    timeout: 3000,
-                    show: true,
-                    text: this.$t("alert.fetchServerListFailed", [err])
-                });
-            });
-    },
-    methods: {
-        changeTheme(theme) {
-            store.setTheme(theme)
-            bus.$emit("theme");
-        },
-        togHideKeyboard(value) {
-            store.setAutoHideSoftKeyboard(value);
-        },
-        togBitUnit(value) {
-            store.setBitUnit(value);
-        },
-        changeServer(server) {
-            store.setServerAddress(server);
-        },
-        serverInfo() {
-            fetch(store.getServerAddress() + "/info")
-                .then(r => r.json())
-                .then(data => {
-                    this.dialog = {
-                        show: true,
-                        text: this.$t("settings.info", [
-                            data.ver,
-                            data.info.fdb.time,
-                            data.info.flash_cnt,
-                            data.info.id_cnt,
-                            data.info.mdb_cnt,
-                            String(data.info.fdb.controllers).replace(/,/g, ", ")
-                        ])
-                    };
-                })
-                .catch(err => {
-                    bus.$emit("snackbar", {
-                        timeout: 3000,
-                        show: true,
-                        text: this.$t("alert.fetchFailed", [err])
-                    });
-                });
-        },
-        resetStat() {
-            store.resetStat();
-            this.statContent = this.updateStat();
-            bus.$emit("snackbar", {
-                timeout: 3000,
-                show: true,
-                text: this.$t("statistic.resetInfo")
-            });
-        },
-        updateStat() {
-            return this.$t("statistic.content", [
-                store.statDecodeId(),
-                store.statSearchPn(),
-                store.statDecodeFid(),
-                store.statSearchId()
-            ]);
-        }
-    },
-    watch: {
-        transStat(v) {
-            this.statContent = v;
-        }
-    }
+<script setup>
+import { computed, onMounted, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { getServerInfo, loadServerList } from '@/services/flashApi';
+import bus from '@/store/bus';
+import store from '@/store';
+import themeManager from '@/theme';
+
+const { t } = useI18n();
+
+const fallbackServers = {
+  'Server #1 (SakurACG)': 'https://fd.sakuracg.com',
+  '默认本地服务器 / Default Local Server': 'http://127.0.0.1:8080'
 };
+
+const servers = ref({});
+const server = ref(store.getServerAddress());
+const currentTheme = ref(store.getTheme());
+const hideKeyboard = ref(store.isAutoHideSoftKeyboard());
+const bitUnit = ref(store.isBitUnit());
+const loadingServers = ref(false);
+const loadingInfo = ref(false);
+const statsState = ref(readStats());
+const dialog = ref({
+  show: false,
+  text: ''
+});
+
+const serverRecords = computed(() => {
+  const merged = { ...fallbackServers, ...servers.value };
+  const seen = new Set();
+  return Object.entries(merged)
+    .filter(([, address]) => typeof address === 'string' && address.trim())
+    .filter(([, address]) => {
+      const normalized = address.trim();
+      if (seen.has(normalized)) return false;
+      seen.add(normalized);
+      return true;
+    })
+    .map(([name, address]) => ({
+      title: name,
+      address: address.trim(),
+      subtitle: address.trim()
+    }));
+});
+const activeServerAddress = computed(() => normalizeServer(server.value) || store.getDefaultServerAddress());
+const activeServerRecord = computed(() => {
+  const hit = serverRecords.value.find(item => item.address === activeServerAddress.value);
+  return hit || {
+    title: t('settings.customServer'),
+    address: activeServerAddress.value,
+    subtitle: activeServerAddress.value
+  };
+});
+const serverItems = computed(() => {
+  const hit = serverRecords.value.some(item => item.address === activeServerAddress.value);
+  return hit ? serverRecords.value : [activeServerRecord.value, ...serverRecords.value];
+});
+const themes = computed(() => [
+  { title: t('customization.theme_0'), value: themeManager.THEME_DARK },
+  { title: t('customization.theme_1'), value: themeManager.THEME_LIGHT },
+  { title: t('customization.theme_2'), value: themeManager.THEME_SYSTEM }
+]);
+
+const stats = computed(() => [
+  { label: t('nav.decodePartNumber'), value: statsState.value.decodeId },
+  { label: t('nav.searchPartNumber'), value: statsState.value.searchPn },
+  { label: t('nav.decodeId'), value: statsState.value.decodeFid },
+  { label: t('nav.searchFlashId'), value: statsState.value.searchId }
+]);
+
+function readStats() {
+  return {
+    decodeId: store.statDecodeId(),
+    searchPn: store.statSearchPn(),
+    decodeFid: store.statDecodeFid(),
+    searchId: store.statSearchId()
+  };
+}
+
+function refreshStats() {
+  statsState.value = readStats();
+}
+
+function normalizeServer(value) {
+  if (value && typeof value === 'object') {
+    return value.address || '';
+  }
+  const text = String(value || '').trim();
+  const hit = serverRecords.value.find(item => {
+    return item.address === text
+      || item.title === text
+      || `${item.title} ${item.address}` === text
+      || `${item.title} · ${item.address}` === text;
+  });
+  return hit?.address || text;
+}
+
+function changeServer(value) {
+  server.value = normalizeServer(value) || store.getDefaultServerAddress();
+  store.setServerAddress(server.value);
+  bus.emit('server');
+}
+
+function commitServer() {
+  changeServer(server.value);
+}
+
+function changeTheme(value) {
+  store.setTheme(value);
+  bus.emit('theme');
+}
+
+async function serverInfo() {
+  loadingInfo.value = true;
+  try {
+    const data = await getServerInfo();
+    dialog.value = {
+      show: true,
+      text: t('settings.info', [
+        data.ver,
+        data.info?.fdb?.time,
+        data.info?.flash_cnt,
+        data.info?.id_cnt,
+        data.info?.mdb_cnt,
+        String(data.info?.fdb?.controllers || '').replace(/,/g, ', ')
+      ])
+    };
+  } catch (err) {
+    notify(t('alert.fetchFailed', [err.message || err]));
+  } finally {
+    loadingInfo.value = false;
+  }
+}
+
+function resetStat() {
+  store.resetStat();
+  refreshStats();
+  notify(t('statistic.resetInfo'));
+}
+
+function notify(text) {
+  bus.emit('snackbar', { timeout: 3000, show: true, text });
+}
+
+async function loadServers() {
+  loadingServers.value = true;
+  try {
+    servers.value = await loadServerList();
+  } catch (err) {
+    notify(t('alert.fetchServerListFailed', [err.message || err]));
+  } finally {
+    loadingServers.value = false;
+  }
+}
+
+onMounted(loadServers);
 </script>

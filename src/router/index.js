@@ -1,7 +1,4 @@
-import Vue from 'vue'
-import VueRouter from 'vue-router'
-
-Vue.use(VueRouter);
+import { createRouter, createWebHashHistory } from 'vue-router';
 
 const routes = [
     {
@@ -10,52 +7,51 @@ const routes = [
     },
     {
         path: "/decode",
-        component: () => import("@/views/Decode"),
+        component: () => import("@/views/Decode.vue"),
         meta: {
             title: 'nav.decodePartNumber'
         }
     },
     {
         path: "/decodeId",
-        component: () => import("@/views/DecodeId"),
+        component: () => import("@/views/DecodeId.vue"),
         meta: {
             title: 'nav.decodeId'
         }
     },
     {
         path: "/settings",
-        component: () => import("@/views/Settings"),
+        component: () => import("@/views/Settings.vue"),
         meta: {
             title: 'nav.settings'
         }
     },
     {
         path: "/searchPn",
-        component: () => import("@/views/SearchPn"),
+        component: () => import("@/views/SearchPn.vue"),
         meta: {
             title: 'nav.searchPartNumber'
         }
     },
     {
         path: '/searchId',
-        component: () => import("@/views/SearchId"),
+        component: () => import("@/views/SearchId.vue"),
         meta: {
             title: 'nav.searchFlashId'
         }
     },
     {
         path: "/about",
-        component: () => import("@/views/About"),
+        component: () => import("@/views/About.vue"),
         meta: {
             title: 'nav.about'
         }
     },
 ];
 
-const router = new VueRouter({
-    mode: 'hash',
-    base: process.env.BASE_URL,
-    scrollBehavior: () => ({y: 0}),
+const router = createRouter({
+    history: createWebHashHistory(import.meta.env.BASE_URL),
+    scrollBehavior: () => ({top: 0}),
     routes
 });
 

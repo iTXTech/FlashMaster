@@ -1,0 +1,36 @@
+import js from '@eslint/js';
+import pluginVue from 'eslint-plugin-vue';
+import globals from 'globals';
+
+export default [
+  {
+    ignores: ['dist/**', 'node_modules/**']
+  },
+  js.configs.recommended,
+  ...pluginVue.configs['flat/essential'],
+  {
+    files: ['**/*.{js,vue}'],
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+        VERSION: 'readonly'
+      },
+      ecmaVersion: 'latest',
+      sourceType: 'module'
+    },
+    rules: {
+      'vue/multi-word-component-names': 'off',
+      'no-console': 'off',
+      'no-debugger': 'off',
+      'no-unused-vars': 'off'
+    }
+  },
+  {
+    files: ['*.config.js', 'vite.config.js'],
+    languageOptions: {
+      globals: {
+        ...globals.node
+      }
+    }
+  }
+];

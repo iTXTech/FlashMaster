@@ -1,9 +1,18 @@
+const DEFAULT_SERVER_ADDRESS = import.meta.env.VITE_FLASHMASTER_SERVER || "https://fd.sakuracg.com";
+
+const getDefaultServerAddress = () => DEFAULT_SERVER_ADDRESS;
+
 const getServerAddress = () => {
-    return localStorage.server || "https://fd.sakuracg.com"
+    return localStorage.server || DEFAULT_SERVER_ADDRESS
 };
 
 const setServerAddress = (addr) => {
-    localStorage.server = addr
+    const normalized = String(addr || "").trim();
+    if (normalized) {
+        localStorage.server = normalized;
+    } else {
+        localStorage.removeItem("server");
+    }
 };
 
 const statDecodeIdInc = () => {
@@ -58,8 +67,7 @@ const resetStat = () => {
 };
 
 const getProjectVersion = () => {
-    if (typeof VERSION !== undefined) {
-        // eslint-disable-next-line no-undef
+    if (typeof VERSION !== "undefined") {
         return VERSION
     } else {
         return "DEBUG"
@@ -68,6 +76,10 @@ const getProjectVersion = () => {
 
 const getLang = () => {
     return localStorage.lang || "chs"
+}
+
+const setLang = lang => {
+    localStorage.lang = lang;
 }
 
 const isMobile = () => {
@@ -91,7 +103,7 @@ const setBitUnit = (b) => {
 
 const isBitUnit = () => {
     if (isNaN(Number(localStorage.bitUnit))) {
-        setAutoHideSoftKeyboard(false);
+        setBitUnit(false);
     }
     return localStorage.bitUnit === "1"
 }
@@ -99,7 +111,7 @@ const isBitUnit = () => {
 const partNumberFormat = str => {
     return str.toUpperCase()
         .replace(/,/g, "")
-        .replace(/ /g, "");
+        .replace(/\s+/g, "");
 }
 
 const setTheme = theme => {
@@ -107,7 +119,7 @@ const setTheme = theme => {
 }
 
 const getTheme = () => {
-    if (isNaN(Number(localStorage.theme))) {
+    if (!["0", "1", "2"].includes(localStorage.theme)) {
         setTheme("0");
     }
     return localStorage.theme
@@ -127,6 +139,7 @@ const formatNumber = (bytes, unit = 1, inBit = false, outBit = false) => {
 }
 
 export default {
+    getDefaultServerAddress,
     getServerAddress,
     setServerAddress,
     statDecodeIdInc,
@@ -140,6 +153,7 @@ export default {
     resetStat,
     getProjectVersion,
     getLang,
+    setLang,
     setAutoHideSoftKeyboard,
     isAutoHideSoftKeyboard,
     setBitUnit,

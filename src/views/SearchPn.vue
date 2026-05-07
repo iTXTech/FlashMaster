@@ -1,153 +1,127 @@
 <template>
-    <v-container grid-list-xl fluid>
-        <v-flex lg12>
-            <v-card class="fm-bg">
-                <v-app-bar flat dense color="transparent">
-                    <v-text-field
-                            flat
-                            solo
-                            clearable
-                            prepend-icon="mdi-magnify"
-                            :placeholder="$t('partNumber')"
-                            v-model="partNumber"
-                            hide-details
-                            class="pn"
-                            v-on:keyup.enter="search"
-                            ref="pnInput"
-                            :loading="loading"
-                            background-color="transparent"
-                    />
-                    <v-btn icon v-on:click="search">
-                        <v-icon>mdi-arrow-right</v-icon>
-                    </v-btn>
-                </v-app-bar>
-                <v-divider/>
-                <v-card-text>
-                    <v-data-table
-                            :headers="pnHeaders"
-                            :items="pns"
-                            disable-sort
-                            class="elevation-1 fm-bg"
-                            no-data-text=""
-                            :mobile-breakpoint="NaN"
-                            :items-per-page="15"
-                            :page.sync="page"
-                            :footer-props="{
-                                showFirstLastPage: true,
-                                itemsPerPageOptions: [15, 30, 50, 100]
-                            }"
-                    >
-                        <template v-slot:item.action="{ item }">
-                            <v-btn icon v-on:click="decodeFlashId(item)">
-                                <v-icon>mdi-arrow-top-left-thick</v-icon>
-                            </v-btn>
-                        </template>
-                    </v-data-table>
-                </v-card-text>
-            </v-card>
-        </v-flex>
-    </v-container>
-</template>
-<script>
-    import store from "@/store";
-    import router from "@/router";
-    import bus from "@/store/bus.js";
+  <div class="workspace">
+    <div class="workspace-grid">
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">{{ $t('search') }}</div>
+          </div>
+          <v-btn icon="mdi-arrow-right" variant="text" @click="search" />
+        </div>
+        <div class="panel-body query-stack">
+          <v-text-field
+            ref="input"
+            v-model="partNumber"
+            class="pn"
+            clearable
+            hide-details
+            prepend-inner-icon="mdi-magnify"
+            :label="$t('partNumber')"
+            @keydown.enter.prevent="search"
+          />
+          <div class="action-row">
+            <v-btn color="primary" prepend-icon="mdi-magnify" @click="search">{{ $t('search') }}</v-btn>
+            <v-btn variant="tonal" prepend-icon="mdi-crosshairs-gps" :disabled="!partNumber" @click="decodeCurrent">{{ $t('query') }}</v-btn>
+          </div>
+          <v-progress-linear v-if="loading" indeterminate color="primary" />
+        </div>
+      </section>
 
-    export default {
-        data() {
-            return {
-                snackbar: {
-                    timeout: 1000,
-                    show: false,
-                    text: ""
-                },
-                partNumber: "",
-                pns: [],
-                page: 1,
-                loading: false
-            };
-        },
-        computed: {
-            pnHeaders() {
-                return [
-                    {text: this.$t("vendor"), value: "vendor", align: "left"},
-                    {text: this.$t("partNumber"), value: "pn", align: "left"},
-                    {text: this.$t("remark"), value: "remark", align: "left"},
-                    {text: this.$t("action"), value: "action"}
-                ];
-            }
-        },
-        methods: {
-            showLoading(open) {
-                if (open === false) {
-                    this.loading = false
-                } else {
-                    this.loading = "primary"
-                }
-            },
-            search() {
-                if (this.partNumber != null && this.partNumber !== "") {
-                    if (store.isAutoHideSoftKeyboard()) {
-                        setTimeout(() => {
-                            this.$refs.pnInput.blur();
-                        });
-                    }
-                    this.partNumber = store.partNumberFormat(this.partNumber);
-                    if (this.$route.query.pn !== this.partNumber) {
-                        router.push({
-                            path: "/searchPn",
-                            query: {pn: this.partNumber}
-                        });
-                    }
-                    this.page = 1;
-                    this.showLoading(true);
-                    fetch(`${store.getServerAddress()}/searchPn?lang=${store.getLang()}&pn=${this.partNumber}`)
-                        .then(r => r.json())
-                        .then(data => {
-                            this.pns = [];
-                            for (let d in data.data) {
-                                let pn = String(data.data[d]).split(" ");
-                                this.pns.push({
-                                    vendor: pn[0],
-                                    pn: pn[1],
-                                    remark: pn[2]
-                                });
-                            }
-                            this.showLoading(false);
-                            store.statSearchPnInc();
-                        })
-                        .catch(err => {
-                            bus.$emit("snackbar", {
-                                timeout: 3000,
-                                show: true,
-                                text: this.$t("alert.fetchFailed", [err])
-                            });
-                            this.showLoading(false);
-                        });
-                } else {
-                    bus.$emit("snackbar", {
-                        timeout: 3000,
-                        show: true,
-                        text: this.$t("alert.missingPartNumber")
-                    });
-                }
-            },
-            decodeFlashId(item) {
-                router.push({
-                    path: "/decode",
-                    query: {pn: item.pn}
-                });
-            }
-        },
-        created() {
-            if (Object.keys(this.$route.query).includes("pn")) {
-                this.partNumber = this.$route.query.pn;
-                this.search();
-            } else {
-                setTimeout(() => {
-                    this.$refs.pnInput.$refs.input.focus()
-                })
-            }
-        }
-    };
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">{{ $t('dashboard.relatedData') }}</div>
+            <div class="panel-meta">{{ $t('dashboard.resultCount', [rows.length]) }}</div>
+          </div>
+        </div>
+        <PagedTable :headers="headers" :items="rows">
+          <template #action="{ item }">
+            <v-btn icon="mdi-arrow-top-left-thick" variant="text" @click="router.push({ path: '/decode', query: { pn: item.pn } })" />
+          </template>
+        </PagedTable>
+      </section>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { computed, nextTick, onMounted, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { useRoute, useRouter } from 'vue-router';
+import PagedTable from '@/components/PagedTable.vue';
+import { searchPartNumber } from '@/services/flashApi';
+import { parsePartNumberResult } from '@/services/resultParser';
+import bus from '@/store/bus';
+import store from '@/store';
+
+const { t } = useI18n();
+const route = useRoute();
+const router = useRouter();
+const input = ref(null);
+
+const partNumber = ref('');
+const rows = ref([]);
+const loading = ref(false);
+
+const headers = computed(() => [
+  { title: t('vendor'), key: 'vendor' },
+  { title: t('partNumber'), key: 'pn' },
+  { title: t('remark'), key: 'remark' },
+  { title: t('action'), key: 'action' }
+]);
+
+function normalizeInput() {
+  partNumber.value = store.partNumberFormat(partNumber.value || '');
+  return partNumber.value;
+}
+
+async function search(syncRoute = true) {
+  const pn = normalizeInput();
+  if (!pn) {
+    notify(t('alert.missingPartNumber'));
+    return;
+  }
+  if (store.isAutoHideSoftKeyboard()) {
+    input.value?.blur?.();
+  }
+  if (syncRoute && route.query.pn !== pn) {
+    router.push({ path: '/searchPn', query: { pn } });
+  }
+  loading.value = true;
+  try {
+    const payload = await searchPartNumber(pn);
+    rows.value = (Array.isArray(payload.data) ? payload.data : []).map(item => parsePartNumberResult(item, pn));
+    store.statSearchPnInc();
+  } catch (err) {
+    notify(t('alert.fetchFailed', [err.message || err]));
+  } finally {
+    loading.value = false;
+  }
+}
+
+function decodeCurrent() {
+  const pn = normalizeInput();
+  if (!pn) return notify(t('alert.missingPartNumber'));
+  router.push({ path: '/decode', query: { pn } });
+}
+
+function notify(text) {
+  bus.emit('snackbar', { timeout: 3000, show: true, text });
+}
+
+onMounted(() => {
+  if (route.query.pn) {
+    partNumber.value = String(route.query.pn);
+    search(false);
+  } else {
+    nextTick(() => input.value?.focus?.());
+  }
+});
+
+watch(() => route.query.pn, value => {
+  if (value && value !== partNumber.value) {
+    partNumber.value = String(value);
+    search(false);
+  }
+});
 </script>

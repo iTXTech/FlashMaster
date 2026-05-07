@@ -1,185 +1,155 @@
 <template>
-  <v-container grid-list-xl fluid>
-    <v-flex lg12>
-      <v-card class="fm-bg">
-        <v-app-bar flat dense color="transparent">
+  <div class="workspace">
+    <div class="workspace-grid">
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">{{ $t('searchId') }}</div>
+          </div>
+          <v-btn icon="mdi-arrow-right" variant="text" @click="search" />
+        </div>
+        <div class="panel-body query-stack">
           <v-text-field
-              flat
-              solo
-              clearable
-              prepend-icon="mdi-magnify"
-              :placeholder="$t('flashId')"
-              v-model="id"
-              hide-details
-              class="pn"
-              v-on:keyup.enter="search"
-              ref="idInput"
-              :loading="loading"
-              background-color="transparent"
+            ref="input"
+            v-model="flashId"
+            class="pn"
+            clearable
+            hide-details
+            prepend-inner-icon="mdi-magnify"
+            :label="$t('flashId')"
+            @keydown.enter.prevent="search"
           />
-          <v-btn icon v-on:click="search">
-            <v-icon>mdi-arrow-right</v-icon>
-          </v-btn>
-        </v-app-bar>
-        <v-divider />
-        <v-card-text>
-          <v-data-table
-              :headers="idHeaders"
-              :items="ids"
-              disable-sort
-              class="elevation-1 fm-bg"
-              no-data-text=""
-              :mobile-breakpoint="NaN"
-              :items-per-page="15"
-              :page.sync="page"
-              :footer-props="{
-                                showFirstLastPage: true,
-                                itemsPerPageOptions: [15, 30, 50, 100]
-                            }"
-          >
-            <template v-slot:item.action="{ item }">
-              <v-btn icon v-on:click="decodeFlashId(item)">
-                <v-icon>mdi-arrow-top-left-thick</v-icon>
-              </v-btn>
-              <v-menu offset-y>
-                <template v-slot:activator="{ on }">
-                  <v-btn icon v-on="on">
-                    <v-icon>mdi-animation</v-icon>
-                  </v-btn>
-                </template>
-                <v-list>
-                  <v-list-item v-for="(it, index) in item.partNumberList" :key="index"
-                               v-on:click="list(it)">
-                    <v-list-item-action class="mx-0">{{ it }}</v-list-item-action>
-                  </v-list-item>
-                </v-list>
-              </v-menu>
-            </template>
-          </v-data-table>
-        </v-card-text>
-      </v-card>
-    </v-flex>
-  </v-container>
-</template>
-<script>
-import store from "@/store";
-import router from "@/router";
-import bus from "@/store/bus.js";
+          <div class="action-row">
+            <v-btn color="primary" prepend-icon="mdi-magnify" @click="search">{{ $t('searchId') }}</v-btn>
+            <v-btn variant="tonal" prepend-icon="mdi-memory" :disabled="!flashId" @click="decodeCurrent">{{ $t('searchIdPage.query') }}</v-btn>
+          </div>
+          <v-progress-linear v-if="loading" indeterminate color="primary" />
+        </div>
+      </section>
 
-export default {
-  data() {
-    return {
-      id: "",
-      ids: [],
-      page: 1,
-      loading: false
-    };
-  },
-  computed: {
-    idHeaders() {
-      return [
-        { text: this.$t("flashId"), value: "id", align: "left" },
-        { text: this.$t("pageSize"), value: "pageSize", align: "left" },
-        { text: this.$t("blocks"), value: "blocks", align: "left" },
-        { text: this.$t("pagesPerBlock"), value: "pagesPerBlock", align: "left" },
-        { text: this.$t("partNumber"), value: "partNumbers", align: "left" },
-        { text: this.$t("action"), value: "action" },
-        { text: this.$t("controllers"), value: "controllers", align: "left" }
-      ];
-    }
-  },
-  methods: {
-    showLoading(open) {
-      if (open === false) {
-        this.loading = false
-      } else {
-        this.loading = "primary"
-      }
-    },
-    decodeFlashId(item) {
-      router.push({
-        path: "/decodeId",
-        query: { id: item.id }
-      });
-    },
-    search() {
-      if (this.id != null && this.id !== "") {
-        if (store.isAutoHideSoftKeyboard()) {
-          setTimeout(() => {
-            this.$refs.idInput.blur();
-          });
-        }
-        this.id = store.partNumberFormat(this.id);
-        if (this.$route.query.id !== this.id) {
-          router.push({
-            path: "/searchId",
-            query: { id: this.id }
-          });
-        }
-        this.page = 1;
-        this.showLoading(true);
-        fetch(`${store.getServerAddress()}/searchId?lang=${store.getLang()}&id=${this.id}`)
-            .then(r => r.json())
-            .then(data => {
-              this.ids = [];
-              for (let d in data.data) {
-                let pns = "";
-                let pnList = [];
-                for (let pn in data.data[d]["partNumbers"]) {
-                  pns += String(data.data[d]["partNumbers"][pn]).split(" ")[1] + ", ";
-                  pnList.push(String(data.data[d]["partNumbers"][pn]).split(" ")[1]);
-                }
-                let cons = "";
-                for (let con in data.data[d]["controllers"]) {
-                  cons += String(data.data[d]["controllers"][con]) + ", ";
-                }
-                cons = cons.substring(0, cons.length - 2);
-                pns = pns.substring(0, pns.length - 2);
-                this.ids.push({
-                  id: d,
-                  partNumbers: pns,
-                  partNumberList: pnList,
-                  pageSize: data.data[d]["pageSize"],
-                  blocks: data.data[d]["blocks"],
-                  pagesPerBlock: data.data[d]["pagesPerBlock"],
-                  controllers: cons
-                });
-              }
-              this.showLoading(false);
-              store.statSearchIdInc();
-            })
-            .catch(err => {
-              bus.$emit("snackbar", {
-                timeout: 3000,
-                show: true,
-                text: this.$t("alert.fetchFailed", [err])
-              });
-              this.showLoading(false);
-            });
-      } else {
-        bus.$emit("snackbar", {
-          timeout: 3000,
-          show: true,
-          text: this.$t("alert.missingFlashId")
-        });
-      }
-    },
-    list(item) {
-      router.push({
-        path: "/decode",
-        query: { pn: item }
-      });
-    }
-  },
-  created() {
-    if (Object.keys(this.$route.query).includes("id")) {
-      this.id = this.$route.query.id;
-      this.search();
-    } else {
-      setTimeout(() => {
-        this.$refs.idInput.$refs.input.focus()
-      })
-    }
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">{{ $t('dashboard.relatedData') }}</div>
+            <div class="panel-meta">{{ $t('dashboard.resultCount', [rows.length]) }}</div>
+          </div>
+        </div>
+        <PagedTable :headers="headers" :items="rows">
+          <template #action="{ item }">
+            <v-btn icon="mdi-memory" variant="text" @click="router.push({ path: '/decodeId', query: { id: item.id } })" />
+            <v-menu v-if="item.partNumberList.length > 0">
+              <template #activator="{ props }">
+                <v-btn v-bind="props" icon="mdi-format-list-bulleted" variant="text" />
+              </template>
+              <v-list density="compact">
+                <v-list-item
+                  v-for="pn in item.partNumberList"
+                  :key="pn"
+                  :title="pn"
+                  @click="router.push({ path: '/decode', query: { pn } })"
+                />
+              </v-list>
+            </v-menu>
+          </template>
+        </PagedTable>
+      </section>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { computed, nextTick, onMounted, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { useRoute, useRouter } from 'vue-router';
+import PagedTable from '@/components/PagedTable.vue';
+import { searchFlashId } from '@/services/flashApi';
+import { parsePartNumberToken } from '@/services/resultParser';
+import bus from '@/store/bus';
+import store from '@/store';
+
+const { t } = useI18n();
+const route = useRoute();
+const router = useRouter();
+const input = ref(null);
+
+const flashId = ref('');
+const rows = ref([]);
+const loading = ref(false);
+
+const headers = computed(() => [
+  { title: t('flashId'), key: 'id' },
+  { title: t('pageSize'), key: 'pageSize' },
+  { title: t('blocks'), key: 'blocks' },
+  { title: t('pagesPerBlock'), key: 'pagesPerBlock' },
+  { title: t('partNumber'), key: 'partNumbers' },
+  { title: t('controllers'), key: 'controllers' },
+  { title: t('action'), key: 'action' }
+]);
+
+function normalizeInput() {
+  flashId.value = store.partNumberFormat(flashId.value || '');
+  return flashId.value;
+}
+
+async function search(syncRoute = true) {
+  const id = normalizeInput();
+  if (!id) {
+    notify(t('alert.missingFlashId'));
+    return;
   }
-};
+  if (store.isAutoHideSoftKeyboard()) {
+    input.value?.blur?.();
+  }
+  if (syncRoute && route.query.id !== id) {
+    router.push({ path: '/searchId', query: { id } });
+  }
+  loading.value = true;
+  try {
+    const payload = await searchFlashId(id);
+    rows.value = Object.entries(payload.data || {}).map(([flashId, data]) => {
+      const partNumberList = (Array.isArray(data.partNumbers) ? data.partNumbers : []).map(parsePartNumberToken);
+      const controllers = Array.isArray(data.controllers) ? data.controllers.join(', ') : '';
+      return {
+        id: flashId,
+        pageSize: data.pageSize,
+        blocks: data.blocks,
+        pagesPerBlock: data.pagesPerBlock,
+        partNumbers: partNumberList.join(', '),
+        partNumberList,
+        controllers
+      };
+    });
+    store.statSearchIdInc();
+  } catch (err) {
+    notify(t('alert.fetchFailed', [err.message || err]));
+  } finally {
+    loading.value = false;
+  }
+}
+
+function decodeCurrent() {
+  const id = normalizeInput();
+  if (!id) return notify(t('alert.missingFlashId'));
+  router.push({ path: '/decodeId', query: { id } });
+}
+
+function notify(text) {
+  bus.emit('snackbar', { timeout: 3000, show: true, text });
+}
+
+onMounted(() => {
+  if (route.query.id) {
+    flashId.value = String(route.query.id);
+    search(false);
+  } else {
+    nextTick(() => input.value?.focus?.());
+  }
+});
+
+watch(() => route.query.id, value => {
+  if (value && value !== flashId.value) {
+    flashId.value = String(value);
+    search(false);
+  }
+});
 </script>

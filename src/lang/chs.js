@@ -1,11 +1,11 @@
-module.exports = {
-    lang: "简体中文",
-    group: "QQ群：1139052001",
+export default {
+    lang: '简体中文',
+    group: 'QQ群：1139052001',
     alert: {
         missingPartNumber: '请输入料号',
         fetchFailed: '获取失败：{0}',
         missingFlashId: '请输入闪存ID',
-        fetchServerListFailed: '服务器列表获取失败：{0}',
+        fetchServerListFailed: '服务器列表获取失败：{0}'
     },
     nav: {
         decodePartNumber: '料号查询',
@@ -15,18 +15,29 @@ module.exports = {
         about: '关于',
         decodeId: '闪存ID查询'
     },
+    dashboard: {
+        queryPanel: '查询输入',
+        decodeResult: '解析结果',
+        identity: '身份',
+        geometry: '结构',
+        electrical: '电气与封装',
+        relatedData: '关联数据',
+        quickStats: '快速统计',
+        empty: '暂无数据',
+        copiedSummary: '摘要已复制。',
+        resultCount: '{0} 条结果',
+        page: '第 {0} / {1} 页',
+        perPage: '每页'
+    },
     settings: {
         server: '服务器',
         serverAddr: '服务器地址',
         translation: '自动翻译',
         serverInfo: '服务器信息',
-        fdServerInfo: 'iTXTech FlashDetector 服务器信息',
+        customServer: '自定义服务器',
+        refreshServers: '刷新列表',
+        fdServerInfo: 'FlashDetector 服务器信息',
         info: 'FlashDetector 数据库版本：{0}<br/>数据库生成时间：{1}<br/>收录 {2} 闪存料号<br/>收录 {3} 闪存ID<br/>收录 {4} 美光 FBGA 码<br/>收录的控制器：<br/>{5}'
-    },
-    support: {
-        alipay: '支持作者 - 支付宝',
-        alipayUrl: '打开支付宝',
-        saveQrCode: '保存二维码'
     },
     statistic: {
         title: '统计',
@@ -36,17 +47,17 @@ module.exports = {
     },
     customization: {
         title: '个性化',
+        language: '语言',
         autoHideSoftKeyboard: '自动隐藏软键盘',
         bitUnit: '使用 bit 作为容量单位',
         theme: '主题',
         theme_0: '深色',
         theme_1: '浅色',
-        theme_2: '跟随系统',
-        theme_3: '粉红'
+        theme_2: '跟随系统'
     },
     searchIdPage: {
         query: '查询ID',
-        search: '搜索Id',
+        search: '搜索ID',
         pns: '料号'
     },
     version: '版本：{0}',
@@ -54,6 +65,7 @@ module.exports = {
     query: '查询料号',
     search: '搜索料号',
     searchId: '搜索闪存ID',
+    summary: '复制摘要',
     partNumber: '料号',
     partNumberOrFlashId: '料号或闪存ID',
     vendor: '厂商',
@@ -92,5 +104,9 @@ module.exports = {
     description: '描述',
     urls: '链接',
     copyManually: '请手动复制',
-    about: '<a href="https://github.com/iTXTech/FlashMaster" target="_blank">iTXTech FlashMaster</a><br/>使用 <a href="https://vuejs.org" target="_blank">Vue.js</a> 和 <a href="https://vuetifyjs.com/" target="_blank">Vuetify</a> 构建。<br/>本程序遵循 AGPLv3 开源。<br/><br/>主要维护者：<br/><a href="https://peratx.net" target="_blank">PeratX</a><br/><br/><a href="https://market.m.taobao.com/app/idleFish-F2e/IdleFishWeexPersonalPage/PersonalHome?ut_sk=1.WmC0tf46/fADAD7YJeN2DyOW_12431167_1573698250610.QRCode.mypage.894797966.894797966&userid=894797966&wh_weex=true&forceFlush=1" target="_blank">去作者的闲鱼主页看看</a><br/><br/>客户端：{0}<br/><br/>Copyright © 2019-2023 <a href="https://itxtech.org" target="_blank">iTX Technologies</a>'
+    noData: '暂无数据',
+    open: '打开',
+    yes: '是',
+    no: '否',
+    about: '<a href="https://github.com/iTXTech/FlashMaster" target="_blank">iTXTech FlashMaster</a><br/>使用 <a href="https://vuejs.org" target="_blank">Vue.js</a> 和 <a href="https://vuetifyjs.com/" target="_blank">Vuetify</a> 构建。<br/>本程序遵循 AGPLv3 开源。<br/><br/>主要维护者：<br/><a href="https://peratx.net" target="_blank">PeratX</a><br/><br/>客户端：{0}<br/><br/>Copyright © 2019-2026 <a href="https://itxtech.org" target="_blank">iTX Technologies</a>'
 }

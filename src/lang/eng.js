@@ -1,61 +1,73 @@
-module.exports = {
-    lang: "English",
-    group: "QQ Group: 1139052001",
+export default {
+    lang: 'English',
+    group: 'QQ Group: 1139052001',
     alert: {
-        missingPartNumber: 'Please Input Part Number',
-        fetchFailed: 'Fetch Failed: {0}',
-        missingFlashId: 'Please Input Flash Id',
-        fetchServerListFailed: 'Fetch Server List Failed: {0}',
+        missingPartNumber: 'Please input a part number',
+        fetchFailed: 'Fetch failed: {0}',
+        missingFlashId: 'Please input a Flash ID',
+        fetchServerListFailed: 'Fetch server list failed: {0}'
     },
     nav: {
         decodePartNumber: 'Decode Part Number',
         searchPartNumber: 'Search Part Number',
-        searchFlashId: 'Search Flash Id',
+        searchFlashId: 'Search Flash ID',
         settings: 'Settings',
         about: 'About',
-        decodeId: 'Decode Flash Id'
+        decodeId: 'Decode Flash ID'
+    },
+    dashboard: {
+        queryPanel: 'Query Input',
+        decodeResult: 'Decoded Result',
+        identity: 'Identity',
+        geometry: 'Geometry',
+        electrical: 'Electrical and Package',
+        relatedData: 'Related Data',
+        quickStats: 'Quick Stats',
+        empty: 'No data yet',
+        copiedSummary: 'Summary copied.',
+        resultCount: '{0} results',
+        page: 'Page {0} / {1}',
+        perPage: 'Per page'
     },
     settings: {
         server: 'Server',
         serverAddr: 'Server Address',
         translation: 'Auto Translation',
         serverInfo: 'Server Information',
-        fdServerInfo: 'iTXTech FlashDetector Server Info',
-        info: 'FlashDetector FDB Version: {0}<br/>FDB Generation Time: {1}<br/>Include {2} Part Numbers<br/>Include {3} Flash Ids<br/>Include {4} Micron FBGA Codes<br/>Supported Controllers:<br/>{5}'
-    },
-    support: {
-        alipay: 'Support Us - Alipay',
-        alipayUrl: 'Open Alipay',
-        saveQrCode: 'Save QR Code'
+        customServer: 'Custom Server',
+        refreshServers: 'Refresh List',
+        fdServerInfo: 'FlashDetector Server Info',
+        info: 'FlashDetector FDB Version: {0}<br/>FDB Generation Time: {1}<br/>Include {2} Part Numbers<br/>Include {3} Flash IDs<br/>Include {4} Micron FBGA Codes<br/>Supported Controllers:<br/>{5}'
     },
     statistic: {
         title: 'Statistic',
         reset: 'Reset',
         resetInfo: 'Statistic data have been reset.',
-        content: '{0} Part Numbers have been decoded.<br/>{1} Part Numbers have been searched.<br/>{2} Flash Ids have been decoded.<br/>{3} Flash Ids have been searched.'
+        content: '{0} Part Numbers have been decoded.<br/>{1} Part Numbers have been searched.<br/>{2} Flash IDs have been decoded.<br/>{3} Flash IDs have been searched.'
     },
     customization: {
         title: 'Customization',
+        language: 'Language',
         autoHideSoftKeyboard: 'Auto hide soft keyboard',
         bitUnit: 'Use bit as density unit',
         theme: 'Theme',
         theme_0: 'Dark',
         theme_1: 'Light',
-        theme_2: 'System',
-        theme_3: 'Pink'
+        theme_2: 'System'
     },
     searchIdPage: {
-        query: 'Decode Id',
-        search: 'Search Id',
+        query: 'Decode ID',
+        search: 'Search ID',
         pns: 'Part Numbers'
     },
     version: 'Version: {0}',
     unknown: 'Unknown',
-    query: "Decode PN",
-    search: "Search PN",
-    searchId: 'Search Id',
+    query: 'Decode PN',
+    search: 'Search PN',
+    searchId: 'Search ID',
+    summary: 'Copy Summary',
     partNumber: 'Part Number',
-    partNumberOrFlashId: 'Part Number or Flash Id',
+    partNumberOrFlashId: 'Part Number or Flash ID',
     vendor: 'Vendor',
     type: 'Type',
     density: 'Density',
@@ -78,11 +90,11 @@ module.exports = {
     name: 'Name',
     value: 'Value',
     copy: 'Copy',
-    copySucc: 'Copy successfully.',
+    copySucc: 'Copied.',
     copyFail: 'Copy failed.',
     close: 'Close',
-    flashIds: 'Flash Ids',
-    flashId: 'Flash Id',
+    flashIds: 'Flash IDs',
+    flashId: 'Flash ID',
     action: 'Action',
     remark: 'Remark',
     pageSize: 'Page Size',
@@ -92,5 +104,9 @@ module.exports = {
     description: 'Description',
     urls: 'URLs',
     copyManually: 'Please copy manually',
-    about: '<a href="https://github.com/iTXTech/FlashMaster" target="_blank">iTXTech FlashMaster</a><br/>Built with <a href="https://vuejs.org" target="_blank">Vue.js</a> and <a href="https://vuetifyjs.com/" target="_blank">Vuetify</a>.<br/>This program is licensed under GNU AGPLv3.<br/><br/>Maintainers:<br/><a href="https://peratx.net" target="_blank">PeratX</a><br/><br/>Client: {0}<br/><br/>Copyright © 2019-2023 <a href="https://itxtech.org" target="_blank">iTX Technologies</a>'
+    noData: 'No data',
+    open: 'Open',
+    yes: 'Yes',
+    no: 'No',
+    about: '<a href="https://github.com/iTXTech/FlashMaster" target="_blank">iTXTech FlashMaster</a><br/>Built with <a href="https://vuejs.org" target="_blank">Vue.js</a> and <a href="https://vuetifyjs.com/" target="_blank">Vuetify</a>.<br/>This program is licensed under GNU AGPLv3.<br/><br/>Maintainers:<br/><a href="https://peratx.net" target="_blank">PeratX</a><br/><br/>Client: {0}<br/><br/>Copyright © 2019-2026 <a href="https://itxtech.org" target="_blank">iTX Technologies</a>'
 }
