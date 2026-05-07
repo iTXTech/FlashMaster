@@ -105,6 +105,12 @@
             <div class="panel-title">{{ $t('urls') }}</div>
           </div>
           <PagedTable :headers="urlHeaders" :items="urls" :per-page-options="[8, 16, 32]">
+            <template #description="{ item }">
+              <div class="url-description">
+                <img v-if="item.logo" :src="item.logo" :alt="item.description" class="url-logo" />
+                <span v-else>{{ item.description }}</span>
+              </div>
+            </template>
             <template #action="{ item }">
               <v-btn icon="mdi-open-in-new" variant="text" @click="openUrl(item.url)" />
             </template>
@@ -204,14 +210,15 @@ function objectRows(value) {
 }
 
 function urlRows(data) {
-  const rows = [];
-  if (data?.url && !Array.isArray(data.url) && typeof data.url === 'object') {
-    rows.push(...Object.entries(data.url).map(([description, url]) => ({ description, url })));
-  }
-  if (Array.isArray(data?.urls)) {
-    rows.push(...data.urls.map(item => ({ description: item.desc || item.hint || item.url, url: item.url })));
-  }
-  return rows;
+  if (!Array.isArray(data?.urls)) return [];
+  const logo = getVendorLogo(data?.rawVendor);
+  return data.urls
+    .filter(item => item?.url)
+    .map(item => ({
+      description: item.desc || item.hint || item.url,
+      logo: item.img === 'logo' ? logo : '',
+      url: item.url
+    }));
 }
 
 function formatBool(value) {
@@ -277,11 +284,12 @@ function commitPartNumber(value) {
   return next;
 }
 
-function selectPartNumber(value) {
+async function selectPartNumber(value) {
   const text = normalizeComboValue(value).trim();
   const hit = suggestions.value.find(item => item.value === text || item.title === text);
   if (hit) {
     commitPartNumber(hit.value);
+    await decode();
     return;
   }
   partNumber.value = normalizePartNumberValue(value);

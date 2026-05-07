@@ -4,12 +4,12 @@
       <table class="dense-table">
         <thead>
           <tr>
-            <th v-for="header in headers" :key="header.key">{{ header.title }}</th>
+            <th v-for="header in headers" :key="header.key" :class="columnClass(header)">{{ header.title }}</th>
           </tr>
         </thead>
         <tbody v-if="pagedItems.length > 0">
           <tr v-for="(item, index) in pagedItems" :key="item.id || item.pn || item.key || index">
-            <td v-for="header in headers" :key="header.key">
+            <td v-for="header in headers" :key="header.key" :class="columnClass(header)">
               <slot :name="header.key" :item="item" :value="item[header.key]">
                 {{ displayValue(item[header.key]) }}
               </slot>
@@ -21,16 +21,16 @@
 
     <div v-if="items.length === 0" class="empty-state">{{ noDataText || $t('noData') }}</div>
 
-    <div v-else class="d-flex align-center justify-space-between ga-2 pa-2">
+    <div v-else class="table-footer">
       <div class="panel-meta">{{ $t('dashboard.resultCount', [items.length]) }}</div>
-      <div class="d-flex align-center ga-2">
+      <div class="table-pagination">
         <span class="panel-meta">{{ $t('dashboard.perPage') }}</span>
         <v-select
           v-model="perPage"
           :items="perPageOptions"
+          class="per-page-select"
           density="compact"
           hide-details
-          max-width="88"
           variant="plain"
           @update:model-value="page = 1"
         />
@@ -83,4 +83,8 @@ watch(pageCount, count => {
     page.value = count;
   }
 });
+
+function columnClass(header) {
+  return [`col-${header.key}`, header.class].filter(Boolean);
+}
 </script>
