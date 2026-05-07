@@ -38,7 +38,7 @@ export default {
         parserEmbedded: '内嵌 iTXTech fdnext',
         parserHttp: 'iTXTech FlashDetector HTTP API',
         parserInfo: '解析器信息',
-        embeddedParserInfo: '使用内嵌 iTXTech fdnext {0}，本地解析无需服务器。',
+        embeddedParserInfo: '使用内嵌 iTXTech fdnext {0}。',
         serverAddr: '服务器地址',
         translation: '自动翻译',
         serverInfo: '服务器信息',
@@ -58,6 +58,7 @@ export default {
         language: '语言',
         autoHideSoftKeyboard: '自动隐藏软键盘',
         bitUnit: '使用 bit 作为容量单位',
+        marketTicker: '显示顶部行情条',
         theme: '主题',
         theme_0: '深色',
         theme_1: '浅色',
@@ -74,7 +75,8 @@ export default {
     market: {
         title: '美元行情，显示当前价格与变动',
         loading: '行情加载中',
-        ariaLabel: '顶部行情跑马灯'
+        ariaLabel: '顶部行情跑马灯',
+        close: '关闭行情条'
     },
     searchIdPage: {
         query: '查询ID',

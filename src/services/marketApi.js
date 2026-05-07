@@ -5,22 +5,37 @@ const MARKET_WS_ENDPOINT = import.meta.env.VITE_FLASHMASTER_MARKET_WS_ENDPOINT |
 const CACHE_KEY = 'flashmaster.marketQuotes.v1';
 
 export const MARKET_REFRESH_INTERVAL_MS = 10_000;
+export const MARKET_UI_UPDATE_INTERVAL_MS = 2_000;
+const MARKET_CACHE_INTERVAL_MS = 30_000;
 
 export const TARGET_ASSETS = [
   { asset: 'xyz:MU', symbol: 'MU', labels: { chs: '美光', eng: 'MU' } },
-  { asset: 'xyz:SNDK', symbol: 'SNDK', labels: { chs: '闪迪', eng: 'SanDisk' } },
-  { asset: 'xyz:SKHX', symbol: 'SKHX', labels: { chs: 'SK海力士', eng: 'SK hynix' } },
+  { asset: 'xyz:SNDK', symbol: 'SNDK', labels: { chs: '闪迪', eng: 'SNDK' } },
+  { asset: 'xyz:SKHX', symbol: 'SKHX', labels: { chs: '海力士', eng: 'SKHX' } },
   { asset: 'xyz:EWY', symbol: 'EWY', labels: { chs: 'EWY', eng: 'EWY' } },
   { asset: 'xyz:DRAM', symbol: 'DRAM', labels: { chs: 'DRAM', eng: 'DRAM' } },
-  { asset: 'xyz:SMSN', symbol: 'SMSN', labels: { chs: '三星电子', eng: 'Samsung' } },
-  { asset: 'xyz:TSM', symbol: 'TSM', labels: { chs: '台积电', eng: 'TSM' } },
+  { asset: 'xyz:SMSN', symbol: 'SMSN', labels: { chs: '三星', eng: 'SMSN' } },
+  { asset: 'xyz:TSM', symbol: 'TSM', labels: { chs: '台积电', eng: 'TSMC' } },
   { asset: 'xyz:AMD', symbol: 'AMD', labels: { chs: 'AMD', eng: 'AMD' } },
-  { asset: 'xyz:NVDA', symbol: 'NVDA', labels: { chs: '英伟达', eng: 'NVIDIA' } },
-  { asset: 'xyz:GOLD', symbol: 'GOLD', labels: { chs: '黄金', eng: 'Gold' } },
-  { asset: 'xyz:SILVER', symbol: 'SILVER', labels: { chs: '白银', eng: 'Silver' } },
-  { asset: 'xyz:CL', symbol: 'CL', labels: { chs: '原油', eng: 'Crude Oil' } },
-  { asset: 'xyz:LLY', symbol: 'LLY', labels: { chs: '礼来', eng: 'Eli Lilly' } },
-  { asset: 'xyz:TSLA', symbol: 'TSLA', labels: { chs: '特斯拉', eng: 'Tesla' } }
+  { asset: 'xyz:INTC', symbol: 'INTC', labels: { chs: '英特尔', eng: 'INTC' } },
+  { asset: 'xyz:NVDA', symbol: 'NVDA', labels: { chs: '英伟达', eng: 'NVDA' } },
+  { asset: 'xyz:GOLD', symbol: 'GOLD', labels: { chs: '黄金', eng: 'GOLD' } },
+  { asset: 'xyz:SILVER', symbol: 'SILVER', labels: { chs: '白银', eng: 'SILV' } },
+  { asset: 'xyz:CL', symbol: 'CL', labels: { chs: '原油', eng: 'CL' } },
+  { asset: 'xyz:LLY', symbol: 'LLY', labels: { chs: '礼来', eng: 'LLY' } },
+  { asset: 'xyz:TSLA', symbol: 'TSLA', labels: { chs: '特斯拉', eng: 'TSLA' } },
+  { asset: 'xyz:AAPL', symbol: 'AAPL', labels: { chs: '苹果', eng: 'AAPL' } },
+  { asset: 'xyz:GOOGL', symbol: 'GOOG', labels: { chs: '谷歌', eng: 'GOOG' } },
+  { asset: 'xyz:MSFT', symbol: 'MSFT', labels: { chs: '微软', eng: 'MSFT' } },
+  { asset: 'xyz:CRCL', symbol: 'CRCL', labels: { chs: 'CRCL', eng: 'CRCL' } },
+  { asset: 'xyz:COIN', symbol: 'COIN', labels: { chs: 'COIN', eng: 'COIN' } },
+  { asset: 'xyz:MSTR', symbol: 'MSTR', labels: { chs: 'MSTR', eng: 'MSTR' } },
+  { asset: 'xyz:BABA', symbol: 'BABA', labels: { chs: '阿里', eng: 'BABA' } },
+  { asset: 'xyz:MRVL', symbol: 'MRVL', labels: { chs: 'MRVL', eng: 'MRVL' } },
+  { asset: 'xyz:LITE', symbol: 'LITE', labels: { chs: 'LITE', eng: 'LITE' } },
+  { asset: 'xyz:USAR', symbol: 'USAR', labels: { chs: 'USAR', eng: 'USAR' } },
+  { asset: 'xyz:SP500', symbol: 'SP500', labels: { chs: '标普', eng: 'SP500' } },
+  { asset: 'xyz:HOOD', symbol: 'HOOD', labels: { chs: 'HOOD', eng: 'HOOD' } }
 ];
 
 const targetByAsset = new Map(TARGET_ASSETS.map(item => [item.asset, item]));
@@ -161,13 +176,17 @@ export async function fetchMarketQuotes(options = {}) {
   if (!items.length) {
     throw new Error('No market data');
   }
-  cacheQuotes(items);
+  if (options.cache !== false) {
+    cacheQuotes(items);
+  }
   return items;
 }
 
 export function subscribeMarketQuotes({ onUpdate, onError } = {}) {
   let stopped = false;
   let socket;
+  let emitTimer;
+  let socketMessageTimer;
   let fallbackTimer;
   let reconnectTimer;
   let refreshContextTimer;
@@ -175,12 +194,57 @@ export function subscribeMarketQuotes({ onUpdate, onError } = {}) {
   let heartbeatTimer;
   let currentItems = loadCachedMarketQuotes();
   let latestMids = null;
+  let queuedItems = null;
+  let queuedSocketData = null;
+  let lastEmitAt = 0;
+  let lastCacheAt = 0;
+  let lastSocketProcessAt = 0;
 
-  const emit = items => {
+  const maybeCache = (items, force = false) => {
+    const now = Date.now();
+    if (force || now - lastCacheAt >= MARKET_CACHE_INTERVAL_MS) {
+      cacheQuotes(items);
+      lastCacheAt = now;
+    }
+  };
+
+  const deliver = (items, { forceCache = false } = {}) => {
     if (!items.length) return;
     currentItems = items;
-    cacheQuotes(items);
+    lastEmitAt = Date.now();
+    maybeCache(items, forceCache);
     onUpdate?.(items);
+  };
+
+  const emit = (items, { immediate = false, forceCache = false } = {}) => {
+    if (!items.length) return;
+    currentItems = items;
+    if (immediate) {
+      window.clearTimeout(emitTimer);
+      emitTimer = undefined;
+      queuedItems = null;
+      deliver(items, { forceCache });
+      return;
+    }
+
+    queuedItems = items;
+    const waitMs = Math.max(0, MARKET_UI_UPDATE_INTERVAL_MS - (Date.now() - lastEmitAt));
+    if (waitMs === 0) {
+      window.clearTimeout(emitTimer);
+      emitTimer = undefined;
+      const nextItems = queuedItems;
+      queuedItems = null;
+      deliver(nextItems, { forceCache });
+      return;
+    }
+    if (!emitTimer) {
+      emitTimer = window.setTimeout(() => {
+        emitTimer = undefined;
+        const nextItems = queuedItems;
+        queuedItems = null;
+        deliver(nextItems, { forceCache });
+      }, waitMs);
+    }
   };
 
   const stopFallback = () => {
@@ -197,8 +261,11 @@ export function subscribeMarketQuotes({ onUpdate, onError } = {}) {
 
   const refreshSnapshot = async () => {
     try {
-      const snapshot = await fetchMarketQuotes();
-      emit(latestMids ? applyMidsToQuotes(snapshot, latestMids) : snapshot);
+      const snapshot = await fetchMarketQuotes({ cache: false });
+      emit(latestMids ? applyMidsToQuotes(snapshot, latestMids) : snapshot, {
+        immediate: true,
+        forceCache: true
+      });
     } catch (err) {
       onError?.(err);
     }
@@ -220,6 +287,37 @@ export function subscribeMarketQuotes({ onUpdate, onError } = {}) {
     latestMids = mids;
     stopFallback();
     emit(applyMidsToQuotes(currentItems, mids));
+  };
+
+  const processQueuedSocketData = () => {
+    socketMessageTimer = undefined;
+    const raw = queuedSocketData;
+    queuedSocketData = null;
+    if (!raw) return;
+    lastSocketProcessAt = Date.now();
+    try {
+      const message = JSON.parse(raw);
+      if (message.channel === 'allMids') {
+        handleMids(message.data?.mids || message.data || {});
+      }
+    } catch (err) {
+      onError?.(err);
+    }
+  };
+
+  const queueSocketData = raw => {
+    if (!String(raw).includes('"allMids"')) return false;
+    queuedSocketData = raw;
+    const waitMs = Math.max(0, MARKET_UI_UPDATE_INTERVAL_MS - (Date.now() - lastSocketProcessAt));
+    if (waitMs === 0) {
+      window.clearTimeout(socketMessageTimer);
+      processQueuedSocketData();
+      return true;
+    }
+    if (!socketMessageTimer) {
+      socketMessageTimer = window.setTimeout(processQueuedSocketData, waitMs);
+    }
+    return true;
   };
 
   const sendHeartbeat = () => {
@@ -265,14 +363,8 @@ export function subscribeMarketQuotes({ onUpdate, onError } = {}) {
     });
 
     socket.addEventListener('message', event => {
-      try {
-        const message = JSON.parse(event.data);
-        if (message.channel === 'allMids') {
-          hasReceivedSocketMids = true;
-          handleMids(message.data?.mids || message.data || {});
-        }
-      } catch (err) {
-        onError?.(err);
+      if (queueSocketData(event.data)) {
+        hasReceivedSocketMids = true;
       }
     });
 
@@ -282,6 +374,9 @@ export function subscribeMarketQuotes({ onUpdate, onError } = {}) {
 
     socket.addEventListener('close', () => {
       stopHeartbeat();
+      window.clearTimeout(socketMessageTimer);
+      socketMessageTimer = undefined;
+      queuedSocketData = null;
       window.clearTimeout(fallbackDelayTimer);
       if (!stopped) {
         startFallback();
@@ -291,7 +386,7 @@ export function subscribeMarketQuotes({ onUpdate, onError } = {}) {
   }
 
   if (currentItems.length) {
-    onUpdate?.(currentItems);
+    emit(currentItems, { immediate: true });
   }
   refreshSnapshot();
   connectWebSocket();
@@ -300,6 +395,8 @@ export function subscribeMarketQuotes({ onUpdate, onError } = {}) {
   return () => {
     stopped = true;
     window.clearInterval(fallbackTimer);
+    window.clearTimeout(emitTimer);
+    window.clearTimeout(socketMessageTimer);
     window.clearInterval(refreshContextTimer);
     window.clearTimeout(reconnectTimer);
     window.clearTimeout(fallbackDelayTimer);

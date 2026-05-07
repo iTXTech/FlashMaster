@@ -38,7 +38,7 @@ export default {
         parserEmbedded: 'Embedded iTXTech fdnext',
         parserHttp: 'iTXTech FlashDetector HTTP API',
         parserInfo: 'Parser Information',
-        embeddedParserInfo: 'Using embedded iTXTech fdnext {0}. Local parsing does not need a server.',
+        embeddedParserInfo: 'Using embedded iTXTech fdnext {0}.',
         serverAddr: 'Server Address',
         translation: 'Auto Translation',
         serverInfo: 'Server Information',
@@ -58,6 +58,7 @@ export default {
         language: 'Language',
         autoHideSoftKeyboard: 'Auto hide soft keyboard',
         bitUnit: 'Use bit as density unit',
+        marketTicker: 'Show market ticker',
         theme: 'Theme',
         theme_0: 'Dark',
         theme_1: 'Light',
@@ -74,7 +75,8 @@ export default {
     market: {
         title: 'USD quotes with current price and change',
         loading: 'Loading market data',
-        ariaLabel: 'Market ticker'
+        ariaLabel: 'Market ticker',
+        close: 'Hide market ticker'
     },
     searchIdPage: {
         query: 'Decode ID',

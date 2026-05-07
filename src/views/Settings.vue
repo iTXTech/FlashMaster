@@ -72,6 +72,11 @@
             :label="$t('customization.bitUnit')"
             @update:model-value="value => store.setBitUnit(value)"
           />
+          <v-checkbox
+            v-model="marketTicker"
+            :label="$t('customization.marketTicker')"
+            @update:model-value="changeMarketTicker"
+          />
         </div>
       </section>
 
@@ -108,7 +113,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { getEmbeddedVersion } from '@/services/versionInfo';
 import { getServerInfo, loadServerList } from '@/services/flashApi';
@@ -129,6 +134,7 @@ const parserMode = ref(store.getParserMode());
 const currentTheme = ref(store.getTheme());
 const hideKeyboard = ref(store.isAutoHideSoftKeyboard());
 const bitUnit = ref(store.isBitUnit());
+const marketTicker = ref(store.isMarketTickerEnabled());
 const loadingServers = ref(false);
 const loadingInfo = ref(false);
 const statsState = ref(readStats());
@@ -237,6 +243,12 @@ function changeTheme(value) {
   bus.emit('theme');
 }
 
+function changeMarketTicker(value) {
+  store.setMarketTickerEnabled(value);
+  marketTicker.value = store.isMarketTickerEnabled();
+  bus.emit('marketTicker');
+}
+
 async function serverInfo() {
   loadingInfo.value = true;
   try {
@@ -280,9 +292,18 @@ async function loadServers() {
   }
 }
 
+let offMarketTicker;
+
 onMounted(() => {
   if (isHttpParser.value) {
     loadServers();
   }
+  offMarketTicker = bus.on('marketTicker', () => {
+    marketTicker.value = store.isMarketTickerEnabled();
+  });
+});
+
+onUnmounted(() => {
+  offMarketTicker?.();
 });
 </script>

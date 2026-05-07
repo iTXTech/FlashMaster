@@ -58,7 +58,7 @@
     </v-navigation-drawer>
 
     <v-main>
-      <MarketTicker />
+      <MarketTicker v-if="marketTickerEnabled" @close="closeMarketTicker" />
       <router-view />
     </v-main>
 
@@ -102,6 +102,7 @@ const snackbar = ref({
   text: ''
 });
 const changelogDialog = ref(false);
+const marketTickerEnabled = ref(store.isMarketTickerEnabled());
 
 const navItems = [
   { icon: 'mdi-crosshairs-gps', title: 'nav.decodePartNumber', path: '/decode' },
@@ -130,6 +131,12 @@ const changeLanguage = value => {
   store.setLang(value);
 };
 
+const closeMarketTicker = () => {
+  store.setMarketTickerEnabled(false);
+  marketTickerEnabled.value = false;
+  bus.emit('marketTicker');
+};
+
 const updateTitle = () => {
   document.title = pageTitle.value;
   const primary = vuetifyTheme.current.value.colors.primary;
@@ -147,6 +154,7 @@ const updateTitle = () => {
 let offSnackbar;
 let offTheme;
 let offChangelog;
+let offMarketTicker;
 let mediaQuery;
 
 onMounted(() => {
@@ -161,6 +169,9 @@ onMounted(() => {
   offChangelog = bus.on('changelog', () => {
     changelogDialog.value = true;
   });
+  offMarketTicker = bus.on('marketTicker', () => {
+    marketTickerEnabled.value = store.isMarketTickerEnabled();
+  });
   mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
   mediaQuery.addEventListener?.('change', applyTheme);
   if (store.shouldShowChangelog(changelogVersion.value)) {
@@ -172,6 +183,7 @@ onUnmounted(() => {
   offSnackbar?.();
   offTheme?.();
   offChangelog?.();
+  offMarketTicker?.();
   mediaQuery?.removeEventListener?.('change', applyTheme);
 });
 

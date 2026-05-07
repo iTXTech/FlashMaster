@@ -140,6 +140,17 @@ const isBitUnit = () => {
     return localStorage.bitUnit === "1"
 }
 
+const setMarketTickerEnabled = (b) => {
+    localStorage.marketTicker = b ? "1" : "0"
+}
+
+const isMarketTickerEnabled = () => {
+    if (!["0", "1"].includes(localStorage.marketTicker)) {
+        setMarketTickerEnabled(true);
+    }
+    return localStorage.marketTicker === "1"
+}
+
 const partNumberFormat = str => {
     return str.toUpperCase()
         .replace(/,/g, "")
@@ -199,6 +210,8 @@ export default {
     isAutoHideSoftKeyboard,
     setBitUnit,
     isBitUnit,
+    setMarketTickerEnabled,
+    isMarketTickerEnabled,
     partNumberFormat,
     setTheme,
     getTheme,
