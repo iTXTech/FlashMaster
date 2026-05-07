@@ -131,6 +131,7 @@ import PagedTable from '@/components/PagedTable.vue';
 import { copyText } from '@/services/clipboard';
 import { EMPTY_VALUE, displayValue } from '@/services/display';
 import { decodePartNumber, searchPartNumber, summarizePartNumber } from '@/services/flashApi';
+import { trackLookup } from '@/services/analytics';
 import { parsePartNumberSuggestion } from '@/services/resultParser';
 import getVendorLogo from '@/services/vendorLogos';
 import bus from '@/store/bus';
@@ -283,7 +284,19 @@ async function decode(syncRoute = true) {
     const payload = await decodePartNumber(pn);
     result.value = payload.data;
     store.statDecodeIdInc();
+    trackLookup({
+      target: 'pn',
+      action: 'decode',
+      query: pn,
+      resultCount: payload.data ? 1 : 0
+    });
   } catch (err) {
+    trackLookup({
+      target: 'pn',
+      action: 'decode',
+      query: pn,
+      success: false
+    });
     notify(t('alert.fetchFailed', [err.message || err]));
   } finally {
     loading.value = false;

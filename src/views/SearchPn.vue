@@ -50,6 +50,7 @@ import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import PagedTable from '@/components/PagedTable.vue';
 import { searchPartNumber } from '@/services/flashApi';
+import { trackLookup } from '@/services/analytics';
 import { parsePartNumberResult } from '@/services/resultParser';
 import bus from '@/store/bus';
 import store from '@/store';
@@ -92,7 +93,19 @@ async function search(syncRoute = true) {
     const payload = await searchPartNumber(pn);
     rows.value = (Array.isArray(payload.data) ? payload.data : []).map(item => parsePartNumberResult(item, pn));
     store.statSearchPnInc();
+    trackLookup({
+      target: 'pn',
+      action: 'search',
+      query: pn,
+      resultCount: rows.value.length
+    });
   } catch (err) {
+    trackLookup({
+      target: 'pn',
+      action: 'search',
+      query: pn,
+      success: false
+    });
     notify(t('alert.fetchFailed', [err.message || err]));
   } finally {
     loading.value = false;

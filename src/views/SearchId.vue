@@ -63,6 +63,7 @@ import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import PagedTable from '@/components/PagedTable.vue';
 import { searchFlashId } from '@/services/flashApi';
+import { trackLookup } from '@/services/analytics';
 import { parsePartNumberToken } from '@/services/resultParser';
 import bus from '@/store/bus';
 import store from '@/store';
@@ -120,7 +121,19 @@ async function search(syncRoute = true) {
       };
     });
     store.statSearchIdInc();
+    trackLookup({
+      target: 'flashid',
+      action: 'search',
+      query: id,
+      resultCount: rows.value.length
+    });
   } catch (err) {
+    trackLookup({
+      target: 'flashid',
+      action: 'search',
+      query: id,
+      success: false
+    });
     notify(t('alert.fetchFailed', [err.message || err]));
   } finally {
     loading.value = false;

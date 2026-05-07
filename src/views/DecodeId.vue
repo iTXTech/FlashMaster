@@ -129,6 +129,7 @@ import PagedTable from '@/components/PagedTable.vue';
 import { copyText } from '@/services/clipboard';
 import { displayValue } from '@/services/display';
 import { decodeFlashId, searchFlashId, summarizeFlashId } from '@/services/flashApi';
+import { trackLookup } from '@/services/analytics';
 import { parsePartNumberResult } from '@/services/resultParser';
 import getVendorLogo from '@/services/vendorLogos';
 import bus from '@/store/bus';
@@ -237,7 +238,19 @@ async function decode(syncRoute = true) {
     const payload = await decodeFlashId(id);
     result.value = payload.data;
     store.statDecodeFidInc();
+    trackLookup({
+      target: 'flashid',
+      action: 'decode',
+      query: id,
+      resultCount: payload.data ? 1 : 0
+    });
   } catch (err) {
+    trackLookup({
+      target: 'flashid',
+      action: 'decode',
+      query: id,
+      success: false
+    });
     notify(t('alert.fetchFailed', [err.message || err]));
   } finally {
     loading.value = false;
