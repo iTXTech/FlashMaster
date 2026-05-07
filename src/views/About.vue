@@ -8,7 +8,7 @@
           </div>
         </div>
         <div class="panel-body">
-          <p class="text-body-2" v-html="$t('about', [client])" />
+          <div class="about-copy text-body-2" v-html="$t('about', [client, fdnextVersion])" />
         </div>
       </section>
 
@@ -18,6 +18,9 @@
 
 <script setup>
 import { computed } from 'vue';
+import { getEmbeddedVersion } from '@/services/fdnextApi';
+
+const fdnextVersion = getEmbeddedVersion();
 
 const client = computed(() => {
   const ua = navigator.userAgent;
@@ -46,5 +49,37 @@ const client = computed(() => {
 .about-panel {
   width: min(100%, 720px);
   justify-self: center;
+}
+
+.about-copy {
+  color: rgba(var(--v-theme-on-surface), 0.88);
+  line-height: 1.65;
+}
+
+.about-copy :deep(a) {
+  color: rgb(var(--v-theme-primary));
+  text-decoration: none;
+}
+
+.about-copy :deep(a:hover) {
+  text-decoration: underline;
+}
+
+.about-copy :deep(.about-section) {
+  margin-top: 14px;
+}
+
+.about-copy :deep(.about-section:first-child) {
+  margin-top: 0;
+}
+
+.about-copy :deep(.about-heading) {
+  margin-bottom: 4px;
+  color: rgb(var(--v-theme-on-surface));
+  font-weight: 700;
+}
+
+.about-copy :deep(.about-meta) {
+  color: rgba(var(--v-theme-on-surface), 0.68);
 }
 </style>

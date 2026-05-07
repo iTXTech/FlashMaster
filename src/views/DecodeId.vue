@@ -10,6 +10,7 @@
         </div>
         <div class="panel-body query-stack">
           <v-combobox
+            ref="input"
             v-model="flashId"
             :items="suggestions"
             item-title="title"
@@ -120,7 +121,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import MetricGrid from '@/components/MetricGrid.vue';
@@ -136,6 +137,7 @@ import store from '@/store';
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
+const input = ref(null);
 
 const flashId = ref('');
 const suggestions = ref([]);
@@ -214,6 +216,10 @@ function normalizeInput() {
   return commitFlashId(flashId.value);
 }
 
+function focusInput() {
+  nextTick(() => input.value?.focus?.());
+}
+
 async function decode(syncRoute = true) {
   const id = normalizeInput();
   if (!id) {
@@ -222,6 +228,9 @@ async function decode(syncRoute = true) {
   }
   if (syncRoute && route.query.id !== id) {
     router.push({ path: '/decodeId', query: { id } });
+  }
+  if (store.isAutoHideSoftKeyboard()) {
+    input.value?.blur?.();
   }
   loading.value = true;
   try {
@@ -353,6 +362,8 @@ onMounted(() => {
   if (route.query.id) {
     flashId.value = String(route.query.id);
     decode(false);
+  } else {
+    focusInput();
   }
 });
 
@@ -360,6 +371,11 @@ watch(() => route.query.id, value => {
   if (value && value !== flashId.value) {
     flashId.value = String(value);
     decode(false);
+  } else if (!value) {
+    flashId.value = '';
+    result.value = null;
+    clearSuggestions();
+    focusInput();
   }
 });
 </script>

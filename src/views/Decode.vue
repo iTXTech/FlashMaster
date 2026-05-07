@@ -10,6 +10,7 @@
         </div>
         <div class="panel-body query-stack">
           <v-combobox
+            ref="input"
             v-model="partNumber"
             :items="suggestions"
             item-title="value"
@@ -122,7 +123,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import MetricGrid from '@/components/MetricGrid.vue';
@@ -138,6 +139,7 @@ import store from '@/store';
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
+const input = ref(null);
 
 const partNumber = ref('');
 const suggestions = ref([]);
@@ -234,6 +236,10 @@ function normalizeInput() {
   return commitPartNumber(partNumber.value);
 }
 
+function focusInput() {
+  nextTick(() => input.value?.focus?.());
+}
+
 async function decode(syncRoute = true) {
   const pn = normalizeInput();
   if (!pn) {
@@ -242,6 +248,9 @@ async function decode(syncRoute = true) {
   }
   if (syncRoute && route.query.pn !== pn) {
     router.push({ path: '/decode', query: { pn } });
+  }
+  if (store.isAutoHideSoftKeyboard()) {
+    input.value?.blur?.();
   }
   loading.value = true;
   try {
@@ -386,6 +395,8 @@ onMounted(() => {
   if (route.query.pn) {
     partNumber.value = String(route.query.pn);
     decode(false);
+  } else {
+    focusInput();
   }
 });
 
@@ -393,6 +404,11 @@ watch(() => route.query.pn, value => {
   if (value && value !== partNumber.value) {
     partNumber.value = String(value);
     decode(false);
+  } else if (!value) {
+    partNumber.value = '';
+    result.value = null;
+    clearSuggestions();
+    focusInput();
   }
 });
 </script>
