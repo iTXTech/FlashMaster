@@ -58,6 +58,7 @@
     </v-navigation-drawer>
 
     <v-main>
+      <MarketTicker />
       <router-view />
     </v-main>
 
@@ -83,6 +84,7 @@ import { useDisplay, useTheme } from 'vuetify';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 import ChangelogDialog from '@/components/ChangelogDialog.vue';
+import MarketTicker from '@/components/MarketTicker.vue';
 import logo from '@/assets/logo.png';
 import bus from '@/store/bus';
 import store from '@/store';

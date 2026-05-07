@@ -71,6 +71,11 @@ export default {
         gotIt: '知道了',
         content: changelogText.trim()
     },
+    market: {
+        title: '美元行情，显示当前价格与变动',
+        loading: '行情加载中',
+        ariaLabel: '顶部行情跑马灯'
+    },
     searchIdPage: {
         query: '查询ID',
         search: '搜索ID',

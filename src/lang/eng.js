@@ -71,6 +71,11 @@ export default {
         gotIt: 'Got it',
         content: changelogText.trim()
     },
+    market: {
+        title: 'USD quotes with current price and change',
+        loading: 'Loading market data',
+        ariaLabel: 'Market ticker'
+    },
     searchIdPage: {
         query: 'Decode ID',
         search: 'Search ID',
