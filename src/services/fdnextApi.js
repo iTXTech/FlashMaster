@@ -5,10 +5,10 @@ import {
   defaultDslRules,
   defaultFlashIdRules
 } from '@itxtech/fdnext-dsl';
-import fdbRaw from '../../vendor/fdnext/resources/fdb.json';
-import mdbRaw from '../../vendor/fdnext/resources/mdb.json';
-import chsLang from '../../vendor/fdnext/resources/lang/chs.json';
-import engLang from '../../vendor/fdnext/resources/lang/eng.json';
+import fdbRaw from '../../vendor/fdnext/packages/resources/resources/fdb.json';
+import mdbRaw from '../../vendor/fdnext/packages/resources/resources/mdb.json';
+import chsLang from '../../vendor/fdnext/packages/resources/resources/lang/chs.json';
+import engLang from '../../vendor/fdnext/packages/resources/resources/lang/eng.json';
 import store from '@/store';
 
 let engine;

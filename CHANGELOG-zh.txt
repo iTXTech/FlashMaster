@@ -1,6 +1,14 @@
 FlashMaster by PeratX <peratx@itxtech.org>
 版权所有 (c) 2019-2026 iTX Technologies
 ===================================
+版本 2.0.1
+- 更新内嵌 fdnext 到上游 1.0.0。
+- 新增 fdnext NAND 解码规则与内置资源数据，SMI SATA/NVMe/U盘控制器，得一微，联云等。
+- 增加 YMTC/Samsung UFS 与 eMMC 解码。
+- 优化 fdnext 对 Intel、Kioxia BiCS、Western Digital/SanDisk、Phison 以及相关控制器和资源数据的改进。
+- 优化解析结果展示，减少重复料号字段，并将 Micron FBGA 解析出的美光料号提升到主结果区域。
+
+===================================
 版本 2.0.0
 - 升级项目工具链到 Vite、Vue 3、Vuetify 3 和 pnpm。
 - 新增内嵌 fdnext 解析器，默认在浏览器本地完成解析。

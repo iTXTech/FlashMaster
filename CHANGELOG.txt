@@ -1,6 +1,14 @@
 FlashMaster by PeratX <peratx@itxtech.org>
 Copyright (c) 2019-2026 iTX Technologies
 ===================================
+Version 2.0.1
+- Updated the embedded fdnext integration to upstream 1.0.0.
+- Added new fdnext NAND decoding rules and bundled resource data, including SMI SATA/NVMe/USB controllers, Yeestor, Maxio, and more.
+- Added YMTC/Samsung UFS and eMMC decoding.
+- Improved fdnext coverage for Intel, Kioxia BiCS, Western Digital/SanDisk, Phison, and related controller/resource data.
+- Improved decode result presentation by reducing repeated part-number fields and promoting Micron FBGA-resolved part numbers in the main result area.
+
+===================================
 Version 2.0.0
 - Migrated the application to Vite, Vue 3, Vuetify 3, and pnpm.
 - Added the embedded fdnext parser as the default local decoding engine.
