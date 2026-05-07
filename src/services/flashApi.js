@@ -1,4 +1,13 @@
 import store from '@/store';
+import {
+    decodeEmbeddedFlashId,
+    decodeEmbeddedPartNumber,
+    getEmbeddedInfo,
+    searchEmbeddedFlashId,
+    searchEmbeddedPartNumber,
+    summarizeEmbeddedFlashId,
+    summarizeEmbeddedPartNumber
+} from '@/services/fdnextApi';
 
 const makeUrl = (endpoint, params = {}) => {
     const base = store.getServerAddress().replace(/\/+$/, '');
@@ -23,36 +32,38 @@ const request = async (endpoint, params = {}) => {
     return payload;
 };
 
-export const getServerInfo = () => request('info');
+const useEmbeddedParser = () => store.isEmbeddedParser();
 
-export const decodePartNumber = pn => request('decode', {
+export const getServerInfo = () => useEmbeddedParser() ? getEmbeddedInfo() : request('info');
+
+export const decodePartNumber = pn => useEmbeddedParser() ? decodeEmbeddedPartNumber(pn) : request('decode', {
     lang: store.getLang(),
     pn
 });
 
-export const searchPartNumber = (pn, limit = 0) => request('searchPn', {
+export const searchPartNumber = (pn, limit = 0) => useEmbeddedParser() ? searchEmbeddedPartNumber(pn, limit) : request('searchPn', {
     lang: store.getLang(),
     pn,
     limit
 });
 
-export const summarizePartNumber = pn => request('summary', {
+export const summarizePartNumber = pn => useEmbeddedParser() ? summarizeEmbeddedPartNumber(pn) : request('summary', {
     lang: store.getLang(),
     pn
 });
 
-export const decodeFlashId = id => request('decodeId', {
+export const decodeFlashId = id => useEmbeddedParser() ? decodeEmbeddedFlashId(id) : request('decodeId', {
     lang: store.getLang(),
     id
 });
 
-export const searchFlashId = (id, limit = 0) => request('searchId', {
+export const searchFlashId = (id, limit = 0) => useEmbeddedParser() ? searchEmbeddedFlashId(id, limit) : request('searchId', {
     lang: store.getLang(),
     id,
     limit
 });
 
-export const summarizeFlashId = id => request('summaryId', {
+export const summarizeFlashId = id => useEmbeddedParser() ? summarizeEmbeddedFlashId(id) : request('summaryId', {
     lang: store.getLang(),
     id
 });

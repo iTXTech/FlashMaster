@@ -4,7 +4,7 @@ import globals from 'globals';
 
 export default [
   {
-    ignores: ['dist/**', 'node_modules/**']
+    ignores: ['dist/**', 'node_modules/**', 'vendor/**']
   },
   js.configs.recommended,
   ...pluginVue.configs['flat/essential'],
@@ -13,7 +13,8 @@ export default [
     languageOptions: {
       globals: {
         ...globals.browser,
-        VERSION: 'readonly'
+        VERSION: 'readonly',
+        FDNEXT_VERSION: 'readonly'
       },
       ecmaVersion: 'latest',
       sourceType: 'module'

@@ -1,7 +1,7 @@
 <template>
   <div class="workspace">
     <div class="workspace-grid single">
-      <section class="panel">
+      <section class="panel about-panel">
         <div class="panel-header">
           <div>
             <div class="panel-title">{{ $t('nav.about') }}</div>
@@ -41,3 +41,10 @@ const client = computed(() => {
   return `${match[0]} ${match[1]}`;
 });
 </script>
+
+<style scoped>
+.about-panel {
+  width: min(100%, 720px);
+  justify-self: center;
+}
+</style>

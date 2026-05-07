@@ -3,10 +3,20 @@
     <div class="settings-grid">
       <section class="panel">
         <div class="panel-header">
-          <div class="panel-title">{{ $t('settings.server') }}</div>
+          <div class="panel-title">{{ $t('settings.engine') }}</div>
         </div>
         <div class="panel-body query-stack">
+          <v-select
+            v-model="parserMode"
+            :items="parserModes"
+            item-title="title"
+            item-value="value"
+            hide-details
+            :label="$t('settings.parserMode')"
+            @update:model-value="changeParserMode"
+          />
           <v-combobox
+            v-if="isHttpParser"
             v-model="server"
             :items="serverItems"
             item-title="title"
@@ -22,13 +32,17 @@
               <v-list-item v-bind="props" :title="item.raw.title" :subtitle="item.raw.subtitle" />
             </template>
           </v-combobox>
-          <div class="server-address-line">
+          <div v-if="isHttpParser" class="server-address-line">
             <v-icon icon="mdi-paperclip" size="18" />
             <span>{{ activeServerAddress }}</span>
           </div>
+          <div v-else class="server-address-line">
+            <v-icon icon="mdi-chip" size="18" />
+            <span>{{ $t('settings.embeddedParserInfo', [embeddedParserVersion]) }}</span>
+          </div>
           <div class="action-row">
-            <v-btn color="primary" prepend-icon="mdi-information-outline" @click="serverInfo">{{ $t('settings.serverInfo') }}</v-btn>
-            <v-btn variant="tonal" prepend-icon="mdi-refresh" :loading="loadingServers" @click="loadServers">{{ $t('settings.refreshServers') }}</v-btn>
+            <v-btn color="primary" prepend-icon="mdi-information-outline" @click="serverInfo">{{ infoButtonLabel }}</v-btn>
+            <v-btn v-if="isHttpParser" variant="tonal" prepend-icon="mdi-refresh" :loading="loadingServers" @click="loadServers">{{ $t('settings.refreshServers') }}</v-btn>
           </div>
           <v-progress-linear v-if="loadingServers || loadingInfo" indeterminate color="primary" />
         </div>
@@ -96,6 +110,7 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { getEmbeddedVersion } from '@/services/fdnextApi';
 import { getServerInfo, loadServerList } from '@/services/flashApi';
 import bus from '@/store/bus';
 import store from '@/store';
@@ -110,12 +125,14 @@ const fallbackServers = {
 
 const servers = ref({});
 const server = ref(store.getServerAddress());
+const parserMode = ref(store.getParserMode());
 const currentTheme = ref(store.getTheme());
 const hideKeyboard = ref(store.isAutoHideSoftKeyboard());
 const bitUnit = ref(store.isBitUnit());
 const loadingServers = ref(false);
 const loadingInfo = ref(false);
 const statsState = ref(readStats());
+const embeddedParserVersion = getEmbeddedVersion();
 const dialog = ref({
   show: false,
   text: ''
@@ -156,6 +173,12 @@ const themes = computed(() => [
   { title: t('customization.theme_1'), value: themeManager.THEME_LIGHT },
   { title: t('customization.theme_2'), value: themeManager.THEME_SYSTEM }
 ]);
+const parserModes = computed(() => [
+  { title: t('settings.parserEmbedded'), value: store.PARSER_EMBEDDED },
+  { title: t('settings.parserHttp'), value: store.PARSER_HTTP }
+]);
+const isHttpParser = computed(() => parserMode.value === store.PARSER_HTTP);
+const infoButtonLabel = computed(() => isHttpParser.value ? t('settings.serverInfo') : t('settings.parserInfo'));
 
 const stats = computed(() => [
   { label: t('nav.decodePartNumber'), value: statsState.value.decodeId },
@@ -199,6 +222,14 @@ function changeServer(value) {
 
 function commitServer() {
   changeServer(server.value);
+}
+
+function changeParserMode(value) {
+  parserMode.value = value === store.PARSER_HTTP ? store.PARSER_HTTP : store.PARSER_EMBEDDED;
+  store.setParserMode(parserMode.value);
+  if (isHttpParser.value && Object.keys(servers.value).length === 0) {
+    loadServers();
+  }
 }
 
 function changeTheme(value) {
@@ -249,5 +280,9 @@ async function loadServers() {
   }
 }
 
-onMounted(loadServers);
+onMounted(() => {
+  if (isHttpParser.value) {
+    loadServers();
+  }
+});
 </script>

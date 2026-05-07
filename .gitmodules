@@ -1,0 +1,3 @@
+[submodule "vendor/fdnext"]
+	path = vendor/fdnext
+	url = https://github.com/iTXTech/fdnext.git

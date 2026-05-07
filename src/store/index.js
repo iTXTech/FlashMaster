@@ -1,4 +1,6 @@
 const DEFAULT_SERVER_ADDRESS = import.meta.env.VITE_FLASHMASTER_SERVER || "https://fd.sakuracg.com";
+const PARSER_EMBEDDED = "embedded";
+const PARSER_HTTP = "http";
 
 const getDefaultServerAddress = () => DEFAULT_SERVER_ADDRESS;
 
@@ -14,6 +16,19 @@ const setServerAddress = (addr) => {
         localStorage.removeItem("server");
     }
 };
+
+const setParserMode = mode => {
+    localStorage.parserMode = mode === PARSER_HTTP ? PARSER_HTTP : PARSER_EMBEDDED;
+}
+
+const getParserMode = () => {
+    if (![PARSER_EMBEDDED, PARSER_HTTP].includes(localStorage.parserMode)) {
+        setParserMode(PARSER_EMBEDDED);
+    }
+    return localStorage.parserMode;
+}
+
+const isEmbeddedParser = () => getParserMode() === PARSER_EMBEDDED;
 
 const statDecodeIdInc = () => {
     if (isNaN(Number(localStorage.statDecodeId))) {
@@ -139,9 +154,14 @@ const formatNumber = (bytes, unit = 1, inBit = false, outBit = false) => {
 }
 
 export default {
+    PARSER_EMBEDDED,
+    PARSER_HTTP,
     getDefaultServerAddress,
     getServerAddress,
     setServerAddress,
+    setParserMode,
+    getParserMode,
+    isEmbeddedParser,
     statDecodeIdInc,
     statDecodeId,
     statSearchPnInc,

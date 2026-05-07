@@ -30,7 +30,13 @@ export default {
         perPage: '每页'
     },
     settings: {
+        engine: '解析器',
         server: '服务器',
+        parserMode: '解析模式',
+        parserEmbedded: '内嵌 fdnext',
+        parserHttp: 'HTTP API',
+        parserInfo: '解析器信息',
+        embeddedParserInfo: '使用内嵌 fdnext {0}，本地解析无需服务器。',
         serverAddr: '服务器地址',
         translation: '自动翻译',
         serverInfo: '服务器信息',
@@ -108,5 +114,5 @@ export default {
     open: '打开',
     yes: '是',
     no: '否',
-    about: '<a href="https://github.com/iTXTech/FlashMaster" target="_blank">iTXTech FlashMaster</a><br/>使用 <a href="https://vuejs.org" target="_blank">Vue.js</a> 和 <a href="https://vuetifyjs.com/" target="_blank">Vuetify</a> 构建。<br/>本程序遵循 AGPLv3 开源。<br/><br/>主要维护者：<br/><a href="https://peratx.net" target="_blank">PeratX</a><br/><br/>客户端：{0}<br/><br/>Copyright © 2019-2026 <a href="https://itxtech.org" target="_blank">iTX Technologies</a>'
+    about: '<a href="https://github.com/iTXTech/FlashMaster" target="_blank">iTXTech FlashMaster</a><br/>使用 <a href="https://vuejs.org" target="_blank">Vue.js</a> 和 <a href="https://vuetifyjs.com/" target="_blank">Vuetify</a> 构建。<br/>本程序遵循 AGPLv3 开源。<br/><br/>作者：<br/><a href="https://peratx.net" target="_blank">PeratX</a><br/><br/>客户端：{0}<br/><br/>Copyright © 2019-2026 <a href="https://itxtech.org" target="_blank">iTX Technologies</a>'
 }
