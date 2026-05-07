@@ -1,64 +1,113 @@
 # iTXTech FlashMaster
 
-[![Donate](https://img.shields.io/badge/alipay-donate-yellow.svg)](https://qr.alipay.com/FKX04751EZDP0SQ0BOT137)
+FlashMaster is a dense web workstation for NAND Flash part-number and Flash ID
+lookup. It provides local decoding, database search, result inspection, copy
+actions, language switching, theme settings, and optional server-backed queries
+for compatibility with FlashDetector deployments.
 
-Powerful NAND Flash Part Number and Id query toolbox.
+[Launch FlashMaster](https://fm.itxtech.org)
 
-# [Launch Now - 立即使用](https://nand.gq)
+## Architecture
 
-## Introduction
+FlashMaster 2.x is a static Vue application built around two parser backends:
 
-The re-implementation of [FlashMaster](https://github.com/PeratX/FlashMaster) in [Vue.js](https://vuejs.org/) and [Vuetify](https://vuetifyjs.com/).
+- Embedded fdnext parser: the default mode. The fdnext engine and resources are
+  bundled from the `vendor/fdnext` Git submodule and run directly in the browser.
+- FlashDetector HTTP API: an optional compatibility mode. The server endpoint is
+  configurable in Settings and keeps the existing HTTP integration available.
 
-Focus to be fast, light-weight and portable.
+The application boundary is intentionally small:
 
-Backend: [iTXTech FlashDetector](https://github.com/iTXTech/FlashDetector)
+- UI routes live under `src/views`.
+- Runtime settings and persistence live in `src/store`.
+- `src/services/flashApi.js` selects the active parser backend.
+- `src/services/fdnextApi.js` adapts the embedded fdnext library for the UI.
+- `vite.config.js` wires the fdnext submodule source and exposes build metadata.
+
+## Toolchain
+
+- Vite
+- Vue 3
+- Vue Router 4
+- Vue I18n 11
+- Vuetify 3
+- Material Design Icons
+- pnpm
 
 ## Features
 
-1. Material Design
-1. Full ~~legacy~~ [FlashMaster](https://github.com/PeratX/FlashMaster) Features (without Embedded Server of course :)
-   1. Decode Part Number
-   1. Fetch summary for Part Number
-   1. Search Part Number in FlashDetector Flash Database
-   1. Search Flash Id in FlashDetector Flash Database
-1. Use localStorage for persistence storage
+- Decode NAND Flash part numbers.
+- Decode Flash IDs.
+- Search part numbers in the Flash database.
+- Search Flash IDs in the Flash database.
+- Inspect extra fields, Flash ID mappings, and related links.
+- Switch between embedded fdnext and FlashDetector HTTP API modes.
+- Persist parser mode, server address, theme, language, units, and statistics in
+  localStorage.
 
-## Setup
+## Development
+
+Clone the repository with submodules:
 
 ```bash
-git clone https://github.com/iTXTech/FlashMaster
+git clone --recurse-submodules https://github.com/iTXTech/FlashMaster.git
 cd FlashMaster
-yarn
-yarn serve
 ```
 
-## Build and Deploy
+If the repository was cloned without submodules, initialize them later:
 
 ```bash
-yarn build
+git submodule update --init --recursive
 ```
 
-Upload all files in `dist`.
+Install dependencies and start the development server:
+
+```bash
+pnpm install
+pnpm dev
+```
+
+Useful commands:
+
+```bash
+pnpm lint
+pnpm build
+pnpm preview
+```
+
+To update the embedded fdnext dependency:
+
+```bash
+git submodule update --remote vendor/fdnext
+```
+
+## Deployment
+
+Build the static application and publish the generated `dist` directory:
+
+```bash
+pnpm build
+```
+
+The public deployment is available at [fm.itxtech.org](https://fm.itxtech.org).
 
 ## Apps
 
-* [FlashMasterAndroid](https://github.com/iTXTech/FlashMasterAndroid) - iTXTech FlashMaster App for Android 4.4+ 
-* [FlashMasteriOS](https://github.com/iTXTech/FlashMasteriOS) - iTXTech FlashMaster App for iOS 9.0+ and iPadOS 13.0+
+- [FlashMasterAndroid](https://github.com/iTXTech/FlashMasterAndroid)
+- [FlashMasteriOS](https://github.com/iTXTech/FlashMasteriOS)
 
 ## License
 
-    Copyright (C) 2019-2023 iTX Technologies
-    
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as
-    published by the Free Software Foundation, either version 3 of the
-    License, or (at your option) any later version.
+Copyright (C) 2019-2026 iTX Technologies
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU Affero General Public License as published by the Free
+Software Foundation, either version 3 of the License, or (at your option) any
+later version.
 
-    You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License along
+with this program. If not, see <https://www.gnu.org/licenses/>.
