@@ -2,7 +2,7 @@ FlashMaster by PeratX <peratx@itxtech.org>
 Copyright (c) 2019-2026 iTX Technologies
 ===================================
 Version 2.0.1
-- Updated embedded fdnext to 3caa6f2, expanding managed NAND part-number rules, part-number suggestions, Samsung/SanDisk/Kioxia/SK hynix coverage, and canonical parser metadata keys.
+- Updated embedded fdnext to f870a05, expanding managed NAND part-number rules, part-number suggestions, Samsung/SanDisk/Kioxia/SK hynix coverage, canonical parser metadata keys, and refined managed NAND metadata output.
 - Added new fdnext NAND decoding rules and bundled resource data, including SMI SATA/NVMe/USB controllers, Yeestor, Maxio, and more.
 - Added YMTC/Samsung UFS and eMMC decoding.
 - Improved fdnext coverage for Intel, Kioxia BiCS, Western Digital/SanDisk, Phison, and related controller/resource data.

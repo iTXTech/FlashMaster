@@ -5,10 +5,7 @@ import {
   defaultDslRules,
   defaultFlashIdRules
 } from '@itxtech/fdnext-dsl';
-import fdbRaw from '../../vendor/fdnext/packages/resources/resources/fdb.json';
-import mdbRaw from '../../vendor/fdnext/packages/resources/resources/mdb.json';
-import chsLang from '../../vendor/fdnext/packages/resources/resources/lang/chs.json';
-import engLang from '../../vendor/fdnext/packages/resources/resources/lang/eng.json';
+import { embeddedResources } from '../../vendor/fdnext/packages/resources';
 import store from '@/store';
 
 let engine;
@@ -16,14 +13,7 @@ let engine;
 function getEngine() {
   if (!engine) {
     engine = createEngine({
-      resources: {
-        fdbRaw,
-        mdbRaw,
-        langRaw: {
-          chs: chsLang,
-          eng: engLang
-        }
-      },
+      resources: embeddedResources,
       decoders: compileRulesToDecoders(defaultDslRules),
       flashIdDecoders: compileFlashIdRulesToDecoders(defaultFlashIdRules)
     });

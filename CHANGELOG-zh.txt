@@ -2,7 +2,7 @@ FlashMaster by PeratX <peratx@itxtech.org>
 版权所有 (c) 2019-2026 iTX Technologies
 ===================================
 版本 2.0.1
-- 更新内嵌 fdnext 到 3caa6f2，扩展 managed NAND 料号规则、料号建议、三星/闪迪/铠侠/SK hynix 等解析覆盖，并统一解析元数据键。
+- 更新内嵌 fdnext 到 f870a05，扩展 managed NAND 料号规则、料号建议、三星/闪迪/铠侠/SK hynix 等解析覆盖，统一解析元数据键，并优化 managed NAND 元数据输出。
 - 新增 fdnext NAND 解码规则与内置资源数据，SMI SATA/NVMe/U盘控制器，得一微，联云等。
 - 增加 YMTC/Samsung UFS 与 eMMC 解码。
 - 优化 fdnext 对 Intel、Kioxia BiCS、Western Digital/SanDisk、Phison 以及相关控制器和资源数据的改进。
