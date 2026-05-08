@@ -98,14 +98,19 @@
       </section>
     </div>
 
-    <v-dialog v-model="dialog.show" max-width="560">
-      <section class="panel">
+    <v-dialog
+      v-model="dialog.show"
+      max-width="560"
+      class="server-info-dialog"
+      content-class="server-info-dialog-content"
+    >
+      <section class="panel server-info-panel">
         <div class="panel-header">
           <div class="panel-title">{{ $t('settings.fdServerInfo') }}</div>
           <v-btn icon="mdi-close" variant="text" @click="dialog.show = false" />
         </div>
-        <div class="panel-body">
-          <div v-html="dialog.text" />
+        <div class="panel-body server-info-body">
+          <div class="server-info-content" v-html="dialog.text" />
         </div>
       </section>
     </v-dialog>
