@@ -7,6 +7,7 @@ const CACHE_KEY = 'flashmaster.marketQuotes.v1';
 export const MARKET_REFRESH_INTERVAL_MS = 10_000;
 export const MARKET_UI_UPDATE_INTERVAL_MS = 2_000;
 const MARKET_CACHE_INTERVAL_MS = 30_000;
+const MARKET_SOCKET_STALE_MS = 15_000;
 
 export const TARGET_ASSETS = [
   { asset: 'xyz:MU', symbol: 'MU', labels: { chs: '美光', eng: 'MU' } },
@@ -192,13 +193,32 @@ export function subscribeMarketQuotes({ onUpdate, onError } = {}) {
   let refreshContextTimer;
   let fallbackDelayTimer;
   let heartbeatTimer;
+  let fallbackSnapshotController;
+  let contextSnapshotController;
   let currentItems = loadCachedMarketQuotes();
   let latestMids = null;
   let queuedItems = null;
+  let queuedForceCache = false;
   let queuedSocketData = null;
   let lastEmitAt = 0;
   let lastCacheAt = 0;
   let lastSocketProcessAt = 0;
+  let lastSocketMidsAt = 0;
+  let socketStreaming = false;
+
+  const hasLiveSocketMids = () => {
+    return socketStreaming && latestMids && Date.now() - lastSocketMidsAt <= MARKET_SOCKET_STALE_MS;
+  };
+
+  const abortFallbackSnapshot = () => {
+    fallbackSnapshotController?.abort();
+    fallbackSnapshotController = undefined;
+  };
+
+  const abortContextSnapshot = () => {
+    contextSnapshotController?.abort();
+    contextSnapshotController = undefined;
+  };
 
   const maybeCache = (items, force = false) => {
     const now = Date.now();
@@ -223,26 +243,32 @@ export function subscribeMarketQuotes({ onUpdate, onError } = {}) {
       window.clearTimeout(emitTimer);
       emitTimer = undefined;
       queuedItems = null;
+      queuedForceCache = false;
       deliver(items, { forceCache });
       return;
     }
 
     queuedItems = items;
+    queuedForceCache ||= forceCache;
     const waitMs = Math.max(0, MARKET_UI_UPDATE_INTERVAL_MS - (Date.now() - lastEmitAt));
     if (waitMs === 0) {
       window.clearTimeout(emitTimer);
       emitTimer = undefined;
       const nextItems = queuedItems;
+      const shouldForceCache = queuedForceCache;
       queuedItems = null;
-      deliver(nextItems, { forceCache });
+      queuedForceCache = false;
+      deliver(nextItems, { forceCache: shouldForceCache });
       return;
     }
     if (!emitTimer) {
       emitTimer = window.setTimeout(() => {
         emitTimer = undefined;
         const nextItems = queuedItems;
+        const shouldForceCache = queuedForceCache;
         queuedItems = null;
-        deliver(nextItems, { forceCache });
+        queuedForceCache = false;
+        deliver(nextItems, { forceCache: shouldForceCache });
       }, waitMs);
     }
   };
@@ -252,6 +278,7 @@ export function subscribeMarketQuotes({ onUpdate, onError } = {}) {
     window.clearTimeout(fallbackDelayTimer);
     fallbackTimer = undefined;
     fallbackDelayTimer = undefined;
+    abortFallbackSnapshot();
   };
 
   const stopHeartbeat = () => {
@@ -259,22 +286,46 @@ export function subscribeMarketQuotes({ onUpdate, onError } = {}) {
     heartbeatTimer = undefined;
   };
 
-  const refreshSnapshot = async () => {
+  const refreshSnapshot = async ({ reason = 'context' } = {}) => {
+    const isFallback = reason === 'fallback';
+    const controller = new AbortController();
+    if (isFallback) {
+      abortFallbackSnapshot();
+      fallbackSnapshotController = controller;
+    } else {
+      abortContextSnapshot();
+      contextSnapshotController = controller;
+    }
+
     try {
-      const snapshot = await fetchMarketQuotes({ cache: false });
-      emit(latestMids ? applyMidsToQuotes(snapshot, latestMids) : snapshot, {
-        immediate: true,
+      const snapshot = await fetchMarketQuotes({ cache: false, signal: controller.signal });
+      if (stopped || controller.signal.aborted) return;
+
+      const hasLiveSocket = hasLiveSocketMids();
+      if (isFallback && hasLiveSocket) return;
+
+      const nextItems = hasLiveSocket ? applyMidsToQuotes(snapshot, latestMids) : snapshot;
+      emit(nextItems, {
+        immediate: !hasLiveSocket,
         forceCache: true
       });
     } catch (err) {
+      if (err?.name === 'AbortError') return;
       onError?.(err);
+    } finally {
+      if (fallbackSnapshotController === controller) {
+        fallbackSnapshotController = undefined;
+      }
+      if (contextSnapshotController === controller) {
+        contextSnapshotController = undefined;
+      }
     }
   };
 
   const startFallback = () => {
     if (fallbackTimer || stopped) return;
-    refreshSnapshot();
-    fallbackTimer = window.setInterval(refreshSnapshot, MARKET_REFRESH_INTERVAL_MS);
+    refreshSnapshot({ reason: 'fallback' });
+    fallbackTimer = window.setInterval(() => refreshSnapshot({ reason: 'fallback' }), MARKET_REFRESH_INTERVAL_MS);
   };
 
   const scheduleReconnect = () => {
@@ -285,6 +336,8 @@ export function subscribeMarketQuotes({ onUpdate, onError } = {}) {
 
   const handleMids = mids => {
     latestMids = mids;
+    lastSocketMidsAt = Date.now();
+    socketStreaming = true;
     stopFallback();
     emit(applyMidsToQuotes(currentItems, mids));
   };
@@ -348,6 +401,7 @@ export function subscribeMarketQuotes({ onUpdate, onError } = {}) {
     let hasReceivedSocketMids = false;
 
     socket.addEventListener('open', () => {
+      socketStreaming = false;
       stopFallback();
       socket.send(JSON.stringify({
         method: 'subscribe',
@@ -369,14 +423,17 @@ export function subscribeMarketQuotes({ onUpdate, onError } = {}) {
     });
 
     socket.addEventListener('error', () => {
+      socketStreaming = false;
       onError?.(new Error('Hyperliquid WebSocket error'));
     });
 
     socket.addEventListener('close', () => {
+      socketStreaming = false;
       stopHeartbeat();
       window.clearTimeout(socketMessageTimer);
       socketMessageTimer = undefined;
       queuedSocketData = null;
+      queuedForceCache = false;
       window.clearTimeout(fallbackDelayTimer);
       if (!stopped) {
         startFallback();
@@ -388,9 +445,9 @@ export function subscribeMarketQuotes({ onUpdate, onError } = {}) {
   if (currentItems.length) {
     emit(currentItems, { immediate: true });
   }
-  refreshSnapshot();
+  refreshSnapshot({ reason: 'initial' });
   connectWebSocket();
-  refreshContextTimer = window.setInterval(refreshSnapshot, 5 * 60_000);
+  refreshContextTimer = window.setInterval(() => refreshSnapshot({ reason: 'context' }), 5 * 60_000);
 
   return () => {
     stopped = true;
@@ -400,6 +457,8 @@ export function subscribeMarketQuotes({ onUpdate, onError } = {}) {
     window.clearInterval(refreshContextTimer);
     window.clearTimeout(reconnectTimer);
     window.clearTimeout(fallbackDelayTimer);
+    abortFallbackSnapshot();
+    abortContextSnapshot();
     stopHeartbeat();
     socket?.close();
   };
