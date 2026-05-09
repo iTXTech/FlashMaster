@@ -50,9 +50,10 @@ export function parsePartNumberResult(raw, query = '') {
 export function parsePartNumberSuggestion(raw, query = '') {
     const parsed = parsePartNumberResult(raw, query);
     return {
-        title: [parsed.vendor, parsed.pn].filter(Boolean).join(' / '),
+        title: [parsed.vendor, parsed.shortCode, parsed.pn].filter(Boolean).join(' / '),
         subtitle: parsed.remark,
-        value: parsed.pn
+        value: parsed.shortCode || parsed.pn,
+        shortCode: parsed.shortCode
     };
 }
 

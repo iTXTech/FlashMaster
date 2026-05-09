@@ -150,6 +150,7 @@ const loadingSuggestions = ref(false);
 let suggestionTimer;
 let suggestionRequestId = 0;
 let suppressedSuggestionValue = '';
+const suggestionLimit = 10;
 
 const vendorLogoVendor = computed(() => result.value?.rawVendor || result.value?.vendor);
 const vendorLogo = computed(() => getVendorLogo(vendorLogoVendor.value));
@@ -324,7 +325,9 @@ function normalizePartNumberValue(value) {
   const text = normalizeComboValue(value).trim();
   const hit = suggestions.value.find(item => item.value === text || item.title === text);
   if (hit) return hit.value;
-  return text.split(/\s+\/\s+/).at(1) || text;
+  const segments = text.split(/\s+\/\s+/).filter(Boolean);
+  const shortCode = segments.find((segment, index) => index > 0 && /^[0-9A-Z]{5}$/.test(store.partNumberFormat(segment)));
+  return shortCode || segments.at(-1) || text;
 }
 
 function clearSuggestions() {
@@ -369,7 +372,7 @@ function searchSuggestions(input) {
   suggestionTimer = setTimeout(async () => {
     loadingSuggestions.value = true;
     try {
-      const payload = await searchPartNumber(query, 10);
+      const payload = await searchPartNumber(query, suggestionLimit);
       if (requestId !== suggestionRequestId) return;
       suggestions.value = toList(payload.data).map(item => parsePartNumberSuggestion(item, query));
     } catch {
