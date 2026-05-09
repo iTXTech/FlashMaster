@@ -447,10 +447,20 @@ a {
   background: rgba(255, 255, 255, 0.9);
 }
 
+.vendor-logo-wrap--dark {
+  background: #111827;
+}
+
 .vendor-logo {
   max-width: 180px;
   max-height: 38px;
   object-fit: contain;
+}
+
+.vendor-logo--elpida,
+.vendor-logo--kingston {
+  width: min(168px, 100%);
+  height: 36px;
 }
 
 .dense-table {

@@ -51,8 +51,8 @@
             <div class="metric-grid">
               <div class="metric">
                 <div class="metric-label">{{ $t('vendor') }}</div>
-                <div class="vendor-logo-wrap" v-if="vendorLogo">
-                  <img :src="vendorLogo" :alt="result?.vendor" class="vendor-logo" />
+                <div class="vendor-logo-wrap" :class="{ 'vendor-logo-wrap--dark': vendorLogoDark }" v-if="vendorLogo">
+                  <img :src="vendorLogo" :alt="result?.vendor" :class="['vendor-logo', vendorLogoClass]" />
                 </div>
                 <div class="metric-value">{{ displayValue(result?.vendor) }}</div>
               </div>
@@ -131,7 +131,7 @@ import { displayValue } from '@/services/display';
 import { decodeFlashId, searchFlashId, summarizeFlashId } from '@/services/flashApi';
 import { trackLookup } from '@/services/analytics';
 import { parsePartNumberResult } from '@/services/resultParser';
-import getVendorLogo from '@/services/vendorLogos';
+import getVendorLogo, { getVendorLogoKey } from '@/services/vendorLogos';
 import bus from '@/store/bus';
 import store from '@/store';
 
@@ -149,7 +149,11 @@ let suggestionTimer;
 let suggestionRequestId = 0;
 let suppressedSuggestionValue = '';
 
-const vendorLogo = computed(() => getVendorLogo(result.value?.rawVendor));
+const vendorLogoVendor = computed(() => result.value?.rawVendor || result.value?.vendor);
+const vendorLogo = computed(() => getVendorLogo(vendorLogoVendor.value));
+const vendorLogoKey = computed(() => getVendorLogoKey(vendorLogoVendor.value));
+const vendorLogoClass = computed(() => vendorLogoKey.value ? `vendor-logo--${vendorLogoKey.value}` : '');
+const vendorLogoDark = computed(() => vendorLogoKey.value === 'biwin');
 const controllers = computed(() => displayValue(toList(result.value?.controllers).join(', ')));
 const flashIdInput = computed({
   get: () => flashId.value,
@@ -205,7 +209,7 @@ function objectRows(value) {
 
 function urlRows(data) {
   if (!Array.isArray(data?.urls)) return [];
-  const logo = getVendorLogo(data?.rawVendor);
+  const logo = getVendorLogo(data?.rawVendor || data?.vendor);
   return data.urls
     .filter(item => item?.url)
     .map(item => ({

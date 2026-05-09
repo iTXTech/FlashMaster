@@ -2,11 +2,14 @@ FlashMaster by PeratX <peratx@itxtech.org>
 Copyright (c) 2019-2026 iTX Technologies
 ===================================
 Version 2.0.2
-- Updated embedded fdnext to v1.1.0 (a561a60), adding PN parsing support for DRAM, eMCP, eMMC, UFS, Managed NAND, and more.
+- Updated embedded fdnext to v1.1.0 (03b4e76), adding PN parsing support for DRAM, eMCP, eMMC, UFS, Managed NAND, and more.
 - Managed NAND: expanded PN DSL coverage for SK hynix, Samsung, SanDisk/KIOXIA, YMTC, Micron, and vendor metadata.
 - DRAM: added Micron/Crucial, SK hynix, Samsung, Nanya, Elpida, and CXMT DRAM PN decoding, resources, docs, and tests.
+- DRAM output: refined public type and CE/Die classification output, reducing redundant internal fields in DRAM decode results.
 - Micron FBGA/MDB: added unified Micron FBGA resources, DRAM PN search data, raw MDB refresh flow, and startup fixes around bundled resources.
+- FDB: added FirstChip controller generation sources and expanded FlashDB controller plus PN/Flash ID matching data.
 - Managed NAND suggestions: added structured PN suggestion resources and unified compat baseline checks.
+- Vendor logos: filled logo mappings for fdnext-supported vendors and tuned original logo artwork sizing for Kingston, Elpida, and related brands.
 
 ===================================
 Version 2.0.1
