@@ -65,21 +65,47 @@
             :label="$t('customization.theme')"
             @update:model-value="changeTheme"
           />
-          <v-checkbox
-            v-model="hideKeyboard"
-            :label="$t('customization.autoHideSoftKeyboard')"
-            @update:model-value="value => store.setAutoHideSoftKeyboard(value)"
-          />
-          <v-checkbox
-            v-model="bitUnit"
-            :label="$t('customization.bitUnit')"
-            @update:model-value="value => store.setBitUnit(value)"
-          />
-          <v-checkbox
-            v-model="marketTicker"
-            :label="$t('customization.marketTicker')"
-            @update:model-value="changeMarketTicker"
-          />
+          <div class="settings-switch-list">
+            <div class="settings-switch-row">
+              <span class="settings-switch-label">{{ $t('customization.autoHideSoftKeyboard') }}</span>
+              <v-switch
+                v-model="hideKeyboard"
+                class="settings-switch-control"
+                base-color="surface-variant"
+                color="primary"
+                density="compact"
+                hide-details
+                :aria-label="$t('customization.autoHideSoftKeyboard')"
+                @update:model-value="value => store.setAutoHideSoftKeyboard(value)"
+              />
+            </div>
+            <div class="settings-switch-row">
+              <span class="settings-switch-label">{{ $t('customization.bitUnit') }}</span>
+              <v-switch
+                v-model="bitUnit"
+                class="settings-switch-control"
+                base-color="surface-variant"
+                color="primary"
+                density="compact"
+                hide-details
+                :aria-label="$t('customization.bitUnit')"
+                @update:model-value="value => store.setBitUnit(value)"
+              />
+            </div>
+            <div class="settings-switch-row">
+              <span class="settings-switch-label">{{ $t('customization.marketTicker') }}</span>
+              <v-switch
+                v-model="marketTicker"
+                class="settings-switch-control"
+                base-color="surface-variant"
+                color="primary"
+                density="compact"
+                hide-details
+                :aria-label="$t('customization.marketTicker')"
+                @update:model-value="changeMarketTicker"
+              />
+            </div>
+          </div>
         </div>
       </section>
 

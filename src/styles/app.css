@@ -888,8 +888,27 @@ a {
 
 .settings-grid {
   display: grid;
-  grid-template-columns: minmax(280px, 1.2fr) minmax(240px, 0.8fr) minmax(240px, 0.8fr);
+  grid-template-columns: minmax(360px, 1.15fr) minmax(280px, 0.9fr) minmax(280px, 0.9fr);
+  align-items: start;
   gap: 12px;
+}
+
+.settings-switch-list {
+  display: grid;
+  gap: 2px;
+}
+
+.settings-switch-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding-inline-end: 12px;
+  border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.07);
+}
+
+.settings-switch-row:last-child {
+  border-bottom: 0;
 }
 
 .server-address-line {
@@ -956,6 +975,11 @@ a {
 
   .decode-primary-grid {
     grid-template-columns: minmax(156px, 196px) minmax(320px, 1fr);
+  }
+
+  .settings-grid {
+    grid-template-columns: minmax(420px, 1.1fr) minmax(300px, 0.95fr) minmax(300px, 0.95fr);
+    gap: 10px;
   }
 }
 

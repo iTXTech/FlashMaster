@@ -33,8 +33,8 @@
           <img :src="logo" alt="FlashMaster" class="drawer-info-logo" />
           <div class="drawer-info-title">FlashMaster</div>
         </div>
-        <div class="drawer-info-line">{{ $t('version', [projectVersion]) }}</div>
         <div class="drawer-info-line">by PeratX@iTXTech.org</div>
+        <div class="drawer-info-line">{{ $t('version', [projectVersion]) }}</div>
         <div class="drawer-info-line">{{ $t('group') }}</div>
       </div>
 
