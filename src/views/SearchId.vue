@@ -11,7 +11,7 @@
         <div class="panel-body query-stack">
           <v-text-field
             ref="input"
-            v-model="flashId"
+            v-model="flashIdInput"
             class="pn"
             clearable
             hide-details
@@ -76,6 +76,12 @@ const input = ref(null);
 const flashId = ref('');
 const rows = ref([]);
 const loading = ref(false);
+const flashIdInput = computed({
+  get: () => flashId.value,
+  set: value => {
+    flashId.value = store.queryInputFormat(value);
+  }
+});
 
 const headers = computed(() => [
   { title: t('flashId'), key: 'id' },
@@ -152,7 +158,7 @@ function notify(text) {
 
 onMounted(() => {
   if (route.query.id) {
-    flashId.value = String(route.query.id);
+    flashId.value = store.queryInputFormat(route.query.id);
     search(false);
   } else {
     nextTick(() => input.value?.focus?.());
@@ -160,8 +166,9 @@ onMounted(() => {
 });
 
 watch(() => route.query.id, value => {
-  if (value && value !== flashId.value) {
-    flashId.value = String(value);
+  const next = store.queryInputFormat(value);
+  if (next && next !== flashId.value) {
+    flashId.value = next;
     search(false);
   }
 });

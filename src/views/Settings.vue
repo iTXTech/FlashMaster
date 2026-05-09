@@ -18,25 +18,28 @@
           <v-combobox
             v-if="isHttpParser"
             v-model="server"
+            :menu="serverMenu"
             :items="serverItems"
-            item-title="title"
+            item-title="address"
             item-value="address"
             :return-object="false"
             hide-details
             clearable
             :label="$t('settings.serverAddr')"
-            @update:model-value="changeServer"
+            @update:model-value="updateServerDraft"
+            @update:menu="updateServerMenu"
+            @update:search="updateServerSearch"
             @blur="commitServer"
           >
             <template #item="{ props, item }">
-              <v-list-item v-bind="props" :title="item.raw.title" :subtitle="item.raw.subtitle" />
+              <v-list-item v-bind="props" :title="item.raw.address" :subtitle="item.raw.title" />
             </template>
           </v-combobox>
-          <div v-if="isHttpParser" class="server-address-line">
+          <div v-if="isHttpParser && activeServerNote" class="server-address-line">
             <v-icon icon="mdi-paperclip" size="18" />
-            <span>{{ activeServerAddress }}</span>
+            <span>{{ activeServerNote }}</span>
           </div>
-          <div v-else class="server-address-line">
+          <div v-else-if="!isHttpParser" class="server-address-line">
             <v-icon icon="mdi-chip" size="18" />
             <span>{{ $t('settings.embeddedParserInfo', [embeddedParserVersion]) }}</span>
           </div>
@@ -135,6 +138,7 @@ const fallbackServers = {
 
 const servers = ref({});
 const server = ref(store.getServerAddress());
+const serverMenu = ref(false);
 const parserMode = ref(store.getParserMode());
 const currentTheme = ref(store.getTheme());
 const hideKeyboard = ref(store.isAutoHideSoftKeyboard());
@@ -167,18 +171,9 @@ const serverRecords = computed(() => {
     }));
 });
 const activeServerAddress = computed(() => normalizeServer(server.value) || store.getDefaultServerAddress());
-const activeServerRecord = computed(() => {
-  const hit = serverRecords.value.find(item => item.address === activeServerAddress.value);
-  return hit || {
-    title: t('settings.customServer'),
-    address: activeServerAddress.value,
-    subtitle: activeServerAddress.value
-  };
-});
-const serverItems = computed(() => {
-  const hit = serverRecords.value.some(item => item.address === activeServerAddress.value);
-  return hit ? serverRecords.value : [activeServerRecord.value, ...serverRecords.value];
-});
+const activeServerRecord = computed(() => findServerRecord(server.value));
+const activeServerNote = computed(() => activeServerRecord.value?.title || '');
+const serverItems = computed(() => serverRecords.value);
 const themes = computed(() => [
   { title: t('customization.theme_0'), value: themeManager.THEME_DARK },
   { title: t('customization.theme_1'), value: themeManager.THEME_LIGHT },
@@ -225,9 +220,39 @@ function normalizeServer(value) {
   return hit?.address || text;
 }
 
+function findServerRecord(value) {
+  const text = normalizeServer(value);
+  return serverRecords.value.find(item => item.address === text);
+}
+
+function canShowServerMenu() {
+  return Boolean(findServerRecord(server.value));
+}
+
+function closeServerMenuForCustom(value) {
+  if (!findServerRecord(value)) {
+    serverMenu.value = false;
+  }
+}
+
+function updateServerDraft(value) {
+  const next = normalizeServer(value);
+  server.value = next;
+  closeServerMenuForCustom(next);
+}
+
+function updateServerMenu(value) {
+  serverMenu.value = value && canShowServerMenu();
+}
+
+function updateServerSearch(value) {
+  closeServerMenuForCustom(value);
+}
+
 function changeServer(value) {
-  server.value = normalizeServer(value) || store.getDefaultServerAddress();
-  store.setServerAddress(server.value);
+  const next = normalizeServer(value) || store.getDefaultServerAddress();
+  server.value = next;
+  store.setServerAddress(next);
   bus.emit('server');
 }
 
@@ -255,6 +280,9 @@ function changeMarketTicker(value) {
 }
 
 async function serverInfo() {
+  if (isHttpParser.value) {
+    commitServer();
+  }
   loadingInfo.value = true;
   try {
     const data = await getServerInfo();

@@ -151,8 +151,10 @@ const isMarketTickerEnabled = () => {
     return localStorage.marketTicker === "1"
 }
 
+const queryInputFormat = str => String(str || "").toUpperCase();
+
 const partNumberFormat = str => {
-    return str.toUpperCase()
+    return queryInputFormat(str)
         .replace(/,/g, "")
         .replace(/\s+/g, "");
 }
@@ -212,6 +214,7 @@ export default {
     isBitUnit,
     setMarketTickerEnabled,
     isMarketTickerEnabled,
+    queryInputFormat,
     partNumberFormat,
     setTheme,
     getTheme,

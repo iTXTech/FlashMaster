@@ -11,7 +11,7 @@
         <div class="panel-body query-stack">
           <v-combobox
             ref="input"
-            v-model="flashId"
+            v-model="flashIdInput"
             :items="suggestions"
             item-title="title"
             item-value="value"
@@ -151,6 +151,12 @@ let suppressedSuggestionValue = '';
 
 const vendorLogo = computed(() => getVendorLogo(result.value?.rawVendor));
 const controllers = computed(() => displayValue(toList(result.value?.controllers).join(', ')));
+const flashIdInput = computed({
+  get: () => flashId.value,
+  set: value => {
+    flashId.value = store.queryInputFormat(normalizeComboValue(value));
+  }
+});
 
 const identityMetrics = computed(() => [
   { label: t('flashId'), value: result.value?.id },
@@ -287,7 +293,7 @@ async function selectFlashId(value) {
     await decode();
     return;
   }
-  flashId.value = text;
+  flashId.value = store.queryInputFormat(text);
 }
 
 function searchSuggestions(input) {
@@ -373,7 +379,7 @@ function notify(text) {
 
 onMounted(() => {
   if (route.query.id) {
-    flashId.value = String(route.query.id);
+    flashId.value = store.queryInputFormat(route.query.id);
     decode(false);
   } else {
     focusInput();
@@ -381,8 +387,9 @@ onMounted(() => {
 });
 
 watch(() => route.query.id, value => {
-  if (value && value !== flashId.value) {
-    flashId.value = String(value);
+  const next = store.queryInputFormat(value);
+  if (next && next !== flashId.value) {
+    flashId.value = next;
     decode(false);
   } else if (!value) {
     flashId.value = '';

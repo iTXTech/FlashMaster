@@ -11,7 +11,7 @@
         <div class="panel-body query-stack">
           <v-combobox
             ref="input"
-            v-model="partNumber"
+            v-model="partNumberInput"
             :items="suggestions"
             item-title="value"
             item-value="value"
@@ -153,6 +153,12 @@ let suppressedSuggestionValue = '';
 
 const vendorLogo = computed(() => getVendorLogo(result.value?.rawVendor));
 const controllers = computed(() => displayValue(toList(result.value?.controller).join(', ')));
+const partNumberInput = computed({
+  get: () => partNumber.value,
+  set: value => {
+    partNumber.value = store.queryInputFormat(normalizePartNumberValue(value));
+  }
+});
 
 const identityMetrics = computed(() => [
   ...promotedExtraMetrics.value,
@@ -340,7 +346,7 @@ async function selectPartNumber(value) {
     await decode();
     return;
   }
-  partNumber.value = normalizePartNumberValue(value);
+  partNumber.value = store.queryInputFormat(normalizePartNumberValue(value));
 }
 
 function searchSuggestions(input) {
@@ -432,7 +438,7 @@ function notify(text) {
 
 onMounted(() => {
   if (route.query.pn) {
-    partNumber.value = String(route.query.pn);
+    partNumber.value = store.queryInputFormat(route.query.pn);
     decode(false);
   } else {
     focusInput();
@@ -440,8 +446,9 @@ onMounted(() => {
 });
 
 watch(() => route.query.pn, value => {
-  if (value && value !== partNumber.value) {
-    partNumber.value = String(value);
+  const next = store.queryInputFormat(value);
+  if (next && next !== partNumber.value) {
+    partNumber.value = next;
     decode(false);
   } else if (!value) {
     partNumber.value = '';

@@ -11,7 +11,7 @@
         <div class="panel-body query-stack">
           <v-text-field
             ref="input"
-            v-model="partNumber"
+            v-model="partNumberInput"
             class="pn"
             clearable
             hide-details
@@ -63,6 +63,12 @@ const input = ref(null);
 const partNumber = ref('');
 const rows = ref([]);
 const loading = ref(false);
+const partNumberInput = computed({
+  get: () => partNumber.value,
+  set: value => {
+    partNumber.value = store.queryInputFormat(value);
+  }
+});
 
 const headers = computed(() => [
   { title: t('vendor'), key: 'vendor' },
@@ -124,7 +130,7 @@ function notify(text) {
 
 onMounted(() => {
   if (route.query.pn) {
-    partNumber.value = String(route.query.pn);
+    partNumber.value = store.queryInputFormat(route.query.pn);
     search(false);
   } else {
     nextTick(() => input.value?.focus?.());
@@ -132,8 +138,9 @@ onMounted(() => {
 });
 
 watch(() => route.query.pn, value => {
-  if (value && value !== partNumber.value) {
-    partNumber.value = String(value);
+  const next = store.queryInputFormat(value);
+  if (next && next !== partNumber.value) {
+    partNumber.value = next;
     search(false);
   }
 });
