@@ -42,63 +42,79 @@
         <div class="panel-header">
           <div>
             <div class="panel-title">{{ $t('dashboard.decodeResult') }}</div>
-            <div class="panel-meta">{{ result?.id || $t('dashboard.empty') }}</div>
+            <div class="panel-meta">{{ resultSummary }}</div>
           </div>
           <v-btn icon="mdi-content-copy" variant="text" :disabled="!result" @click="copyOverview" />
         </div>
         <div class="panel-body">
-          <div class="workspace-grid single">
-            <div class="metric-grid">
-              <div class="metric">
+          <div class="workspace-grid single decode-id-result-stack">
+            <div class="metric-grid decode-id-identity-grid">
+              <div class="metric decode-id-vendor-metric">
                 <div class="metric-label">{{ $t('vendor') }}</div>
-                <div class="vendor-logo-wrap" :class="{ 'vendor-logo-wrap--dark': vendorLogoDark }" v-if="vendorLogo">
-                  <img :src="vendorLogo" :alt="result?.vendor" :class="['vendor-logo', vendorLogoClass]" />
+                <div class="decode-id-vendor-line">
+                  <div class="vendor-logo-wrap decode-id-logo-wrap" :class="{ 'vendor-logo-wrap--dark': vendorLogoDark }" v-if="vendorLogo">
+                    <img :src="vendorLogo" :alt="result?.vendor" :class="['vendor-logo', vendorLogoClass]" />
+                  </div>
+                  <div class="metric-value">{{ displayValue(result?.vendor) }}</div>
                 </div>
-                <div class="metric-value">{{ displayValue(result?.vendor) }}</div>
               </div>
-              <div class="metric">
-                <div class="metric-label">{{ $t('controllers') }}</div>
-                <div class="metric-value">{{ controllers }}</div>
+              <div class="metric decode-id-flash-id-metric">
+                <div class="metric-label">{{ $t('flashId') }}</div>
+                <div class="metric-value">{{ displayValue(result?.id) }}</div>
               </div>
             </div>
-            <MetricGrid :items="identityMetrics" />
-            <MetricGrid :items="geometryMetrics" />
+            <MetricGrid class="decode-id-detail-grid" :items="detailMetrics" />
           </div>
         </div>
       </section>
     </div>
 
-    <v-row dense class="mt-3">
-      <v-col cols="12" lg="4">
-        <section class="panel">
+    <v-row dense class="mt-3 decode-id-secondary-grid">
+      <v-col v-if="result" cols="12">
+        <section class="panel decode-id-details-panel">
           <div class="panel-header">
-            <div class="panel-title">{{ $t('extraInfo') }}</div>
-            <v-btn icon="mdi-content-copy" variant="text" :disabled="extraInfo.length === 0" @click="copyExtraInfo" />
+            <div>
+              <div class="panel-title">{{ $t('controllers') }}</div>
+              <div class="panel-meta">{{ controllerSummary }}</div>
+            </div>
           </div>
-          <PagedTable :headers="extraHeaders" :items="extraInfo" :per-page-options="[8, 16, 32]">
-            <template #action="{ item }">
-              <v-btn icon="mdi-content-copy" variant="text" @click="copyLine(`${item.name}: ${item.value}`)" />
-            </template>
-          </PagedTable>
+          <div class="panel-body">
+            <ExpandableListCell
+              v-if="controllerList.length > 0"
+              class="decode-id-controller-list search-controller-list"
+              :items="controllerList"
+              :limit="10"
+            />
+            <div v-else class="empty-state">{{ $t('noData') }}</div>
+          </div>
         </section>
       </v-col>
 
-      <v-col cols="12" lg="4">
-        <section class="panel">
+      <v-col cols="12" :lg="urls.length > 0 ? 6 : 12">
+        <section class="panel decode-id-pn-panel">
           <div class="panel-header">
-            <div class="panel-title">{{ $t('searchIdPage.pns') }}</div>
-            <v-btn icon="mdi-content-copy" variant="text" :disabled="partNumbers.length === 0" @click="copyPartNumbers" />
+            <div>
+              <div class="panel-title">{{ $t('searchIdPage.pns') }}</div>
+              <div class="panel-meta">{{ $t('dashboard.resultCount', [partNumbers.length]) }}</div>
+            </div>
           </div>
-          <PagedTable :headers="pnHeaders" :items="partNumbers" :per-page-options="[8, 16, 32]">
-            <template #action="{ item }">
-              <v-btn icon="mdi-crosshairs-gps" variant="text" @click="router.push({ path: '/decode', query: { pn: item.pn } })" />
-              <v-btn icon="mdi-content-copy" variant="text" @click="copyLine(item.pn)" />
-            </template>
-          </PagedTable>
+          <div v-if="partNumbers.length > 0" class="decode-id-pn-grid">
+            <button
+              v-for="item in partNumbers"
+              :key="`${item.vendor}-${item.pn}`"
+              class="decode-id-pn-card"
+              type="button"
+              @click="decodePartNumber(item.pn)"
+            >
+              <div class="search-card-label">{{ item.vendor || $t('unknown') }}</div>
+              <span class="search-card-title">{{ item.pn }}</span>
+            </button>
+          </div>
+          <div v-else class="empty-state">{{ $t('noData') }}</div>
         </section>
       </v-col>
 
-      <v-col cols="12" lg="4">
+      <v-col v-if="urls.length > 0" cols="12" lg="6">
         <section class="panel">
           <div class="panel-header">
             <div class="panel-title">{{ $t('urls') }}</div>
@@ -116,6 +132,24 @@
           </PagedTable>
         </section>
       </v-col>
+
+      <v-col cols="12">
+        <section class="panel decode-id-info-panel">
+          <div class="panel-header">
+            <div>
+              <div class="panel-title">{{ $t('extraInfo') }}</div>
+              <div class="panel-meta">{{ $t('dashboard.resultCount', [extraInfo.length]) }}</div>
+            </div>
+          </div>
+          <div v-if="extraInfo.length > 0" class="decode-id-info-grid">
+            <div v-for="item in extraInfo" :key="`${item.name}-${item.value}`" class="decode-id-info-card">
+              <div class="search-card-label">{{ item.name }}</div>
+              <div class="search-card-value decode-id-info-value">{{ item.value }}</div>
+            </div>
+          </div>
+          <div v-else class="empty-state">{{ $t('noData') }}</div>
+        </section>
+      </v-col>
     </v-row>
   </div>
 </template>
@@ -124,6 +158,7 @@
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
+import ExpandableListCell from '@/components/ExpandableListCell.vue';
 import MetricGrid from '@/components/MetricGrid.vue';
 import PagedTable from '@/components/PagedTable.vue';
 import { copyText } from '@/services/clipboard';
@@ -154,7 +189,19 @@ const vendorLogo = computed(() => getVendorLogo(vendorLogoVendor.value));
 const vendorLogoKey = computed(() => getVendorLogoKey(vendorLogoVendor.value));
 const vendorLogoClass = computed(() => vendorLogoKey.value ? `vendor-logo--${vendorLogoKey.value}` : '');
 const vendorLogoDark = computed(() => vendorLogoKey.value === 'biwin');
-const controllers = computed(() => displayValue(toList(result.value?.controllers).join(', ')));
+const controllerList = computed(() => toList(result.value?.controllers));
+const controllerSummary = computed(() => t('dashboard.resultCount', [controllerList.value.length]));
+const resultSummary = computed(() => {
+  if (!result.value) return t('dashboard.empty');
+  const summary = [
+    formatDensity(result.value?.density, true),
+    result.value?.cellLevel,
+    result.value?.processNode
+  ]
+    .map(value => displayValue(value))
+    .filter(value => value && value !== '-');
+  return summary.join(' · ') || displayValue(result.value?.vendor);
+});
 const flashIdInput = computed({
   get: () => flashId.value,
   set: value => {
@@ -163,7 +210,6 @@ const flashIdInput = computed({
 });
 
 const identityMetrics = computed(() => [
-  { label: t('flashId'), value: result.value?.id },
   { label: t('density'), value: formatDensity(result.value?.density, true) },
   { label: t('cellLevel'), value: result.value?.cellLevel },
   { label: t('processNode'), value: result.value?.processNode },
@@ -173,9 +219,10 @@ const identityMetrics = computed(() => [
 const geometryMetrics = computed(() => [
   { label: t('die'), value: result.value?.die },
   { label: t('plane'), value: result.value?.plane },
-  { label: t('pageSize'), value: formatDensity(result.value?.pageSize) },
-  { label: t('blockSize'), value: formatDensity(result.value?.blockSize) }
+  { label: t('pageSize'), value: formatFlashIdSize(result.value?.pageSize) },
+  { label: t('blockSize'), value: formatFlashIdSize(result.value?.blockSize) }
 ]);
+const detailMetrics = computed(() => [...identityMetrics.value, ...geometryMetrics.value]);
 
 const extraInfo = computed(() => objectRows(result.value?.ext));
 const partNumbers = computed(() => toList(result.value?.partNumbers).map(raw => {
@@ -183,16 +230,6 @@ const partNumbers = computed(() => toList(result.value?.partNumbers).map(raw => 
 }));
 const urls = computed(() => urlRows(result.value));
 
-const extraHeaders = computed(() => [
-  { title: t('name'), key: 'name' },
-  { title: t('value'), key: 'value' },
-  { title: t('action'), key: 'action' }
-]);
-const pnHeaders = computed(() => [
-  { title: t('vendor'), key: 'vendor' },
-  { title: t('partNumber'), key: 'pn' },
-  { title: t('action'), key: 'action' }
-]);
 const urlHeaders = computed(() => [
   { title: t('description'), key: 'description' },
   { title: t('action'), key: 'action' }
@@ -221,6 +258,10 @@ function urlRows(data) {
 
 function formatDensity(value, inBit = false) {
   return typeof value === 'number' ? store.formatNumber(value, 2, inBit, store.isBitUnit()) : value;
+}
+
+function formatFlashIdSize(value) {
+  return typeof value === 'number' ? store.formatNumber(value, 1) : value;
 }
 
 function normalizeInput() {
@@ -336,6 +377,10 @@ function goSearchId() {
   router.push({ path: '/searchId', query: { id } });
 }
 
+function decodePartNumber(pn) {
+  router.push({ path: '/decode', query: { pn } });
+}
+
 async function copySummary() {
   const id = normalizeInput();
   if (!id) return notify(t('alert.missingFlashId'));
@@ -351,17 +396,14 @@ async function copySummary() {
 }
 
 function copyOverview() {
-  const lines = [...identityMetrics.value, ...geometryMetrics.value]
+  const lines = [
+    { label: t('vendor'), value: result.value?.vendor },
+    { label: t('flashId'), value: result.value?.id },
+    ...detailMetrics.value,
+    { label: t('controllers'), value: controllerList.value.join(', ') }
+  ]
     .map(item => `${item.label}: ${displayValue(item.value)}`);
   copyLine(lines.join('\n'));
-}
-
-function copyExtraInfo() {
-  copyLine(extraInfo.value.map(item => `${item.name}: ${item.value}`).join(', '));
-}
-
-function copyPartNumbers() {
-  copyLine(partNumbers.value.map(item => item.pn).join(', '));
 }
 
 async function copyLine(text, success = t('copySucc')) {

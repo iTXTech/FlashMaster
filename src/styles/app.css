@@ -463,6 +463,62 @@ a {
   height: 36px;
 }
 
+.decode-id-result-stack {
+  gap: 8px;
+}
+
+.decode-id-identity-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.decode-id-vendor-metric,
+.decode-id-flash-id-metric {
+  min-width: 0;
+}
+
+.decode-id-vendor-line {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: minmax(72px, 96px) minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+}
+
+.decode-id-logo-wrap {
+  min-height: 44px;
+  margin-bottom: 0;
+}
+
+.decode-id-logo-wrap .vendor-logo {
+  max-width: 84px;
+  max-height: 30px;
+}
+
+.decode-id-flash-id-metric .metric-value {
+  font-size: 0.98rem;
+  letter-spacing: 0.02em;
+}
+
+.metric-grid.decode-id-detail-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 112px), 1fr));
+  gap: 6px;
+}
+
+.decode-id-detail-grid .metric {
+  min-height: 44px;
+  padding: 7px 9px;
+}
+
+.decode-id-detail-grid .metric-label {
+  margin-bottom: 2px;
+  font-size: 0.68rem;
+}
+
+.decode-id-detail-grid .metric-value {
+  font-size: 0.82rem;
+  line-height: 1.2;
+}
+
 .dense-table {
   width: 100%;
   border-collapse: collapse;
@@ -867,6 +923,61 @@ a {
   white-space: nowrap;
 }
 
+.decode-id-details-panel {
+  overflow: hidden;
+}
+
+.decode-id-controller-list {
+  gap: 4px 12px;
+}
+
+.decode-id-pn-panel,
+.decode-id-info-panel {
+  overflow: hidden;
+}
+
+.decode-id-pn-grid,
+.decode-id-info-grid {
+  display: grid;
+  border-top: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+}
+
+.decode-id-pn-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+}
+
+.decode-id-info-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+}
+
+.decode-id-pn-card,
+.decode-id-info-card {
+  display: grid;
+  min-width: 0;
+  align-content: start;
+  gap: 3px;
+  padding: 8px 10px;
+  border-right: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+  border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+}
+
+.decode-id-pn-card {
+  appearance: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.decode-id-pn-card:hover .search-card-title {
+  color: rgb(var(--v-theme-primary));
+}
+
+.decode-id-info-value {
+  overflow-wrap: anywhere;
+}
+
 .table-kv-stack {
   display: grid;
   gap: 2px;
@@ -1006,6 +1117,10 @@ a {
 
   .decode-primary-grid {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .decode-id-vendor-line {
+    grid-template-columns: minmax(64px, 84px) minmax(0, 1fr);
   }
 
   .server-info-dialog-content {
