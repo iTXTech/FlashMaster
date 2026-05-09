@@ -27,7 +27,7 @@
             @keydown.enter.prevent="decode"
           >
             <template #item="{ props, item }">
-              <v-list-item v-bind="props" :title="item.raw.title" :subtitle="item.raw.subtitle" />
+              <v-list-item v-bind="props" :title="item.raw.title" />
             </template>
           </v-combobox>
           <div class="action-row">

@@ -68,8 +68,8 @@ a {
 }
 
 .app-title .v-toolbar-title__placeholder {
-  overflow: visible;
-  text-overflow: clip;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
@@ -510,6 +510,44 @@ a {
   white-space: nowrap;
 }
 
+.search-results-panel .table-scroll {
+  overflow-x: hidden;
+}
+
+.search-results-panel .dense-table {
+  table-layout: fixed;
+}
+
+.search-id-results-panel .search-id-col {
+  width: 22%;
+}
+
+.search-id-results-panel .search-geometry-col {
+  width: 14%;
+}
+
+.search-id-results-panel .search-list-col {
+  width: 28%;
+}
+
+.search-id-results-panel .search-controller-col {
+  width: 28%;
+}
+
+.search-results-panel .col-action {
+  width: 8%;
+  text-align: right;
+}
+
+.search-pn-results-panel .search-vendor-col {
+  width: 18%;
+  white-space: nowrap;
+}
+
+.search-pn-results-panel .search-list-col {
+  width: 74%;
+}
+
 .table-footer {
   display: flex;
   align-items: center;
@@ -554,6 +592,163 @@ a {
 
 .table-scroll {
   overflow-x: auto;
+}
+
+.table-card-list {
+  display: none;
+}
+
+.table-result-card {
+  container-type: inline-size;
+  padding: 9px 10px;
+  border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+}
+
+.table-result-card:last-child {
+  border-bottom: 0;
+}
+
+.search-card-header {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: minmax(0, 1fr) max-content;
+  align-items: start;
+  gap: 8px;
+}
+
+.search-card-title {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  padding: 0;
+  border: 0;
+  appearance: none;
+  background: transparent;
+  color: rgb(var(--v-theme-on-surface));
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 750;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  text-align: left;
+}
+
+.search-card-title:hover {
+  color: rgb(var(--v-theme-primary));
+}
+
+.search-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 7px;
+}
+
+.search-card-field,
+.search-card-section {
+  min-width: 0;
+}
+
+.search-card-section {
+  margin-top: 8px;
+}
+
+.search-card-detail-grid {
+  display: grid;
+  min-width: 0;
+  gap: 8px 12px;
+  margin-top: 8px;
+}
+
+.search-card-detail-grid .search-card-section {
+  margin-top: 0;
+}
+
+@container (min-width: 460px) {
+  .search-card-detail-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+.search-card-label {
+  color: rgba(var(--v-theme-on-surface), 0.58);
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.search-card-value {
+  margin-top: 2px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.expandable-cell-list {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.expandable-cell-item {
+  display: flex;
+  min-width: 0;
+  width: 100%;
+  align-items: center;
+  padding: 0;
+  border: 0;
+  appearance: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: 1.35;
+  text-align: left;
+}
+
+.expandable-cell-item span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.table-result-card .expandable-cell-item span {
+  overflow: visible;
+  overflow-wrap: anywhere;
+  text-overflow: clip;
+  white-space: normal;
+}
+
+.expandable-cell-item--button {
+  cursor: pointer;
+}
+
+.expandable-cell-item--button:hover {
+  color: rgb(var(--v-theme-primary));
+}
+
+.expandable-cell-list--expanded .expandable-cell-item span {
+  overflow: visible;
+  overflow-wrap: anywhere;
+  text-overflow: clip;
+  white-space: normal;
+}
+
+.expandable-cell-toggle {
+  justify-self: start;
+  min-width: 0;
+  padding-inline: 0;
+  font-size: 0.7rem;
+}
+
+.table-kv-stack {
+  display: grid;
+  gap: 2px;
+  color: rgba(var(--v-theme-on-surface), 0.86);
+  font-size: 0.74rem;
+  line-height: 1.3;
 }
 
 .empty-state {
@@ -673,5 +868,24 @@ a {
 
   .server-info-panel {
     max-height: calc(100dvh - 16px);
+  }
+
+  .paged-table--cards .table-scroll {
+    display: none;
+  }
+
+  .paged-table--cards .table-card-list {
+    display: grid;
+  }
+
+  .table-footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .table-pagination {
+    width: 100%;
+    justify-content: space-between;
+    gap: 4px;
   }
 }

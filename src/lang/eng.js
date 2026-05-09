@@ -128,6 +128,8 @@ export default {
     urls: 'URLs',
     copyManually: 'Please copy manually',
     noData: 'No data',
+    showMoreItems: 'Show {0} more',
+    collapseItems: 'Collapse',
     open: 'Open',
     yes: 'Yes',
     no: 'No',

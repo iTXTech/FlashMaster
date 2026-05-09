@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="paged-table" :class="{ 'paged-table--cards': $slots.card }">
     <div class="table-scroll">
       <table class="dense-table">
         <thead>
@@ -17,6 +17,12 @@
           </tr>
         </tbody>
       </table>
+    </div>
+
+    <div v-if="$slots.card" class="table-card-list">
+      <div v-for="(item, index) in pagedItems" :key="item.id || item.pn || item.key || index" class="table-result-card">
+        <slot name="card" :item="item" :index="index" />
+      </div>
     </div>
 
     <div v-if="items.length === 0" class="empty-state">{{ noDataText || $t('noData') }}</div>

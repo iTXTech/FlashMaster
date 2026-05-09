@@ -27,7 +27,7 @@
         </div>
       </section>
 
-      <section class="panel">
+      <section class="panel search-results-panel search-id-results-panel">
         <div class="panel-header">
           <div>
             <div class="panel-title">{{ $t('dashboard.relatedData') }}</div>
@@ -35,21 +35,48 @@
           </div>
         </div>
         <PagedTable :headers="headers" :items="rows">
+          <template #card="{ item }">
+            <div class="search-card-header">
+              <button class="search-card-title" type="button" @click="router.push({ path: '/decodeId', query: { id: item.id } })">
+                {{ item.id }}
+              </button>
+              <v-btn icon="mdi-memory" size="small" variant="text" @click="router.push({ path: '/decodeId', query: { id: item.id } })" />
+            </div>
+            <div class="search-card-grid">
+              <div class="search-card-field">
+                <div class="search-card-label">{{ $t('pageSize') }}</div>
+                <div class="search-card-value">{{ displayTableValue(item.pageSize) }}</div>
+              </div>
+              <div class="search-card-field">
+                <div class="search-card-label">{{ $t('blocks') }}</div>
+                <div class="search-card-value">{{ displayTableValue(item.blocks) }}</div>
+              </div>
+            </div>
+            <div class="search-card-detail-grid">
+              <div class="search-card-section">
+                <div class="search-card-label">{{ $t('partNumber') }}</div>
+                <ExpandableListCell :items="item.partNumberList" :limit="3" clickable @select="decodePartNumber" />
+              </div>
+              <div class="search-card-section">
+                <div class="search-card-label">{{ $t('controllers') }}</div>
+                <ExpandableListCell :items="item.controllerList" :limit="4" />
+              </div>
+            </div>
+          </template>
+          <template #geometry="{ item }">
+            <div class="table-kv-stack">
+              <div>{{ $t('pageSize') }} {{ displayTableValue(item.pageSize) }}</div>
+              <div>{{ $t('blocks') }} {{ displayTableValue(item.blocks) }}</div>
+            </div>
+          </template>
+          <template #partNumbers="{ item }">
+            <ExpandableListCell :items="item.partNumberList" :limit="2" clickable @select="decodePartNumber" />
+          </template>
+          <template #controllers="{ item }">
+            <ExpandableListCell :items="item.controllerList" :limit="3" />
+          </template>
           <template #action="{ item }">
             <v-btn icon="mdi-memory" variant="text" @click="router.push({ path: '/decodeId', query: { id: item.id } })" />
-            <v-menu v-if="item.partNumberList.length > 0">
-              <template #activator="{ props }">
-                <v-btn v-bind="props" icon="mdi-format-list-bulleted" variant="text" />
-              </template>
-              <v-list density="compact">
-                <v-list-item
-                  v-for="pn in item.partNumberList"
-                  :key="pn"
-                  :title="pn"
-                  @click="router.push({ path: '/decode', query: { pn } })"
-                />
-              </v-list>
-            </v-menu>
           </template>
         </PagedTable>
       </section>
@@ -61,6 +88,7 @@
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
+import ExpandableListCell from '@/components/ExpandableListCell.vue';
 import PagedTable from '@/components/PagedTable.vue';
 import { searchFlashId } from '@/services/flashApi';
 import { trackLookup } from '@/services/analytics';
@@ -84,12 +112,10 @@ const flashIdInput = computed({
 });
 
 const headers = computed(() => [
-  { title: t('flashId'), key: 'id' },
-  { title: t('pageSize'), key: 'pageSize' },
-  { title: t('blocks'), key: 'blocks' },
-  { title: t('pagesPerBlock'), key: 'pagesPerBlock' },
-  { title: t('partNumber'), key: 'partNumbers' },
-  { title: t('controllers'), key: 'controllers' },
+  { title: t('flashId'), key: 'id', class: 'search-id-col' },
+  { title: t('dashboard.geometry'), key: 'geometry', class: 'search-geometry-col' },
+  { title: t('partNumber'), key: 'partNumbers', class: 'search-list-col' },
+  { title: t('controllers'), key: 'controllers', class: 'search-list-col search-controller-col' },
   { title: t('action'), key: 'action' }
 ]);
 
@@ -115,15 +141,15 @@ async function search(syncRoute = true) {
     const payload = await searchFlashId(id);
     rows.value = Object.entries(payload.data || {}).map(([flashId, data]) => {
       const partNumberList = (Array.isArray(data.partNumbers) ? data.partNumbers : []).map(parsePartNumberToken);
-      const controllers = Array.isArray(data.controllers) ? data.controllers.join(', ') : '';
+      const controllerList = Array.isArray(data.controllers) ? data.controllers.filter(Boolean) : [];
       return {
         id: flashId,
         pageSize: data.pageSize,
         blocks: data.blocks,
-        pagesPerBlock: data.pagesPerBlock,
         partNumbers: partNumberList.join(', '),
         partNumberList,
-        controllers
+        controllers: controllerList.join(', '),
+        controllerList
       };
     });
     store.statSearchIdInc();
@@ -150,6 +176,14 @@ function decodeCurrent() {
   const id = normalizeInput();
   if (!id) return notify(t('alert.missingFlashId'));
   router.push({ path: '/decodeId', query: { id } });
+}
+
+function decodePartNumber(pn) {
+  router.push({ path: '/decode', query: { pn } });
+}
+
+function displayTableValue(value) {
+  return value == null || value === '' ? '-' : value;
 }
 
 function notify(text) {

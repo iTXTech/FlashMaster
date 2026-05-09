@@ -27,7 +27,7 @@
         </div>
       </section>
 
-      <section class="panel">
+      <section class="panel search-results-panel search-pn-results-panel">
         <div class="panel-header">
           <div>
             <div class="panel-title">{{ $t('dashboard.relatedData') }}</div>
@@ -35,6 +35,20 @@
           </div>
         </div>
         <PagedTable :headers="headers" :items="rows">
+          <template #card="{ item }">
+            <div class="search-card-header">
+              <div>
+                <div class="search-card-label">{{ item.vendor || $t('unknown') }}</div>
+                <button class="search-card-title" type="button" @click="decodePartNumber(item.pn)">
+                  {{ item.pn }}
+                </button>
+              </div>
+              <v-btn icon="mdi-arrow-top-left-thick" size="small" variant="text" @click="decodePartNumber(item.pn)" />
+            </div>
+          </template>
+          <template #pn="{ item }">
+            <ExpandableListCell :items="[item.pn]" :limit="1" clickable @select="decodePartNumber" />
+          </template>
           <template #action="{ item }">
             <v-btn icon="mdi-arrow-top-left-thick" variant="text" @click="router.push({ path: '/decode', query: { pn: item.pn } })" />
           </template>
@@ -48,6 +62,7 @@
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
+import ExpandableListCell from '@/components/ExpandableListCell.vue';
 import PagedTable from '@/components/PagedTable.vue';
 import { searchPartNumber } from '@/services/flashApi';
 import { trackLookup } from '@/services/analytics';
@@ -71,9 +86,8 @@ const partNumberInput = computed({
 });
 
 const headers = computed(() => [
-  { title: t('vendor'), key: 'vendor' },
-  { title: t('partNumber'), key: 'pn' },
-  { title: t('remark'), key: 'remark' },
+  { title: t('vendor'), key: 'vendor', class: 'search-vendor-col' },
+  { title: t('partNumber'), key: 'pn', class: 'search-list-col' },
   { title: t('action'), key: 'action' }
 ]);
 
@@ -121,6 +135,10 @@ async function search(syncRoute = true) {
 function decodeCurrent() {
   const pn = normalizeInput();
   if (!pn) return notify(t('alert.missingPartNumber'));
+  router.push({ path: '/decode', query: { pn } });
+}
+
+function decodePartNumber(pn) {
   router.push({ path: '/decode', query: { pn } });
 }
 

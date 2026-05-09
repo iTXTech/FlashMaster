@@ -128,6 +128,8 @@ export default {
     urls: '链接',
     copyManually: '请手动复制',
     noData: '暂无数据',
+    showMoreItems: '展开 {0} 项',
+    collapseItems: '收起',
     open: '打开',
     yes: '是',
     no: '否',
