@@ -2,11 +2,11 @@ FlashMaster by PeratX <peratx@itxtech.org>
 版权所有 (c) 2019-2026 iTX Technologies
 ===================================
 版本 2.0.2
-- 更新内嵌 fdnext 到 v1.1.0（03b4e76），新增支持DRAM，eMCP，eMMC，UFS，Managed NAND等 PN 解析。
+- 更新内嵌 fdnext 到 v1.1.0（7176c5b），新增支持DRAM，eMCP，eMMC，UFS，Managed NAND等 PN 解析。
 - Managed NAND：扩展 SK hynix、Samsung、SanDisk/KIOXIA、YMTC、Micron 的 PN DSL 覆盖与厂商元数据。
 - DRAM：增加 Micron/Crucial、SK hynix、Samsung、Nanya、Elpida、CXMT DRAM 料号解析、资源、文档和测试。
 - DRAM 输出：优化公开类型与 CE/Die 分类输出，减少 DRAM 解析结果中的冗余内部字段。
-- Micron FBGA/MDB：增加统一 Micron FBGA 资源、DRAM 料号搜索数据、原始 MDB 刷新流程，以及内置资源启动修复。
+- Micron FBGA/MDB：增加统一 Micron FBGA 资源，通过改进后的抓取刷新 MDB 数据、DRAM 料号搜索数据、原始 MDB 刷新流程，以及内置资源启动修复。
 - FDB：增加 FirstChip 控制器生成来源，扩充 FlashDB 控制器与 PN/Flash ID 匹配数据。
 - Managed NAND 建议：增加结构化 PN 建议资源，并统一兼容性 baseline 检查。
 - 厂商 Logo：补齐 fdnext 当前支持厂商的 Logo 映射，并调整 Kingston、Elpida 等原始商标资源显示比例。
