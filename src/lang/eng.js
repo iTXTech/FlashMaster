@@ -130,6 +130,7 @@ export default {
     noData: 'No data',
     showMoreItems: 'Show {0} more',
     collapseItems: 'Collapse',
+    shortCode: 'FBGA Code',
     open: 'Open',
     yes: 'Yes',
     no: 'No',

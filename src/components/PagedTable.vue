@@ -27,8 +27,8 @@
 
     <div v-if="items.length === 0" class="empty-state">{{ noDataText || $t('noData') }}</div>
 
-    <div v-else class="table-footer">
-      <div class="panel-meta">{{ $t('dashboard.resultCount', [items.length]) }}</div>
+    <div v-else class="table-footer" :class="{ 'table-footer--pagination-only': !showFooterCount }">
+      <div v-if="showFooterCount" class="panel-meta">{{ $t('dashboard.resultCount', [items.length]) }}</div>
       <div class="table-pagination">
         <span class="panel-meta">{{ $t('dashboard.perPage') }}</span>
         <v-select
@@ -68,6 +68,10 @@ const props = defineProps({
   perPageOptions: {
     type: Array,
     default: () => [15, 30, 50, 100]
+  },
+  showFooterCount: {
+    type: Boolean,
+    default: true
   }
 });
 

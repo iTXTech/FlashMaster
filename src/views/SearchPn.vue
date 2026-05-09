@@ -34,23 +34,25 @@
             <div class="panel-meta">{{ $t('dashboard.resultCount', [rows.length]) }}</div>
           </div>
         </div>
-        <PagedTable :headers="headers" :items="rows">
+        <PagedTable :headers="headers" :items="rows" :per-page-options="[10, 15, 30, 50]" :show-footer-count="false">
           <template #card="{ item }">
             <div class="search-card-header">
-              <div>
+              <div class="search-pn-card-content">
                 <div class="search-card-label">{{ item.vendor || $t('unknown') }}</div>
                 <button class="search-card-title" type="button" @click="decodePartNumber(item.pn)">
                   {{ item.pn }}
                 </button>
+                <div v-if="item.shortCode" class="search-card-code-line">
+                  <span class="search-card-code-label">{{ $t('shortCode') }}</span>
+                  <button class="search-card-code" type="button" @click="decodePartNumber(item.shortCode)">
+                    {{ item.shortCode }}
+                  </button>
+                </div>
               </div>
-              <v-btn icon="mdi-arrow-top-left-thick" size="small" variant="text" @click="decodePartNumber(item.pn)" />
             </div>
           </template>
           <template #pn="{ item }">
             <ExpandableListCell :items="[item.pn]" :limit="1" clickable @select="decodePartNumber" />
-          </template>
-          <template #action="{ item }">
-            <v-btn icon="mdi-arrow-top-left-thick" variant="text" @click="router.push({ path: '/decode', query: { pn: item.pn } })" />
           </template>
         </PagedTable>
       </section>

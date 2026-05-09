@@ -2,7 +2,17 @@ function normalizeToken(value) {
     return String(value || '').toUpperCase().replace(/\s+/g, '');
 }
 
+function isShortCodeToken(value) {
+    return /^[0-9A-Z]{5}$/.test(normalizeToken(value));
+}
+
 function choosePartNumberIndex(parts, query = '') {
+    const shortCodeIndex = parts.findIndex((part, index) => index > 0 && isShortCodeToken(part));
+    if (shortCodeIndex > 0) {
+        const afterCode = parts.findIndex((part, index) => index > shortCodeIndex && !isShortCodeToken(part));
+        if (afterCode > 0) return afterCode;
+    }
+
     const normalizedQuery = normalizeToken(query);
     if (normalizedQuery) {
         const hit = parts.findIndex((part, index) => index > 0 && normalizeToken(part).includes(normalizedQuery));
@@ -14,14 +24,16 @@ function choosePartNumberIndex(parts, query = '') {
 export function splitResultLine(raw, query = '') {
     const parts = String(raw || '').trim().split(/\s+/).filter(Boolean);
     const partNumberIndex = choosePartNumberIndex(parts, query);
+    const shortCodeIndex = parts.findIndex((part, index) => index > 0 && index !== partNumberIndex && isShortCodeToken(part));
     const partNumber = parts[partNumberIndex] || String(raw || '');
     const remark = parts
-        .filter((_, index) => index !== 0 && index !== partNumberIndex)
+        .filter((_, index) => index !== 0 && index !== partNumberIndex && index !== shortCodeIndex)
         .join(' ');
     return {
         vendor: parts[0] || '',
         value: partNumber,
-        remark
+        remark,
+        shortCode: shortCodeIndex > 0 ? parts[shortCodeIndex] : ''
     };
 }
 
@@ -30,7 +42,8 @@ export function parsePartNumberResult(raw, query = '') {
     return {
         vendor: parsed.vendor,
         pn: parsed.value,
-        remark: parsed.remark
+        remark: parsed.remark,
+        shortCode: parsed.shortCode
     };
 }
 

@@ -34,32 +34,35 @@
             <div class="panel-meta">{{ $t('dashboard.resultCount', [rows.length]) }}</div>
           </div>
         </div>
-        <PagedTable :headers="headers" :items="rows">
+        <PagedTable :headers="headers" :items="rows" :per-page-options="[10, 15, 30, 50]" :show-footer-count="false">
           <template #card="{ item }">
-            <div class="search-card-header">
-              <button class="search-card-title" type="button" @click="router.push({ path: '/decodeId', query: { id: item.id } })">
-                {{ item.id }}
-              </button>
-              <v-btn icon="mdi-memory" size="small" variant="text" @click="router.push({ path: '/decodeId', query: { id: item.id } })" />
-            </div>
-            <div class="search-card-grid">
-              <div class="search-card-field">
-                <div class="search-card-label">{{ $t('pageSize') }}</div>
-                <div class="search-card-value">{{ displayTableValue(item.pageSize) }}</div>
+            <div class="search-id-card-layout">
+              <div class="search-id-card-summary">
+                <div class="search-card-header">
+                  <button class="search-card-title" type="button" @click="router.push({ path: '/decodeId', query: { id: item.id } })">
+                    {{ item.id }}
+                  </button>
+                </div>
+                <div class="search-card-grid">
+                  <div class="search-card-field">
+                    <div class="search-card-label">{{ $t('pageSize') }}</div>
+                    <div class="search-card-value">{{ displayTableValue(item.pageSize) }}</div>
+                  </div>
+                  <div class="search-card-field">
+                    <div class="search-card-label">{{ $t('blocks') }}</div>
+                    <div class="search-card-value">{{ displayTableValue(item.blocks) }}</div>
+                  </div>
+                </div>
               </div>
-              <div class="search-card-field">
-                <div class="search-card-label">{{ $t('blocks') }}</div>
-                <div class="search-card-value">{{ displayTableValue(item.blocks) }}</div>
-              </div>
-            </div>
-            <div class="search-card-detail-grid">
-              <div class="search-card-section">
-                <div class="search-card-label">{{ $t('partNumber') }}</div>
-                <ExpandableListCell :items="item.partNumberList" :limit="3" clickable @select="decodePartNumber" />
-              </div>
-              <div class="search-card-section">
-                <div class="search-card-label">{{ $t('controllers') }}</div>
-                <ExpandableListCell :items="item.controllerList" :limit="4" />
+              <div class="search-card-detail-grid">
+                <div class="search-card-section">
+                  <div class="search-card-label">{{ $t('partNumber') }}</div>
+                  <ExpandableListCell class="search-part-number-list" :items="item.partNumberList" :limit="6" clickable @select="decodePartNumber" />
+                </div>
+                <div class="search-card-section">
+                  <div class="search-card-label">{{ $t('controllers') }}</div>
+                  <ExpandableListCell class="search-controller-list" :items="item.controllerList" :limit="8" />
+                </div>
               </div>
             </div>
           </template>
@@ -74,9 +77,6 @@
           </template>
           <template #controllers="{ item }">
             <ExpandableListCell :items="item.controllerList" :limit="3" />
-          </template>
-          <template #action="{ item }">
-            <v-btn icon="mdi-memory" variant="text" @click="router.push({ path: '/decodeId', query: { id: item.id } })" />
           </template>
         </PagedTable>
       </section>

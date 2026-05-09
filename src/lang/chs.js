@@ -130,6 +130,7 @@ export default {
     noData: '暂无数据',
     showMoreItems: '展开 {0} 项',
     collapseItems: '收起',
+    shortCode: 'FBGA Code',
     open: '打开',
     yes: '是',
     no: '否',
