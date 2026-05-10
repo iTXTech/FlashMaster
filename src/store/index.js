@@ -1,8 +1,22 @@
-const DEFAULT_SERVER_ADDRESS = import.meta.env.VITE_FLASHMASTER_SERVER || "http://127.0.0.1:8080";
+const SERVER_PRESET_CLOUD = "cloud";
+const SERVER_PRESET_LOCAL_DEV = "localDev";
+const SERVER_PRESETS = Object.freeze([
+    {
+        id: SERVER_PRESET_CLOUD,
+        address: "https://fdnext.itxtech.org"
+    },
+    {
+        id: SERVER_PRESET_LOCAL_DEV,
+        address: "http://127.0.0.1:8080"
+    }
+]);
+const DEFAULT_SERVER_ADDRESS = import.meta.env.VITE_FLASHMASTER_SERVER || SERVER_PRESETS[0].address;
 const PARSER_EMBEDDED = "embedded";
 const PARSER_HTTP = "http";
 
 const getDefaultServerAddress = () => DEFAULT_SERVER_ADDRESS;
+
+const getServerPresets = () => SERVER_PRESETS.map(item => ({ ...item }));
 
 const getServerAddress = () => {
     return localStorage.server || DEFAULT_SERVER_ADDRESS
@@ -162,7 +176,10 @@ const getTheme = () => {
 export default {
     PARSER_EMBEDDED,
     PARSER_HTTP,
+    SERVER_PRESET_CLOUD,
+    SERVER_PRESET_LOCAL_DEV,
     getDefaultServerAddress,
+    getServerPresets,
     getServerAddress,
     setServerAddress,
     setParserMode,

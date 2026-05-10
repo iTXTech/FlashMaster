@@ -42,8 +42,7 @@ export const getEmbeddedInfo = () => {
     ...capabilities,
     server: {
       ...capabilities.server,
-      name: 'Embedded iTXTech fdnext',
-      version: typeof FDNEXT_VERSION !== 'undefined' ? FDNEXT_VERSION : capabilities.server?.version || getEngine().getVersion()
+      name: 'Embedded iTXTech fdnext'
     }
   };
 };

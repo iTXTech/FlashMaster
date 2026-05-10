@@ -22,12 +22,15 @@ const commitHash = (() => {
 const appVersion = `${packageJson.version}-${commitHash}`;
 const fdnextCommitHash = (() => {
   try {
-    return execSync('git -C vendor/fdnext rev-parse --short HEAD', { encoding: 'utf8' }).trim();
+    return execSync('git -C vendor/fdnext rev-parse --short=7 HEAD', { encoding: 'utf8' }).trim();
   } catch {
     return 'dev';
   }
 })();
-const fdnextVersion = `${fdnextPackageJson.version}-${fdnextCommitHash}`;
+const shortFdnextCommitHash = value => String(value || '').trim().slice(0, 7) || 'dev';
+const fdnextBuildCommitHash = shortFdnextCommitHash(process.env.FDNEXT_COMMIT_HASH || fdnextCommitHash);
+const fdnextBuildTime = process.env.FDNEXT_BUILD_TIME || new Date().toISOString();
+const fdnextVersion = fdnextPackageJson.version;
 
 export default defineConfig({
   base: './',
@@ -41,6 +44,8 @@ export default defineConfig({
   },
   define: {
     VERSION: JSON.stringify(appVersion),
-    FDNEXT_VERSION: JSON.stringify(fdnextVersion)
+    FDNEXT_VERSION: JSON.stringify(fdnextVersion),
+    __FDNEXT_COMMIT_HASH__: JSON.stringify(fdnextBuildCommitHash),
+    __FDNEXT_BUILD_TIME__: JSON.stringify(fdnextBuildTime)
   }
 });

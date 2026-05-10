@@ -15,24 +15,24 @@
             :label="$t('settings.parserMode')"
             @update:model-value="changeParserMode"
           />
-          <v-text-field
+          <v-combobox
             v-if="isHttpParser"
             v-model="server"
+            :items="serverItems"
+            item-title="value"
+            item-value="value"
+            :return-object="false"
             hide-details
             clearable
             :label="$t('settings.serverAddr')"
-            @update:model-value="updateServerDraft"
+            @update:model-value="changeServer"
             @keydown.enter.prevent="commitServer"
             @blur="commitServer"
-          />
-          <div v-if="isHttpParser" class="server-address-line">
-            <v-icon icon="mdi-paperclip" size="18" />
-            <span>{{ activeServerAddress }}</span>
-          </div>
-          <div v-else-if="!isHttpParser" class="server-address-line">
-            <v-icon icon="mdi-chip" size="18" />
-            <span>{{ $t('settings.embeddedParserInfo', [embeddedParserVersion]) }}</span>
-          </div>
+          >
+            <template #item="{ props, item }">
+              <v-list-item v-bind="props" :title="item.raw.title" :subtitle="item.raw.value" />
+            </template>
+          </v-combobox>
           <div class="action-row">
             <v-btn color="primary" prepend-icon="mdi-information-outline" @click="serverInfo">{{ infoButtonLabel }}</v-btn>
           </div>
@@ -125,7 +125,6 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { getEmbeddedVersion } from '@/services/versionInfo';
 import { getServerInfo } from '@/services/flashApi';
 import { chipLabel } from '@/services/fdnextResultView';
 import bus from '@/store/bus';
@@ -141,7 +140,6 @@ const hideKeyboard = ref(store.isAutoHideSoftKeyboard());
 const marketTicker = ref(store.isMarketTickerEnabled());
 const loadingInfo = ref(false);
 const statsState = ref(readStats());
-const embeddedParserVersion = getEmbeddedVersion();
 const dialog = ref({
   show: false,
   text: '',
@@ -149,7 +147,6 @@ const dialog = ref({
 });
 const expandedDecoderGroups = ref({});
 
-const activeServerAddress = computed(() => normalizeServer(server.value) || store.getDefaultServerAddress());
 const themes = computed(() => [
   { title: t('customization.theme_0'), value: themeManager.THEME_DARK },
   { title: t('customization.theme_1'), value: themeManager.THEME_LIGHT },
@@ -159,6 +156,10 @@ const parserModes = computed(() => [
   { title: t('settings.parserEmbedded'), value: store.PARSER_EMBEDDED },
   { title: t('settings.parserHttp'), value: store.PARSER_HTTP }
 ]);
+const serverItems = computed(() => store.getServerPresets().map(item => ({
+  title: item.id === store.SERVER_PRESET_CLOUD ? t('settings.fdnextCloud') : t('settings.fdnextLocalDev'),
+  value: item.address
+})));
 const isHttpParser = computed(() => parserMode.value === store.PARSER_HTTP);
 const infoButtonLabel = computed(() => isHttpParser.value ? t('settings.serverInfo') : t('settings.parserInfo'));
 const infoDialogTitle = computed(() => infoButtonLabel.value);
@@ -185,11 +186,6 @@ function refreshStats() {
 
 function normalizeServer(value) {
   return String(value || '').trim();
-}
-
-function updateServerDraft(value) {
-  const next = normalizeServer(value);
-  server.value = next;
 }
 
 function changeServer(value) {
@@ -385,7 +381,9 @@ function formatFdnextCapabilities(data) {
       <div class="capability-card-grid">
         ${formatInfoCard(t('settings.capabilityInfo.parser'), [
           [t('settings.capabilityInfo.name'), data.server?.name],
-          [t('settings.capabilityInfo.version'), data.server?.version || embeddedParserVersion],
+          [t('settings.capabilityInfo.version'), data.server?.version],
+          [t('settings.capabilityInfo.commitHash'), data.server?.build?.commitHash],
+          [t('settings.capabilityInfo.buildTime'), data.server?.build?.buildTime],
           [t('settings.capabilityInfo.schema'), data.schemaVersion]
         ])}
         ${formatInfoCard(t('settings.capabilityInfo.database'), [

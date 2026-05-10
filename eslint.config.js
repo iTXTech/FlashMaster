@@ -14,7 +14,9 @@ export default [
       globals: {
         ...globals.browser,
         VERSION: 'readonly',
-        FDNEXT_VERSION: 'readonly'
+        FDNEXT_VERSION: 'readonly',
+        __FDNEXT_COMMIT_HASH__: 'readonly',
+        __FDNEXT_BUILD_TIME__: 'readonly'
       },
       ecmaVersion: 'latest',
       sourceType: 'module'
