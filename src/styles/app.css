@@ -555,8 +555,9 @@ a {
 }
 
 .vendor-logo {
-  max-width: 180px;
+  width: min(180px, 100%);
   max-height: 38px;
+  max-width: 100%;
   object-fit: contain;
 }
 
@@ -601,12 +602,12 @@ a {
 }
 
 .decode-id-logo-wrap .vendor-logo {
-  max-width: 84px;
+  width: min(84px, 100%);
   max-height: 30px;
 }
 
 .decode-id-vendor-line--logo-only .vendor-logo {
-  max-width: 150px;
+  width: min(150px, 100%);
   max-height: 32px;
 }
 
@@ -671,7 +672,8 @@ a {
 }
 
 .decode-detail-panel,
-.decode-relation-panel {
+.decode-relation-panel,
+.external-link-panel {
   min-width: 0;
   overflow: hidden;
 }
@@ -1276,6 +1278,10 @@ a {
   grid-column: span 2;
 }
 
+.decode-id-link-panel {
+  grid-column: span 2;
+}
+
 .decode-id-details-panel {
   overflow: hidden;
 }
@@ -1393,6 +1399,128 @@ a {
   color: rgba(var(--v-theme-on-surface), 0.86);
   font-size: 0.74rem;
   line-height: 1.3;
+}
+
+.external-link-panel-body {
+  padding: 0;
+}
+
+.external-link-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  min-width: 0;
+  overflow: hidden;
+  border-top: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+}
+
+.external-link-panel-body .external-link-list {
+  border-top: 0;
+}
+
+.external-link-list--compact {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr));
+  margin-top: 5px;
+  border-top: 0;
+  gap: 4px;
+}
+
+.external-link-card {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: 26px minmax(0, 1fr) 16px;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 10px;
+  border-right: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+  border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+  color: rgb(var(--v-theme-on-surface));
+}
+
+.external-link-list--compact .external-link-card {
+  min-height: 30px;
+  grid-template-columns: 22px minmax(0, 1fr) 14px;
+  gap: 5px;
+  padding: 5px 7px;
+  border: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+  border-radius: 6px;
+  background: rgba(var(--v-theme-surface-variant), 0.32);
+}
+
+.external-link-card:hover {
+  color: rgb(var(--v-theme-primary));
+  background: rgba(var(--v-theme-primary), 0.08);
+}
+
+.external-link-media {
+  display: flex;
+  width: 26px;
+  height: 24px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  background: rgba(var(--v-theme-on-surface), 0.08);
+  color: rgba(var(--v-theme-on-surface), 0.7);
+}
+
+.external-link-list--compact .external-link-media {
+  width: 22px;
+  height: 20px;
+}
+
+.external-link-media--image {
+  background: rgba(255, 255, 255, 0.94);
+}
+
+.external-link-media--dark {
+  background: #111827;
+}
+
+.external-link-image {
+  width: min(22px, 100%);
+  max-height: 18px;
+  object-fit: contain;
+}
+
+.external-link-list--compact .external-link-image {
+  width: min(18px, 100%);
+  max-height: 15px;
+}
+
+.external-link-copy {
+  display: grid;
+  min-width: 0;
+  gap: 1px;
+}
+
+.external-link-label {
+  overflow: hidden;
+  font-size: 0.78rem;
+  font-weight: 760;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.external-link-hint {
+  overflow: hidden;
+  color: rgba(var(--v-theme-on-surface), 0.58);
+  font-size: 0.66rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.external-link-list--compact .external-link-hint {
+  display: none;
+}
+
+.external-link-open {
+  color: rgba(var(--v-theme-on-surface), 0.42);
+}
+
+.search-card-links {
+  min-width: 0;
 }
 
 .empty-state {
@@ -1745,6 +1873,72 @@ a {
   .settings-grid {
     grid-template-columns: 1fr;
   }
+
+  .result-hero,
+  .workspace--decode .result-hero,
+  .workspace--decode-id .result-hero,
+  .decode-detail-grid,
+  .decode-id-secondary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .decode-detail-panel.detail-panel--wide,
+  .decode-detail-panel--balanced,
+  .decode-id-pn-panel,
+  .decode-id-info-panel.detail-panel--wide,
+  .decode-id-info-panel--balanced,
+  .decode-id-link-panel {
+    grid-column: span 1;
+  }
+
+  .decode-id-vendor-line,
+  .decode-id-vendor-line--logo-only {
+    grid-template-columns: 1fr;
+  }
+
+  .decode-id-logo-wrap,
+  .decode-id-vendor-line--logo-only .decode-id-logo-wrap {
+    min-height: 72px;
+  }
+
+  .decode-id-logo-wrap .vendor-logo,
+  .decode-id-vendor-line--logo-only .vendor-logo {
+    width: min(240px, 100%);
+    max-height: 46px;
+  }
+
+  .external-link-list,
+  .external-link-list--compact {
+    grid-template-columns: 1fr;
+  }
+
+  .external-link-card--image,
+  .external-link-list--compact .external-link-card {
+    min-height: 42px;
+    gap: 8px;
+  }
+
+  .external-link-card--image,
+  .external-link-list--compact .external-link-card--image {
+    grid-template-columns: 132px minmax(0, 1fr) 16px;
+  }
+
+  .external-link-list--compact .external-link-media {
+    width: 52px;
+    height: 30px;
+  }
+
+  .external-link-card--image .external-link-media--image,
+  .external-link-list--compact .external-link-media--image {
+    width: 128px;
+    height: 34px;
+  }
+
+  .external-link-card--image .external-link-image,
+  .external-link-list--compact .external-link-image {
+    width: min(120px, 100%);
+    max-height: 28px;
+  }
 }
 
 @media (max-width: 720px) {
@@ -1765,20 +1959,30 @@ a {
     grid-template-columns: 1fr 1fr;
   }
 
-  .result-hero {
-    grid-template-columns: 1fr;
+  .decode-id-logo-wrap,
+  .decode-id-vendor-line--logo-only .decode-id-logo-wrap {
+    min-height: 68px;
   }
 
-  .decode-detail-panel.detail-panel--wide,
-  .decode-detail-panel--balanced,
-  .decode-id-pn-panel,
-  .decode-id-info-panel.detail-panel--wide,
-  .decode-id-info-panel--balanced {
-    grid-column: span 1;
+  .decode-id-logo-wrap .vendor-logo,
+  .decode-id-vendor-line--logo-only .vendor-logo {
+    width: min(220px, 100%);
+    max-height: 42px;
   }
 
-  .decode-id-vendor-line {
-    grid-template-columns: minmax(64px, 84px) minmax(0, 1fr);
+  .external-link-list--compact .external-link-card {
+    min-height: 36px;
+    grid-template-columns: 28px minmax(0, 1fr) 16px;
+  }
+
+  .external-link-list--compact .external-link-media {
+    width: 28px;
+    height: 26px;
+  }
+
+  .external-link-list--compact .external-link-image {
+    width: min(24px, 100%);
+    max-height: 20px;
   }
 
   .server-info-dialog-content {

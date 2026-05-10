@@ -64,6 +64,7 @@
                   <ExpandableListCell class="search-controller-list" :items="item.controllerList" :limit="4" />
                 </div>
               </div>
+              <ExternalLinks v-if="item.links.length > 0" class="search-card-links" :links="item.links" compact />
             </div>
           </template>
           <template #id="{ item }">
@@ -89,6 +90,7 @@ import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import ExpandableListCell from '@/components/ExpandableListCell.vue';
+import ExternalLinks from '@/components/ExternalLinks.vue';
 import PagedTable from '@/components/PagedTable.vue';
 import { searchFlashId } from '@/services/flashApi';
 import { identifierSearchRows } from '@/services/fdnextResultView';

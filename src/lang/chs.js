@@ -23,6 +23,7 @@ export default {
         geometry: '结构',
         electrical: '电气与封装',
         relatedData: '关联数据',
+        externalLinks: '外部链接',
         searchResults: '搜索结果',
         quickStats: '快速统计',
         empty: '暂无数据',

@@ -23,6 +23,7 @@ export default {
         geometry: 'Geometry',
         electrical: 'Electrical / Package',
         relatedData: 'Related Data',
+        externalLinks: 'External Links',
         searchResults: 'Search Results',
         quickStats: 'Quick Stats',
         empty: 'No data yet',

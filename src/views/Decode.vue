@@ -132,6 +132,18 @@
           </button>
         </div>
       </section>
+
+      <section v-if="externalLinks.length > 0" class="panel external-link-panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">{{ $t('dashboard.externalLinks') }}</div>
+            <div class="panel-meta">{{ $t('dashboard.resultCount', [externalLinks.length]) }}</div>
+          </div>
+        </div>
+        <div class="panel-body external-link-panel-body">
+          <ExternalLinks :links="externalLinks" />
+        </div>
+      </section>
     </div>
   </div>
 </template>
@@ -143,11 +155,13 @@ import { useRoute, useRouter } from 'vue-router';
 import MetricGrid from '@/components/MetricGrid.vue';
 import PagedTable from '@/components/PagedTable.vue';
 import ExpandableListCell from '@/components/ExpandableListCell.vue';
+import ExternalLinks from '@/components/ExternalLinks.vue';
 import { copyText } from '@/services/clipboard';
 import { displayValue } from '@/services/display';
 import { decodePartNumber, searchPartNumber, summarizePartNumber } from '@/services/flashApi';
 import {
   detailBlocks,
+  externalLinkRows,
   partSuggestions,
   primaryMetrics,
   relationRows,
@@ -193,6 +207,7 @@ const detailBlockViews = computed(() => detailBlocks(result.value).map(block => 
 })));
 const relations = computed(() => relationRows(result.value));
 const warningRows = computed(() => warnings(result.value));
+const externalLinks = computed(() => externalLinkRows(result.value?.links, header.value.vendor));
 const partNumberInput = computed({
   get: () => partNumber.value,
   set: value => {

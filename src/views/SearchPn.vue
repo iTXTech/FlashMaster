@@ -54,6 +54,7 @@
                 <div v-if="item.fieldSummary" class="search-pn-meta-row">
                   <span v-if="item.fieldSummary" class="search-pn-meta-text">{{ item.fieldSummary }}</span>
                 </div>
+                <ExternalLinks v-if="item.links.length > 0" class="search-card-links" :links="item.links" compact />
               </div>
             </div>
           </template>
@@ -79,6 +80,7 @@ import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import ExpandableListCell from '@/components/ExpandableListCell.vue';
+import ExternalLinks from '@/components/ExternalLinks.vue';
 import PagedTable from '@/components/PagedTable.vue';
 import { searchPartNumber } from '@/services/flashApi';
 import { partSearchRows } from '@/services/fdnextResultView';

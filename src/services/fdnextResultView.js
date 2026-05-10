@@ -1,4 +1,5 @@
 import { displayValue } from '@/services/display';
+import getVendorLogo, { getVendorLogoKey } from '@/services/vendorLogos';
 
 export const FDNEXT_RESULT_SCHEMA_VERSION = 'fdnext.result.v1';
 export const FDNEXT_CAPABILITIES_SCHEMA_VERSION = 'fdnext.capabilities.v1';
@@ -59,6 +60,71 @@ export function fieldMetric(field) {
     items,
     importance: field.importance
   };
+}
+
+const LINK_CATEGORY_ICONS = {
+  vendor: 'mdi-domain',
+  datasheet: 'mdi-file-document-outline',
+  marketplace: 'mdi-cart-outline',
+  reference: 'mdi-book-open-page-variant-outline',
+  tool: 'mdi-tools',
+  community: 'mdi-account-group-outline'
+};
+
+function isExternalUrl(value) {
+  try {
+    const url = new URL(String(value || ''));
+    return ['http:', 'https:', 'mailto:'].includes(url.protocol);
+  } catch {
+    return false;
+  }
+}
+
+function isImageUrl(value) {
+  try {
+    const url = new URL(String(value || ''));
+    return ['http:', 'https:'].includes(url.protocol);
+  } catch {
+    return false;
+  }
+}
+
+function linkImage(image, vendor) {
+  const value = String(image || '').trim();
+  if (!value) return '';
+  if (value.toLowerCase() === 'logo') return getVendorLogo(vendor);
+  return isImageUrl(value) ? value : '';
+}
+
+function linkImageDark(image, vendor) {
+  if (String(image || '').trim().toLowerCase() !== 'logo') return false;
+  return ['biwin', 'micron', 'solidigm'].includes(getVendorLogoKey(vendor));
+}
+
+export function externalLinkRows(links = [], vendor = '') {
+  return asArray(links)
+    .map((link, index) => {
+      const url = String(link?.url || '').trim();
+      const label = String(link?.label || '').trim();
+      if (!url || !label || !isExternalUrl(url)) return null;
+      const category = String(link.category || '').trim();
+      return {
+        key: `${link.id || label}-${url}-${index}`,
+        id: link.id || '',
+        label,
+        url,
+        category,
+        categoryLabel: category ? chipLabel(category) : '',
+        icon: LINK_CATEGORY_ICONS[category] || 'mdi-open-in-new',
+        hint: String(link.hint || '').trim(),
+        fieldKey: link.fieldKey || '',
+        image: linkImage(link.image || link.img, vendor),
+        imageDark: linkImageDark(link.image || link.img, vendor),
+        priority: Number.isFinite(Number(link.priority)) ? Number(link.priority) : 0
+      };
+    })
+    .filter(Boolean)
+    .sort((a, b) => b.priority - a.priority || a.label.localeCompare(b.label));
 }
 
 export function fieldRows(fields = []) {
@@ -280,6 +346,7 @@ export function partSearchRows(result) {
       badges: displayBadges(badges, vendor),
       fields: fieldRows(item.fields),
       fieldSummary: fieldRows(item.fields).map(row => `${row.name}: ${row.value}`).join(' · '),
+      links: externalLinkRows(item.links, vendor),
       route,
       chipKind: chipLabel(device.chipKind),
       productType: chipLabel(device.productType)
@@ -294,10 +361,11 @@ export function identifierSearchRows(result) {
     const fields = asArray(item.fields);
     const controllers = splitListField(findField(fields, 'controller'));
     const partNumberList = relationParts(item.relations);
+    const vendor = deviceVendor(device);
     return {
       key: `${id}-${index}`,
       id,
-      vendor: deviceVendor(device),
+      vendor,
       label: item.label || id,
       badges: [device.chipKind, device.idScheme].filter(Boolean).map(chipLabel),
       pageSize: fieldText(fields, 'page_size'),
@@ -316,6 +384,7 @@ export function identifierSearchRows(result) {
       partNumbers: partNumberList.join(', '),
       controllerList: controllers,
       controllers: controllers.join(', '),
+      links: externalLinkRows(item.links, vendor),
       route: id ? { path: '/decodeId', query: { id } } : null
     };
   });
@@ -359,6 +428,13 @@ export function summaryText(result) {
     lines.push('[Relations]');
     for (const relation of relations) {
       lines.push([relation.label, relation.value].filter(Boolean).join(': '));
+    }
+  }
+  const links = externalLinkRows(result.links, header.vendor);
+  if (links.length) {
+    lines.push('[Links]');
+    for (const link of links) {
+      lines.push(`${link.label}: ${link.url}`);
     }
   }
   return lines.join('\n');
