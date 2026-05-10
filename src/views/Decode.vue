@@ -75,58 +75,64 @@
       </section>
     </div>
 
-    <v-row v-if="result" dense class="mt-3">
-      <v-col v-for="block in detailBlockViews" :key="block.id" cols="12" :md="block.wide ? 12 : 6" :xl="block.wide ? 12 : 4">
-        <section class="panel" :class="{ 'detail-panel--wide': block.wide }">
-          <div class="panel-header">
-            <div>
-              <div class="panel-title">{{ block.label }}</div>
-              <div v-if="!block.cardView" class="panel-meta">{{ $t('dashboard.resultCount', [block.rows.length]) }}</div>
-            </div>
-            <v-btn icon="mdi-content-copy" variant="text" @click="copyRows(block.rows)" />
+    <div v-if="result" class="decode-detail-grid">
+      <section
+        v-for="block in detailBlockViews"
+        :key="block.id"
+        class="panel decode-detail-panel"
+        :class="{
+          'detail-panel--wide': block.wide,
+          'decode-detail-panel--card': block.cardView,
+          'decode-detail-panel--table': !block.cardView,
+          'decode-detail-panel--balanced': block.cardView && block.metrics.length === 3
+        }"
+      >
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">{{ block.label }}</div>
+            <div v-if="!block.cardView" class="panel-meta">{{ $t('dashboard.resultCount', [block.rows.length]) }}</div>
           </div>
-          <div v-if="block.cardView" class="panel-body detail-card-body">
-            <MetricGrid class="detail-card-grid" :items="block.metrics" />
-          </div>
-          <PagedTable v-else :headers="fieldHeaders" :items="block.rows" :per-page-options="[8, 16, 32]">
-            <template #value="{ item }">
-              <ExpandableListCell v-if="item.items?.length" class="table-controller-list" :items="item.items" :limit="4" />
-              <span v-else>{{ item.value }}</span>
-            </template>
-            <template #action="{ item }">
-              <v-btn icon="mdi-content-copy" variant="text" @click="copyLine(`${item.name}: ${item.value}`)" />
-            </template>
-          </PagedTable>
-        </section>
-      </v-col>
+          <v-btn icon="mdi-content-copy" variant="text" @click="copyRows(block.rows)" />
+        </div>
+        <div v-if="block.cardView" class="panel-body detail-card-body">
+          <MetricGrid class="detail-card-grid" :items="block.metrics" />
+        </div>
+        <PagedTable v-else :headers="fieldHeaders" :items="block.rows" :per-page-options="[8, 16, 32]">
+          <template #value="{ item }">
+            <ExpandableListCell v-if="item.items?.length" class="table-controller-list" :items="item.items" :limit="4" />
+            <span v-else>{{ item.value }}</span>
+          </template>
+          <template #action="{ item }">
+            <v-btn icon="mdi-content-copy" variant="text" @click="copyLine(`${item.name}: ${item.value}`)" />
+          </template>
+        </PagedTable>
+      </section>
 
-      <v-col v-if="relations.length > 0" cols="12">
-        <section class="panel relation-panel">
-          <div class="panel-header">
-            <div>
-              <div class="panel-title">{{ $t('dashboard.relatedData') }}</div>
-              <div class="panel-meta">{{ $t('dashboard.resultCount', [relations.length]) }}</div>
-            </div>
+      <section v-if="relations.length > 0" class="panel relation-panel decode-relation-panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">{{ $t('dashboard.relatedData') }}</div>
+            <div class="panel-meta">{{ $t('dashboard.resultCount', [relations.length]) }}</div>
           </div>
-          <div class="relation-card-grid">
-            <button
-              v-for="item in relations"
-              :key="item.key"
-              class="relation-card"
-              :class="{ 'relation-card--action': item.route }"
-              type="button"
-              :disabled="!item.route"
-              @click="item.route && router.push(item.route)"
-            >
-              <span class="relation-card-copy">
-                <span v-if="item.label" class="search-card-label">{{ item.label }}</span>
-                <span class="relation-card-title">{{ item.target || item.value }}</span>
-              </span>
-            </button>
-          </div>
-        </section>
-      </v-col>
-    </v-row>
+        </div>
+        <div class="relation-card-grid">
+          <button
+            v-for="item in relations"
+            :key="item.key"
+            class="relation-card"
+            :class="{ 'relation-card--action': item.route }"
+            type="button"
+            :disabled="!item.route"
+            @click="item.route && router.push(item.route)"
+          >
+            <span class="relation-card-copy">
+              <span v-if="item.label" class="search-card-label">{{ item.label }}</span>
+              <span class="relation-card-title">{{ item.target || item.value }}</span>
+            </span>
+          </button>
+        </div>
+      </section>
+    </div>
   </div>
 </template>
 
