@@ -6,8 +6,7 @@ export default {
     alert: {
         missingPartNumber: '请输入料号',
         fetchFailed: '获取失败：{0}',
-        missingFlashId: '请输入闪存ID',
-        fetchServerListFailed: '服务器列表获取失败：{0}'
+        missingFlashId: '请输入闪存ID'
     },
     nav: {
         decodePartNumber: '料号查询',
@@ -43,10 +42,40 @@ export default {
         translation: '自动翻译',
         serverInfo: '服务器信息',
         customServer: '自定义服务器',
-        refreshServers: '刷新列表',
         fdServerInfo: 'fdnext 解析器信息',
-        info: 'FlashDetector 数据库版本：{0}<br/>数据库生成时间：{1}<br/>收录 {2} 闪存料号<br/>收录 {3} 闪存ID<br/>收录 {4} 美光 FBGA 码<br/>收录的控制器：<br/>{5}',
-        fdnextInfo: 'fdnext 版本：{0}<br/>Schema：{1}<br/>能力：<br/>{2}'
+        capabilityInfo: {
+            parser: '解析器',
+            database: '数据库',
+            inventory: '资源统计',
+            decoders: 'Decoders',
+            capabilities: '能力',
+            name: '名称',
+            version: '版本',
+            schema: 'Schema',
+            generated: '生成时间',
+            website: '网站',
+            controllers: '控制器',
+            flashIds: 'Flash ID',
+            partNumbers: '料号',
+            fdbPartNumbers: 'FDB 料号',
+            managedNand: 'Managed NAND',
+            dram: 'DRAM',
+            micronFbga: 'Micron FBGA',
+            dramLookup: 'DRAM FBGA',
+            partNumberDecoders: '料号 Decoders',
+            identifierDecoders: 'ID Decoders',
+            more: '+{0} more',
+            collapse: '收起',
+            partDecode: '料号解析',
+            partSearch: '料号搜索',
+            flashIdDecode: 'Flash ID 解析',
+            flashIdSearch: 'Flash ID 搜索',
+            micronFbgaLookup: 'Micron FBGA 标记查询',
+            domain: '领域',
+            chipKind: '芯片类型',
+            productType: '产品类型',
+            idScheme: 'ID Scheme'
+        }
     },
     statistic: {
         title: '统计',
@@ -58,7 +87,6 @@ export default {
         title: '个性化',
         language: '语言',
         autoHideSoftKeyboard: '自动隐藏软键盘',
-        bitUnit: '使用 bit 作为容量单位',
         marketTicker: '显示顶部行情条',
         theme: '主题',
         theme_0: '深色',
@@ -135,5 +163,5 @@ export default {
     open: '打开',
     yes: '是',
     no: '否',
-    about: '<div class="about-section"><div class="about-heading">FlashMaster</div><div><a href="https://fm.itxtech.org" target="_blank" rel="noopener noreferrer">iTXTech FlashMaster</a> 是面向 NAND Flash 的料号与闪存 ID 查询工作台，支持本地解析、数据库搜索、结果检查、复制和多语言界面。</div></div><div class="about-section"><div class="about-heading">架构</div><div>当前版本使用 Vite、Vue 3、Vuetify 3 和 pnpm 构建。默认使用内嵌解析器运行在浏览器中，也可以在设置中切换到 FlashDetector HTTP API 以兼容已有服务端部署。</div></div><div class="about-section"><div class="about-heading">fdnext</div><div><a href="https://github.com/iTXTech/fdnext" target="_blank" rel="noopener noreferrer">fdnext</a> 是新的 NAND Flash 数据库与解析库，负责料号解析、闪存 ID 解析和搜索数据。FlashMaster 通过 Git submodule 引入 fdnext，并将其资源打包进前端，因此默认模式无需服务器即可完成解析。当前内嵌版本：<strong>{1}</strong>。</div></div><div class="about-section"><div class="about-heading">项目</div><div>源码：<a href="https://github.com/iTXTech/FlashMaster" target="_blank" rel="noopener noreferrer">FlashMaster</a><br/>后端兼容：<a href="https://github.com/iTXTech/FlashDetector" target="_blank" rel="noopener noreferrer">FlashDetector</a><br/>许可证：GNU AGPLv3</div></div><div class="about-section"><div class="about-heading">作者</div><div><a href="https://peratx.net" target="_blank" rel="noopener noreferrer">PeratX</a></div></div><div class="about-section about-meta">客户端：{0}<br/>Copyright © 2019-2026 <a href="https://itxtech.org" target="_blank" rel="noopener noreferrer">iTX Technologies</a></div>'
+    about: '<div class="about-section"><div class="about-heading">FlashMaster</div><div><a href="https://fm.itxtech.org" target="_blank" rel="noopener noreferrer">iTXTech FlashMaster</a> 是面向 NAND Flash 的料号与闪存 ID 查询工作台，支持本地解析、数据库搜索、结果检查、复制和多语言界面。</div></div><div class="about-section"><div class="about-heading">架构</div><div>当前版本使用 Vite、Vue 3、Vuetify 3 和 pnpm 构建。支持内嵌 fdnext 解析器，以及手动配置服务器地址的 fdnext 2.0 HTTP API 模式。</div></div><div class="about-section"><div class="about-heading">fdnext</div><div><a href="https://github.com/iTXTech/fdnext" target="_blank" rel="noopener noreferrer">fdnext</a> 是存储芯片解析引擎，负责料号解析、NAND Flash ID 解析、搜索数据和 canonical result 渲染。FlashMaster 通过 Git submodule 引入 fdnext，并将其资源打包进前端，因此默认模式无需服务器即可完成解析。当前内嵌版本：<strong>{1}</strong>。</div></div><div class="about-section"><div class="about-heading">项目</div><div>源码：<a href="https://github.com/iTXTech/FlashMaster" target="_blank" rel="noopener noreferrer">FlashMaster</a><br/>HTTP API 模式：fdnext 2.0<br/>许可证：GNU AGPLv3</div></div><div class="about-section"><div class="about-heading">作者</div><div><a href="https://peratx.net" target="_blank" rel="noopener noreferrer">PeratX</a></div></div><div class="about-section about-meta">客户端：{0}<br/>Copyright © 2019-2026 <a href="https://itxtech.org" target="_blank" rel="noopener noreferrer">iTX Technologies</a></div>'
 }

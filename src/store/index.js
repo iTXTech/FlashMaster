@@ -1,4 +1,4 @@
-const DEFAULT_SERVER_ADDRESS = import.meta.env.VITE_FLASHMASTER_SERVER || "https://fd.sakuracg.com";
+const DEFAULT_SERVER_ADDRESS = import.meta.env.VITE_FLASHMASTER_SERVER || "http://127.0.0.1:8080";
 const PARSER_EMBEDDED = "embedded";
 const PARSER_HTTP = "http";
 
@@ -129,17 +129,6 @@ const isAutoHideSoftKeyboard = () => {
     return localStorage.autoHideSoftKeyboard === "1"
 }
 
-const setBitUnit = (b) => {
-    localStorage.bitUnit = b ? "1" : "0"
-}
-
-const isBitUnit = () => {
-    if (isNaN(Number(localStorage.bitUnit))) {
-        setBitUnit(false);
-    }
-    return localStorage.bitUnit === "1"
-}
-
 const setMarketTickerEnabled = (b) => {
     localStorage.marketTicker = b ? "1" : "0"
 }
@@ -170,19 +159,6 @@ const getTheme = () => {
     return localStorage.theme
 }
 
-const formatNumber = (bytes, unit = 1, inBit = false, outBit = false) => {
-    if (typeof bytes !== "number") return bytes;
-    if (bytes === 0) return '0 b';
-    const k = 1024;
-    //const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ['b', 'Kb', 'Mb', 'Gb', 'Tb', 'Pb', 'Eb', 'Zb', 'Yb'];
-    if (inBit && !outBit) bytes /= 8;
-    if (!inBit && outBit) bytes *= 8;
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    const r = parseFloat((bytes / Math.pow(k, i)).toFixed(0)) + ' ' + sizes[i + unit];
-    return outBit ? r : r.toUpperCase();
-}
-
 export default {
     PARSER_EMBEDDED,
     PARSER_HTTP,
@@ -210,13 +186,10 @@ export default {
     setLang,
     setAutoHideSoftKeyboard,
     isAutoHideSoftKeyboard,
-    setBitUnit,
-    isBitUnit,
     setMarketTickerEnabled,
     isMarketTickerEnabled,
     queryInputFormat,
     partNumberFormat,
     setTheme,
-    getTheme,
-    formatNumber
+    getTheme
 }

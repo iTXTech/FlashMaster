@@ -6,6 +6,7 @@ import {
   defaultIdentifierRules
 } from '@itxtech/fdnext-dsl';
 import { embeddedResourceBundle } from '../../vendor/fdnext/packages/resources';
+import { summaryText } from '@/services/fdnextResultView';
 import store from '@/store';
 
 let engine;
@@ -30,37 +31,17 @@ function limitOption(limit) {
   return Number.isFinite(value) && value > 0 ? { limit: value } : {};
 }
 
-export function summarizeFdnextResult(result) {
-  if (!result || typeof result !== 'object') return '';
-  const lines = [];
-  const device = result.device || {};
-  const identity = device.partNumber || device.identifier || result.input?.normalized || result.input?.query;
-  const vendor = device.vendor?.name || device.vendor?.id;
-  if (identity || vendor) {
-    lines.push([vendor, identity].filter(Boolean).join(' · '));
-  }
-  if (result.subtitle) {
-    lines.push(result.subtitle);
-  }
-  for (const block of result.blocks || []) {
-    for (const field of block.fields || []) {
-      const value = field.display ?? (field.unit ? `${field.value} ${field.unit}` : field.value);
-      if (value !== undefined && value !== null && value !== '') {
-        lines.push(`${field.label || field.key}: ${Array.isArray(value) ? value.join(', ') : value}`);
-      }
+export const getEmbeddedInfo = () => {
+  const capabilities = getEngine().getCapabilities();
+  return {
+    ...capabilities,
+    server: {
+      ...capabilities.server,
+      name: 'Embedded iTXTech fdnext',
+      version: typeof FDNEXT_VERSION !== 'undefined' ? FDNEXT_VERSION : capabilities.server?.version || getEngine().getVersion()
     }
-  }
-  return [...new Set(lines)].join('\n');
-}
-
-export const getEmbeddedInfo = () => ({
-  ...getEngine().getCapabilities(),
-  parser: {
-    type: 'embedded',
-    name: 'iTXTech fdnext',
-    version: typeof FDNEXT_VERSION !== 'undefined' ? FDNEXT_VERSION : getEngine().getVersion()
-  }
-});
+  };
+};
 
 export const decodeEmbeddedPartNumber = pn => getEngine().decodePart({
   query: pn,
@@ -73,7 +54,7 @@ export const searchEmbeddedPartNumber = (pn, limit = 0) => getEngine().searchPar
   ...limitOption(limit)
 });
 
-export const summarizeEmbeddedPartNumber = pn => summarizeFdnextResult(decodeEmbeddedPartNumber(pn));
+export const summarizeEmbeddedPartNumber = pn => summaryText(decodeEmbeddedPartNumber(pn));
 
 export const decodeEmbeddedFlashId = id => getEngine().decodeIdentifier({
   query: id,
@@ -88,4 +69,4 @@ export const searchEmbeddedFlashId = (id, limit = 0) => getEngine().searchIdenti
   ...limitOption(limit)
 });
 
-export const summarizeEmbeddedFlashId = id => summarizeFdnextResult(decodeEmbeddedFlashId(id));
+export const summarizeEmbeddedFlashId = id => summaryText(decodeEmbeddedFlashId(id));

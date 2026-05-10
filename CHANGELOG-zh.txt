@@ -1,6 +1,16 @@
 FlashMaster by PeratX <peratx@itxtech.org>
 版权所有 (c) 2019-2026 iTX Technologies
 ===================================
+版本 2.1.0
+- 更新内嵌 fdnext 到 v2.0.0（9b3ec2f），新增 capabilities inventory 合约，提供解析器、FDB、资源统计和 decoder 元数据。
+- 设置页解析器信息改为结构化卡片展示，包含解析器版本、FDB 元数据、资源统计、decoder 列表和支持能力。
+- 更新内嵌 fdnext 到 v2.0.0（36fa208），并将所有解析/搜索路径迁移到 fdnext 2.0 标准结果合约。
+- 重新基于标准 device、blocks、relations、warnings、candidates 和 search items 渲染 PN 与 Flash ID 结果。
+- HTTP 解析模式改为仅支持 fdnext 2.0 接口，并移除外部服务器列表获取。
+- 优化宽屏和窄屏下的高密度布局，包括结果头部、字段表格、关联行、搜索卡片和控制器摘要。
+- 移除旧的 bit 单位偏好设置，容量/密度显示改由 fdnext 2.0 字段单位统一提供。
+
+===================================
 版本 2.0.2
 - 更新内嵌 fdnext 到 v1.1.0（7176c5b），新增支持DRAM，eMCP，eMMC，UFS，Managed NAND等 PN 解析。
 - Managed NAND：扩展 SK hynix、Samsung、SanDisk/KIOXIA、YMTC、Micron 的 PN DSL 覆盖与厂商元数据。

@@ -5,10 +5,10 @@ import {
     getEmbeddedInfo,
     searchEmbeddedFlashId,
     searchEmbeddedPartNumber,
-    summarizeFdnextResult,
     summarizeEmbeddedFlashId,
     summarizeEmbeddedPartNumber
 } from '@/services/fdnextApi';
+import { summaryText } from '@/services/fdnextResultView';
 
 const makeUrl = (endpoint, params = {}) => {
     const base = store.getServerAddress().replace(/\/+$/, '');
@@ -65,7 +65,7 @@ export const searchPartNumber = (pn, limit = 0) => useEmbeddedParser() ? searchE
 
 export const summarizePartNumber = async pn => useEmbeddedParser()
     ? summarizeEmbeddedPartNumber(pn)
-    : summarizeFdnextResult(await decodePartNumber(pn));
+    : summaryText(await decodePartNumber(pn));
 
 export const decodeFlashId = id => useEmbeddedParser() ? decodeEmbeddedFlashId(id) : request('identifiers/decode', {
     ...langParams(),
@@ -82,12 +82,4 @@ export const searchFlashId = (id, limit = 0) => useEmbeddedParser() ? searchEmbe
 
 export const summarizeFlashId = async id => useEmbeddedParser()
     ? summarizeEmbeddedFlashId(id)
-    : summarizeFdnextResult(await decodeFlashId(id));
-
-export const loadServerList = async () => {
-    const response = await fetch('https://raw.githubusercontent.com/PeratX/FlashMaster/master/servers.json');
-    if (!response.ok) {
-        throw new Error(`${response.status} ${response.statusText}`);
-    }
-    return response.json();
-};
+    : summaryText(await decodeFlashId(id));

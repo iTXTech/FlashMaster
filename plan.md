@@ -16,7 +16,7 @@ This plan keeps FlashMaster focused on the existing tool surface:
 
 Current fdnext update under review:
 
-- Submodule moved from `7176c5b` to `36fa208`.
+- Submodule moved from `7176c5b` to `9b3ec2f`.
 - fdnext package version is now `2.0.0`.
 - The old embedded contract is obsolete and should be removed: `embeddedResources`, `defaultFlashIdRules`, `compileFlashIdRulesToDecoders`, `flashIdDecoders`, and `engine.dispatch()` are no longer public v2 entrypoints.
 
@@ -50,6 +50,8 @@ HTTP API mode should use fdnext 2.0 server endpoints only:
 - `GET /parts/search?query=...&lang=...&limit=...`
 - `GET /identifiers/decode?query=...&lang=...`
 - `GET /identifiers/search?query=...&lang=...&limit=...`
+
+`GET /capabilities` returns parser/server metadata, FDB metadata, inventory counts, decoder inventories, and capability rows. FlashMaster Settings should render these fields directly rather than flattening them into a plain text capability list.
 
 The following old API concepts should be deleted from FlashMaster's active parser path:
 
@@ -102,6 +104,14 @@ Acceptance:
 
 Goal: isolate fdnext v2 rendering logic from page components.
 
+Status: Completed on 2026-05-10.
+
+Completion notes:
+
+- Added a canonical fdnext result ViewModel helper for result detection, field formatting, block extraction, primary metrics, relations, warnings, candidates, and search rows.
+- Removed the old string-result parser from the active codebase.
+- Decode/search pages now render through canonical fdnext result objects instead of `result/data/message` wrappers or translated-label parsing.
+
 Files:
 
 - Add `src/services/fdnextResultView.js` or similar
@@ -131,6 +141,14 @@ Acceptance:
 ## Phase 3: Decode Page Rendering
 
 Goal: update `/decode` to render `part.decode` results from canonical blocks and relations.
+
+Status: Completed on 2026-05-10.
+
+Completion notes:
+
+- Rebuilt the PN decode view around canonical device identity, subtitle, chips, warnings, primary metrics, detail blocks, and relation rows.
+- Relation actions now navigate through fdnext actions when available, including PN-to-Flash-ID navigation.
+- Copy summaries are generated client-side from canonical fields.
 
 Files:
 
@@ -174,6 +192,14 @@ Acceptance:
 
 Goal: update `/decodeId` to render `identifier.decode` results using the same canonical block renderer.
 
+Status: Completed on 2026-05-10.
+
+Completion notes:
+
+- Rebuilt Flash ID decode rendering around canonical identifier device data, geometry/interface/timing/controller blocks, warnings, and related PN relations.
+- Related PN rows navigate through fdnext relation actions.
+- Old `ext`/raw payload display was replaced by canonical blocks and additional fields.
+
 Files:
 
 - `src/views/DecodeId.vue`
@@ -205,6 +231,14 @@ Acceptance:
 ## Phase 5: Search Pages And Suggestions
 
 Goal: update `/searchPn`, `/searchId`, and decode-page suggestions to use fdnext v2 `items[]`.
+
+Status: Completed on 2026-05-10.
+
+Completion notes:
+
+- Migrated PN search, Flash ID search, and decode autocomplete suggestions to canonical fdnext search `items[]`.
+- Search cards now show vendor/device identity, badges, primary field summaries, related PN/controller context, and fdnext action targets.
+- Micron FBGA marking search was smoke-tested with `NW101`.
 
 Files:
 
@@ -248,6 +282,14 @@ Acceptance:
 
 Goal: keep HTTP API mode, but make it fdnext 2.0 only.
 
+Status: Completed on 2026-05-10.
+
+Completion notes:
+
+- HTTP mode now calls only `/capabilities`, `/parts/decode`, `/parts/search`, `/identifiers/decode`, and `/identifiers/search`.
+- Non-fdnext payloads are rejected by schema checks instead of being adapted as legacy FlashDetector responses.
+- External server-list fetching and Settings UI server-list refresh flow were removed; HTTP mode uses the configured address directly.
+
 Files:
 
 - `src/services/flashApi.js`
@@ -282,6 +324,14 @@ Acceptance:
 
 Goal: document user-visible behavior changes from the fdnext update and UI renderer migration.
 
+Status: Completed on 2026-05-10.
+
+Completion notes:
+
+- Added top changelog notes in English and Chinese for fdnext v2, canonical rendering, fdnext 2.0 HTTP-only mode, server-list removal, and layout tuning.
+- Updated README parser-mode wording from FlashDetector compatibility to fdnext 2.0 HTTP API mode.
+- Left `FDNEXT_VERSION` derived from the fdnext submodule package version and git short hash.
+
 Files:
 
 - `CHANGELOG.txt`
@@ -311,6 +361,15 @@ Acceptance:
 ## Phase 8: Verification And Smoke Testing
 
 Goal: validate the migration end to end before handoff.
+
+Status: Completed on 2026-05-10.
+
+Completion notes:
+
+- Ran automated lint/build verification after the migration.
+- Ran the Vite dev server and inspected the app in browser at wide `1440x900` and narrow `390x844` viewports.
+- Browser smoke covered PN decode, Flash ID decode/search density, PN search, Settings parser display, manual HTTP server setting layout, and dense result tables/cards.
+- Layout fixes from smoke testing included narrow result stacking, stable dense field-label widths, and shorter controller summaries in Flash ID search cards.
 
 Automated checks:
 

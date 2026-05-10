@@ -3,7 +3,7 @@
 FlashMaster is a dense web workstation for NAND Flash part-number and Flash ID
 lookup. It provides local decoding, database search, result inspection, copy
 actions, language switching, theme settings, and optional server-backed queries
-for compatibility with FlashDetector deployments.
+against fdnext 2.0 HTTP API deployments.
 
 [Launch FlashMaster](https://fm.itxtech.org)
 
@@ -13,8 +13,9 @@ FlashMaster 2.x is a static Vue application built around two parser backends:
 
 - Embedded fdnext parser: the default mode. The fdnext engine and resources are
   bundled from the `vendor/fdnext` Git submodule and run directly in the browser.
-- FlashDetector HTTP API: an optional compatibility mode. The server endpoint is
-  configurable in Settings and keeps the existing HTTP integration available.
+- fdnext 2.0 HTTP API: an optional server-backed mode. The server endpoint is
+  configured manually in Settings and must return the fdnext 2.0 result
+  contract.
 
 The application boundary is intentionally small:
 
@@ -41,8 +42,8 @@ The application boundary is intentionally small:
 - Search part numbers in the Flash database.
 - Search Flash IDs in the Flash database.
 - Inspect extra fields, Flash ID mappings, and related links.
-- Switch between embedded fdnext and FlashDetector HTTP API modes.
-- Persist parser mode, server address, theme, language, units, and statistics in
+- Switch between embedded fdnext and fdnext 2.0 HTTP API modes.
+- Persist parser mode, server address, theme, language, and statistics in
   localStorage.
 
 ## Development

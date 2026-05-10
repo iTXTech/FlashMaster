@@ -45,13 +45,16 @@
                 </div>
                 <div class="search-card-grid">
                   <div class="search-card-field">
-                    <div class="search-card-label">{{ $t('pageSize') }}</div>
-                    <div class="search-card-value">{{ displayTableValue(item.pageSize) }}</div>
+                    <div class="search-card-label">{{ $t('vendor') }}</div>
+                    <div class="search-card-value">{{ item.vendor || $t('unknown') }}</div>
                   </div>
                   <div class="search-card-field">
-                    <div class="search-card-label">{{ $t('blocks') }}</div>
-                    <div class="search-card-value">{{ displayTableValue(item.blocks) }}</div>
+                    <div class="search-card-label">{{ $t('dashboard.geometry') }}</div>
+                    <div class="search-card-value">{{ item.geometry || '-' }}</div>
                   </div>
+                </div>
+                <div class="search-badge-row">
+                  <v-chip v-for="badge in item.badges" :key="badge" size="x-small" variant="tonal">{{ badge }}</v-chip>
                 </div>
               </div>
               <div class="search-card-detail-grid">
@@ -61,16 +64,16 @@
                 </div>
                 <div class="search-card-section">
                   <div class="search-card-label">{{ $t('controllers') }}</div>
-                  <ExpandableListCell class="search-controller-list" :items="item.controllerList" :limit="8" />
+                  <ExpandableListCell class="search-controller-list" :items="item.controllerList" :limit="4" />
                 </div>
               </div>
             </div>
           </template>
+          <template #id="{ item }">
+            <ExpandableListCell :items="[item.id]" :limit="1" clickable @select="decodeIdentifier" />
+          </template>
           <template #geometry="{ item }">
-            <div class="table-kv-stack">
-              <div>{{ $t('pageSize') }} {{ displayTableValue(item.pageSize) }}</div>
-              <div>{{ $t('blocks') }} {{ displayTableValue(item.blocks) }}</div>
-            </div>
+            <div class="table-kv-stack">{{ item.geometry || item.fieldSummary || '-' }}</div>
           </template>
           <template #partNumbers="{ item }">
             <ExpandableListCell :items="item.partNumberList" :limit="2" clickable @select="decodePartNumber" />
@@ -91,8 +94,8 @@ import { useRoute, useRouter } from 'vue-router';
 import ExpandableListCell from '@/components/ExpandableListCell.vue';
 import PagedTable from '@/components/PagedTable.vue';
 import { searchFlashId } from '@/services/flashApi';
+import { identifierSearchRows } from '@/services/fdnextResultView';
 import { trackLookup } from '@/services/analytics';
-import { parsePartNumberToken } from '@/services/resultParser';
 import bus from '@/store/bus';
 import store from '@/store';
 
@@ -139,19 +142,7 @@ async function search(syncRoute = true) {
   loading.value = true;
   try {
     const payload = await searchFlashId(id);
-    rows.value = Object.entries(payload.data || {}).map(([flashId, data]) => {
-      const partNumberList = (Array.isArray(data.partNumbers) ? data.partNumbers : []).map(parsePartNumberToken);
-      const controllerList = Array.isArray(data.controllers) ? data.controllers.filter(Boolean) : [];
-      return {
-        id: flashId,
-        pageSize: data.pageSize,
-        blocks: data.blocks,
-        partNumbers: partNumberList.join(', '),
-        partNumberList,
-        controllers: controllerList.join(', '),
-        controllerList
-      };
-    });
+    rows.value = identifierSearchRows(payload);
     store.statSearchIdInc();
     trackLookup({
       target: 'flashid',
@@ -160,6 +151,7 @@ async function search(syncRoute = true) {
       resultCount: rows.value.length
     });
   } catch (err) {
+    rows.value = [];
     trackLookup({
       target: 'flashid',
       action: 'search',
@@ -178,12 +170,12 @@ function decodeCurrent() {
   router.push({ path: '/decodeId', query: { id } });
 }
 
-function decodePartNumber(pn) {
-  router.push({ path: '/decode', query: { pn } });
+function decodeIdentifier(id) {
+  router.push({ path: '/decodeId', query: { id } });
 }
 
-function displayTableValue(value) {
-  return value == null || value === '' ? '-' : value;
+function decodePartNumber(pn) {
+  router.push({ path: '/decode', query: { pn } });
 }
 
 function notify(text) {

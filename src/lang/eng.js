@@ -6,8 +6,7 @@ export default {
     alert: {
         missingPartNumber: 'Please input a part number',
         fetchFailed: 'Fetch failed: {0}',
-        missingFlashId: 'Please input a Flash ID',
-        fetchServerListFailed: 'Fetch server list failed: {0}'
+        missingFlashId: 'Please input a Flash ID'
     },
     nav: {
         decodePartNumber: 'Decode Part Number',
@@ -43,10 +42,40 @@ export default {
         translation: 'Auto Translation',
         serverInfo: 'Server Information',
         customServer: 'Custom Server',
-        refreshServers: 'Refresh List',
         fdServerInfo: 'fdnext Parser Info',
-        info: 'FlashDetector FDB Version: {0}<br/>FDB Generation Time: {1}<br/>Include {2} Part Numbers<br/>Include {3} Flash IDs<br/>Include {4} Micron FBGA Codes<br/>Supported Controllers:<br/>{5}',
-        fdnextInfo: 'fdnext Version: {0}<br/>Schema: {1}<br/>Capabilities:<br/>{2}'
+        capabilityInfo: {
+            parser: 'Parser',
+            database: 'Database',
+            inventory: 'Inventory',
+            decoders: 'Decoders',
+            capabilities: 'Capabilities',
+            name: 'Name',
+            version: 'Version',
+            schema: 'Schema',
+            generated: 'Generated',
+            website: 'Website',
+            controllers: 'Controllers',
+            flashIds: 'Flash IDs',
+            partNumbers: 'Part Numbers',
+            fdbPartNumbers: 'FDB Part Numbers',
+            managedNand: 'Managed NAND',
+            dram: 'DRAM',
+            micronFbga: 'Micron FBGA',
+            dramLookup: 'DRAM FBGA',
+            partNumberDecoders: 'Part Number Decoders',
+            identifierDecoders: 'Identifier Decoders',
+            more: '+{0} more',
+            collapse: 'Collapse',
+            partDecode: 'Part Decode',
+            partSearch: 'Part Search',
+            flashIdDecode: 'Flash ID Decode',
+            flashIdSearch: 'Flash ID Search',
+            micronFbgaLookup: 'Micron FBGA Marking Lookup',
+            domain: 'Domain',
+            chipKind: 'Chip Kind',
+            productType: 'Product Type',
+            idScheme: 'ID Scheme'
+        }
     },
     statistic: {
         title: 'Statistic',
@@ -58,7 +87,6 @@ export default {
         title: 'Customization',
         language: 'Language',
         autoHideSoftKeyboard: 'Auto hide soft keyboard',
-        bitUnit: 'Use bit as density unit',
         marketTicker: 'Show market ticker',
         theme: 'Theme',
         theme_0: 'Dark',
@@ -135,5 +163,5 @@ export default {
     open: 'Open',
     yes: 'Yes',
     no: 'No',
-    about: '<div class="about-section"><div class="about-heading">FlashMaster</div><div><a href="https://fm.itxtech.org" target="_blank" rel="noopener noreferrer">iTXTech FlashMaster</a> is a NAND Flash part-number and Flash ID workstation for local decoding, database search, result inspection, copy actions, and multilingual operation.</div></div><div class="about-section"><div class="about-heading">Architecture</div><div>The current version is built with Vite, Vue 3, Vuetify 3, and pnpm. It defaults to an embedded parser running in the browser, while Settings can switch back to the FlashDetector HTTP API for server-backed compatibility.</div></div><div class="about-section"><div class="about-heading">fdnext</div><div><a href="https://github.com/iTXTech/fdnext" target="_blank" rel="noopener noreferrer">fdnext</a> is the new NAND Flash database and parser library used for part-number decoding, Flash ID decoding, and search data. FlashMaster imports fdnext as a Git submodule and bundles its resources into the frontend, so the default mode works without a server. Embedded version: <strong>{1}</strong>.</div></div><div class="about-section"><div class="about-heading">Project</div><div>Source: <a href="https://github.com/iTXTech/FlashMaster" target="_blank" rel="noopener noreferrer">FlashMaster</a><br/>Backend compatibility: <a href="https://github.com/iTXTech/FlashDetector" target="_blank" rel="noopener noreferrer">FlashDetector</a><br/>License: GNU AGPLv3</div></div><div class="about-section"><div class="about-heading">Author</div><div><a href="https://peratx.net" target="_blank" rel="noopener noreferrer">PeratX</a></div></div><div class="about-section about-meta">Client: {0}<br/>Copyright © 2019-2026 <a href="https://itxtech.org" target="_blank" rel="noopener noreferrer">iTX Technologies</a></div>'
+    about: '<div class="about-section"><div class="about-heading">FlashMaster</div><div><a href="https://fm.itxtech.org" target="_blank" rel="noopener noreferrer">iTXTech FlashMaster</a> is a NAND Flash part-number and Flash ID workstation for local decoding, database search, result inspection, copy actions, and multilingual operation.</div></div><div class="about-section"><div class="about-heading">Architecture</div><div>The current version is built with Vite, Vue 3, Vuetify 3, and pnpm. It supports the embedded fdnext parser and fdnext 2.0 HTTP API mode with a manually configured server address.</div></div><div class="about-section"><div class="about-heading">fdnext</div><div><a href="https://github.com/iTXTech/fdnext" target="_blank" rel="noopener noreferrer">fdnext</a> is the memory-chip parsing engine used for part-number decoding, NAND Flash ID decoding, search data, and canonical result rendering. FlashMaster imports fdnext as a Git submodule and bundles its resources into the frontend, so the default mode works without a server. Embedded version: <strong>{1}</strong>.</div></div><div class="about-section"><div class="about-heading">Project</div><div>Source: <a href="https://github.com/iTXTech/FlashMaster" target="_blank" rel="noopener noreferrer">FlashMaster</a><br/>HTTP API mode: fdnext 2.0<br/>License: GNU AGPLv3</div></div><div class="about-section"><div class="about-heading">Author</div><div><a href="https://peratx.net" target="_blank" rel="noopener noreferrer">PeratX</a></div></div><div class="about-section about-meta">Client: {0}<br/>Copyright © 2019-2026 <a href="https://itxtech.org" target="_blank" rel="noopener noreferrer">iTX Technologies</a></div>'
 }

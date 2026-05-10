@@ -42,17 +42,29 @@
                 <button class="search-card-title" type="button" @click="decodePartNumber(item.pn)">
                   {{ item.pn }}
                 </button>
-                <div v-if="item.shortCode" class="search-card-code-line">
+                <div class="search-badge-row">
+                  <v-chip v-for="badge in item.badges" :key="badge" size="x-small" variant="tonal">{{ badge }}</v-chip>
+                </div>
+                <div v-if="item.markingCode" class="search-card-code-line">
                   <span class="search-card-code-label">{{ $t('shortCode') }}</span>
-                  <button class="search-card-code" type="button" @click="decodePartNumber(item.shortCode)">
-                    {{ item.shortCode }}
+                  <button class="search-card-code" type="button" @click="decodePartNumber(item.pn)">
+                    {{ item.markingCode }}
                   </button>
                 </div>
+                <div v-if="item.fieldSummary" class="search-card-value">{{ item.fieldSummary }}</div>
               </div>
             </div>
           </template>
           <template #pn="{ item }">
             <ExpandableListCell :items="[item.pn]" :limit="1" clickable @select="decodePartNumber" />
+          </template>
+          <template #badges="{ item }">
+            <div class="search-badge-row">
+              <v-chip v-for="badge in item.badges" :key="badge" size="x-small" variant="tonal">{{ badge }}</v-chip>
+            </div>
+          </template>
+          <template #summary="{ item }">
+            <div class="table-kv-stack">{{ item.fieldSummary || '-' }}</div>
           </template>
         </PagedTable>
       </section>
@@ -67,8 +79,8 @@ import { useRoute, useRouter } from 'vue-router';
 import ExpandableListCell from '@/components/ExpandableListCell.vue';
 import PagedTable from '@/components/PagedTable.vue';
 import { searchPartNumber } from '@/services/flashApi';
+import { partSearchRows } from '@/services/fdnextResultView';
 import { trackLookup } from '@/services/analytics';
-import { parsePartNumberResult } from '@/services/resultParser';
 import bus from '@/store/bus';
 import store from '@/store';
 
@@ -90,6 +102,8 @@ const partNumberInput = computed({
 const headers = computed(() => [
   { title: t('vendor'), key: 'vendor', class: 'search-vendor-col' },
   { title: t('partNumber'), key: 'pn', class: 'search-list-col' },
+  { title: t('type'), key: 'badges', class: 'search-badge-col' },
+  { title: t('value'), key: 'summary' },
   { title: t('action'), key: 'action' }
 ]);
 
@@ -113,7 +127,7 @@ async function search(syncRoute = true) {
   loading.value = true;
   try {
     const payload = await searchPartNumber(pn);
-    rows.value = (Array.isArray(payload.data) ? payload.data : []).map(item => parsePartNumberResult(item, pn));
+    rows.value = partSearchRows(payload);
     store.statSearchPnInc();
     trackLookup({
       target: 'pn',
@@ -122,6 +136,7 @@ async function search(syncRoute = true) {
       resultCount: rows.value.length
     });
   } catch (err) {
+    rows.value = [];
     trackLookup({
       target: 'pn',
       action: 'search',

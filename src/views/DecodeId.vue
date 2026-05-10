@@ -13,7 +13,7 @@
             ref="input"
             v-model="flashIdInput"
             :items="suggestions"
-            item-title="title"
+            item-title="value"
             item-value="value"
             :return-object="false"
             :loading="loadingSuggestions"
@@ -27,7 +27,7 @@
             @keydown.enter.prevent="decode"
           >
             <template #item="{ props, item }">
-              <v-list-item v-bind="props" :title="item.raw.title" />
+              <v-list-item v-bind="props" :title="item.raw.title" :subtitle="item.raw.subtitle" />
             </template>
           </v-combobox>
           <div class="action-row">
@@ -42,112 +42,81 @@
         <div class="panel-header">
           <div>
             <div class="panel-title">{{ $t('dashboard.decodeResult') }}</div>
-            <div class="panel-meta">{{ resultSummary }}</div>
+            <div v-if="resultPanelMeta" class="panel-meta">{{ resultPanelMeta }}</div>
           </div>
           <v-btn icon="mdi-content-copy" variant="text" :disabled="!result" @click="copyOverview" />
         </div>
         <div class="panel-body">
-          <div class="workspace-grid single decode-id-result-stack">
-            <div class="metric-grid decode-id-identity-grid">
+          <div v-if="result" class="result-stack">
+            <div class="result-hero">
               <div class="metric decode-id-vendor-metric">
                 <div class="metric-label">{{ $t('vendor') }}</div>
                 <div class="decode-id-vendor-line">
-                  <div class="vendor-logo-wrap decode-id-logo-wrap" :class="{ 'vendor-logo-wrap--dark': vendorLogoDark }" v-if="vendorLogo">
-                    <img :src="vendorLogo" :alt="result?.vendor" :class="['vendor-logo', vendorLogoClass]" />
+                  <div v-if="vendorLogo" class="vendor-logo-wrap decode-id-logo-wrap" :class="{ 'vendor-logo-wrap--dark': vendorLogoDark }">
+                    <img :src="vendorLogo" :alt="header.vendor" :class="['vendor-logo', vendorLogoClass]" />
                   </div>
-                  <div class="metric-value">{{ displayValue(result?.vendor) }}</div>
+                  <div class="metric-value">{{ displayValue(header.vendor) }}</div>
                 </div>
               </div>
-              <div class="metric decode-id-flash-id-metric">
-                <div class="metric-label">{{ $t('flashId') }}</div>
-                <div class="metric-value">{{ displayValue(result?.id) }}</div>
+              <div class="result-title-panel">
+                <div class="result-title">{{ displayValue(header.title) }}</div>
+                <div class="result-subtitle">{{ displayValue(header.subtitle) }}</div>
+                <div v-if="header.chips.length > 0" class="result-chip-row">
+                  <v-chip v-for="chip in header.chips" :key="chip" size="x-small" variant="tonal">{{ chip }}</v-chip>
+                </div>
               </div>
             </div>
-            <MetricGrid class="decode-id-detail-grid" :items="detailMetrics" />
+            <div v-if="warningRows.length > 0" class="warning-list">
+              <div v-for="item in warningRows" :key="item.code" class="warning-item">{{ item.message }}</div>
+            </div>
+            <MetricGrid class="decode-id-detail-grid" :items="mainMetrics" />
           </div>
+          <div v-else class="empty-state">{{ $t('dashboard.empty') }}</div>
         </div>
       </section>
     </div>
 
-    <v-row dense class="mt-3 decode-id-secondary-grid">
-      <v-col v-if="result" cols="12">
-        <section class="panel decode-id-details-panel">
-          <div class="panel-header">
-            <div>
-              <div class="panel-title">{{ $t('controllers') }}</div>
-              <div class="panel-meta">{{ controllerSummary }}</div>
-            </div>
-          </div>
-          <div class="panel-body">
-            <ExpandableListCell
-              v-if="controllerList.length > 0"
-              class="decode-id-controller-list search-controller-list"
-              :items="controllerList"
-              :limit="10"
-            />
-            <div v-else class="empty-state">{{ $t('noData') }}</div>
-          </div>
-        </section>
-      </v-col>
-
-      <v-col cols="12" :lg="urls.length > 0 ? 6 : 12">
+    <v-row v-if="result" dense class="mt-3 decode-id-secondary-grid">
+      <v-col v-if="relations.length > 0" cols="12">
         <section class="panel decode-id-pn-panel">
           <div class="panel-header">
             <div>
               <div class="panel-title">{{ $t('searchIdPage.pns') }}</div>
-              <div class="panel-meta">{{ $t('dashboard.resultCount', [partNumbers.length]) }}</div>
+              <div class="panel-meta">{{ $t('dashboard.resultCount', [relations.length]) }}</div>
             </div>
           </div>
-          <div v-if="partNumbers.length > 0" class="decode-id-pn-grid">
+          <div class="decode-id-pn-grid">
             <button
-              v-for="item in partNumbers"
-              :key="`${item.vendor}-${item.pn}`"
+              v-for="item in relations"
+              :key="item.key"
               class="decode-id-pn-card"
               type="button"
-              @click="decodePartNumber(item.pn)"
+              @click="item.route && router.push(item.route)"
             >
-              <div class="search-card-label">{{ item.vendor || $t('unknown') }}</div>
-              <span class="search-card-title">{{ item.pn }}</span>
+              <div class="search-card-label">{{ item.kind }}</div>
+              <span class="search-card-title">{{ item.target || item.value }}</span>
             </button>
           </div>
-          <div v-else class="empty-state">{{ $t('noData') }}</div>
         </section>
       </v-col>
 
-      <v-col v-if="urls.length > 0" cols="12" lg="6">
-        <section class="panel">
-          <div class="panel-header">
-            <div class="panel-title">{{ $t('urls') }}</div>
-          </div>
-          <PagedTable :headers="urlHeaders" :items="urls" :per-page-options="[8, 16, 32]">
-            <template #description="{ item }">
-              <div class="url-description">
-                <img v-if="item.logo" :src="item.logo" :alt="item.description" class="url-logo" />
-                <span v-else>{{ item.description }}</span>
-              </div>
-            </template>
-            <template #action="{ item }">
-              <v-btn icon="mdi-open-in-new" variant="text" @click="openUrl(item.url)" />
-            </template>
-          </PagedTable>
-        </section>
-      </v-col>
-
-      <v-col cols="12">
+      <v-col v-for="block in detailBlockViews" :key="block.id" cols="12" md="6" xl="4">
         <section class="panel decode-id-info-panel">
           <div class="panel-header">
             <div>
-              <div class="panel-title">{{ $t('extraInfo') }}</div>
-              <div class="panel-meta">{{ $t('dashboard.resultCount', [extraInfo.length]) }}</div>
+              <div class="panel-title">{{ block.label }}</div>
+              <div v-if="!block.cardView" class="panel-meta">{{ $t('dashboard.resultCount', [block.rows.length]) }}</div>
             </div>
+            <v-btn icon="mdi-content-copy" variant="text" @click="copyRows(block.rows)" />
           </div>
-          <div v-if="extraInfo.length > 0" class="decode-id-info-grid">
-            <div v-for="item in extraInfo" :key="`${item.name}-${item.value}`" class="decode-id-info-card">
-              <div class="search-card-label">{{ item.name }}</div>
-              <div class="search-card-value decode-id-info-value">{{ item.value }}</div>
-            </div>
+          <div v-if="block.cardView" class="panel-body detail-card-body">
+            <MetricGrid class="detail-card-grid" :items="block.metrics" />
           </div>
-          <div v-else class="empty-state">{{ $t('noData') }}</div>
+          <PagedTable v-else :headers="fieldHeaders" :items="block.rows" :per-page-options="[8, 16, 32]">
+            <template #action="{ item }">
+              <v-btn icon="mdi-content-copy" variant="text" @click="copyLine(`${item.name}: ${item.value}`)" />
+            </template>
+          </PagedTable>
         </section>
       </v-col>
     </v-row>
@@ -158,14 +127,21 @@
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
-import ExpandableListCell from '@/components/ExpandableListCell.vue';
 import MetricGrid from '@/components/MetricGrid.vue';
 import PagedTable from '@/components/PagedTable.vue';
 import { copyText } from '@/services/clipboard';
 import { displayValue } from '@/services/display';
 import { decodeFlashId, searchFlashId, summarizeFlashId } from '@/services/flashApi';
+import {
+  detailBlocks,
+  identifierSuggestions,
+  primaryMetrics,
+  relationRows,
+  resultHeader,
+  summaryText,
+  warnings
+} from '@/services/fdnextResultView';
 import { trackLookup } from '@/services/analytics';
-import { parsePartNumberResult } from '@/services/resultParser';
 import getVendorLogo, { getVendorLogoKey } from '@/services/vendorLogos';
 import bus from '@/store/bus';
 import store from '@/store';
@@ -184,24 +160,22 @@ let suggestionTimer;
 let suggestionRequestId = 0;
 let suppressedSuggestionValue = '';
 
-const vendorLogoVendor = computed(() => result.value?.rawVendor || result.value?.vendor);
-const vendorLogo = computed(() => getVendorLogo(vendorLogoVendor.value));
-const vendorLogoKey = computed(() => getVendorLogoKey(vendorLogoVendor.value));
+const header = computed(() => resultHeader(result.value));
+const resultPanelMeta = computed(() => {
+  if (!result.value) return t('dashboard.empty');
+  return result.value.status && result.value.status !== 'ok' ? header.value.status : '';
+});
+const vendorLogo = computed(() => getVendorLogo(header.value.vendor));
+const vendorLogoKey = computed(() => getVendorLogoKey(header.value.vendor));
 const vendorLogoClass = computed(() => vendorLogoKey.value ? `vendor-logo--${vendorLogoKey.value}` : '');
 const vendorLogoDark = computed(() => vendorLogoKey.value === 'biwin');
-const controllerList = computed(() => toList(result.value?.controllers));
-const controllerSummary = computed(() => t('dashboard.resultCount', [controllerList.value.length]));
-const resultSummary = computed(() => {
-  if (!result.value) return t('dashboard.empty');
-  const summary = [
-    formatDensity(result.value?.density, true),
-    result.value?.cellLevel,
-    result.value?.processNode
-  ]
-    .map(value => displayValue(value))
-    .filter(value => value && value !== '-');
-  return summary.join(' · ') || displayValue(result.value?.vendor);
-});
+const mainMetrics = computed(() => primaryMetrics(result.value));
+const detailBlockViews = computed(() => detailBlocks(result.value).map(block => ({
+  ...block,
+  cardView: block.rows.length <= 6
+})));
+const relations = computed(() => relationRows(result.value));
+const warningRows = computed(() => warnings(result.value));
 const flashIdInput = computed({
   get: () => flashId.value,
   set: value => {
@@ -209,59 +183,32 @@ const flashIdInput = computed({
   }
 });
 
-const identityMetrics = computed(() => [
-  { label: t('density'), value: formatDensity(result.value?.density, true) },
-  { label: t('cellLevel'), value: result.value?.cellLevel },
-  { label: t('processNode'), value: result.value?.processNode },
-  { label: t('voltage'), value: result.value?.voltage }
-]);
-
-const geometryMetrics = computed(() => [
-  { label: t('die'), value: result.value?.die },
-  { label: t('plane'), value: result.value?.plane },
-  { label: t('pageSize'), value: formatFlashIdSize(result.value?.pageSize) },
-  { label: t('blockSize'), value: formatFlashIdSize(result.value?.blockSize) }
-]);
-const detailMetrics = computed(() => [...identityMetrics.value, ...geometryMetrics.value]);
-
-const extraInfo = computed(() => objectRows(result.value?.ext));
-const partNumbers = computed(() => toList(result.value?.partNumbers).map(raw => {
-  return parsePartNumberResult(raw);
-}));
-const urls = computed(() => urlRows(result.value));
-
-const urlHeaders = computed(() => [
-  { title: t('description'), key: 'description' },
+const fieldHeaders = computed(() => [
+  { title: t('name'), key: 'name' },
+  { title: t('value'), key: 'value' },
   { title: t('action'), key: 'action' }
 ]);
 
-function toList(value) {
-  return Array.isArray(value) ? value.filter(Boolean) : [];
+function normalizeComboValue(value) {
+  if (value && typeof value === 'object') {
+    return value.value || value.title || '';
+  }
+  return String(value || '');
 }
 
-function objectRows(value) {
-  if (!value || Array.isArray(value) || typeof value !== 'object') return [];
-  return Object.entries(value).map(([name, value]) => ({ name, value: String(value) }));
+function clearSuggestions() {
+  suggestionRequestId += 1;
+  clearTimeout(suggestionTimer);
+  suggestions.value = [];
+  loadingSuggestions.value = false;
 }
 
-function urlRows(data) {
-  if (!Array.isArray(data?.urls)) return [];
-  const logo = getVendorLogo(data?.rawVendor || data?.vendor);
-  return data.urls
-    .filter(item => item?.url)
-    .map(item => ({
-      description: item.desc || item.hint || item.url,
-      logo: item.img === 'logo' ? logo : '',
-      url: item.url
-    }));
-}
-
-function formatDensity(value, inBit = false) {
-  return typeof value === 'number' ? store.formatNumber(value, 2, inBit, store.isBitUnit()) : value;
-}
-
-function formatFlashIdSize(value) {
-  return typeof value === 'number' ? store.formatNumber(value, 1) : value;
+function commitFlashId(value) {
+  const next = store.partNumberFormat(normalizeComboValue(value));
+  suppressedSuggestionValue = next;
+  flashId.value = next;
+  clearSuggestions();
+  return next;
 }
 
 function normalizeInput() {
@@ -287,15 +234,16 @@ async function decode(syncRoute = true) {
   loading.value = true;
   try {
     const payload = await decodeFlashId(id);
-    result.value = payload.data;
+    result.value = payload;
     store.statDecodeFidInc();
     trackLookup({
       target: 'flashid',
       action: 'decode',
       query: id,
-      resultCount: payload.data ? 1 : 0
+      resultCount: payload.status === 'ok' ? 1 : 0
     });
   } catch (err) {
+    result.value = null;
     trackLookup({
       target: 'flashid',
       action: 'decode',
@@ -306,28 +254,6 @@ async function decode(syncRoute = true) {
   } finally {
     loading.value = false;
   }
-}
-
-function normalizeComboValue(value) {
-  if (value && typeof value === 'object') {
-    return value.value || value.title || '';
-  }
-  return String(value || '');
-}
-
-function clearSuggestions() {
-  suggestionRequestId += 1;
-  clearTimeout(suggestionTimer);
-  suggestions.value = [];
-  loadingSuggestions.value = false;
-}
-
-function commitFlashId(value) {
-  const next = store.partNumberFormat(normalizeComboValue(value));
-  suppressedSuggestionValue = next;
-  flashId.value = next;
-  clearSuggestions();
-  return next;
 }
 
 async function selectFlashId(value) {
@@ -341,9 +267,9 @@ async function selectFlashId(value) {
   flashId.value = store.queryInputFormat(text);
 }
 
-function searchSuggestions(input) {
+function searchSuggestions(inputValue) {
   clearTimeout(suggestionTimer);
-  const query = store.partNumberFormat(input || '');
+  const query = store.partNumberFormat(inputValue || '');
   if (query.length < 3) {
     clearSuggestions();
     return;
@@ -359,7 +285,7 @@ function searchSuggestions(input) {
     try {
       const payload = await searchFlashId(query, 10);
       if (requestId !== suggestionRequestId) return;
-      suggestions.value = Object.keys(payload.data || {}).map(id => ({ title: id, value: id }));
+      suggestions.value = identifierSuggestions(payload);
     } catch {
       if (requestId !== suggestionRequestId) return;
       suggestions.value = [];
@@ -377,10 +303,6 @@ function goSearchId() {
   router.push({ path: '/searchId', query: { id } });
 }
 
-function decodePartNumber(pn) {
-  router.push({ path: '/decode', query: { pn } });
-}
-
 async function copySummary() {
   const id = normalizeInput();
   if (!id) return notify(t('alert.missingFlashId'));
@@ -396,14 +318,11 @@ async function copySummary() {
 }
 
 function copyOverview() {
-  const lines = [
-    { label: t('vendor'), value: result.value?.vendor },
-    { label: t('flashId'), value: result.value?.id },
-    ...detailMetrics.value,
-    { label: t('controllers'), value: controllerList.value.join(', ') }
-  ]
-    .map(item => `${item.label}: ${displayValue(item.value)}`);
-  copyLine(lines.join('\n'));
+  copyLine(summaryText(result.value));
+}
+
+function copyRows(rows) {
+  copyLine(rows.map(item => `${item.name}: ${item.value}`).join('\n'));
 }
 
 async function copyLine(text, success = t('copySucc')) {
@@ -413,10 +332,6 @@ async function copyLine(text, success = t('copySucc')) {
   } catch {
     notify(t('copyFail'));
   }
-}
-
-function openUrl(url) {
-  window.open(url, '_blank', 'noopener,noreferrer');
 }
 
 function notify(text) {

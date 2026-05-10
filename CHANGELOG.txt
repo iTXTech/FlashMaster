@@ -2,6 +2,13 @@ FlashMaster by PeratX <peratx@itxtech.org>
 Copyright (c) 2019-2026 iTX Technologies
 ===================================
 Version 2.0.2
+- Updated embedded fdnext to v2.0.0 (9b3ec2f), adding the capabilities inventory contract for parser, FDB, resource, and decoder metadata.
+- Reworked Settings parser information into structured cards for parser version, FDB metadata, inventory counts, decoder lists, and supported capabilities.
+- Updated embedded fdnext to v2.0.0 (36fa208) and migrated all decode/search paths to the fdnext 2.0 canonical result contract.
+- Rebuilt PN and Flash ID result rendering around canonical devices, blocks, relations, warnings, candidates, and search items.
+- Changed HTTP parser mode to fdnext 2.0 endpoints only and removed external server-list fetching.
+- Improved dense wide-screen and narrow-screen layouts for result headers, field tables, relation rows, search cards, and controller summaries.
+- Removed the legacy bit-unit preference because fdnext 2.0 now supplies canonical display units per field.
 - Updated embedded fdnext to v1.1.0 (7176c5b), adding PN parsing support for DRAM, eMCP, eMMC, UFS, Managed NAND, and more.
 - Managed NAND: expanded PN DSL coverage for SK hynix, Samsung, SanDisk/KIOXIA, YMTC, Micron, and vendor metadata.
 - DRAM: added Micron/Crucial, SK hynix, Samsung, Nanya, Elpida, and CXMT DRAM PN decoding, resources, docs, and tests.
