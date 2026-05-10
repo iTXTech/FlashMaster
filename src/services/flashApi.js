@@ -5,6 +5,7 @@ import {
     getEmbeddedInfo,
     searchEmbeddedFlashId,
     searchEmbeddedPartNumber,
+    summarizeFdnextResult,
     summarizeEmbeddedFlashId,
     summarizeEmbeddedPartNumber
 } from '@/services/fdnextApi';
@@ -20,53 +21,68 @@ const makeUrl = (endpoint, params = {}) => {
     return url.toString();
 };
 
-const request = async (endpoint, params = {}) => {
+const assertFdnextPayload = (payload, schemaVersion, endpoint) => {
+    if (!payload || payload.schemaVersion !== schemaVersion) {
+        throw new Error(`Unsupported fdnext response from ${endpoint}`);
+    }
+    return payload;
+};
+
+const request = async (endpoint, params = {}, schemaVersion = 'fdnext.result.v1') => {
     const response = await fetch(makeUrl(endpoint, params));
     if (!response.ok) {
         throw new Error(`${response.status} ${response.statusText}`);
     }
     const payload = await response.json();
-    if (payload && payload.result === false) {
-        throw new Error(payload.message || 'FlashDetector request failed');
-    }
-    return payload;
+    return assertFdnextPayload(payload, schemaVersion, endpoint);
 };
 
 const useEmbeddedParser = () => store.isEmbeddedParser();
 
-export const getServerInfo = () => useEmbeddedParser() ? getEmbeddedInfo() : request('info');
-
-export const decodePartNumber = pn => useEmbeddedParser() ? decodeEmbeddedPartNumber(pn) : request('decode', {
-    lang: store.getLang(),
-    pn
+const langParams = () => ({
+    lang: store.getLang()
 });
 
-export const searchPartNumber = (pn, limit = 0) => useEmbeddedParser() ? searchEmbeddedPartNumber(pn, limit) : request('searchPn', {
-    lang: store.getLang(),
-    pn,
-    limit
+const limitParams = limit => {
+    const value = Number(limit);
+    return Number.isFinite(value) && value > 0 ? { limit: value } : {};
+};
+
+export const getServerInfo = () => useEmbeddedParser()
+    ? getEmbeddedInfo()
+    : request('capabilities', {}, 'fdnext.capabilities.v1');
+
+export const decodePartNumber = pn => useEmbeddedParser() ? decodeEmbeddedPartNumber(pn) : request('parts/decode', {
+    ...langParams(),
+    query: pn
 });
 
-export const summarizePartNumber = pn => useEmbeddedParser() ? summarizeEmbeddedPartNumber(pn) : request('summary', {
-    lang: store.getLang(),
-    pn
+export const searchPartNumber = (pn, limit = 0) => useEmbeddedParser() ? searchEmbeddedPartNumber(pn, limit) : request('parts/search', {
+    ...langParams(),
+    query: pn,
+    ...limitParams(limit)
 });
 
-export const decodeFlashId = id => useEmbeddedParser() ? decodeEmbeddedFlashId(id) : request('decodeId', {
-    lang: store.getLang(),
-    id
+export const summarizePartNumber = async pn => useEmbeddedParser()
+    ? summarizeEmbeddedPartNumber(pn)
+    : summarizeFdnextResult(await decodePartNumber(pn));
+
+export const decodeFlashId = id => useEmbeddedParser() ? decodeEmbeddedFlashId(id) : request('identifiers/decode', {
+    ...langParams(),
+    query: id,
+    idScheme: 'nand.flash_id'
 });
 
-export const searchFlashId = (id, limit = 0) => useEmbeddedParser() ? searchEmbeddedFlashId(id, limit) : request('searchId', {
-    lang: store.getLang(),
-    id,
-    limit
+export const searchFlashId = (id, limit = 0) => useEmbeddedParser() ? searchEmbeddedFlashId(id, limit) : request('identifiers/search', {
+    ...langParams(),
+    query: id,
+    idScheme: 'nand.flash_id',
+    ...limitParams(limit)
 });
 
-export const summarizeFlashId = id => useEmbeddedParser() ? summarizeEmbeddedFlashId(id) : request('summaryId', {
-    lang: store.getLang(),
-    id
-});
+export const summarizeFlashId = async id => useEmbeddedParser()
+    ? summarizeEmbeddedFlashId(id)
+    : summarizeFdnextResult(await decodeFlashId(id));
 
 export const loadServerList = async () => {
     const response = await fetch('https://raw.githubusercontent.com/PeratX/FlashMaster/master/servers.json');

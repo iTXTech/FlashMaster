@@ -36,7 +36,7 @@ export default {
         server: '服务器',
         parserMode: '解析模式',
         parserEmbedded: '内嵌 iTXTech fdnext',
-        parserHttp: 'iTXTech FlashDetector HTTP API',
+        parserHttp: 'iTXTech fdnext HTTP API',
         parserInfo: '解析器信息',
         embeddedParserInfo: '使用内嵌 iTXTech fdnext {0}。',
         serverAddr: '服务器地址',
@@ -44,8 +44,9 @@ export default {
         serverInfo: '服务器信息',
         customServer: '自定义服务器',
         refreshServers: '刷新列表',
-        fdServerInfo: 'FlashDetector 服务器信息',
-        info: 'FlashDetector 数据库版本：{0}<br/>数据库生成时间：{1}<br/>收录 {2} 闪存料号<br/>收录 {3} 闪存ID<br/>收录 {4} 美光 FBGA 码<br/>收录的控制器：<br/>{5}'
+        fdServerInfo: 'fdnext 解析器信息',
+        info: 'FlashDetector 数据库版本：{0}<br/>数据库生成时间：{1}<br/>收录 {2} 闪存料号<br/>收录 {3} 闪存ID<br/>收录 {4} 美光 FBGA 码<br/>收录的控制器：<br/>{5}',
+        fdnextInfo: 'fdnext 版本：{0}<br/>Schema：{1}<br/>能力：<br/>{2}'
     },
     statistic: {
         title: '统计',

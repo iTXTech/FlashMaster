@@ -403,8 +403,8 @@ async function copySummary() {
   if (!pn) return notify(t('alert.missingPartNumber'));
   loading.value = true;
   try {
-    const payload = await summarizePartNumber(pn);
-    await copyLine(payload.data, t('dashboard.copiedSummary'));
+    const summary = await summarizePartNumber(pn);
+    await copyLine(summary, t('dashboard.copiedSummary'));
   } catch (err) {
     notify(t('alert.fetchFailed', [err.message || err]));
   } finally {

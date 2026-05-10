@@ -36,7 +36,7 @@ export default {
         server: 'Server',
         parserMode: 'Parser Mode',
         parserEmbedded: 'Embedded iTXTech fdnext',
-        parserHttp: 'iTXTech FlashDetector HTTP API',
+        parserHttp: 'iTXTech fdnext HTTP API',
         parserInfo: 'Parser Information',
         embeddedParserInfo: 'Using embedded iTXTech fdnext {0}.',
         serverAddr: 'Server Address',
@@ -44,8 +44,9 @@ export default {
         serverInfo: 'Server Information',
         customServer: 'Custom Server',
         refreshServers: 'Refresh List',
-        fdServerInfo: 'FlashDetector Server Info',
-        info: 'FlashDetector FDB Version: {0}<br/>FDB Generation Time: {1}<br/>Include {2} Part Numbers<br/>Include {3} Flash IDs<br/>Include {4} Micron FBGA Codes<br/>Supported Controllers:<br/>{5}'
+        fdServerInfo: 'fdnext Parser Info',
+        info: 'FlashDetector FDB Version: {0}<br/>FDB Generation Time: {1}<br/>Include {2} Part Numbers<br/>Include {3} Flash IDs<br/>Include {4} Micron FBGA Codes<br/>Supported Controllers:<br/>{5}',
+        fdnextInfo: 'fdnext Version: {0}<br/>Schema: {1}<br/>Capabilities:<br/>{2}'
     },
     statistic: {
         title: 'Statistic',

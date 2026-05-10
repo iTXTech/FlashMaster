@@ -386,8 +386,8 @@ async function copySummary() {
   if (!id) return notify(t('alert.missingFlashId'));
   loading.value = true;
   try {
-    const payload = await summarizeFlashId(id);
-    await copyLine(payload.data, t('dashboard.copiedSummary'));
+    const summary = await summarizeFlashId(id);
+    await copyLine(summary, t('dashboard.copiedSummary'));
   } catch (err) {
     notify(t('alert.fetchFailed', [err.message || err]));
   } finally {

@@ -135,7 +135,7 @@
     >
       <section class="panel server-info-panel">
         <div class="panel-header">
-          <div class="panel-title">{{ $t('settings.fdServerInfo') }}</div>
+          <div class="panel-title">{{ infoDialogTitle }}</div>
           <v-btn icon="mdi-close" variant="text" @click="dialog.show = false" />
         </div>
         <div class="panel-body server-info-body">
@@ -211,6 +211,7 @@ const parserModes = computed(() => [
 ]);
 const isHttpParser = computed(() => parserMode.value === store.PARSER_HTTP);
 const infoButtonLabel = computed(() => isHttpParser.value ? t('settings.serverInfo') : t('settings.parserInfo'));
+const infoDialogTitle = computed(() => infoButtonLabel.value);
 
 const stats = computed(() => [
   { label: t('nav.decodePartNumber'), value: statsState.value.decodeId },
@@ -314,20 +315,50 @@ async function serverInfo() {
     const data = await getServerInfo();
     dialog.value = {
       show: true,
-      text: t('settings.info', [
-        data.ver,
-        data.info?.fdb?.time,
-        data.info?.flash_cnt,
-        data.info?.id_cnt,
-        data.info?.mdb_cnt,
-        String(data.info?.fdb?.controllers || '').replace(/,/g, ', ')
-      ])
+      text: formatServerInfo(data)
     };
   } catch (err) {
     notify(t('alert.fetchFailed', [err.message || err]));
   } finally {
     loadingInfo.value = false;
   }
+}
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function formatCapability(item) {
+  const name = item.operation || item.name;
+  const tags = [
+    ...(item.domains || []),
+    ...(item.chipKinds || []),
+    ...(item.productTypes || []),
+    ...(item.idSchemes || [])
+  ];
+  return [name, tags.length ? tags.join(', ') : '', item.description]
+    .filter(Boolean)
+    .map(escapeHtml)
+    .join(' - ');
+}
+
+function formatServerInfo(data) {
+  if (data?.schemaVersion === 'fdnext.capabilities.v1') {
+    const capabilities = (Array.isArray(data.capabilities) ? data.capabilities : [])
+      .map(formatCapability)
+      .join('<br/>');
+    return t('settings.fdnextInfo', [
+      escapeHtml(data.parser?.version || embeddedParserVersion),
+      escapeHtml(data.schemaVersion),
+      capabilities || '-'
+    ]);
+  }
+  return escapeHtml(JSON.stringify(data, null, 2)).replace(/\n/g, '<br/>');
 }
 
 function resetStat() {
