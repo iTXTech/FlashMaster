@@ -127,6 +127,7 @@ import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { getEmbeddedVersion } from '@/services/versionInfo';
 import { getServerInfo } from '@/services/flashApi';
+import { chipLabel } from '@/services/fdnextResultView';
 import bus from '@/store/bus';
 import store from '@/store';
 import themeManager from '@/theme';
@@ -292,10 +293,7 @@ function formatInventoryMetric(label, value) {
 }
 
 function formatDecoderItem(item) {
-  const meta = [
-    item.idScheme,
-    item.priority !== undefined ? `P${item.priority}` : ''
-  ].filter(Boolean).join(' · ');
+  const meta = item.priority !== undefined ? `P${item.priority}` : '';
   return `
     <div class="capability-list-item">
       <span>${escapeHtml(item.id || '-')}</span>
@@ -310,7 +308,7 @@ function formatDecoderGroup(key, title, items = []) {
   const visible = expanded ? list : list.slice(0, 4);
   const hiddenCount = Math.max(0, list.length - visible.length);
   return `
-    <div class="capability-list-group">
+    <div class="capability-list-group${expanded ? ' capability-list-group--expanded' : ''}">
       <div class="capability-list-title">
         <span>${escapeHtml(title)}</span>
         <em>${escapeHtml(formatCount(list.length))}</em>
@@ -339,13 +337,13 @@ function formatCapabilityTitle(item) {
   return name || item.operation || '-';
 }
 
-function formatSupportLine(label, values = []) {
+function formatSupportLine(label, values = [], formatter = value => value) {
   const items = values.filter(Boolean);
   if (!items.length) return '';
   return `
     <div class="capability-support-row">
       <span>${escapeHtml(label)}</span>
-      <div class="capability-tags">${items.map(item => `<code>${escapeAttr(item)}</code>`).join('')}</div>
+      <div class="capability-tags">${items.map(item => `<code>${escapeAttr(formatter(item))}</code>`).join('')}</div>
     </div>
   `;
 }
@@ -359,9 +357,9 @@ function formatCapability(item) {
       </div>
       <div class="capability-support">
         ${formatSupportLine(t('settings.capabilityInfo.domain'), item.domains || [])}
-        ${formatSupportLine(t('settings.capabilityInfo.chipKind'), item.chipKinds || [])}
-        ${formatSupportLine(t('settings.capabilityInfo.productType'), item.productTypes || [])}
-        ${formatSupportLine(t('settings.capabilityInfo.idScheme'), item.idSchemes || [])}
+        ${formatSupportLine(t('settings.capabilityInfo.chipKind'), item.chipKinds || [], chipLabel)}
+        ${formatSupportLine(t('settings.capabilityInfo.productType'), item.productTypes || [], chipLabel)}
+        ${formatSupportLine(t('settings.capabilityInfo.idScheme'), item.idSchemes || [], chipLabel)}
       </div>
       ${item.description ? `<p>${escapeHtml(item.description)}</p>` : ''}
     </div>

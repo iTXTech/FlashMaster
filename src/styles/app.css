@@ -1298,10 +1298,15 @@ a {
   gap: 10px;
 }
 
-.capability-card-grid,
-.capability-list-grid {
+.capability-card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 8px;
+}
+
+.capability-list-grid {
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 8px;
 }
 
@@ -1401,6 +1406,10 @@ a {
   display: grid;
   min-width: 0;
   gap: 6px;
+}
+
+.capability-list-group--expanded {
+  grid-column: 1 / -1;
 }
 
 .capability-list-item {

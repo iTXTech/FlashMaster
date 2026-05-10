@@ -108,16 +108,48 @@ export function deviceTitle(device) {
   return device?.partNumber || device?.identifier || device?.markingCode || '';
 }
 
-export function chipLabel(value) {
-  return String(value || '').replaceAll('_', ' ');
+const CHIP_LABELS = {
+  raw_nand: 'Raw NAND',
+  on_die_ecc_nand: 'On-die ECC NAND',
+  managed_nand: 'Managed NAND',
+  nand_flash_id: 'NAND Flash ID',
+  nand: 'NAND',
+  dram: 'DRAM',
+  nor: 'NOR',
+  pmic: 'PMIC',
+  controller: 'Controller',
+  emmc: 'eMMC',
+  emcp: 'eMCP',
+  umcp: 'uMCP',
+  ufs: 'UFS',
+  inand: 'iNAND',
+  issd: 'iSSD',
+  e2nand: 'E2NAND',
+  lpddr4: 'LPDDR4',
+  lpddr4x: 'LPDDR4X',
+  lpddr5: 'LPDDR5',
+  lpddr5x: 'LPDDR5X',
+  ddr3: 'DDR3',
+  ddr4: 'DDR4',
+  ddr5: 'DDR5'
+};
+
+function chipLabelKey(value) {
+  return String(value || '')
+    .trim()
+    .replaceAll('.', '_')
+    .replaceAll(/[\s-]+/g, '_')
+    .toLowerCase();
 }
 
-export function resultChips(result) {
-  const device = result?.device || {};
-  const chips = result?.operation?.startsWith('identifier.')
-    ? [device.idScheme]
-    : [];
-  return [...new Set(chips.filter(Boolean).map(chipLabel))];
+export function chipLabel(value) {
+  const text = String(value || '').trim();
+  if (!text) return '';
+  return CHIP_LABELS[chipLabelKey(text)] || text.replaceAll('_', ' ');
+}
+
+export function resultChips() {
+  return [];
 }
 
 export function resultHeader(result) {
@@ -216,16 +248,17 @@ function normalizeBadge(value) {
 function displayBadges(badges, vendor) {
   const vendorKey = normalizeBadge(vendor);
   const vendorText = String(vendor || '').trim();
-  return asArray(badges)
+  const normalizedBadges = asArray(badges)
     .map(badge => {
       const text = String(badge || '').trim();
       if (normalizeBadge(text) === vendorKey) return '';
       if (vendorText && text.toLowerCase().startsWith(vendorText.toLowerCase())) {
-        return text.slice(vendorText.length).replace(/^[\s./·|-]+/, '').trim();
+        return chipLabel(text.slice(vendorText.length).replace(/^[\s./·|-]+/, '').trim());
       }
-      return text;
+      return chipLabel(text);
     })
     .filter(Boolean);
+  return [...new Set(normalizedBadges)];
 }
 
 export function partSearchRows(result) {
