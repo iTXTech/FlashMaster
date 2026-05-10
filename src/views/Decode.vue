@@ -1,5 +1,5 @@
 <template>
-  <div class="workspace">
+  <div class="workspace workspace--decode">
     <div class="workspace-grid">
       <section class="panel">
         <div class="panel-header">
@@ -76,8 +76,8 @@
     </div>
 
     <v-row v-if="result" dense class="mt-3">
-      <v-col v-for="block in detailBlockViews" :key="block.id" cols="12" md="6" xl="4">
-        <section class="panel">
+      <v-col v-for="block in detailBlockViews" :key="block.id" cols="12" :md="block.wide ? 12 : 6" :xl="block.wide ? 12 : 4">
+        <section class="panel" :class="{ 'detail-panel--wide': block.wide }">
           <div class="panel-header">
             <div>
               <div class="panel-title">{{ block.label }}</div>
@@ -89,6 +89,10 @@
             <MetricGrid class="detail-card-grid" :items="block.metrics" />
           </div>
           <PagedTable v-else :headers="fieldHeaders" :items="block.rows" :per-page-options="[8, 16, 32]">
+            <template #value="{ item }">
+              <ExpandableListCell v-if="item.items?.length" class="table-controller-list" :items="item.items" :limit="4" />
+              <span v-else>{{ item.value }}</span>
+            </template>
             <template #action="{ item }">
               <v-btn icon="mdi-content-copy" variant="text" @click="copyLine(`${item.name}: ${item.value}`)" />
             </template>
@@ -97,23 +101,29 @@
       </v-col>
 
       <v-col v-if="relations.length > 0" cols="12">
-        <section class="panel">
+        <section class="panel relation-panel">
           <div class="panel-header">
             <div>
               <div class="panel-title">{{ $t('dashboard.relatedData') }}</div>
               <div class="panel-meta">{{ $t('dashboard.resultCount', [relations.length]) }}</div>
             </div>
           </div>
-          <PagedTable :headers="relationHeaders" :items="relations" :per-page-options="[8, 16, 32]">
-            <template #action="{ item }">
-              <v-btn
-                v-if="item.route"
-                icon="mdi-arrow-right"
-                variant="text"
-                @click="router.push(item.route)"
-              />
-            </template>
-          </PagedTable>
+          <div class="relation-card-grid">
+            <button
+              v-for="item in relations"
+              :key="item.key"
+              class="relation-card"
+              :class="{ 'relation-card--action': item.route }"
+              type="button"
+              :disabled="!item.route"
+              @click="item.route && router.push(item.route)"
+            >
+              <span class="relation-card-copy">
+                <span v-if="item.label" class="search-card-label">{{ item.label }}</span>
+                <span class="relation-card-title">{{ item.target || item.value }}</span>
+              </span>
+            </button>
+          </div>
         </section>
       </v-col>
     </v-row>
@@ -126,6 +136,7 @@ import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import MetricGrid from '@/components/MetricGrid.vue';
 import PagedTable from '@/components/PagedTable.vue';
+import ExpandableListCell from '@/components/ExpandableListCell.vue';
 import { copyText } from '@/services/clipboard';
 import { displayValue } from '@/services/display';
 import { decodePartNumber, searchPartNumber, summarizePartNumber } from '@/services/flashApi';
@@ -170,6 +181,7 @@ const vendorLogoDark = computed(() => vendorLogoKey.value === 'biwin');
 const mainMetrics = computed(() => primaryMetrics(result.value));
 const detailBlockViews = computed(() => detailBlocks(result.value).map(block => ({
   ...block,
+  wide: block.rows.some(row => row.items?.length),
   cardView: block.rows.length <= 6
 })));
 const relations = computed(() => relationRows(result.value));
@@ -183,11 +195,6 @@ const partNumberInput = computed({
 
 const fieldHeaders = computed(() => [
   { title: t('name'), key: 'name' },
-  { title: t('value'), key: 'value' },
-  { title: t('action'), key: 'action' }
-]);
-const relationHeaders = computed(() => [
-  { title: t('type'), key: 'kind' },
   { title: t('value'), key: 'value' },
   { title: t('action'), key: 'action' }
 ]);

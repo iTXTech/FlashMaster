@@ -1,5 +1,5 @@
 <template>
-  <div class="workspace">
+  <div class="workspace workspace--search workspace--search-id">
     <div class="workspace-grid">
       <section class="panel">
         <div class="panel-header">
@@ -30,7 +30,7 @@
       <section class="panel search-results-panel search-id-results-panel">
         <div class="panel-header">
           <div>
-            <div class="panel-title">{{ $t('dashboard.relatedData') }}</div>
+            <div class="panel-title">{{ $t('dashboard.searchResults') }}</div>
             <div class="panel-meta">{{ $t('dashboard.resultCount', [rows.length]) }}</div>
           </div>
         </div>
@@ -52,9 +52,6 @@
                     <div class="search-card-label">{{ $t('dashboard.geometry') }}</div>
                     <div class="search-card-value">{{ item.geometry || '-' }}</div>
                   </div>
-                </div>
-                <div class="search-badge-row">
-                  <v-chip v-for="badge in item.badges" :key="badge" size="x-small" variant="tonal">{{ badge }}</v-chip>
                 </div>
               </div>
               <div class="search-card-detail-grid">

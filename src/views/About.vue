@@ -1,5 +1,5 @@
 <template>
-  <div class="workspace">
+  <div class="workspace workspace--about">
     <div class="workspace-grid single">
       <section class="panel about-panel">
         <div class="panel-header">

@@ -4,25 +4,26 @@ export default {
     lang: 'English',
     group: 'QQ Group: 1139052001',
     alert: {
-        missingPartNumber: 'Please input a part number',
-        fetchFailed: 'Fetch failed: {0}',
-        missingFlashId: 'Please input a Flash ID'
+        missingPartNumber: 'Enter a PN',
+        fetchFailed: 'Request failed: {0}',
+        missingFlashId: 'Enter a Flash ID'
     },
     nav: {
-        decodePartNumber: 'Decode Part Number',
-        searchPartNumber: 'Search Part Number',
-        searchFlashId: 'Search Flash ID',
+        decodePartNumber: 'Decode PN',
+        searchPartNumber: 'Search PN',
+        searchFlashId: 'Search ID',
         settings: 'Settings',
         about: 'About',
-        decodeId: 'Decode Flash ID'
+        decodeId: 'Decode ID'
     },
     dashboard: {
-        queryPanel: 'Query Input',
-        decodeResult: 'Decoded Result',
+        queryPanel: 'Query',
+        decodeResult: 'Result',
         identity: 'Identity',
         geometry: 'Geometry',
-        electrical: 'Electrical and Package',
+        electrical: 'Electrical / Package',
         relatedData: 'Related Data',
+        searchResults: 'Search Results',
         quickStats: 'Quick Stats',
         empty: 'No data yet',
         copiedSummary: 'Summary copied.',
@@ -34,13 +35,13 @@ export default {
         engine: 'Parser',
         server: 'Server',
         parserMode: 'Parser Mode',
-        parserEmbedded: 'Embedded iTXTech fdnext',
-        parserHttp: 'iTXTech fdnext HTTP API',
-        parserInfo: 'Parser Information',
-        embeddedParserInfo: 'Using embedded iTXTech fdnext {0}.',
+        parserEmbedded: 'Embedded fdnext',
+        parserHttp: 'fdnext HTTP API',
+        parserInfo: 'Parser Info',
+        embeddedParserInfo: 'Embedded fdnext {0}.',
         serverAddr: 'Server Address',
         translation: 'Auto Translation',
-        serverInfo: 'Server Information',
+        serverInfo: 'Server Info',
         customServer: 'Custom Server',
         fdServerInfo: 'fdnext Parser Info',
         capabilityInfo: {
@@ -48,7 +49,7 @@ export default {
             database: 'Database',
             inventory: 'Inventory',
             decoders: 'Decoders',
-            capabilities: 'Capabilities',
+            capabilities: 'API Support',
             name: 'Name',
             version: 'Version',
             schema: 'Schema',
@@ -62,15 +63,15 @@ export default {
             dram: 'DRAM',
             micronFbga: 'Micron FBGA',
             dramLookup: 'DRAM FBGA',
-            partNumberDecoders: 'Part Number Decoders',
-            identifierDecoders: 'Identifier Decoders',
-            more: '+{0} more',
+            partNumberDecoders: 'PN Decoders',
+            identifierDecoders: 'ID Decoders',
+            more: 'Show {0} more',
             collapse: 'Collapse',
             partDecode: 'Part Decode',
             partSearch: 'Part Search',
             flashIdDecode: 'Flash ID Decode',
             flashIdSearch: 'Flash ID Search',
-            micronFbgaLookup: 'Micron FBGA Marking Lookup',
+            micronFbgaLookup: 'Micron FBGA Lookup',
             domain: 'Domain',
             chipKind: 'Chip Kind',
             productType: 'Product Type',
@@ -78,10 +79,10 @@ export default {
         }
     },
     statistic: {
-        title: 'Statistic',
+        title: 'Statistics',
         reset: 'Reset',
-        resetInfo: 'Statistic data have been reset.',
-        content: '{0} Part Numbers have been decoded.<br/>{1} Part Numbers have been searched.<br/>{2} Flash IDs have been decoded.<br/>{3} Flash IDs have been searched.'
+        resetInfo: 'Statistics have been reset.',
+        content: 'PN decoded: {0}.<br/>PN searched: {1}.<br/>Flash ID decoded: {2}.<br/>Flash ID searched: {3}.'
     },
     customization: {
         title: 'Customization',
@@ -110,7 +111,7 @@ export default {
     searchIdPage: {
         query: 'Decode ID',
         search: 'Search ID',
-        pns: 'Part Numbers'
+        pns: 'PNs'
     },
     version: 'Version: {0}',
     unknown: 'Unknown',
@@ -118,8 +119,8 @@ export default {
     search: 'Search PN',
     searchId: 'Search ID',
     summary: 'Copy Summary',
-    partNumber: 'Part Number',
-    partNumberOrFlashId: 'Part Number or Flash ID',
+    partNumber: 'PN',
+    partNumberOrFlashId: 'PN or Flash ID',
     vendor: 'Vendor',
     type: 'Type',
     density: 'Density',

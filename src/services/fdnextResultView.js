@@ -40,22 +40,38 @@ export function formatField(field) {
   return formatValue(field.value);
 }
 
+function isListField(field) {
+  return ['controller', 'controllers'].includes(field?.key);
+}
+
+function splitListField(field) {
+  if (!isListField(field)) return [];
+  const source = Array.isArray(field?.value) ? field.value : formatField(field).split(/[,，;；]/);
+  return [...new Set(source.map(item => String(item || '').trim()).filter(item => item && item !== EMPTY))];
+}
+
 export function fieldMetric(field) {
+  const items = splitListField(field);
   return {
     key: field.key,
     label: field.label || field.key,
     value: formatField(field),
+    items,
     importance: field.importance
   };
 }
 
 export function fieldRows(fields = []) {
-  return asArray(fields).map(field => ({
-    key: field.key,
-    name: field.label || field.key,
-    value: formatField(field),
-    importance: field.importance
-  }));
+  return asArray(fields).map(field => {
+    const items = splitListField(field);
+    return {
+      key: field.key,
+      name: field.label || field.key,
+      value: formatField(field),
+      items,
+      importance: field.importance
+    };
+  });
 }
 
 export function resultBlocks(result) {
@@ -145,6 +161,17 @@ function endpointLabel(endpoint = {}) {
     || '';
 }
 
+function relationKindLabel(kind) {
+  if (kind === 'identifier_for') return '';
+  return chipLabel(kind);
+}
+
+function relationDisplayLabel(relation, action, kindLabel) {
+  if (relation.kind === 'identifier_for') return '';
+  const label = relation.label || action?.label || kindLabel;
+  return label === 'identifier for' ? '' : label;
+}
+
 export function relationRows(result) {
   return asArray(result?.relations).map((relation, index) => {
     const action = relation.action;
@@ -152,10 +179,11 @@ export function relationRows(result) {
     const source = relation.source || {};
     const targetText = endpointLabel(target);
     const sourceText = endpointLabel(source);
+    const kindLabel = relationKindLabel(relation.kind);
     return {
       key: `${relation.kind}-${targetText}-${index}`,
-      kind: chipLabel(relation.kind),
-      label: relation.label || action?.label || chipLabel(relation.kind),
+      kind: kindLabel,
+      label: relationDisplayLabel(relation, action, kindLabel),
       source: sourceText,
       target: targetText,
       value: [sourceText, targetText].filter(Boolean).join(' -> ') || targetText || sourceText,
@@ -181,21 +209,42 @@ function relationParts(relations = []) {
     .filter(Boolean);
 }
 
+function normalizeBadge(value) {
+  return String(value || '').replace(/\s+/g, '').toLowerCase();
+}
+
+function displayBadges(badges, vendor) {
+  const vendorKey = normalizeBadge(vendor);
+  const vendorText = String(vendor || '').trim();
+  return asArray(badges)
+    .map(badge => {
+      const text = String(badge || '').trim();
+      if (normalizeBadge(text) === vendorKey) return '';
+      if (vendorText && text.toLowerCase().startsWith(vendorText.toLowerCase())) {
+        return text.slice(vendorText.length).replace(/^[\s./·|-]+/, '').trim();
+      }
+      return text;
+    })
+    .filter(Boolean);
+}
+
 export function partSearchRows(result) {
   return asArray(result?.items).map((item, index) => {
     const device = item.device || {};
     const partNumber = device.partNumber || item.label;
     const markingCode = device.markingCode || '';
+    const vendor = deviceVendor(device);
+    const badges = asArray(item.badges).length
+      ? asArray(item.badges)
+      : [device.chipKind, device.productType].filter(Boolean).map(chipLabel);
     const route = partNumber ? { path: '/decode', query: { pn: partNumber } } : null;
     return {
       key: `${partNumber || item.label}-${index}`,
-      vendor: deviceVendor(device),
+      vendor,
       pn: partNumber,
       label: item.label || partNumber,
       markingCode,
-      badges: asArray(item.badges).length
-        ? asArray(item.badges)
-        : [device.chipKind, device.productType].filter(Boolean).map(chipLabel),
+      badges: displayBadges(badges, vendor),
       fields: fieldRows(item.fields),
       fieldSummary: fieldRows(item.fields).map(row => `${row.name}: ${row.value}`).join(' · '),
       route,
@@ -210,7 +259,7 @@ export function identifierSearchRows(result) {
     const device = item.device || {};
     const id = device.identifier || item.label;
     const fields = asArray(item.fields);
-    const controllers = formatField(findField(fields, 'controller')).split(/\s*,\s*/).filter(item => item && item !== EMPTY);
+    const controllers = splitListField(findField(fields, 'controller'));
     const partNumberList = relationParts(item.relations);
     return {
       key: `${id}-${index}`,
@@ -276,7 +325,7 @@ export function summaryText(result) {
   if (relations.length) {
     lines.push('[Relations]');
     for (const relation of relations) {
-      lines.push(`${relation.label}: ${relation.value}`);
+      lines.push([relation.label, relation.value].filter(Boolean).join(': '));
     }
   }
   return lines.join('\n');

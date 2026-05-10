@@ -1,5 +1,5 @@
 <template>
-  <div class="workspace">
+  <div class="workspace workspace--search workspace--search-pn">
     <div class="workspace-grid">
       <section class="panel">
         <div class="panel-header">
@@ -30,7 +30,7 @@
       <section class="panel search-results-panel search-pn-results-panel">
         <div class="panel-header">
           <div>
-            <div class="panel-title">{{ $t('dashboard.relatedData') }}</div>
+            <div class="panel-title">{{ $t('dashboard.searchResults') }}</div>
             <div class="panel-meta">{{ $t('dashboard.resultCount', [rows.length]) }}</div>
           </div>
         </div>
@@ -38,20 +38,22 @@
           <template #card="{ item }">
             <div class="search-card-header">
               <div class="search-pn-card-content">
-                <div class="search-card-label">{{ item.vendor || $t('unknown') }}</div>
+                <div class="search-pn-vendor-row">
+                  <span class="search-pn-vendor">{{ item.vendor || $t('unknown') }}</span>
+                  <span v-for="badge in item.badges" :key="badge" class="search-pn-meta-badge">{{ badge }}</span>
+                </div>
                 <button class="search-card-title" type="button" @click="decodePartNumber(item.pn)">
                   {{ item.pn }}
                 </button>
-                <div class="search-badge-row">
-                  <v-chip v-for="badge in item.badges" :key="badge" size="x-small" variant="tonal">{{ badge }}</v-chip>
-                </div>
                 <div v-if="item.markingCode" class="search-card-code-line">
                   <span class="search-card-code-label">{{ $t('shortCode') }}</span>
                   <button class="search-card-code" type="button" @click="decodePartNumber(item.pn)">
                     {{ item.markingCode }}
                   </button>
                 </div>
-                <div v-if="item.fieldSummary" class="search-card-value">{{ item.fieldSummary }}</div>
+                <div v-if="item.fieldSummary" class="search-pn-meta-row">
+                  <span v-if="item.fieldSummary" class="search-pn-meta-text">{{ item.fieldSummary }}</span>
+                </div>
               </div>
             </div>
           </template>

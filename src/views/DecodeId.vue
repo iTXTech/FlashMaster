@@ -1,5 +1,5 @@
 <template>
-  <div class="workspace">
+  <div class="workspace workspace--decode-id">
     <div class="workspace-grid">
       <section class="panel">
         <div class="panel-header">
@@ -100,8 +100,8 @@
         </section>
       </v-col>
 
-      <v-col v-for="block in detailBlockViews" :key="block.id" cols="12" md="6" xl="4">
-        <section class="panel decode-id-info-panel">
+      <v-col v-for="block in detailBlockViews" :key="block.id" cols="12" :md="block.wide ? 12 : 6" :xl="block.wide ? 12 : 4">
+        <section class="panel decode-id-info-panel" :class="{ 'detail-panel--wide': block.wide }">
           <div class="panel-header">
             <div>
               <div class="panel-title">{{ block.label }}</div>
@@ -113,6 +113,10 @@
             <MetricGrid class="detail-card-grid" :items="block.metrics" />
           </div>
           <PagedTable v-else :headers="fieldHeaders" :items="block.rows" :per-page-options="[8, 16, 32]">
+            <template #value="{ item }">
+              <ExpandableListCell v-if="item.items?.length" class="table-controller-list" :items="item.items" :limit="4" />
+              <span v-else>{{ item.value }}</span>
+            </template>
             <template #action="{ item }">
               <v-btn icon="mdi-content-copy" variant="text" @click="copyLine(`${item.name}: ${item.value}`)" />
             </template>
@@ -129,6 +133,7 @@ import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import MetricGrid from '@/components/MetricGrid.vue';
 import PagedTable from '@/components/PagedTable.vue';
+import ExpandableListCell from '@/components/ExpandableListCell.vue';
 import { copyText } from '@/services/clipboard';
 import { displayValue } from '@/services/display';
 import { decodeFlashId, searchFlashId, summarizeFlashId } from '@/services/flashApi';
@@ -172,6 +177,7 @@ const vendorLogoDark = computed(() => vendorLogoKey.value === 'biwin');
 const mainMetrics = computed(() => primaryMetrics(result.value));
 const detailBlockViews = computed(() => detailBlocks(result.value).map(block => ({
   ...block,
+  wide: block.rows.some(row => row.items?.length),
   cardView: block.rows.length <= 6
 })));
 const relations = computed(() => relationRows(result.value));

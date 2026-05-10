@@ -2,6 +2,9 @@ FlashMaster by PeratX <peratx@itxtech.org>
 版权所有 (c) 2019-2026 iTX Technologies
 ===================================
 版本 2.1.0
+- 更新内嵌 fdnext 到 v2.0.0（de51be4），对料号搜索中的 marking 候选去重，让 FBGA 与封装标记搜索结果更干净。
+- Controller 字段在解析和搜索结果中统一拆分为可折叠列表展示。
+- 优化宽屏布局：搜索/设置工作区居中收束，解析详情保持更高信息密度，并精简英文界面文案。
 - 更新内嵌 fdnext 到 v2.0.0（9b3ec2f），新增 capabilities inventory 合约，提供解析器、FDB、资源统计和 decoder 元数据。
 - 设置页解析器信息改为结构化卡片展示，包含解析器版本、FDB 元数据、资源统计、decoder 列表和支持能力。
 - 更新内嵌 fdnext 到 v2.0.0（36fa208），并将所有解析/搜索路径迁移到 fdnext 2.0 标准结果合约。

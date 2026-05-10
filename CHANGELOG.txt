@@ -1,7 +1,10 @@
 FlashMaster by PeratX <peratx@itxtech.org>
 Copyright (c) 2019-2026 iTX Technologies
 ===================================
-Version 2.0.2
+Version 2.1.0
+- Updated embedded fdnext to v2.0.0 (de51be4), deduplicating part-search marking candidates for cleaner FBGA and package-marking search results.
+- Split controller fields into collapsible lists across decode and search result views.
+- Refined wide-screen layouts by centering search/settings workspaces, keeping decode details denser, and tightening English UI labels.
 - Updated embedded fdnext to v2.0.0 (9b3ec2f), adding the capabilities inventory contract for parser, FDB, resource, and decoder metadata.
 - Reworked Settings parser information into structured cards for parser version, FDB metadata, inventory counts, decoder lists, and supported capabilities.
 - Updated embedded fdnext to v2.0.0 (36fa208) and migrated all decode/search paths to the fdnext 2.0 canonical result contract.
