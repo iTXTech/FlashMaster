@@ -51,11 +51,11 @@
             <div class="result-hero">
               <div class="metric decode-id-vendor-metric">
                 <div class="metric-label">{{ $t('vendor') }}</div>
-                <div class="decode-id-vendor-line">
+                <div class="decode-id-vendor-line" :class="{ 'decode-id-vendor-line--logo-only': vendorLogo }">
                   <div v-if="vendorLogo" class="vendor-logo-wrap decode-id-logo-wrap" :class="{ 'vendor-logo-wrap--dark': vendorLogoDark }">
                     <img :src="vendorLogo" :alt="header.vendor" :class="['vendor-logo', vendorLogoClass]" />
                   </div>
-                  <div class="metric-value">{{ displayValue(header.vendor) }}</div>
+                  <div v-else class="metric-value">{{ displayValue(header.vendor) }}</div>
                 </div>
               </div>
               <div class="result-title-panel">
@@ -179,7 +179,8 @@ const resultPanelMeta = computed(() => {
 const vendorLogo = computed(() => getVendorLogo(header.value.vendor));
 const vendorLogoKey = computed(() => getVendorLogoKey(header.value.vendor));
 const vendorLogoClass = computed(() => vendorLogoKey.value ? `vendor-logo--${vendorLogoKey.value}` : '');
-const vendorLogoDark = computed(() => vendorLogoKey.value === 'biwin');
+const darkLogoKeys = new Set(['biwin', 'micron', 'solidigm']);
+const vendorLogoDark = computed(() => darkLogoKeys.has(vendorLogoKey.value));
 const mainMetrics = computed(() => primaryMetrics(result.value));
 const detailBlockViews = computed(() => detailBlocks(result.value).map(block => ({
   ...block,

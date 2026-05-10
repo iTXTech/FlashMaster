@@ -55,7 +55,7 @@
                 <div v-if="vendorLogo" class="vendor-logo-wrap" :class="{ 'vendor-logo-wrap--dark': vendorLogoDark }">
                   <img :src="vendorLogo" :alt="header.vendor" :class="['vendor-logo', vendorLogoClass]" />
                 </div>
-                <div class="metric-value">{{ displayValue(header.vendor) }}</div>
+                <div v-else class="metric-value">{{ displayValue(header.vendor) }}</div>
               </div>
               <div class="result-title-panel">
                 <div class="result-title">{{ displayValue(header.title) }}</div>
@@ -183,7 +183,8 @@ const resultPanelMeta = computed(() => {
 const vendorLogo = computed(() => getVendorLogo(header.value.vendor));
 const vendorLogoKey = computed(() => getVendorLogoKey(header.value.vendor));
 const vendorLogoClass = computed(() => vendorLogoKey.value ? `vendor-logo--${vendorLogoKey.value}` : '');
-const vendorLogoDark = computed(() => vendorLogoKey.value === 'biwin');
+const darkLogoKeys = new Set(['biwin', 'micron', 'solidigm']);
+const vendorLogoDark = computed(() => darkLogoKeys.has(vendorLogoKey.value));
 const mainMetrics = computed(() => primaryMetrics(result.value));
 const detailBlockViews = computed(() => detailBlocks(result.value).map(block => ({
   ...block,

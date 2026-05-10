@@ -1,7 +1,6 @@
 import biwin from '@/assets/biwin.svg';
 import cxmt from '@/assets/cxmt.svg';
 import elpida from '@/assets/elpida.svg';
-import intel from '@/assets/intel.svg';
 import kingston from '@/assets/kingston.svg';
 import kioxia from '@/assets/kioxia.svg';
 import longsys from '@/assets/longsys.png';
@@ -11,15 +10,14 @@ import phison from '@/assets/phison.svg';
 import sandisk from '@/assets/sandisk.svg';
 import samsung from '@/assets/samsung.svg';
 import skhynix from '@/assets/skhynix.svg';
+import solidigm from '@/assets/solidigm.png';
 import spectek from '@/assets/spectek.gif';
-import wd from '@/assets/wd.svg';
 import ymtc from '@/assets/ymtc.png';
 
 const logos = {
     biwin,
     cxmt,
     elpida,
-    intel,
     kingston,
     kioxia,
     longsys,
@@ -30,9 +28,8 @@ const logos = {
     samsung,
     skhynix,
     sndk: sandisk,
+    solidigm,
     spectek,
-    wd,
-    westerndigital: wd,
     ymtc
 };
 
@@ -40,7 +37,7 @@ const vendorAliases = {
     '佰维': 'biwin',
     '长鑫存储': 'cxmt',
     '尔必达': 'elpida',
-    '英特尔': 'intel',
+    '英特尔': 'solidigm',
     '金士顿': 'kingston',
     '铠侠': 'kioxia',
     '江波龙': 'longsys',
@@ -53,12 +50,13 @@ const vendorAliases = {
     '美光降级': 'spectek',
     '长江存储': 'ymtc',
     foresee: 'longsys',
+    intel: 'solidigm',
     lexar: 'longsys',
     sandiskkioxia: 'sandisk',
     toshiba: 'kioxia',
-    western: 'wd',
-    westerndigital: 'wd',
-    wd: 'wd'
+    western: 'sndk',
+    westerndigital: 'sndk',
+    wd: 'sndk'
 };
 
 export function getVendorLogoKey(vendor) {

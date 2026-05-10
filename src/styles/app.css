@@ -550,6 +550,10 @@ a {
   background: #111827;
 }
 
+.decode-vendor-metric .vendor-logo-wrap:last-child {
+  margin-bottom: 0;
+}
+
 .vendor-logo {
   max-width: 180px;
   max-height: 38px;
@@ -583,14 +587,27 @@ a {
   gap: 10px;
 }
 
+.decode-id-vendor-line--logo-only {
+  grid-template-columns: 1fr;
+}
+
 .decode-id-logo-wrap {
   min-height: 44px;
   margin-bottom: 0;
 }
 
+.decode-id-vendor-line--logo-only .decode-id-logo-wrap {
+  min-height: 52px;
+}
+
 .decode-id-logo-wrap .vendor-logo {
   max-width: 84px;
   max-height: 30px;
+}
+
+.decode-id-vendor-line--logo-only .vendor-logo {
+  max-width: 150px;
+  max-height: 32px;
 }
 
 .decode-id-flash-id-metric .metric-value {
