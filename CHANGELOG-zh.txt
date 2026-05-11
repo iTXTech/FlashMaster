@@ -2,6 +2,8 @@ FlashMaster by PeratX <peratx@itxtech.org>
 版权所有 (c) 2019-2026 iTX Technologies
 ===================================
 版本 2.1.0
+- 更新内嵌 fdnext 到 v2.1.0（4c1c609），扩展 DRAM 与 Managed NAND 覆盖，包含 CXMT DRAM process、Silicon Motion managed NAND、SK hynix ZUFS 4.1 与更完整的旧款 Micron eMCP 解析。
+- 简化 About 项目信息，仅强调 GNU AGPL 3.0 许可证，不再重复源码链接和 HTTP API 模式。
 - 更新内嵌 fdnext 到 v2.0.0（fe99a8c），改用 fdnext 标准 build metadata，并使用 7 位短 commit hash。
 - 设置页解析器/服务器信息现在会从 capabilities API 展示 fdnext 的 commit hash 与 build time，内嵌和 HTTP 模式均支持。
 - 新增内置 fdnext HTTP API 预设，包含 iTXTech fdnext 云端与本地 fdnext 开发。

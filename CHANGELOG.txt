@@ -2,6 +2,8 @@ FlashMaster by PeratX <peratx@itxtech.org>
 Copyright (c) 2019-2026 iTX Technologies
 ===================================
 Version 2.1.0
+- Updated embedded fdnext to v2.1.0 (4c1c609), expanding DRAM and managed NAND coverage with CXMT DRAM process decoding, Silicon Motion managed NAND, SK hynix ZUFS 4.1, and broader legacy Micron eMCP decoding.
+- Simplified the About project section so it only emphasizes the GNU AGPL 3.0 license instead of repeating the source link and HTTP API mode.
 - Updated embedded fdnext to v2.0.0 (fe99a8c), using fdnext standard build metadata with 7-character commit hashes.
 - Settings parser/server information now displays fdnext commit hash and build time from the capabilities API for both embedded and HTTP modes.
 - Added built-in fdnext HTTP API presets for iTXTech fdnext Cloud and Local fdnext Dev.
