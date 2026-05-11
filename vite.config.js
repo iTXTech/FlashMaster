@@ -31,15 +31,17 @@ const shortFdnextCommitHash = value => String(value || '').trim().slice(0, 7) ||
 const fdnextBuildCommitHash = shortFdnextCommitHash(process.env.FDNEXT_COMMIT_HASH || fdnextCommitHash);
 const fdnextBuildTime = process.env.FDNEXT_BUILD_TIME || new Date().toISOString();
 const fdnextVersion = fdnextPackageJson.version;
+const routerMode = process.env.VITE_FLASHMASTER_ROUTER_MODE === 'history' ? 'history' : 'hash';
+const appBase = process.env.VITE_FLASHMASTER_BASE || (routerMode === 'history' ? '/' : './');
 
 export default defineConfig({
-  base: './',
+  base: appBase,
   plugins: [vue()],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
       '@itxtech/fdnext-core': fileURLToPath(new URL('./vendor/fdnext/packages/core/src/index.ts', import.meta.url)),
-      '@itxtech/fdnext-dsl': fileURLToPath(new URL('./vendor/fdnext/packages/dsl/src/index.ts', import.meta.url))
+      '@itxtech/fdnext-decodepack': fileURLToPath(new URL('./vendor/fdnext/packages/decodepack/src/index.ts', import.meta.url))
     }
   },
   define: {

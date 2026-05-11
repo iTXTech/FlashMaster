@@ -85,6 +85,7 @@ import PagedTable from '@/components/PagedTable.vue';
 import { searchPartNumber } from '@/services/flashApi';
 import { partSearchRows } from '@/services/fdnextResultView';
 import { trackLookup } from '@/services/analytics';
+import { partRoute, partsSearchRoute, routeParamText } from '@/router/locations';
 import bus from '@/store/bus';
 import store from '@/store';
 
@@ -116,6 +117,10 @@ function normalizeInput() {
   return partNumber.value;
 }
 
+function routeSearchQuery() {
+  return store.queryInputFormat(routeParamText(route, 'query'));
+}
+
 async function search(syncRoute = true) {
   const pn = normalizeInput();
   if (!pn) {
@@ -125,8 +130,8 @@ async function search(syncRoute = true) {
   if (store.isAutoHideSoftKeyboard()) {
     input.value?.blur?.();
   }
-  if (syncRoute && route.query.pn !== pn) {
-    router.push({ path: '/searchPn', query: { pn } });
+  if (syncRoute && routeSearchQuery() !== pn) {
+    router.push(partsSearchRoute(pn, route));
   }
   loading.value = true;
   try {
@@ -156,11 +161,11 @@ async function search(syncRoute = true) {
 function decodeCurrent() {
   const pn = normalizeInput();
   if (!pn) return notify(t('alert.missingPartNumber'));
-  router.push({ path: '/decode', query: { pn } });
+  router.push(partRoute(pn, route));
 }
 
 function decodePartNumber(pn) {
-  router.push({ path: '/decode', query: { pn } });
+  router.push(partRoute(pn, route));
 }
 
 function notify(text) {
@@ -168,19 +173,24 @@ function notify(text) {
 }
 
 onMounted(() => {
-  if (route.query.pn) {
-    partNumber.value = store.queryInputFormat(route.query.pn);
+  const query = routeSearchQuery();
+  if (query) {
+    partNumber.value = query;
     search(false);
   } else {
     nextTick(() => input.value?.focus?.());
   }
 });
 
-watch(() => route.query.pn, value => {
-  const next = store.queryInputFormat(value);
+watch(() => route.params.query, () => {
+  const next = routeSearchQuery();
   if (next && next !== partNumber.value) {
     partNumber.value = next;
     search(false);
+  } else if (!next) {
+    partNumber.value = '';
+    rows.value = [];
+    nextTick(() => input.value?.focus?.());
   }
 });
 </script>

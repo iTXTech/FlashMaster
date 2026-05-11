@@ -2,9 +2,9 @@
 
 ## Current Scope
 
-FlashMaster is now a Vite + Vue 3 + Vuetify 3 dense workstation for NAND Flash
-part-number lookup, Flash ID lookup, database search, and result inspection. It
-is no longer in the Step 1 migration phase.
+FlashMaster is now a Vite + Vue 3 + Vuetify 3 dense Memory Chip Intelligence
+Platform for memory-chip part-number lookup, NAND Flash ID lookup, database
+search, and result inspection. It is no longer in the Step 1 migration phase.
 
 Keep the app focused as a practical tool surface. Do not add a landing page or
 marketing-style first screen.
@@ -24,14 +24,20 @@ marketing-style first screen.
 
 ## Public Routes
 
-Keep these routes available:
+Keep one public route set available in both hash and history router modes:
 
-- `/decode`
-- `/decodeId`
-- `/searchPn`
-- `/searchId`
+- `/parts`
+- `/parts/:pn`
+- `/parts/search/:query`
+- `/ids`
+- `/ids/:id`
+- `/ids/search/:query`
 - `/settings`
 - `/about`
+
+Each route may be prefixed with `/en` or `/zh` for URL-level language selection.
+The default `VITE_FLASHMASTER_ROUTER_MODE` is `hash`; `history` requires SPA
+rewrite rules such as Cloudflare Pages `/* /index.html 200`.
 
 ## Parser Architecture
 
@@ -100,7 +106,7 @@ Guardrails:
 - If `vendor/fdnext` is dirty before an update, inspect the changes first and
   avoid resetting them without explicit approval.
 - Preserve the Vite aliases for `@itxtech/fdnext-core` and
-  `@itxtech/fdnext-dsl` unless fdnext changes its package layout.
+  `@itxtech/fdnext-decodepack` unless fdnext changes its package layout.
 
 Minimum verification after an fdnext update:
 

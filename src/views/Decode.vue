@@ -123,7 +123,7 @@
             :class="{ 'relation-card--action': item.route }"
             type="button"
             :disabled="!item.route"
-            @click="item.route && router.push(item.route)"
+            @click="item.route && router.push(localizedRoute(item.route))"
           >
             <span class="relation-card-copy">
               <span v-if="item.label" class="search-card-label">{{ item.label }}</span>
@@ -171,6 +171,7 @@ import {
 } from '@/services/fdnextResultView';
 import { trackLookup } from '@/services/analytics';
 import getVendorLogo, { getVendorLogoKey } from '@/services/vendorLogos';
+import { idsSearchRoute, localizeRouteLocation, partRoute, partsSearchRoute, routeParamText } from '@/router/locations';
 import bus from '@/store/bus';
 import store from '@/store';
 
@@ -259,14 +260,22 @@ function focusInput() {
   nextTick(() => input.value?.focus?.());
 }
 
+function routePartNumber() {
+  return store.queryInputFormat(routeParamText(route, 'pn'));
+}
+
+function localizedRoute(location) {
+  return localizeRouteLocation(location, route);
+}
+
 async function decode(syncRoute = true) {
   const pn = normalizeInput();
   if (!pn) {
     notify(t('alert.missingPartNumber'));
     return;
   }
-  if (syncRoute && route.query.pn !== pn) {
-    router.push({ path: '/decode', query: { pn } });
+  if (syncRoute && routePartNumber() !== pn) {
+    router.push(partRoute(pn, route));
   }
   if (store.isAutoHideSoftKeyboard()) {
     input.value?.blur?.();
@@ -339,13 +348,13 @@ function searchSuggestions(input) {
 function goSearchPn() {
   const pn = normalizeInput();
   if (!pn) return notify(t('alert.missingPartNumber'));
-  router.push({ path: '/searchPn', query: { pn } });
+  router.push(partsSearchRoute(pn, route));
 }
 
 function goSearchId() {
   const id = normalizeInput();
   if (!id) return notify(t('alert.missingFlashId'));
-  router.push({ path: '/searchId', query: { id } });
+  router.push(idsSearchRoute(id, route));
 }
 
 async function copySummary() {
@@ -384,20 +393,21 @@ function notify(text) {
 }
 
 onMounted(() => {
-  if (route.query.pn) {
-    partNumber.value = store.queryInputFormat(route.query.pn);
+  const pn = routePartNumber();
+  if (pn) {
+    partNumber.value = pn;
     decode(false);
   } else {
     focusInput();
   }
 });
 
-watch(() => route.query.pn, value => {
-  const next = store.queryInputFormat(value);
+watch(() => route.params.pn, () => {
+  const next = routePartNumber();
   if (next && next !== partNumber.value) {
     partNumber.value = next;
     decode(false);
-  } else if (!value) {
+  } else if (!next) {
     partNumber.value = '';
     result.value = null;
     clearSuggestions();

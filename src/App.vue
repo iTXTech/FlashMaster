@@ -33,7 +33,7 @@
           <img :src="logo" alt="FlashMaster" class="drawer-info-logo" />
           <div class="drawer-info-title">FlashMaster</div>
         </div>
-        <div class="drawer-info-line">by PeratX@iTXTech.org</div>
+        <div class="drawer-info-line">{{ $t('productTagline') }}</div>
         <div class="drawer-info-line">{{ $t('version', [projectVersion]) }}</div>
         <div class="drawer-info-line">{{ $t('group') }}</div>
       </div>
@@ -43,10 +43,10 @@
       <v-list density="compact" nav>
         <v-list-item
           v-for="item in navItems"
-          :key="item.path"
+          :key="item.key"
           :prepend-icon="item.icon"
           :title="$t(item.title)"
-          :to="item.path"
+          :to="item.to"
           color="primary"
           rounded="sm"
         />
@@ -82,15 +82,26 @@
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useDisplay, useTheme } from 'vuetify';
 import { useI18n } from 'vue-i18n';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import ChangelogDialog from '@/components/ChangelogDialog.vue';
 import MarketTicker from '@/components/MarketTicker.vue';
 import logo from '@/assets/logo.png';
+import {
+  aboutRoute,
+  appLocaleFromRoute,
+  idsRoute,
+  idsSearchRoute,
+  partsRoute,
+  partsSearchRoute,
+  routeWithAppLocale,
+  settingsRoute
+} from '@/router/locations';
 import bus from '@/store/bus';
 import store from '@/store';
 import themeManager from '@/theme';
 
 const route = useRoute();
+const router = useRouter();
 const vuetifyTheme = useTheme();
 const { mobile } = useDisplay();
 const { locale, messages, t } = useI18n();
@@ -104,14 +115,14 @@ const snackbar = ref({
 const changelogDialog = ref(false);
 const marketTickerEnabled = ref(store.isMarketTickerEnabled());
 
-const navItems = [
-  { icon: 'mdi-crosshairs-gps', title: 'nav.decodePartNumber', path: '/decode' },
-  { icon: 'mdi-magnify', title: 'nav.searchPartNumber', path: '/searchPn' },
-  { icon: 'mdi-memory', title: 'nav.decodeId', path: '/decodeId' },
-  { icon: 'mdi-flash', title: 'nav.searchFlashId', path: '/searchId' },
-  { icon: 'mdi-tune', title: 'nav.settings', path: '/settings' },
-  { icon: 'mdi-information-outline', title: 'nav.about', path: '/about' }
-];
+const navItems = computed(() => [
+  { key: 'parts', icon: 'mdi-chip', title: 'nav.decodePartNumber', to: partsRoute(route) },
+  { key: 'parts-search', icon: 'mdi-magnify', title: 'nav.searchPartNumber', to: partsSearchRoute('', route) },
+  { key: 'ids', icon: 'mdi-memory', title: 'nav.decodeId', to: idsRoute(route) },
+  { key: 'ids-search', icon: 'mdi-flash', title: 'nav.searchFlashId', to: idsSearchRoute('', route) },
+  { key: 'settings', icon: 'mdi-tune', title: 'nav.settings', to: settingsRoute(route) },
+  { key: 'about', icon: 'mdi-information-outline', title: 'nav.about', to: aboutRoute(route) }
+]);
 
 const languages = computed(() => Object.entries(messages.value).map(([code, message]) => ({
   code,
@@ -126,9 +137,17 @@ const applyTheme = () => {
   vuetifyTheme.change(themeManager.resolveThemeName(store.getTheme()));
 };
 
+const syncRouteLocale = () => {
+  const next = appLocaleFromRoute(route);
+  if (!next || next === locale.value) return;
+  locale.value = next;
+  store.setLang(next);
+};
+
 const changeLanguage = value => {
   locale.value = value;
   store.setLang(value);
+  router.push(routeWithAppLocale(route, value));
 };
 
 const closeMarketTicker = () => {
@@ -139,6 +158,7 @@ const closeMarketTicker = () => {
 
 const updateTitle = () => {
   document.title = pageTitle.value;
+  document.documentElement.lang = locale.value === 'eng' ? 'en' : 'zh-CN';
   const primary = vuetifyTheme.current.value.colors.primary;
   for (const name of ['theme-color', 'msapplication-navbutton-color', 'apple-mobile-web-app-status-bar-style']) {
     let tag = document.querySelector(`meta[name="${name}"]`);
@@ -187,6 +207,7 @@ onUnmounted(() => {
   mediaQuery?.removeEventListener?.('change', applyTheme);
 });
 
+watch(() => route.params.locale, syncRouteLocale, { immediate: true });
 watch([() => route.meta.title, locale, () => vuetifyTheme.global.name.value], updateTitle);
 watch(mobile, value => {
   drawer.value = !value;

@@ -3,18 +3,19 @@ import changelogText from '../../CHANGELOG-zh.txt?raw';
 export default {
     lang: '简体中文',
     group: 'QQ群：1139052001',
+    productTagline: '存储芯片智能解析平台',
     alert: {
         missingPartNumber: '请输入料号',
         fetchFailed: '获取失败：{0}',
         missingFlashId: '请输入闪存ID'
     },
     nav: {
-        decodePartNumber: '料号查询',
+        decodePartNumber: '料号',
         searchPartNumber: '料号搜索',
-        searchFlashId: '闪存ID搜索',
+        searchFlashId: 'ID 搜索',
         settings: '设置',
         about: '关于',
-        decodeId: '闪存ID查询'
+        decodeId: 'ID'
     },
     dashboard: {
         queryPanel: '查询输入',
@@ -168,5 +169,5 @@ export default {
     open: '打开',
     yes: '是',
     no: '否',
-    about: '<div class="about-section"><div class="about-heading">FlashMaster</div><div><a href="https://fm.itxtech.org" target="_blank" rel="noopener noreferrer">iTXTech FlashMaster</a> 是面向 NAND Flash 的料号与闪存 ID 查询工作台，支持本地解析、数据库搜索、结果检查、复制和多语言界面。</div></div><div class="about-section"><div class="about-heading">架构</div><div>当前版本使用 Vite、Vue 3、Vuetify 3 和 pnpm 构建。支持内嵌 fdnext 解析器，以及手动配置服务器地址的 fdnext HTTP API 模式。</div></div><div class="about-section"><div class="about-heading">fdnext</div><div><a href="https://github.com/iTXTech/fdnext" target="_blank" rel="noopener noreferrer">fdnext</a> 是存储芯片解析引擎，负责料号解析、NAND Flash ID 解析、搜索数据和 canonical result 渲染。FlashMaster 通过 Git submodule 引入 fdnext，并将其资源打包进前端，因此默认模式无需服务器即可完成解析。当前内嵌版本：<strong>{1}</strong>。</div></div><div class="about-section"><div class="about-heading">许可证</div><div>FlashMaster 基于 GNU Affero General Public License v3.0（AGPL 3.0）发布。</div></div><div class="about-section"><div class="about-heading">作者</div><div><a href="https://peratx.net" target="_blank" rel="noopener noreferrer">PeratX</a></div></div><div class="about-section about-meta">客户端：{0}<br/>Copyright © 2019-2026 <a href="https://itxtech.org" target="_blank" rel="noopener noreferrer">iTX Technologies</a></div>'
+    about: '<div class="about-section"><div class="about-heading">FlashMaster</div><div><a href="https://fm.itxtech.org" target="_blank" rel="noopener noreferrer">iTXTech FlashMaster</a> 是面向存储芯片的智能解析平台，聚焦料号与 NAND Flash ID 的本地解析、数据库搜索、结果检查、复制和多语言操作。</div></div><div class="about-section"><div class="about-heading">架构</div><div>当前版本基于 Vite、Vue 3、Vuetify 3 和 pnpm 构建。默认内嵌 fdnext 在浏览器本地运行，也可切换到手动配置的 fdnext 2.x HTTP API。</div></div><div class="about-section"><div class="about-heading">fdnext</div><div><a href="https://github.com/iTXTech/fdnext" target="_blank" rel="noopener noreferrer">fdnext 2.x</a> 是 FlashMaster 的解析与数据引擎，提供统一规则、资源、搜索与标准结果模型，用于存储芯片料号和 NAND Flash ID 智能分析。当前内嵌版本：<strong>{1}</strong>。</div></div><div class="about-section"><div class="about-heading">许可证</div><div>FlashMaster 基于 GNU Affero General Public License v3.0（AGPL 3.0）发布。</div></div><div class="about-section about-contact"><div class="about-heading">联系作者</div><a class="about-contact-link" href="mailto:peratx&#64;itxtech.org">PeratX &lt;peratx&#64;itxtech.org&gt;</a></div><div class="about-section about-meta">客户端：{0}<br/>Copyright © 2019-2026 <a href="https://itxtech.org" target="_blank" rel="noopener noreferrer">iTX Technologies</a></div>'
 }

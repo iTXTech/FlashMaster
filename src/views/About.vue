@@ -85,6 +85,21 @@ function openChangelog() {
   font-weight: 700;
 }
 
+.about-copy :deep(.about-contact) {
+  padding: 12px 14px;
+  border: 1px solid rgba(var(--v-theme-primary), 0.32);
+  border-radius: 8px;
+  background: rgba(var(--v-theme-primary), 0.08);
+}
+
+.about-copy :deep(.about-contact-link) {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  font-size: 0.98rem;
+  font-weight: 700;
+}
+
 .about-copy :deep(.about-meta) {
   color: rgba(var(--v-theme-on-surface), 0.68);
 }

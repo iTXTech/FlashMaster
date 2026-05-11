@@ -2,6 +2,11 @@ FlashMaster by PeratX <peratx@itxtech.org>
 版权所有 (c) 2019-2026 iTX Technologies
 ===================================
 版本 2.1.0
+- 更新内嵌 fdnext 到 v2.1.0（268679e），适配重命名后的 decodepack 包结构用于内嵌解析器构建。
+- 移除旧的 `deploy.bat` GitHub Pages 部署脚本。
+- 将 FlashMaster 的产品定位调整为存储芯片智能解析平台（Memory Chip Intelligence Platform），并同步应用文案与文档。
+- 重构公开路由为 `/parts`、`/ids`、`/settings`、`/about`，并支持可选 `/en` 与 `/zh` 语言前缀。
+- 新增 `VITE_FLASHMASTER_ROUTER_MODE=hash|history`；默认继续使用 hash 模式，history 模式使用正常 URL 并配合 SPA rewrite。
 - 更新内嵌 fdnext 到 v2.1.0（4c1c609），扩展 DRAM 与 Managed NAND 覆盖，包含 CXMT DRAM process、Silicon Motion managed NAND、SK hynix ZUFS 4.1 与更完整的旧款 Micron eMCP 解析。
 - 简化 About 项目信息，仅强调 GNU AGPL 3.0 许可证，不再重复源码链接和 HTTP API 模式。
 - 更新内嵌 fdnext 到 v2.0.0（fe99a8c），改用 fdnext 标准 build metadata，并使用 7 位短 commit hash。

@@ -1,4 +1,5 @@
 import { displayValue } from '@/services/display';
+import { idRoute, idsSearchRoute, partRoute, partsSearchRoute } from '@/router/locations';
 import getVendorLogo, { getVendorLogoKey } from '@/services/vendorLogos';
 
 export const FDNEXT_RESULT_SCHEMA_VERSION = 'fdnext.result.v1';
@@ -242,10 +243,10 @@ export function actionRoute(action) {
   const input = action?.input || {};
   const query = input.query;
   if (!query) return null;
-  if (action.operation === 'part.decode') return { path: '/decode', query: { pn: query } };
-  if (action.operation === 'part.search') return { path: '/searchPn', query: { pn: query } };
-  if (action.operation === 'identifier.decode') return { path: '/decodeId', query: { id: query } };
-  if (action.operation === 'identifier.search') return { path: '/searchId', query: { id: query } };
+  if (action.operation === 'part.decode') return partRoute(query);
+  if (action.operation === 'part.search') return partsSearchRoute(query);
+  if (action.operation === 'identifier.decode') return idRoute(query);
+  if (action.operation === 'identifier.search') return idsSearchRoute(query);
   return null;
 }
 
@@ -336,7 +337,7 @@ export function partSearchRows(result) {
     const badges = asArray(item.badges).length
       ? asArray(item.badges)
       : [device.chipKind, device.productType].filter(Boolean).map(chipLabel);
-    const route = partNumber ? { path: '/decode', query: { pn: partNumber } } : null;
+    const route = partNumber ? partRoute(partNumber) : null;
     return {
       key: `${partNumber || item.label}-${index}`,
       vendor,
@@ -385,7 +386,7 @@ export function identifierSearchRows(result) {
       controllerList: controllers,
       controllers: controllers.join(', '),
       links: externalLinkRows(item.links, vendor),
-      route: id ? { path: '/decodeId', query: { id } } : null
+      route: id ? idRoute(id) : null
     };
   });
 }

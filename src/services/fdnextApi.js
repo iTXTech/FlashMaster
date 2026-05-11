@@ -1,10 +1,8 @@
 import { createEngine } from '@itxtech/fdnext-core';
 import {
-  compileIdentifierRulesToDecoders,
-  compileRulesToDecoders,
-  defaultDslRules,
-  defaultIdentifierRules
-} from '@itxtech/fdnext-dsl';
+  compileDecodePack,
+  defaultDecodePack
+} from '@itxtech/fdnext-decodepack';
 import { embeddedResourceBundle } from '../../vendor/fdnext/packages/resources';
 import { createExternalLinkPreviewProcessor } from '@/services/fdnextExternalLinkPreview';
 import { summaryText } from '@/services/fdnextResultView';
@@ -14,13 +12,14 @@ let engine;
 
 function getEngine() {
   if (!engine) {
+    const decodePack = compileDecodePack(defaultDecodePack);
     const processors = [
       createExternalLinkPreviewProcessor()
     ].filter(Boolean);
     engine = createEngine({
       resources: embeddedResourceBundle,
-      decoders: compileRulesToDecoders(defaultDslRules),
-      identifierDecoders: compileIdentifierRulesToDecoders(defaultIdentifierRules),
+      decoders: decodePack.partDecoders,
+      identifierDecoders: decodePack.identifierDecoders,
       processors
     });
   }

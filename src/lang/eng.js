@@ -3,18 +3,19 @@ import changelogText from '../../CHANGELOG.txt?raw';
 export default {
     lang: 'English',
     group: 'QQ Group: 1139052001',
+    productTagline: 'Memory Chip Intelligence Platform',
     alert: {
         missingPartNumber: 'Enter a PN',
         fetchFailed: 'Request failed: {0}',
         missingFlashId: 'Enter a Flash ID'
     },
     nav: {
-        decodePartNumber: 'Decode PN',
-        searchPartNumber: 'Search PN',
-        searchFlashId: 'Search ID',
+        decodePartNumber: 'Parts',
+        searchPartNumber: 'Part Search',
+        searchFlashId: 'ID Search',
         settings: 'Settings',
         about: 'About',
-        decodeId: 'Decode ID'
+        decodeId: 'IDs'
     },
     dashboard: {
         queryPanel: 'Query',
@@ -168,5 +169,5 @@ export default {
     open: 'Open',
     yes: 'Yes',
     no: 'No',
-    about: '<div class="about-section"><div class="about-heading">FlashMaster</div><div><a href="https://fm.itxtech.org" target="_blank" rel="noopener noreferrer">iTXTech FlashMaster</a> is a NAND Flash part-number and Flash ID workstation for local decoding, database search, result inspection, copy actions, and multilingual operation.</div></div><div class="about-section"><div class="about-heading">Architecture</div><div>The current version is built with Vite, Vue 3, Vuetify 3, and pnpm. It supports the embedded fdnext parser and fdnext HTTP API mode with a manually configured server address.</div></div><div class="about-section"><div class="about-heading">fdnext</div><div><a href="https://github.com/iTXTech/fdnext" target="_blank" rel="noopener noreferrer">fdnext</a> is the memory-chip parsing engine used for part-number decoding, NAND Flash ID decoding, search data, and canonical result rendering. FlashMaster imports fdnext as a Git submodule and bundles its resources into the frontend, so the default mode works without a server. Embedded version: <strong>{1}</strong>.</div></div><div class="about-section"><div class="about-heading">License</div><div>FlashMaster is distributed under the GNU Affero General Public License v3.0 (AGPL 3.0).</div></div><div class="about-section"><div class="about-heading">Author</div><div><a href="https://peratx.net" target="_blank" rel="noopener noreferrer">PeratX</a></div></div><div class="about-section about-meta">Client: {0}<br/>Copyright © 2019-2026 <a href="https://itxtech.org" target="_blank" rel="noopener noreferrer">iTX Technologies</a></div>'
+    about: '<div class="about-section"><div class="about-heading">FlashMaster</div><div><a href="https://fm.itxtech.org" target="_blank" rel="noopener noreferrer">iTXTech FlashMaster</a> is a Memory Chip Intelligence Platform for memory-chip part numbers and NAND Flash IDs, combining local decoding, database search, result inspection, copy actions, and multilingual operation.</div></div><div class="about-section"><div class="about-heading">Architecture</div><div>The current version is built with Vite, Vue 3, Vuetify 3, and pnpm. It can run fully in the browser with embedded fdnext, or call a configured fdnext 2.x HTTP API.</div></div><div class="about-section"><div class="about-heading">fdnext</div><div><a href="https://github.com/iTXTech/fdnext" target="_blank" rel="noopener noreferrer">fdnext 2.x</a> is the parsing and data engine behind FlashMaster, providing shared rules, resources, search, and canonical result models for memory-chip PN and NAND Flash ID intelligence. Embedded version: <strong>{1}</strong>.</div></div><div class="about-section"><div class="about-heading">License</div><div>FlashMaster is distributed under the GNU Affero General Public License v3.0 (AGPL 3.0).</div></div><div class="about-section about-contact"><div class="about-heading">Contact</div><a class="about-contact-link" href="mailto:peratx&#64;itxtech.org">PeratX &lt;peratx&#64;itxtech.org&gt;</a></div><div class="about-section about-meta">Client: {0}<br/>Copyright © 2019-2026 <a href="https://itxtech.org" target="_blank" rel="noopener noreferrer">iTX Technologies</a></div>'
 }

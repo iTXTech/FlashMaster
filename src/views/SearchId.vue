@@ -39,7 +39,7 @@
             <div class="search-id-card-layout">
               <div class="search-id-card-summary">
                 <div class="search-card-header">
-                  <button class="search-card-title" type="button" @click="router.push({ path: '/decodeId', query: { id: item.id } })">
+                  <button class="search-card-title" type="button" @click="decodeIdentifier(item.id)">
                     {{ item.id }}
                   </button>
                 </div>
@@ -95,6 +95,7 @@ import PagedTable from '@/components/PagedTable.vue';
 import { searchFlashId } from '@/services/flashApi';
 import { identifierSearchRows } from '@/services/fdnextResultView';
 import { trackLookup } from '@/services/analytics';
+import { idRoute, idsSearchRoute, partRoute, routeParamText } from '@/router/locations';
 import bus from '@/store/bus';
 import store from '@/store';
 
@@ -126,6 +127,10 @@ function normalizeInput() {
   return flashId.value;
 }
 
+function routeSearchQuery() {
+  return store.queryInputFormat(routeParamText(route, 'query'));
+}
+
 async function search(syncRoute = true) {
   const id = normalizeInput();
   if (!id) {
@@ -135,8 +140,8 @@ async function search(syncRoute = true) {
   if (store.isAutoHideSoftKeyboard()) {
     input.value?.blur?.();
   }
-  if (syncRoute && route.query.id !== id) {
-    router.push({ path: '/searchId', query: { id } });
+  if (syncRoute && routeSearchQuery() !== id) {
+    router.push(idsSearchRoute(id, route));
   }
   loading.value = true;
   try {
@@ -166,15 +171,15 @@ async function search(syncRoute = true) {
 function decodeCurrent() {
   const id = normalizeInput();
   if (!id) return notify(t('alert.missingFlashId'));
-  router.push({ path: '/decodeId', query: { id } });
+  router.push(idRoute(id, route));
 }
 
 function decodeIdentifier(id) {
-  router.push({ path: '/decodeId', query: { id } });
+  router.push(idRoute(id, route));
 }
 
 function decodePartNumber(pn) {
-  router.push({ path: '/decode', query: { pn } });
+  router.push(partRoute(pn, route));
 }
 
 function notify(text) {
@@ -182,19 +187,24 @@ function notify(text) {
 }
 
 onMounted(() => {
-  if (route.query.id) {
-    flashId.value = store.queryInputFormat(route.query.id);
+  const query = routeSearchQuery();
+  if (query) {
+    flashId.value = query;
     search(false);
   } else {
     nextTick(() => input.value?.focus?.());
   }
 });
 
-watch(() => route.query.id, value => {
-  const next = store.queryInputFormat(value);
+watch(() => route.params.query, () => {
+  const next = routeSearchQuery();
   if (next && next !== flashId.value) {
     flashId.value = next;
     search(false);
+  } else if (!next) {
+    flashId.value = '';
+    rows.value = [];
+    nextTick(() => input.value?.focus?.());
   }
 });
 </script>

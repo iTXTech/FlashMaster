@@ -1,9 +1,9 @@
 # iTXTech FlashMaster
 
-FlashMaster is a dense web workstation for NAND Flash part-number and Flash ID
-lookup. It provides local decoding, database search, result inspection, copy
-actions, language switching, theme settings, and optional server-backed queries
-against fdnext 2.0 HTTP API deployments.
+FlashMaster is a dense Memory Chip Intelligence Platform for part-number and
+NAND Flash ID lookup. It provides local decoding, database search, result
+inspection, copy actions, language switching, theme settings, and optional
+server-backed queries against fdnext 2.0 HTTP API deployments.
 
 [Launch FlashMaster](https://fm.itxtech.org)
 
@@ -19,7 +19,8 @@ FlashMaster 2.x is a static Vue application built around two parser backends:
 
 The application boundary is intentionally small:
 
-- UI routes live under `src/views`.
+- UI routes live under `src/views` and route location helpers live under
+  `src/router`.
 - Runtime settings and persistence live in `src/store`.
 - `src/services/flashApi.js` selects the active parser backend.
 - `src/services/fdnextApi.js` adapts the embedded fdnext library for the UI.
@@ -37,14 +38,36 @@ The application boundary is intentionally small:
 
 ## Features
 
-- Decode NAND Flash part numbers.
-- Decode Flash IDs.
+- Decode memory-chip part numbers.
+- Decode NAND Flash IDs.
 - Search part numbers in the Flash database.
 - Search Flash IDs in the Flash database.
 - Inspect extra fields, Flash ID mappings, and related links.
 - Switch between embedded fdnext and fdnext 2.0 HTTP API modes.
 - Persist parser mode, server address, theme, language, and statistics in
   localStorage.
+
+## Routes
+
+FlashMaster uses one route set in both router modes:
+
+- `/parts`
+- `/parts/:pn`
+- `/parts/search/:query`
+- `/ids`
+- `/ids/:id`
+- `/ids/search/:query`
+- `/settings`
+- `/about`
+
+Every route also supports an optional language prefix:
+
+- `/en/parts/:pn`
+- `/zh/ids/:id`
+
+The URL language prefix wins over the saved local language setting and is synced
+back to localStorage. Without a language prefix, FlashMaster keeps using the
+saved language setting.
 
 ## Development
 
@@ -88,6 +111,27 @@ Build the static application and publish the generated `dist` directory:
 
 ```bash
 pnpm build
+```
+
+By default, FlashMaster builds in hash-router mode with a relative base path,
+which is suitable for static hosting, portable archives, and WebViews:
+
+```bash
+VITE_FLASHMASTER_ROUTER_MODE=hash pnpm build
+```
+
+History-router mode keeps the same route set but emits normal URLs. It is suited
+for SEO-oriented web deployments and requires serving all application routes
+through `index.html`:
+
+```bash
+VITE_FLASHMASTER_ROUTER_MODE=history pnpm build
+```
+
+Cloudflare Pages can use the bundled `public/_redirects` rule:
+
+```text
+/* /index.html 200
 ```
 
 The public deployment is available at [fm.itxtech.org](https://fm.itxtech.org).

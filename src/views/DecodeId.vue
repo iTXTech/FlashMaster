@@ -90,7 +90,7 @@
             :key="item.key"
             class="decode-id-pn-card"
             type="button"
-            @click="item.route && router.push(item.route)"
+            @click="item.route && router.push(localizedRoute(item.route))"
           >
             <div class="search-card-label">{{ item.kind }}</div>
             <span class="search-card-title">{{ item.target || item.value }}</span>
@@ -168,6 +168,7 @@ import {
 } from '@/services/fdnextResultView';
 import { trackLookup } from '@/services/analytics';
 import getVendorLogo, { getVendorLogoKey } from '@/services/vendorLogos';
+import { idRoute, idsSearchRoute, localizeRouteLocation, routeParamText } from '@/router/locations';
 import bus from '@/store/bus';
 import store from '@/store';
 
@@ -247,14 +248,22 @@ function focusInput() {
   nextTick(() => input.value?.focus?.());
 }
 
+function routeFlashId() {
+  return store.queryInputFormat(routeParamText(route, 'id'));
+}
+
+function localizedRoute(location) {
+  return localizeRouteLocation(location, route);
+}
+
 async function decode(syncRoute = true) {
   const id = normalizeInput();
   if (!id) {
     notify(t('alert.missingFlashId'));
     return;
   }
-  if (syncRoute && route.query.id !== id) {
-    router.push({ path: '/decodeId', query: { id } });
+  if (syncRoute && routeFlashId() !== id) {
+    router.push(idRoute(id, route));
   }
   if (store.isAutoHideSoftKeyboard()) {
     input.value?.blur?.();
@@ -328,7 +337,7 @@ function searchSuggestions(inputValue) {
 function goSearchId() {
   const id = normalizeInput();
   if (!id) return notify(t('alert.missingFlashId'));
-  router.push({ path: '/searchId', query: { id } });
+  router.push(idsSearchRoute(id, route));
 }
 
 async function copySummary() {
@@ -367,20 +376,21 @@ function notify(text) {
 }
 
 onMounted(() => {
-  if (route.query.id) {
-    flashId.value = store.queryInputFormat(route.query.id);
+  const id = routeFlashId();
+  if (id) {
+    flashId.value = id;
     decode(false);
   } else {
     focusInput();
   }
 });
 
-watch(() => route.query.id, value => {
-  const next = store.queryInputFormat(value);
+watch(() => route.params.id, () => {
+  const next = routeFlashId();
   if (next && next !== flashId.value) {
     flashId.value = next;
     decode(false);
-  } else if (!value) {
+  } else if (!next) {
     flashId.value = '';
     result.value = null;
     clearSuggestions();
