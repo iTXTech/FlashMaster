@@ -73,6 +73,22 @@ dist-singlefile/FlashMaster-<version>-<commitHash>.html
 
 单文件 flavor 不启用 PWA，因为 service worker 和 Web App Manifest 需要浏览器提供 origin。
 
+## GitHub Release 自动发布
+
+推送 `v*` tag 时，GitHub Actions 会自动创建或更新同名 GitHub Release，并上传以下文件：
+
+- `FlashMaster-<version>-<commitHash>.html`：单文件离线构建，可直接在浏览器中打开。
+- `FlashMaster-<version>-<commitHash>-web-hash.zip`：完整静态 Web 包，使用 hash 路由。
+- `FlashMaster-<version>-<commitHash>-web-history.zip`：完整静态 Web 包，使用 history 路由，部署时需要 SPA rewrite。
+- `SHA256SUMS.txt`：Release 附件的 SHA-256 校验值。
+
+发布一个版本时，在目标提交上创建并推送 tag：
+
+```bash
+git tag v2.1.0
+git push origin v2.1.0
+```
+
 ## 公开路由集合
 
 两种路由模式暴露同一组应用路由：

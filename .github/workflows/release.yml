@@ -1,0 +1,117 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Build and publish release assets
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.29.3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Validate
+        run: pnpm lint
+
+      - name: Prepare release metadata
+        id: meta
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="$(node -p "JSON.parse(require('fs').readFileSync('package.json', 'utf8')).version")"
+          commit_hash="$(git rev-parse --short HEAD)"
+          base_name="FlashMaster-${version}-${commit_hash}"
+          {
+            echo "version=${version}"
+            echo "commit_hash=${commit_hash}"
+            echo "base_name=${base_name}"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Build release assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          base_name="${{ steps.meta.outputs.base_name }}"
+          rm -rf release .release-work
+          mkdir -p release .release-work
+
+          pnpm build:singlefile
+          singlefile="$(find dist-singlefile -maxdepth 1 -type f -name 'FlashMaster-*.html' | sort | head -n 1)"
+          cp "$singlefile" "release/${base_name}.html"
+
+          VITE_FLASHMASTER_ROUTER_MODE=hash pnpm build
+          hash_dir=".release-work/${base_name}-web-hash"
+          mkdir -p "$hash_dir"
+          cp -R dist/. "$hash_dir/"
+          (cd .release-work && zip -qr "../release/${base_name}-web-hash.zip" "${base_name}-web-hash")
+
+          VITE_FLASHMASTER_ROUTER_MODE=history pnpm build
+          history_dir=".release-work/${base_name}-web-history"
+          mkdir -p "$history_dir"
+          cp -R dist/. "$history_dir/"
+          (cd .release-work && zip -qr "../release/${base_name}-web-history.zip" "${base_name}-web-history")
+
+          (cd release && sha256sum * > SHA256SUMS.txt)
+          ls -lh release
+
+      - name: Write release notes
+        shell: bash
+        run: |
+          set -euo pipefail
+          base_name="${{ steps.meta.outputs.base_name }}"
+          cat > release-notes.md <<EOF
+          ## FlashMaster ${GITHUB_REF_NAME}
+
+          Release assets:
+
+          - \`${base_name}.html\`: single-file offline build for direct browser opening.
+          - \`${base_name}-web-hash.zip\`: complete static web package using hash routing.
+          - \`${base_name}-web-history.zip\`: complete static web package using history routing; deploy with SPA rewrite rules.
+          - \`SHA256SUMS.txt\`: SHA-256 checksums for release assets.
+          EOF
+
+      - name: Create or update GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            gh release edit "$GITHUB_REF_NAME" \
+              --title "FlashMaster ${GITHUB_REF_NAME}" \
+              --notes-file release-notes.md
+            gh release upload "$GITHUB_REF_NAME" release/* --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" release/* \
+              --title "FlashMaster ${GITHUB_REF_NAME}" \
+              --notes-file release-notes.md \
+              --verify-tag
+          fi

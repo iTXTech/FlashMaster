@@ -1,6 +1,6 @@
 # iTXTech FlashMaster
 
-[Chinese](README-zh.md)
+[简体中文](README-zh.md)
 
 FlashMaster is a dense Memory Chip Intelligence Platform for memory-chip
 part-number lookup, NAND Flash ID lookup, database search, and result
