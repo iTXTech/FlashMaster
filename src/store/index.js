@@ -149,7 +149,7 @@ const setMarketTickerEnabled = (b) => {
 
 const isMarketTickerEnabled = () => {
     if (!["0", "1"].includes(localStorage.marketTicker)) {
-        setMarketTickerEnabled(true);
+        setMarketTickerEnabled(!__FLASHMASTER_SINGLEFILE__);
     }
     return localStorage.marketTicker === "1"
 }

@@ -1,4 +1,3 @@
-import '@mdi/font/css/materialdesignicons.css';
 import 'vuetify/styles';
 import './styles/app.css';
 
@@ -12,6 +11,7 @@ import chs from './lang/chs.js';
 import eng from './lang/eng.js';
 import router from './router';
 import store from './store';
+import { aliases, mdi } from './theme/icons';
 import theme from './theme';
 
 const i18n = createI18n({
@@ -25,7 +25,11 @@ const vuetify = createVuetify({
     components,
     directives,
     icons: {
-        defaultSet: 'mdi'
+        defaultSet: 'mdi',
+        aliases,
+        sets: {
+            mdi
+        }
     },
     theme: {
         defaultTheme: theme.resolveThemeName(store.getTheme()),

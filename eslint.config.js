@@ -16,7 +16,8 @@ export default [
         VERSION: 'readonly',
         FDNEXT_VERSION: 'readonly',
         __FDNEXT_COMMIT_HASH__: 'readonly',
-        __FDNEXT_BUILD_TIME__: 'readonly'
+        __FDNEXT_BUILD_TIME__: 'readonly',
+        __FLASHMASTER_SINGLEFILE__: 'readonly'
       },
       ecmaVersion: 'latest',
       sourceType: 'module'

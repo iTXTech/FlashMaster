@@ -96,6 +96,7 @@ Useful commands:
 ```bash
 pnpm lint
 pnpm build
+pnpm build:singlefile
 pnpm preview
 ```
 
@@ -135,6 +136,22 @@ Cloudflare Pages can use the bundled `public/_redirects` rule:
 ```
 
 The public deployment is available at [fm.itxtech.org](https://fm.itxtech.org).
+
+### Single-File Offline Build
+
+For technician or customer machines where starting a local server is not
+practical, FlashMaster can also be built as one self-contained HTML file:
+
+```bash
+pnpm build:singlefile
+```
+
+The generated `dist-singlefile/FlashMaster-<version>-<commitHash>.html` is
+intended to be opened directly in a browser by double-clicking it. This flavor
+forces hash routing, embeds the compiled JavaScript, CSS, SVG icon subset, and
+vendor logos, removes web analytics, and defaults the optional market ticker to
+off. The embedded fdnext parser works offline; HTTP parser mode still depends on
+the configured server and its CORS policy.
 
 ## Apps
 

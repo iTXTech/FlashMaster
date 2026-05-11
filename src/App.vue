@@ -47,6 +47,7 @@
           :prepend-icon="item.icon"
           :title="$t(item.title)"
           :to="item.to"
+          :active="item.active"
           color="primary"
           rounded="sm"
         />
@@ -85,6 +86,7 @@ import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import ChangelogDialog from '@/components/ChangelogDialog.vue';
 import MarketTicker from '@/components/MarketTicker.vue';
+import logo from '@/assets/app-icon.svg';
 import {
   aboutRoute,
   appLocaleFromRoute,
@@ -92,6 +94,7 @@ import {
   idsSearchRoute,
   partsRoute,
   partsSearchRoute,
+  ROUTE_NAMES,
   routeWithAppLocale,
   settingsRoute
 } from '@/router/locations';
@@ -104,7 +107,6 @@ const router = useRouter();
 const vuetifyTheme = useTheme();
 const { mobile } = useDisplay();
 const { locale, messages, t } = useI18n();
-const logo = `${import.meta.env.BASE_URL}AppIcon.svg`;
 
 const drawer = ref(!mobile.value);
 const snackbar = ref({
@@ -115,13 +117,50 @@ const snackbar = ref({
 const changelogDialog = ref(false);
 const marketTickerEnabled = ref(store.isMarketTickerEnabled());
 
+const isActiveRoute = names => names.includes(route.name);
 const navItems = computed(() => [
-  { key: 'parts', icon: 'mdi-chip', title: 'nav.decodePartNumber', to: partsRoute(route) },
-  { key: 'parts-search', icon: 'mdi-magnify', title: 'nav.searchPartNumber', to: partsSearchRoute('', route) },
-  { key: 'ids', icon: 'mdi-memory', title: 'nav.decodeId', to: idsRoute(route) },
-  { key: 'ids-search', icon: 'mdi-flash', title: 'nav.searchFlashId', to: idsSearchRoute('', route) },
-  { key: 'settings', icon: 'mdi-tune', title: 'nav.settings', to: settingsRoute(route) },
-  { key: 'about', icon: 'mdi-information-outline', title: 'nav.about', to: aboutRoute(route) }
+  {
+    key: 'parts',
+    icon: 'mdi-chip',
+    title: 'nav.decodePartNumber',
+    to: partsRoute(route),
+    active: isActiveRoute([ROUTE_NAMES.parts, ROUTE_NAMES.part])
+  },
+  {
+    key: 'parts-search',
+    icon: 'mdi-magnify',
+    title: 'nav.searchPartNumber',
+    to: partsSearchRoute('', route),
+    active: isActiveRoute([ROUTE_NAMES.partsSearch])
+  },
+  {
+    key: 'ids',
+    icon: 'mdi-memory',
+    title: 'nav.decodeId',
+    to: idsRoute(route),
+    active: isActiveRoute([ROUTE_NAMES.ids, ROUTE_NAMES.id])
+  },
+  {
+    key: 'ids-search',
+    icon: 'mdi-flash',
+    title: 'nav.searchFlashId',
+    to: idsSearchRoute('', route),
+    active: isActiveRoute([ROUTE_NAMES.idsSearch])
+  },
+  {
+    key: 'settings',
+    icon: 'mdi-tune',
+    title: 'nav.settings',
+    to: settingsRoute(route),
+    active: isActiveRoute([ROUTE_NAMES.settings])
+  },
+  {
+    key: 'about',
+    icon: 'mdi-information-outline',
+    title: 'nav.about',
+    to: aboutRoute(route),
+    active: isActiveRoute([ROUTE_NAMES.about])
+  }
 ]);
 
 const languages = computed(() => Object.entries(messages.value).map(([code, message]) => ({
