@@ -2,6 +2,8 @@ FlashMaster by PeratX <peratx@itxtech.org>
 Copyright (c) 2019-2026 iTX Technologies
 ===================================
 Version 2.1.0
+- Added PWA support to the regular web build. Run `pnpm build`, serve `dist` over HTTPS, then install FlashMaster from the browser or home-screen prompt; the cached app shell can reopen after the first successful visit.
+- Added `pnpm build:singlefile` for self-contained offline HTML distribution as `FlashMaster-<version>-<commitHash>.html`.
 - Updated embedded fdnext to v2.1.0 (6a48b2e), hiding internal decodepack token and grouping fields from public PN decode results.
 - Updated embedded fdnext to v2.1.0 (268679e), adopting the renamed decodepack package layout for embedded parser builds.
 - Removed the obsolete `deploy.bat` GitHub Pages deployment script.

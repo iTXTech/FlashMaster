@@ -138,6 +138,16 @@ Manual smoke test:
 - Changelog files are displayed by `src/components/ChangelogDialog.vue` as
   scrollable text.
 
+## Documentation Language Rules
+
+- `README.md` is the primary English overview.
+- Keep `README-zh.md` as the Chinese companion. Any content update to
+  `README.md` must be reflected in `README-zh.md` in the same change set.
+- Keep detailed documentation under `docs/` in Chinese by default. Only create
+  English sub-documents when the user explicitly asks for them.
+- Keep feature details, deployment procedures, and operational guidance in
+  `docs/`; keep the root README files as overview and entrypoint documents.
+
 ## UI Rules
 
 - Keep the UI high-density and workstation-like.

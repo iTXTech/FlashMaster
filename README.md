@@ -1,15 +1,30 @@
 # iTXTech FlashMaster
 
-FlashMaster is a dense Memory Chip Intelligence Platform for part-number and
-NAND Flash ID lookup. It provides local decoding, database search, result
-inspection, copy actions, language switching, theme settings, and optional
-server-backed queries against fdnext 2.0 HTTP API deployments.
+[Chinese](README-zh.md)
+
+FlashMaster is a dense Memory Chip Intelligence Platform for memory-chip
+part-number lookup, NAND Flash ID lookup, database search, and result
+inspection.
 
 [Launch FlashMaster](https://fm.itxtech.org)
 
+## Overview
+
+FlashMaster 2.x is a static Vue application designed as a practical workstation
+surface rather than a marketing page. It runs the embedded fdnext parser in the
+browser by default and can also call a compatible fdnext HTTP API deployment
+when server-backed parsing is needed.
+
+Core workflows:
+
+- Part-number decode and search.
+- NAND Flash ID decode and search.
+- Dense result inspection with copy actions, vendor links, language switching,
+  theme settings, and persistent local preferences.
+
 ## Architecture
 
-FlashMaster 2.x is a static Vue application built around two parser backends:
+The application has two parser backends:
 
 - Embedded fdnext parser: the default mode. The fdnext engine and resources are
   bundled from the `vendor/fdnext` Git submodule and run directly in the browser.
@@ -17,13 +32,13 @@ FlashMaster 2.x is a static Vue application built around two parser backends:
   configured manually in Settings and must return the fdnext 2.0 result
   contract.
 
-The application boundary is intentionally small:
+Key local boundaries:
 
-- UI routes live under `src/views` and route location helpers live under
-  `src/router`.
-- Runtime settings and persistence live in `src/store`.
+- `src/views` contains the application screens.
 - `src/services/flashApi.js` selects the active parser backend.
 - `src/services/fdnextApi.js` adapts the embedded fdnext library for the UI.
+- `src/store` owns runtime settings and local persistence.
+- `vendor/fdnext` is an upstream Git submodule, not local application source.
 - `vite.config.js` wires the fdnext submodule source and exposes build metadata.
 
 ## Toolchain
@@ -35,39 +50,6 @@ The application boundary is intentionally small:
 - Vuetify 3
 - Material Design Icons
 - pnpm
-
-## Features
-
-- Decode memory-chip part numbers.
-- Decode NAND Flash IDs.
-- Search part numbers in the Flash database.
-- Search Flash IDs in the Flash database.
-- Inspect extra fields, Flash ID mappings, and related links.
-- Switch between embedded fdnext and fdnext 2.0 HTTP API modes.
-- Persist parser mode, server address, theme, language, and statistics in
-  localStorage.
-
-## Routes
-
-FlashMaster uses one route set in both router modes:
-
-- `/parts`
-- `/parts/:pn`
-- `/parts/search/:query`
-- `/ids`
-- `/ids/:id`
-- `/ids/search/:query`
-- `/settings`
-- `/about`
-
-Every route also supports an optional language prefix:
-
-- `/en/parts/:pn`
-- `/zh/ids/:id`
-
-The URL language prefix wins over the saved local language setting and is synced
-back to localStorage. Without a language prefix, FlashMaster keeps using the
-saved language setting.
 
 ## Development
 
@@ -106,52 +88,10 @@ To update the embedded fdnext dependency:
 git submodule update --remote vendor/fdnext
 ```
 
-## Deployment
+## Documentation
 
-Build the static application and publish the generated `dist` directory:
-
-```bash
-pnpm build
-```
-
-By default, FlashMaster builds in hash-router mode with a relative base path,
-which is suitable for static hosting, portable archives, and WebViews:
-
-```bash
-VITE_FLASHMASTER_ROUTER_MODE=hash pnpm build
-```
-
-History-router mode keeps the same route set but emits normal URLs. It is suited
-for SEO-oriented web deployments and requires serving all application routes
-through `index.html`:
-
-```bash
-VITE_FLASHMASTER_ROUTER_MODE=history pnpm build
-```
-
-Cloudflare Pages can use the bundled `public/_redirects` rule:
-
-```text
-/* /index.html 200
-```
-
-The public deployment is available at [fm.itxtech.org](https://fm.itxtech.org).
-
-### Single-File Offline Build
-
-For technician or customer machines where starting a local server is not
-practical, FlashMaster can also be built as one self-contained HTML file:
-
-```bash
-pnpm build:singlefile
-```
-
-The generated `dist-singlefile/FlashMaster-<version>-<commitHash>.html` is
-intended to be opened directly in a browser by double-clicking it. This flavor
-forces hash routing, embeds the compiled JavaScript, CSS, SVG icon subset, and
-vendor logos, removes web analytics, and defaults the optional market ticker to
-off. The embedded fdnext parser works offline; HTTP parser mode still depends on
-the configured server and its CORS policy.
+- [Deployment, PWA, and offline distribution](docs/DEPLOYMENT.md)
+- [Changelog](CHANGELOG.txt)
 
 ## Apps
 

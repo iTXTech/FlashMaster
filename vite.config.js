@@ -4,6 +4,7 @@ import { join, resolve } from 'node:path';
 import { fileURLToPath, URL } from 'node:url';
 import vue from '@vitejs/plugin-vue';
 import { defineConfig } from 'vite';
+import { VitePWA } from 'vite-plugin-pwa';
 import { viteSingleFile } from 'vite-plugin-singlefile';
 
 const packageJson = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'));
@@ -33,6 +34,7 @@ const shortFdnextCommitHash = value => String(value || '').trim().slice(0, 7) ||
 const fdnextBuildCommitHash = shortFdnextCommitHash(process.env.FDNEXT_COMMIT_HASH || fdnextCommitHash);
 const fdnextBuildTime = process.env.FDNEXT_BUILD_TIME || new Date().toISOString();
 const fdnextVersion = fdnextPackageJson.version;
+const pwaDescription = 'Memory Chip Intelligence Platform for memory-chip part-number lookup, NAND Flash ID decoding, database search, and result inspection.';
 
 function singleFileHtmlPlugin() {
   return {
@@ -71,6 +73,58 @@ function singleFileCleanupPlugin() {
   };
 }
 
+function pwaPlugin(routerMode) {
+  return VitePWA({
+    injectRegister: 'auto',
+    registerType: 'autoUpdate',
+    manifestFilename: 'site.webmanifest',
+    includeManifestIcons: false,
+    manifest: {
+      name: 'iTXTech FlashMaster',
+      short_name: 'FlashMaster',
+      description: pwaDescription,
+      start_url: routerMode === 'history' ? './parts' : './#/parts',
+      scope: './',
+      display: 'standalone',
+      background_color: '#07111f',
+      theme_color: '#0f766e',
+      icons: [
+        {
+          src: 'AppIcon.svg',
+          sizes: 'any',
+          type: 'image/svg+xml',
+          purpose: 'any maskable'
+        },
+        {
+          src: 'AppIcon-192.png',
+          sizes: '192x192',
+          type: 'image/png',
+          purpose: 'any maskable'
+        },
+        {
+          src: 'AppIcon-512.png',
+          sizes: '512x512',
+          type: 'image/png',
+          purpose: 'any maskable'
+        },
+        {
+          src: 'AppIcon.png',
+          sizes: '152x152',
+          type: 'image/png',
+          purpose: 'any'
+        }
+      ]
+    },
+    workbox: {
+      cleanupOutdatedCaches: true,
+      globIgnores: ['**/og/**'],
+      globPatterns: ['**/*.{html,js,css,svg,png,ico}'],
+      maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
+      navigateFallback: 'index.html'
+    }
+  });
+}
+
 export default defineConfig(({ mode }) => {
   const singleFile = mode === 'singlefile'
     || process.env.VITE_FLASHMASTER_BUILD_FLAVOR === 'singlefile'
@@ -86,7 +140,9 @@ export default defineConfig(({ mode }) => {
         singleFileHtmlPlugin(),
         viteSingleFile({ removeViteModuleLoader: true }),
         singleFileCleanupPlugin()
-      ] : [])
+      ] : [
+        pwaPlugin(routerMode)
+      ])
     ],
     build: {
       outDir: singleFile ? 'dist-singlefile' : 'dist'

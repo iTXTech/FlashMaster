@@ -2,6 +2,8 @@ FlashMaster by PeratX <peratx@itxtech.org>
 版权所有 (c) 2019-2026 iTX Technologies
 ===================================
 版本 2.1.0
+- 新增常规 Web 构建的 PWA 支持。执行 `pnpm build` 后将 `dist` 通过 HTTPS 发布，即可在浏览器安装或添加到主屏幕；首次访问缓存完成后可离线重新打开应用壳。
+- 新增 `pnpm build:singlefile` 单文件离线分发构建，产物命名为 `FlashMaster-<版本号>-<commitHash>.html`。
 - 更新内嵌 fdnext 到 v2.1.0（6a48b2e），从公开 PN 解析结果中隐藏内部 decodepack token 与分组字段。
 - 更新内嵌 fdnext 到 v2.1.0（268679e），适配重命名后的 decodepack 包结构用于内嵌解析器构建。
 - 移除旧的 `deploy.bat` GitHub Pages 部署脚本。
