@@ -2,6 +2,7 @@ FlashMaster by PeratX <peratx@itxtech.org>
 版权所有 (c) 2019-2026 iTX Technologies
 ===================================
 版本 2.1.0
+- 更新内嵌 fdnext 到 v2.1.0（6a48b2e），从公开 PN 解析结果中隐藏内部 decodepack token 与分组字段。
 - 更新内嵌 fdnext 到 v2.1.0（268679e），适配重命名后的 decodepack 包结构用于内嵌解析器构建。
 - 移除旧的 `deploy.bat` GitHub Pages 部署脚本。
 - 将 FlashMaster 的产品定位调整为存储芯片智能解析平台（Memory Chip Intelligence Platform），并同步应用文案与文档。

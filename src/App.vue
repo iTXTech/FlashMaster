@@ -85,7 +85,6 @@ import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import ChangelogDialog from '@/components/ChangelogDialog.vue';
 import MarketTicker from '@/components/MarketTicker.vue';
-import logo from '@/assets/logo.png';
 import {
   aboutRoute,
   appLocaleFromRoute,
@@ -105,6 +104,7 @@ const router = useRouter();
 const vuetifyTheme = useTheme();
 const { mobile } = useDisplay();
 const { locale, messages, t } = useI18n();
+const logo = `${import.meta.env.BASE_URL}AppIcon.svg`;
 
 const drawer = ref(!mobile.value);
 const snackbar = ref({

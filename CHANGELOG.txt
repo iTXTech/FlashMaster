@@ -2,6 +2,7 @@ FlashMaster by PeratX <peratx@itxtech.org>
 Copyright (c) 2019-2026 iTX Technologies
 ===================================
 Version 2.1.0
+- Updated embedded fdnext to v2.1.0 (6a48b2e), hiding internal decodepack token and grouping fields from public PN decode results.
 - Updated embedded fdnext to v2.1.0 (268679e), adopting the renamed decodepack package layout for embedded parser builds.
 - Removed the obsolete `deploy.bat` GitHub Pages deployment script.
 - Repositioned FlashMaster as a Memory Chip Intelligence Platform in app copy and documentation.

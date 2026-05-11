@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">iTXTech FlashMaster</title>
+  <desc id="desc">Social preview image for the FlashMaster Memory Chip Intelligence Platform.</desc>
+  <defs>
+    <linearGradient id="bg" x1="60" y1="0" x2="1120" y2="630" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#07111f"/>
+      <stop offset="0.48" stop-color="#10253b"/>
+      <stop offset="1" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="chip" x1="140" y1="140" x2="430" y2="480" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#164e63"/>
+      <stop offset="0.52" stop-color="#0f766e"/>
+      <stop offset="1" stop-color="#134e4a"/>
+    </linearGradient>
+    <linearGradient id="spark" x1="205" y1="172" x2="350" y2="432" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fde68a"/>
+      <stop offset="0.5" stop-color="#f59e0b"/>
+      <stop offset="1" stop-color="#f97316"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="24" stdDeviation="28" flood-color="#020617" flood-opacity="0.42"/>
+    </filter>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <g filter="url(#shadow)">
+    <rect x="112" y="134" width="328" height="328" rx="56" fill="url(#chip)" stroke="#99f6e4" stroke-width="11"/>
+    <rect x="162" y="184" width="228" height="228" rx="34" fill="#061826" opacity="0.7"/>
+    <path d="M238 388l32-88h-60l104-144-29 94h68l-115 138z" fill="url(#spark)"/>
+    <path d="M210 134v-52M276 134v-52M342 134v-52M210 514v-52M276 514v-52M342 514v-52M112 228H60M112 298H60M112 368H60M492 228h-52M492 298h-52M492 368h-52" fill="none" stroke="#38bdf8" stroke-width="14" stroke-linecap="round" opacity="0.78"/>
+  </g>
+  <text x="540" y="238" fill="#f8fafc" font-family="Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="82" font-weight="800">FlashMaster</text>
+  <text x="544" y="308" fill="#99f6e4" font-family="Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="34" font-weight="650">Memory Chip Intelligence Platform</text>
+  <text x="546" y="374" fill="#cbd5e1" font-family="Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="28">Decode memory PNs and NAND Flash IDs.</text>
+  <text x="546" y="416" fill="#cbd5e1" font-family="Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="28">Search chip data and inspect structured results.</text>
+  <g font-family="Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="24" font-weight="700" text-anchor="middle" dominant-baseline="middle">
+    <rect x="544" y="458" width="184" height="50" rx="13" fill="#0f766e"/>
+    <text x="636" y="483" fill="#ecfeff">NAND Flash</text>
+    <rect x="744" y="458" width="224" height="50" rx="13" fill="#1d4ed8"/>
+    <text x="856" y="483" fill="#eff6ff">Managed NAND</text>
+    <rect x="984" y="458" width="120" height="50" rx="13" fill="#b45309"/>
+    <text x="1044" y="483" fill="#fff7ed">DRAM</text>
+  </g>
+  <g font-family="Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif">
+    <rect x="544" y="532" width="260" height="50" rx="14" fill="#0f766e" opacity="0.16" stroke="#2dd4bf" stroke-width="2"/>
+    <circle cx="570" cy="557" r="8" fill="#67e8f9"/>
+    <text x="590" y="566" fill="#e0f2fe" font-size="28" font-weight="760">fm.itxtech.org</text>
+  </g>
+</svg>
