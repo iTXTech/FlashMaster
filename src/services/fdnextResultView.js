@@ -1,6 +1,6 @@
 import { displayValue } from '@/services/display';
 import { idRoute, idsSearchRoute, partRoute, partsSearchRoute } from '@/router/locations';
-import getVendorLogo, { getVendorLogoKey } from '@/services/vendorLogos';
+import getVendorLogo, { isVendorLogoDark } from '@/services/vendorLogos';
 
 export const FDNEXT_RESULT_SCHEMA_VERSION = 'fdnext.result.v1';
 export const FDNEXT_CAPABILITIES_SCHEMA_VERSION = 'fdnext.capabilities.v1';
@@ -99,7 +99,7 @@ function linkImage(image, vendor) {
 
 function linkImageDark(image, vendor) {
   if (String(image || '').trim().toLowerCase() !== 'logo') return false;
-  return ['biwin', 'micron', 'solidigm'].includes(getVendorLogoKey(vendor));
+  return isVendorLogoDark(vendor);
 }
 
 export function externalLinkRows(links = [], vendor = '') {

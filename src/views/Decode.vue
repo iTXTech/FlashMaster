@@ -52,10 +52,9 @@
             <div class="result-hero">
               <div class="metric decode-vendor-metric">
                 <div class="metric-label">{{ $t('vendor') }}</div>
-                <div v-if="vendorLogo" class="vendor-logo-wrap" :class="{ 'vendor-logo-wrap--dark': vendorLogoDark }">
-                  <img :src="vendorLogo" :alt="header.vendor" :class="['vendor-logo', vendorLogoClass]" />
-                </div>
-                <div v-else class="metric-value">{{ displayValue(header.vendor) }}</div>
+                <VendorLogo :vendor="header.vendor">
+                  <div class="metric-value">{{ displayValue(header.vendor) }}</div>
+                </VendorLogo>
               </div>
               <div class="result-title-panel">
                 <div class="result-title">{{ displayValue(header.title) }}</div>
@@ -156,6 +155,7 @@ import MetricGrid from '@/components/MetricGrid.vue';
 import PagedTable from '@/components/PagedTable.vue';
 import ExpandableListCell from '@/components/ExpandableListCell.vue';
 import ExternalLinks from '@/components/ExternalLinks.vue';
+import VendorLogo from '@/components/VendorLogo.vue';
 import { copyText } from '@/services/clipboard';
 import { displayValue } from '@/services/display';
 import { decodePartNumber, searchPartNumber, summarizePartNumber } from '@/services/flashApi';
@@ -170,7 +170,6 @@ import {
   warnings
 } from '@/services/fdnextResultView';
 import { trackLookup } from '@/services/analytics';
-import getVendorLogo, { getVendorLogoKey } from '@/services/vendorLogos';
 import { idsSearchRoute, localizeRouteLocation, partRoute, partsSearchRoute, routeParamText } from '@/router/locations';
 import bus from '@/store/bus';
 import store from '@/store';
@@ -195,11 +194,6 @@ const resultPanelMeta = computed(() => {
   if (!result.value) return t('dashboard.empty');
   return result.value.status && result.value.status !== 'ok' ? header.value.status : '';
 });
-const vendorLogo = computed(() => getVendorLogo(header.value.vendor));
-const vendorLogoKey = computed(() => getVendorLogoKey(header.value.vendor));
-const vendorLogoClass = computed(() => vendorLogoKey.value ? `vendor-logo--${vendorLogoKey.value}` : '');
-const darkLogoKeys = new Set(['biwin', 'micron', 'solidigm']);
-const vendorLogoDark = computed(() => darkLogoKeys.has(vendorLogoKey.value));
 const mainMetrics = computed(() => primaryMetrics(result.value));
 const detailBlockViews = computed(() => detailBlocks(result.value).map(block => ({
   ...block,

@@ -531,15 +531,20 @@ a {
   gap: 8px;
 }
 
-.decode-vendor-metric {
+.decode-vendor-metric,
+.decode-id-vendor-metric {
   min-width: 0;
+  min-height: 0;
+  padding: 7px;
 }
 
 .vendor-logo-wrap {
+  box-sizing: border-box;
   display: flex;
-  min-height: 56px;
+  height: 52px;
   align-items: center;
   justify-content: center;
+  padding: 8px 14px;
   margin-bottom: 8px;
   border: 1px solid rgba(var(--v-theme-on-surface), 0.08);
   border-radius: 6px;
@@ -555,16 +560,16 @@ a {
 }
 
 .vendor-logo {
-  width: min(180px, 100%);
-  max-height: 38px;
+  width: 100%;
+  height: 100%;
   max-width: 100%;
+  max-height: 100%;
   object-fit: contain;
 }
 
 .vendor-logo--elpida,
 .vendor-logo--kingston {
-  width: min(168px, 100%);
-  height: 36px;
+  width: 94%;
 }
 
 .decode-id-result-stack {
@@ -575,40 +580,8 @@ a {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.decode-id-vendor-metric,
 .decode-id-flash-id-metric {
   min-width: 0;
-}
-
-.decode-id-vendor-line {
-  display: grid;
-  min-width: 0;
-  grid-template-columns: minmax(72px, 96px) minmax(0, 1fr);
-  align-items: center;
-  gap: 10px;
-}
-
-.decode-id-vendor-line--logo-only {
-  grid-template-columns: 1fr;
-}
-
-.decode-id-logo-wrap {
-  min-height: 44px;
-  margin-bottom: 0;
-}
-
-.decode-id-vendor-line--logo-only .decode-id-logo-wrap {
-  min-height: 52px;
-}
-
-.decode-id-logo-wrap .vendor-logo {
-  width: min(84px, 100%);
-  max-height: 30px;
-}
-
-.decode-id-vendor-line--logo-only .vendor-logo {
-  width: min(150px, 100%);
-  max-height: 32px;
 }
 
 .decode-id-flash-id-metric .metric-value {
@@ -732,19 +705,11 @@ a {
   padding: 6px 8px;
 }
 
-.workspace--decode .decode-vendor-metric {
-  min-height: 0;
-  padding: 7px;
-}
-
-.workspace--decode .vendor-logo-wrap {
-  min-height: 44px;
+.workspace--decode .vendor-logo-wrap,
+.workspace--decode-id .vendor-logo-wrap {
+  height: 46px;
+  padding: 8px 13px;
   margin-bottom: 6px;
-}
-
-.workspace--decode .vendor-logo {
-  max-width: 150px;
-  max-height: 32px;
 }
 
 .workspace--decode .detail-card-body,
@@ -1891,20 +1856,10 @@ a {
     grid-column: span 1;
   }
 
-  .decode-id-vendor-line,
-  .decode-id-vendor-line--logo-only {
-    grid-template-columns: 1fr;
-  }
-
-  .decode-id-logo-wrap,
-  .decode-id-vendor-line--logo-only .decode-id-logo-wrap {
-    min-height: 72px;
-  }
-
-  .decode-id-logo-wrap .vendor-logo,
-  .decode-id-vendor-line--logo-only .vendor-logo {
-    width: min(240px, 100%);
-    max-height: 46px;
+  .workspace--decode .vendor-logo-wrap,
+  .workspace--decode-id .vendor-logo-wrap {
+    height: 56px;
+    padding: 9px 18px;
   }
 
   .external-link-list,
@@ -1959,15 +1914,10 @@ a {
     grid-template-columns: 1fr 1fr;
   }
 
-  .decode-id-logo-wrap,
-  .decode-id-vendor-line--logo-only .decode-id-logo-wrap {
-    min-height: 68px;
-  }
-
-  .decode-id-logo-wrap .vendor-logo,
-  .decode-id-vendor-line--logo-only .vendor-logo {
-    width: min(220px, 100%);
-    max-height: 42px;
+  .workspace--decode .vendor-logo-wrap,
+  .workspace--decode-id .vendor-logo-wrap {
+    height: 54px;
+    padding: 9px 16px;
   }
 
   .external-link-list--compact .external-link-card {

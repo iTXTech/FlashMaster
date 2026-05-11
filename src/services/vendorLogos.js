@@ -59,9 +59,15 @@ const vendorAliases = {
     wd: 'sndk'
 };
 
+const darkLogoKeys = new Set(['biwin', 'micron', 'solidigm']);
+
 export function getVendorLogoKey(vendor) {
     const key = String(vendor || '').trim().toLowerCase().replace(/[\s/_-]+/g, '');
     return vendorAliases[key] || key;
+}
+
+export function isVendorLogoDark(vendor) {
+    return darkLogoKeys.has(getVendorLogoKey(vendor));
 }
 
 export default function getVendorLogo(vendor) {
