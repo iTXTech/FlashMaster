@@ -1,7 +1,8 @@
 FlashMaster by PeratX <peratx@itxtech.org>
 Copyright (c) 2019-2026 iTX Technologies
 ===================================
-Version 2.2.1
+Version 2.1.1
+- Updated embedded fdnext to v2.2.0 (96941db), expanding NAND Flash ID decodepack coverage across Intel, KIOXIA, Micron/Intel-def, Samsung, SanDisk, SK hynix, SpecTek, and YMTC identifiers, improving Flash ID post-processing and decodepack compilation, and fixing fdnext capabilities version metadata.
 - Updated embedded fdnext to v2.1.0 (7f3fc54), adding ESMT and Etron DRAM decodepacks and expanding non-Micron DRAM PN coverage.
 - Added build-time sidebar footer notice variables for ICP filing text or other public deployment information, with optional external links.
 

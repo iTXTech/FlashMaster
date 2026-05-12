@@ -4,7 +4,6 @@
       <div class="panel-header">
         <div>
           <div class="panel-title">{{ $t('changelog.title') }}</div>
-          <div class="panel-meta">{{ $t('changelog.subtitle', [appVersion]) }}</div>
         </div>
         <v-btn icon="mdi-close" variant="text" @click="close" />
       </div>

@@ -87,7 +87,7 @@
       </template>
     </v-snackbar>
 
-    <ChangelogDialog v-model="changelogDialog" :app-version="changelogVersion" />
+    <ChangelogDialog v-model="changelogDialog" :app-version="projectVersion" />
   </v-app>
 </template>
 
