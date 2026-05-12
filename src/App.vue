@@ -54,7 +54,19 @@
       </v-list>
 
       <template #append>
-        <div class="nav-footer">© 2019-2026 iTX Technologies</div>
+        <div class="nav-footer">
+          <div>© 2019-2026 iTX Technologies</div>
+          <a
+            v-if="footerNotice.url"
+            class="nav-footer-notice"
+            :href="footerNotice.url"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {{ footerNotice.text }}
+          </a>
+          <div v-else-if="footerNotice.text" class="nav-footer-notice">{{ footerNotice.text }}</div>
+        </div>
       </template>
     </v-navigation-drawer>
 
@@ -116,6 +128,10 @@ const snackbar = ref({
 });
 const changelogDialog = ref(false);
 const marketTickerEnabled = ref(store.isMarketTickerEnabled());
+const footerNotice = {
+  text: String(import.meta.env.VITE_FLASHMASTER_FOOTER_NOTICE_TEXT || '').trim(),
+  url: String(import.meta.env.VITE_FLASHMASTER_FOOTER_NOTICE_URL || '').trim()
+};
 
 const isActiveRoute = names => names.includes(route.name);
 const navItems = computed(() => [

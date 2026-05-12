@@ -32,6 +32,24 @@ history 模式要求所有应用路由都回落到 `index.html`。Cloudflare Pag
 
 公开部署地址是 [fm.itxtech.org](https://fm.itxtech.org)。
 
+## 侧边栏备案/自定义页脚信息
+
+侧边栏版权信息下方可以通过构建环境变量追加一行备案或其他公开信息：
+
+```bash
+VITE_FLASHMASTER_FOOTER_NOTICE_TEXT="蜀ICP备XXXXXXXX号" pnpm build
+```
+
+如需点击跳转，同时设置链接地址：
+
+```bash
+VITE_FLASHMASTER_FOOTER_NOTICE_TEXT="蜀ICP备XXXXXXXX号" \
+VITE_FLASHMASTER_FOOTER_NOTICE_URL="https://beian.miit.gov.cn/" \
+pnpm build
+```
+
+未设置 `VITE_FLASHMASTER_FOOTER_NOTICE_TEXT` 时，界面只显示默认版权信息。设置文本但不设置 URL 时，该行会以纯文本展示；设置 URL 后会作为外部链接在新窗口打开。
+
 ## PWA 可安装 Web 构建
 
 常规 Web 构建会生成 `site.webmanifest`、service worker 和 Workbox 预缓存：

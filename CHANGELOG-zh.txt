@@ -1,6 +1,11 @@
 FlashMaster by PeratX <peratx@itxtech.org>
 版权所有 (c) 2019-2026 iTX Technologies
 ===================================
+版本 2.2.1
+- 更新内嵌 fdnext 到 v2.1.0（7f3fc54），新增 ESMT 与 Etron DRAM decodepack，并扩展非 Micron DRAM 料号覆盖。
+- 新增构建期侧边栏页脚信息环境变量，可显示 ICP 备案号或其他公开部署信息，并支持配置外部链接。
+
+===================================
 版本 2.1.0
 - 新增常规 Web 构建的 PWA 支持。执行 `pnpm build` 后将 `dist` 通过 HTTPS 发布，即可在浏览器安装或添加到主屏幕；首次访问缓存完成后可离线重新打开应用壳。
 - 新增 `pnpm build:singlefile` 单文件离线分发构建，产物命名为 `FlashMaster-<版本号>-<commitHash>.html`。

@@ -332,6 +332,21 @@ a {
   text-align: center;
 }
 
+.nav-footer-notice {
+  display: block;
+  margin-top: 5px;
+  color: rgba(var(--v-theme-on-surface), 0.7);
+  font-size: 0.72rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+  text-decoration: none;
+}
+
+a.nav-footer-notice:hover {
+  color: rgb(var(--v-theme-primary));
+  text-decoration: underline;
+}
+
 .workspace {
   width: min(100%, var(--workspace-max-width, 1320px));
   margin-inline: auto;
