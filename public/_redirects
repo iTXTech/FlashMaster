@@ -1,2 +1,40 @@
 /favicon.ico /AppIcon.svg 301
+
+# Static files must be matched before the SPA fallback because Cloudflare Pages
+# applies _redirects rules even when a static asset exists.
+/robots.txt /robots.txt 200
+/sitemap.xml /sitemap.xml 200
+/site.webmanifest /site.webmanifest 200
+/sw.js /sw.js 200
+/registerSW.js /registerSW.js 200
+/workbox-* /workbox-:splat 200
+/AppIcon* /AppIcon:splat 200
+/og/* /og/:splat 200
+/assets/* /assets/:splat 200
+
+# Known SPA history-mode routes.
+/ /index.html 200
+/en /index.html 200
+/zh /index.html 200
+/parts /index.html 200
+/parts/* /index.html 200
+/ids /index.html 200
+/ids/* /index.html 200
+/settings /index.html 200
+/about /index.html 200
+/en/parts /index.html 200
+/en/parts/* /index.html 200
+/en/ids /index.html 200
+/en/ids/* /index.html 200
+/en/settings /index.html 200
+/en/about /index.html 200
+/zh/parts /index.html 200
+/zh/parts/* /index.html 200
+/zh/ids /index.html 200
+/zh/ids/* /index.html 200
+/zh/settings /index.html 200
+/zh/about /index.html 200
+
+# Unknown routes still enter the SPA shell. Vue Router owns the user-facing
+# not-found state so deep links, bookmarks, and mistyped URLs do not hard 404.
 /* /index.html 200

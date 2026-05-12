@@ -81,6 +81,15 @@ const routes = [
             title: 'nav.about'
         }
     },
+    {
+        path: `${localePrefix}/:pathMatch(.*)*`,
+        name: ROUTE_NAMES.notFound,
+        component: () => import("@/views/NotFound.vue"),
+        meta: {
+            title: 'nav.notFound',
+            robots: 'noindex, follow'
+        }
+    },
 ];
 
 const createHistory = ROUTER_MODE === ROUTER_MODE_HISTORY ? createWebHistory : createWebHashHistory;

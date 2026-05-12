@@ -15,7 +15,15 @@ export default {
         searchFlashId: 'ID 搜索',
         settings: '设置',
         about: '关于',
-        decodeId: 'ID'
+        decodeId: 'ID',
+        notFound: '未找到'
+    },
+    notFound: {
+        title: '页面未找到',
+        message: '当前 URL 不匹配 FlashMaster 的工作台路由。',
+        parts: '打开料号',
+        ids: '打开 ID',
+        about: '关于'
     },
     dashboard: {
         queryPanel: '查询输入',

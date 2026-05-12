@@ -15,7 +15,15 @@ export default {
         searchFlashId: 'ID Search',
         settings: 'Settings',
         about: 'About',
-        decodeId: 'IDs'
+        decodeId: 'IDs',
+        notFound: 'Not Found'
+    },
+    notFound: {
+        title: 'Page not found',
+        message: 'This URL does not match a FlashMaster workspace route.',
+        parts: 'Open Parts',
+        ids: 'Open IDs',
+        about: 'About'
     },
     dashboard: {
         queryPanel: 'Query',

@@ -15,7 +15,8 @@ export const ROUTE_NAMES = Object.freeze({
   id: 'id',
   idsSearch: 'ids-search',
   settings: 'settings',
-  about: 'about'
+  about: 'about',
+  notFound: 'not-found'
 });
 
 const URL_TO_APP_LOCALE = Object.freeze({

@@ -24,13 +24,63 @@ history 模式会输出普通 URL：
 VITE_FLASHMASTER_ROUTER_MODE=history pnpm build
 ```
 
-history 模式要求所有应用路由都回落到 `index.html`。Cloudflare Pages 可以使用仓库内置的 `public/_redirects` 规则：
+history 模式要求应用路由回落到 `index.html`，真实静态文件也必须直接返回。Cloudflare Pages 的 `_redirects` 规则会优先于静态文件匹配，因此不能只写一个裸的 `/* /index.html 200`。仓库内置的 `public/_redirects` 采用“静态文件直通 + SPA 兜底”的顺序：
 
 ```text
+/robots.txt /robots.txt 200
+/sitemap.xml /sitemap.xml 200
+/site.webmanifest /site.webmanifest 200
+/og/* /og/:splat 200
+/assets/* /assets/:splat 200
+
+/parts /index.html 200
+/parts/* /index.html 200
+/ids /index.html 200
+/ids/* /index.html 200
 /* /index.html 200
 ```
 
+末尾的全局兜底会让未知 URL 进入 SPA 壳层；Vue Router 再显示 404 页面，并在客户端把 robots meta 改为 `noindex, follow`。不要把未知路由静默跳回首页，否则用户会迷失，搜索引擎也更容易看到大量首页重复内容。
+
+面向搜索引擎的公开站点应使用 history 构建：
+
+```bash
+VITE_FLASHMASTER_ROUTER_MODE=history pnpm build
+```
+
+如果发布的是默认 hash 构建，应用仍可正常使用，但 sitemap 中的 `/parts`、`/ids`、`/about` 等普通 URL 需要服务器 rewrite 才能首次访问。
+
 公开部署地址是 [fm.itxtech.org](https://fm.itxtech.org)。
+
+### Cloudflare 入口域名
+
+`fm.itxtech.org` 应尽量作为真正的 canonical 站点服务内容，而不是通过 URL Redirect 跳到镜像域名。SEO 最稳妥的配置是：
+
+1. 在静态托管/CDN 侧绑定 `fm.itxtech.org` 作为自定义域名，或让 Cloudflare DNS 直接代理到同一个静态站点 origin。
+2. 删除会把 `fm.itxtech.org/*` 跳转到 `fm.imlxy.net/` 的 Redirect Rule、Page Rule 或 Bulk Redirect。
+3. 确认这些地址都是 `200`，且 Content-Type 正确：
+
+```bash
+curl -I https://fm.itxtech.org/parts
+curl -I https://fm.itxtech.org/robots.txt
+curl -I https://fm.itxtech.org/sitemap.xml
+curl -I https://fm.itxtech.org/og/flashmaster.png
+```
+
+如果短期内仍必须让普通用户从 `fm.itxtech.org` 跳到 `fm.imlxy.net`，不要使用静态目标 `https://fm.imlxy.net/`，否则 `/robots.txt`、`/sitemap.xml`、`/og/flashmaster.png` 等路径会全部丢失。Cloudflare Redirect Rule 至少应保留路径和 query：
+
+```text
+When incoming requests match:
+http.host eq "fm.itxtech.org" and not cf.client.bot
+
+Then:
+Type: Dynamic
+Expression: concat("https://fm.imlxy.net", http.request.uri.path)
+Status code: 308
+Preserve query string: Enabled
+```
+
+这里的 `not cf.client.bot` 会让 Cloudflare 识别出的已知搜索爬虫不命中跳转规则。前提是 `fm.itxtech.org` 本身也已经能从 origin 返回同一份站点内容；否则爬虫虽然不走 302，但仍会看到错误页或空 origin。若无法让 `fm.itxtech.org` 直连源站，就不要在 sitemap 和 canonical 里使用它。
 
 ## 侧边栏备案/自定义页脚信息
 

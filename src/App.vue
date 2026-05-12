@@ -214,6 +214,8 @@ const closeMarketTicker = () => {
 const updateTitle = () => {
   document.title = pageTitle.value;
   document.documentElement.lang = locale.value === 'eng' ? 'en' : 'zh-CN';
+  const robots = document.querySelector('meta[name="robots"]');
+  robots?.setAttribute('content', route.meta.robots || 'index, follow');
   const primary = vuetifyTheme.current.value.colors.primary;
   for (const name of ['theme-color', 'msapplication-navbutton-color', 'apple-mobile-web-app-status-bar-style']) {
     let tag = document.querySelector(`meta[name="${name}"]`);
@@ -263,7 +265,7 @@ onUnmounted(() => {
 });
 
 watch(() => route.params.locale, syncRouteLocale, { immediate: true });
-watch([() => route.meta.title, locale, () => vuetifyTheme.global.name.value], updateTitle);
+watch([() => route.meta.title, () => route.meta.robots, locale, () => vuetifyTheme.global.name.value], updateTitle);
 watch(mobile, value => {
   drawer.value = !value;
 });
