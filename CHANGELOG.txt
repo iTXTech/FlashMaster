@@ -2,6 +2,8 @@ FlashMaster by PeratX <peratx@itxtech.org>
 Copyright (c) 2019-2026 iTX Technologies
 ===================================
 Version 2.1.1
+- Updated embedded fdnext to v2.2.0 (41422c3), cleaning generated FDB data by dropping ambiguous aliases, placeholder variants, generic labels, synthetic keys, controller-only parts, and low-confidence Flash IDs while preserving trusted support part numbers.
+- Refined fdnext controller group projections so decode/search controller filtering uses the updated group definitions and localized capability metadata.
 - Updated embedded fdnext to v2.2.0 (a614e0d), adding localized controller group titles/descriptions, explicit all/selected groups, and controllerGroup filtering for decode/search operations.
 - Settings now has a dedicated controller group card; group names, descriptions, and display order come directly from fdnext capabilities instead of FlashMaster-maintained labels or secondary grouping.
 - Updated embedded fdnext to v2.2.0 (048f7a3), expanding Samsung DRAM and KIOXIA NAND token coverage, Phison NAND/UFD support, Innostor and Alcor controller support-list resources, and decodepack token validation.

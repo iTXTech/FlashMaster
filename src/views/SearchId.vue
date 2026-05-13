@@ -54,14 +54,10 @@
                   </div>
                 </div>
               </div>
-              <div class="search-card-detail-grid">
+              <div v-if="item.partNumberList.length > 0" class="search-card-detail-grid search-card-detail-grid--single">
                 <div class="search-card-section">
                   <div class="search-card-label">{{ $t('partNumber') }}</div>
                   <ExpandableListCell class="search-part-number-list" :items="item.partNumberList" :limit="6" clickable @select="decodePartNumber" />
-                </div>
-                <div class="search-card-section">
-                  <div class="search-card-label">{{ $t('controllers') }}</div>
-                  <ExpandableListCell class="search-controller-list" :items="item.controllerList" :limit="4" />
                 </div>
               </div>
               <ExternalLinks v-if="item.links.length > 0" class="search-card-links" :links="item.links" compact />
@@ -75,9 +71,6 @@
           </template>
           <template #partNumbers="{ item }">
             <ExpandableListCell :items="item.partNumberList" :limit="2" clickable @select="decodePartNumber" />
-          </template>
-          <template #controllers="{ item }">
-            <ExpandableListCell :items="item.controllerList" :limit="3" />
           </template>
         </PagedTable>
       </section>
@@ -118,7 +111,6 @@ const headers = computed(() => [
   { title: t('flashId'), key: 'id', class: 'search-id-col' },
   { title: t('dashboard.geometry'), key: 'geometry', class: 'search-geometry-col' },
   { title: t('partNumber'), key: 'partNumbers', class: 'search-list-col' },
-  { title: t('controllers'), key: 'controllers', class: 'search-list-col search-controller-col' },
   { title: t('action'), key: 'action' }
 ]);
 

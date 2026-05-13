@@ -849,15 +849,11 @@ a.nav-footer-notice:hover {
 }
 
 .search-id-results-panel .search-geometry-col {
-  width: 14%;
+  width: 18%;
 }
 
 .search-id-results-panel .search-list-col {
-  width: 28%;
-}
-
-.search-id-results-panel .search-controller-col {
-  width: 28%;
+  width: 52%;
 }
 
 .search-results-panel .col-action {
@@ -1041,6 +1037,10 @@ a.nav-footer-notice:hover {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     align-items: start;
   }
+}
+
+.search-card-detail-grid--single {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .search-card-label {

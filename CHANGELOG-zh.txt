@@ -2,6 +2,8 @@ FlashMaster by PeratX <peratx@itxtech.org>
 版权所有 (c) 2019-2026 iTX Technologies
 ===================================
 版本 2.1.1
+- 更新内嵌 fdnext 到 v2.2.0（41422c3），清理生成的 FDB 数据，移除歧义别名、占位变体、泛化标签、合成 key、仅控制器料号和低置信 Flash ID，同时保留可信支持列表料号。
+- 优化 fdnext 控制器分组投影，decode/search 的 controllerGroup 筛选现在使用更新后的分组定义与本地化 capabilities 元数据。
 - 更新内嵌 fdnext 到 v2.2.0（a614e0d），新增本地化控制器分组标题/说明、显式全部/精选分组，并支持 decode/search 通过 controllerGroup 筛选控制器输出。
 - 设置页新增独立控制器分组卡片；分组名称、说明与展示顺序完全使用 fdnext capabilities 返回的数据，不再由 FlashMaster 内置翻译或二次分段。
 - 更新内嵌 fdnext 到 v2.2.0（048f7a3），扩展 Samsung DRAM 与 KIOXIA NAND token 覆盖、Phison NAND/UFD 支持、Innostor 与 Alcor 控制器支持列表资源，并增强 decodepack token 校验。

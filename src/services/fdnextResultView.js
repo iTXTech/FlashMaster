@@ -50,6 +50,21 @@ function isListField(field) {
   return ['controller', 'controllers'].includes(field?.key);
 }
 
+function isControllerFieldKey(key) {
+  return key === 'controller' || key === 'controllers' || String(key || '').startsWith('controller_');
+}
+
+function defaultSearchRows(rows = []) {
+  return asArray(rows).filter(row => !isControllerFieldKey(row.key));
+}
+
+function compactFieldSummary(rows = [], limit = 4) {
+  return defaultSearchRows(rows)
+    .slice(0, limit)
+    .map(row => `${row.name}: ${row.value}`)
+    .join(' · ');
+}
+
 function splitListField(field) {
   if (!isListField(field)) return [];
   const source = Array.isArray(field?.value) ? field.value : formatField(field).split(/[,，;；]/);
@@ -342,6 +357,8 @@ export function partSearchRows(result) {
       ? asArray(item.badges)
       : [device.chipKind, device.productType].filter(Boolean).map(chipLabel);
     const route = partNumber ? partRoute(partNumber) : null;
+    const rows = fieldRows(item.fields);
+    const fieldSummary = compactFieldSummary(rows);
     return {
       key: `${partNumber || item.label}-${index}`,
       vendor,
@@ -349,8 +366,8 @@ export function partSearchRows(result) {
       label: item.label || partNumber,
       markingCode,
       badges: displayBadges(badges, vendor),
-      fields: fieldRows(item.fields),
-      fieldSummary: fieldRows(item.fields).map(row => `${row.name}: ${row.value}`).join(' · '),
+      fields: rows,
+      fieldSummary,
       links: externalLinkRows(item.links, vendor),
       route,
       chipKind: chipLabel(device.chipKind),
@@ -367,6 +384,7 @@ export function identifierSearchRows(result) {
     const controllers = splitListField(findField(fields, 'controller'));
     const partNumberList = relationParts(item.relations);
     const vendor = deviceVendor(device);
+    const rows = fieldRows(fields);
     return {
       key: `${id}-${index}`,
       id,
@@ -379,12 +397,8 @@ export function identifierSearchRows(result) {
         fieldText(fields, 'page_size') !== EMPTY ? `Page ${fieldText(fields, 'page_size')}` : '',
         fieldText(fields, 'block_size') !== EMPTY ? `Block ${fieldText(fields, 'block_size')}` : ''
       ].filter(Boolean).join(' · '),
-      fields: fieldRows(fields).filter(row => row.key !== 'controller'),
-      fieldSummary: fieldRows(fields)
-        .filter(row => row.key !== 'controller')
-        .slice(0, 4)
-        .map(row => `${row.name}: ${row.value}`)
-        .join(' · '),
+      fields: defaultSearchRows(rows),
+      fieldSummary: compactFieldSummary(rows),
       partNumberList,
       partNumbers: partNumberList.join(', '),
       controllerList: controllers,
