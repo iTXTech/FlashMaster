@@ -8,7 +8,7 @@ import {
     summarizeEmbeddedFlashId,
     summarizeEmbeddedPartNumber
 } from '@/services/fdnextApi';
-import { summaryText } from '@/services/fdnextResultView';
+import { FDNEXT_CAPABILITIES_SCHEMA_VERSIONS, summaryText } from '@/services/fdnextResultView';
 
 const makeUrl = (endpoint, params = {}) => {
     const base = store.getServerAddress().replace(/\/+$/, '');
@@ -22,7 +22,8 @@ const makeUrl = (endpoint, params = {}) => {
 };
 
 const assertFdnextPayload = (payload, schemaVersion, endpoint) => {
-    if (!payload || payload.schemaVersion !== schemaVersion) {
+    const schemaVersions = Array.isArray(schemaVersion) ? schemaVersion : [schemaVersion];
+    if (!payload || !schemaVersions.includes(payload.schemaVersion)) {
         throw new Error(`Unsupported fdnext response from ${endpoint}`);
     }
     return payload;
@@ -48,18 +49,24 @@ const limitParams = limit => {
     return Number.isFinite(value) && value > 0 ? { limit: value } : {};
 };
 
+const controllerGroupParams = () => ({
+    controllerGroup: store.getControllerGroupParam()
+});
+
 export const getServerInfo = () => useEmbeddedParser()
     ? getEmbeddedInfo()
-    : request('capabilities', {}, 'fdnext.capabilities.v1');
+    : request('capabilities', langParams(), FDNEXT_CAPABILITIES_SCHEMA_VERSIONS);
 
 export const decodePartNumber = pn => useEmbeddedParser() ? decodeEmbeddedPartNumber(pn) : request('parts/decode', {
     ...langParams(),
+    ...controllerGroupParams(),
     query: pn
 });
 
 export const searchPartNumber = (pn, limit = 0) => useEmbeddedParser() ? searchEmbeddedPartNumber(pn, limit) : request('parts/search', {
     ...langParams(),
     query: pn,
+    ...controllerGroupParams(),
     ...limitParams(limit)
 });
 
@@ -70,13 +77,15 @@ export const summarizePartNumber = async pn => useEmbeddedParser()
 export const decodeFlashId = id => useEmbeddedParser() ? decodeEmbeddedFlashId(id) : request('identifiers/decode', {
     ...langParams(),
     query: id,
-    idScheme: 'nand.flash_id'
+    idScheme: 'nand.flash_id',
+    ...controllerGroupParams()
 });
 
 export const searchFlashId = (id, limit = 0) => useEmbeddedParser() ? searchEmbeddedFlashId(id, limit) : request('identifiers/search', {
     ...langParams(),
     query: id,
     idScheme: 'nand.flash_id',
+    ...controllerGroupParams(),
     ...limitParams(limit)
 });
 

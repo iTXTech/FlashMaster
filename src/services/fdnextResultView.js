@@ -3,7 +3,11 @@ import { idRoute, idsSearchRoute, partRoute, partsSearchRoute } from '@/router/l
 import getVendorLogo, { isVendorLogoDark } from '@/services/vendorLogos';
 
 export const FDNEXT_RESULT_SCHEMA_VERSION = 'fdnext.result.v1';
-export const FDNEXT_CAPABILITIES_SCHEMA_VERSION = 'fdnext.capabilities.v1';
+export const FDNEXT_CAPABILITIES_SCHEMA_VERSION = 'fdnext.capabilities.v2';
+export const FDNEXT_CAPABILITIES_SCHEMA_VERSIONS = Object.freeze([
+  'fdnext.capabilities.v1',
+  FDNEXT_CAPABILITIES_SCHEMA_VERSION
+]);
 
 const EMPTY = '-';
 
@@ -12,7 +16,7 @@ export function isFdnextResult(value) {
 }
 
 export function isFdnextCapabilities(value) {
-  return !!value && value.schemaVersion === FDNEXT_CAPABILITIES_SCHEMA_VERSION;
+  return !!value && FDNEXT_CAPABILITIES_SCHEMA_VERSIONS.includes(value.schemaVersion);
 }
 
 export function asArray(value) {

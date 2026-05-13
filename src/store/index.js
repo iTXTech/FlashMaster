@@ -13,6 +13,8 @@ const SERVER_PRESETS = Object.freeze([
 const DEFAULT_SERVER_ADDRESS = import.meta.env.VITE_FLASHMASTER_SERVER || SERVER_PRESETS[0].address;
 const PARSER_EMBEDDED = "embedded";
 const PARSER_HTTP = "http";
+const CONTROLLER_GROUP_ALL = "all";
+const CONTROLLER_GROUP_SELECTED = "selected";
 
 const getDefaultServerAddress = () => DEFAULT_SERVER_ADDRESS;
 
@@ -154,6 +156,42 @@ const isMarketTickerEnabled = () => {
     return localStorage.marketTicker === "1"
 }
 
+const normalizeControllerGroups = value => {
+    const raw = Array.isArray(value)
+        ? value
+        : String(value || "")
+            .split(",");
+    const groups = raw
+        .map(item => String(item || "").trim())
+        .filter(Boolean);
+    if (!groups.length || groups.includes(CONTROLLER_GROUP_ALL)) {
+        return [CONTROLLER_GROUP_ALL];
+    }
+    const normalized = [...new Set(groups.filter(item => /^[a-z][a-z0-9_-]*(?::[a-z0-9][a-z0-9_-]*)?$/.test(item)))];
+    if (normalized.includes(CONTROLLER_GROUP_SELECTED)) {
+        return [CONTROLLER_GROUP_SELECTED];
+    }
+    return normalized.length ? normalized : [CONTROLLER_GROUP_ALL];
+}
+
+const setControllerGroups = value => {
+    const groups = normalizeControllerGroups(value);
+    localStorage.controllerGroups = groups.join(",");
+}
+
+const getControllerGroups = () => {
+    const groups = normalizeControllerGroups(localStorage.controllerGroups || CONTROLLER_GROUP_ALL);
+    if (groups.join(",") !== localStorage.controllerGroups) {
+        setControllerGroups(groups);
+    }
+    return groups;
+}
+
+const getControllerGroupParam = () => {
+    const groups = getControllerGroups();
+    return groups.includes(CONTROLLER_GROUP_ALL) ? CONTROLLER_GROUP_ALL : groups.join(",");
+}
+
 const queryInputFormat = str => String(str || "").toUpperCase();
 
 const partNumberFormat = str => {
@@ -176,6 +214,8 @@ const getTheme = () => {
 export default {
     PARSER_EMBEDDED,
     PARSER_HTTP,
+    CONTROLLER_GROUP_ALL,
+    CONTROLLER_GROUP_SELECTED,
     SERVER_PRESET_CLOUD,
     SERVER_PRESET_LOCAL_DEV,
     getDefaultServerAddress,
@@ -205,6 +245,9 @@ export default {
     isAutoHideSoftKeyboard,
     setMarketTickerEnabled,
     isMarketTickerEnabled,
+    setControllerGroups,
+    getControllerGroups,
+    getControllerGroupParam,
     queryInputFormat,
     partNumberFormat,
     setTheme,

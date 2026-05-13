@@ -26,8 +26,8 @@
             clearable
             :label="$t('settings.serverAddr')"
             @update:model-value="changeServer"
-            @keydown.enter.prevent="commitServer"
-            @blur="commitServer"
+            @keydown.enter.prevent="commitServer()"
+            @blur="commitServer()"
           >
             <template #item="{ props, item }">
               <v-list-item v-bind="props" :title="item.raw.title" :subtitle="item.raw.value" />
@@ -37,6 +37,58 @@
             <v-btn color="primary" prepend-icon="mdi-information-outline" @click="serverInfo">{{ infoButtonLabel }}</v-btn>
           </div>
           <v-progress-linear v-if="loadingInfo" indeterminate color="primary" />
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div class="panel-title">{{ $t('settings.controllerGroups') }}</div>
+          <v-btn
+            icon="mdi-refresh"
+            variant="text"
+            :loading="loadingControllerGroups"
+            :aria-label="$t('settings.refreshControllerGroups')"
+            @click="loadControllerGroups({ notifyOnError: true })"
+          />
+        </div>
+        <div class="panel-body query-stack">
+          <v-select
+            v-model="controllerGroups"
+            :items="controllerGroupItems"
+            item-title="title"
+            item-value="value"
+            multiple
+            chips
+            closable-chips
+            hide-details
+            :loading="loadingControllerGroups"
+            :label="$t('settings.activeControllerGroups')"
+            @update:model-value="changeControllerGroups"
+          >
+            <template #item="{ item }">
+              <v-list-item
+                class="controller-group-option"
+                :active="isControllerGroupSelected(item.raw.value)"
+                :subtitle="item.raw.description || item.raw.value"
+                :title="item.raw.title"
+                role="option"
+                @click.stop.prevent="toggleControllerGroup(item.raw.value)"
+              >
+                <template #prepend>
+                  <v-checkbox-btn
+                    class="controller-group-option-checkbox"
+                    color="primary"
+                    density="compact"
+                    :model-value="isControllerGroupSelected(item.raw.value)"
+                    :ripple="false"
+                    tabindex="-1"
+                    @click.stop.prevent="toggleControllerGroup(item.raw.value)"
+                  />
+                </template>
+              </v-list-item>
+            </template>
+          </v-select>
+          <div class="server-address-line">{{ controllerGroupSourceLabel }}</div>
         </div>
       </section>
 
@@ -126,7 +178,7 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { getServerInfo } from '@/services/flashApi';
-import { decoderGroupFromEvent, formatServerInfo } from '@/services/capabilityHtml';
+import { capabilityGroupFromEvent, formatServerInfo } from '@/services/capabilityHtml';
 import bus from '@/store/bus';
 import store from '@/store';
 import themeManager from '@/theme';
@@ -135,17 +187,20 @@ const { t } = useI18n();
 
 const server = ref(store.getServerAddress());
 const parserMode = ref(store.getParserMode());
+const controllerGroups = ref(store.getControllerGroups());
 const currentTheme = ref(store.getTheme());
 const hideKeyboard = ref(store.isAutoHideSoftKeyboard());
 const marketTicker = ref(store.isMarketTickerEnabled());
 const loadingInfo = ref(false);
+const loadingControllerGroups = ref(false);
 const statsState = ref(readStats());
+const capabilityData = ref(null);
 const dialog = ref({
   show: false,
   text: '',
   data: null
 });
-const expandedDecoderGroups = ref({});
+const expandedCapabilityGroups = ref({});
 
 const themes = computed(() => [
   { title: t('customization.theme_0'), value: themeManager.THEME_DARK },
@@ -156,6 +211,36 @@ const parserModes = computed(() => [
   { title: t('settings.parserEmbedded'), value: store.PARSER_EMBEDDED },
   { title: t('settings.parserHttp'), value: store.PARSER_HTTP }
 ]);
+const exclusiveControllerGroups = new Set([
+  store.CONTROLLER_GROUP_ALL,
+  store.CONTROLLER_GROUP_SELECTED
+]);
+const controllerGroupItems = computed(() => {
+  const groups = capabilityData.value?.inventory?.controllers?.groups;
+  if (Array.isArray(groups) && groups.length) {
+    return groups
+      .filter(group => group?.id)
+      .map(group => ({
+        title: String(group.title || group.id),
+        description: group.description ? String(group.description) : '',
+        value: String(group.id),
+        props: {
+          subtitle: group.description ? String(group.description) : String(group.id)
+        }
+      }));
+  }
+  return controllerGroups.value.map(value => ({
+    title: value,
+    description: '',
+    value,
+    props: {
+      subtitle: value
+    }
+  }));
+});
+const controllerGroupSourceLabel = computed(() => capabilityData.value
+  ? t('settings.controllerGroupsFromCapabilities')
+  : t('settings.controllerGroupsFallback'));
 const serverItems = computed(() => store.getServerPresets().map(item => ({
   title: item.id === store.SERVER_PRESET_CLOUD ? t('settings.fdnextCloud') : t('settings.fdnextLocalDev'),
   value: item.address
@@ -195,13 +280,61 @@ function changeServer(value) {
   bus.emit('server');
 }
 
-function commitServer() {
+function commitServer({ refreshGroups = true } = {}) {
   changeServer(server.value);
+  if (refreshGroups && isHttpParser.value) {
+    loadControllerGroups();
+  }
 }
 
 function changeParserMode(value) {
   parserMode.value = value === store.PARSER_HTTP ? store.PARSER_HTTP : store.PARSER_EMBEDDED;
   store.setParserMode(parserMode.value);
+  loadControllerGroups();
+}
+
+function normalizeControllerGroupSelection(value) {
+  const selected = (Array.isArray(value) ? value : [value])
+    .map(item => String(item || '').trim())
+    .filter(Boolean);
+  const previous = controllerGroups.value;
+  const exclusive = selected.filter(item => exclusiveControllerGroups.has(item));
+  const newlySelectedExclusive = exclusive.find(item => !previous.includes(item));
+  if (newlySelectedExclusive) {
+    return [newlySelectedExclusive];
+  }
+  if (exclusive.length && selected.some(item => !exclusiveControllerGroups.has(item))) {
+    return selected.filter(item => !exclusiveControllerGroups.has(item));
+  }
+  return selected.length ? selected : [store.CONTROLLER_GROUP_ALL];
+}
+
+function isControllerGroupSelected(value) {
+  return controllerGroups.value.includes(String(value || ''));
+}
+
+function applyControllerGroups(value) {
+  store.setControllerGroups(value);
+  controllerGroups.value = store.getControllerGroups();
+  refreshInfoDialog();
+}
+
+function changeControllerGroups(value) {
+  applyControllerGroups(normalizeControllerGroupSelection(value));
+}
+
+function toggleControllerGroup(value) {
+  const group = String(value || '').trim();
+  if (!group) return;
+  if (exclusiveControllerGroups.has(group)) {
+    applyControllerGroups([group]);
+    return;
+  }
+  const withoutExclusive = controllerGroups.value.filter(item => !exclusiveControllerGroups.has(item));
+  const next = withoutExclusive.includes(group)
+    ? withoutExclusive.filter(item => item !== group)
+    : [...withoutExclusive, group];
+  applyControllerGroups(next.length ? next : [store.CONTROLLER_GROUP_ALL]);
 }
 
 function changeTheme(value) {
@@ -215,18 +348,49 @@ function changeMarketTicker(value) {
   bus.emit('marketTicker');
 }
 
+function formatInfoText(data) {
+  return formatServerInfo(data, t, expandedCapabilityGroups.value, {
+    selectedControllerGroups: controllerGroups.value
+  });
+}
+
+function refreshInfoDialog() {
+  if (!dialog.value.data) return;
+  dialog.value = {
+    ...dialog.value,
+    text: formatInfoText(dialog.value.data)
+  };
+}
+
+async function loadControllerGroups({ notifyOnError = false } = {}) {
+  loadingControllerGroups.value = true;
+  try {
+    const data = await getServerInfo();
+    capabilityData.value = data;
+    refreshInfoDialog();
+  } catch (err) {
+    capabilityData.value = null;
+    if (notifyOnError) {
+      notify(t('alert.fetchFailed', [err.message || err]));
+    }
+  } finally {
+    loadingControllerGroups.value = false;
+  }
+}
+
 async function serverInfo() {
   if (isHttpParser.value) {
-    commitServer();
+    commitServer({ refreshGroups: false });
   }
   loadingInfo.value = true;
   try {
     const data = await getServerInfo();
-    expandedDecoderGroups.value = {};
+    capabilityData.value = data;
+    expandedCapabilityGroups.value = {};
     dialog.value = {
       show: true,
       data,
-      text: formatServerInfo(data, t, expandedDecoderGroups.value)
+      text: formatInfoText(data)
     };
   } catch (err) {
     notify(t('alert.fetchFailed', [err.message || err]));
@@ -236,16 +400,13 @@ async function serverInfo() {
 }
 
 function handleServerInfoClick(event) {
-  const group = decoderGroupFromEvent(event);
+  const group = capabilityGroupFromEvent(event);
   if (!group || !dialog.value.data) return;
-  expandedDecoderGroups.value = {
-    ...expandedDecoderGroups.value,
-    [group]: !expandedDecoderGroups.value[group]
+  expandedCapabilityGroups.value = {
+    ...expandedCapabilityGroups.value,
+    [group]: !expandedCapabilityGroups.value[group]
   };
-  dialog.value = {
-    ...dialog.value,
-    text: formatServerInfo(dialog.value.data, t, expandedDecoderGroups.value)
-  };
+  refreshInfoDialog();
 }
 
 function resetStat() {
@@ -261,6 +422,7 @@ function notify(text) {
 let offMarketTicker;
 
 onMounted(() => {
+  loadControllerGroups();
   offMarketTicker = bus.on('marketTicker', () => {
     marketTicker.value = store.isMarketTickerEnabled();
   });

@@ -1539,6 +1539,20 @@ a.nav-footer-notice:hover {
   border-bottom: 0;
 }
 
+.controller-group-option {
+  padding-inline: 12px 14px;
+}
+
+.controller-group-option .v-list-item__prepend {
+  align-self: center;
+  padding-top: 0;
+  padding-inline-end: 12px;
+}
+
+.controller-group-option-checkbox {
+  margin-inline-start: -2px;
+}
+
 .server-address-line {
   display: flex;
   align-items: center;
@@ -1604,6 +1618,14 @@ a.nav-footer-notice:hover {
   gap: 8px;
 }
 
+.capability-controller-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 236px), 1fr));
+}
+
+.capability-controller-defaults {
+  margin-block: 6px 8px;
+}
+
 .capability-card {
   min-width: 0;
   padding: 9px;
@@ -1618,6 +1640,14 @@ a.nav-footer-notice:hover {
   font-size: 0.78rem;
   font-weight: 760;
   line-height: 1.25;
+}
+
+.capability-card-note {
+  margin-top: -2px;
+  color: rgba(var(--v-theme-on-surface), 0.58);
+  font-size: 0.69rem;
+  font-weight: 620;
+  line-height: 1.35;
 }
 
 .capability-kv-list {
@@ -1748,6 +1778,71 @@ a.nav-footer-notice:hover {
 
 .capability-list-more:hover {
   color: rgb(var(--v-theme-primary));
+}
+
+.capability-controller-group-head {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.capability-controller-group-head span {
+  color: rgba(var(--v-theme-on-surface), 0.6);
+  font-style: normal;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.capability-controller-group {
+  display: grid;
+  min-width: 0;
+  gap: 7px;
+  padding: 8px;
+  border: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+  border-radius: 6px;
+  background: rgba(var(--v-theme-surface), 0.42);
+}
+
+.capability-controller-group--expanded {
+  grid-column: 1 / -1;
+}
+
+.capability-controller-group-head strong {
+  min-width: 0;
+  color: rgba(var(--v-theme-on-surface), 0.86);
+  font-size: 0.76rem;
+  font-weight: 760;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.capability-controller-group-description {
+  color: rgba(var(--v-theme-on-surface), 0.58);
+  font-size: 0.68rem;
+  font-weight: 620;
+  line-height: 1.35;
+}
+
+.capability-controller-chip-grid {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.capability-controller-chip {
+  min-width: 0;
+  max-width: 100%;
+  padding: 3px 6px;
+  border-radius: 4px;
+  background: rgba(var(--v-theme-surface-variant), 0.48);
+  color: rgba(var(--v-theme-on-surface), 0.84);
+  font-size: 0.7rem;
+  font-weight: 680;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
 }
 
 .capability-op {

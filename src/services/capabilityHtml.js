@@ -53,31 +53,40 @@ function formatInventoryMetric(label, value) {
   `;
 }
 
-function formatDecoderItem(item) {
-  const meta = item.priority !== undefined ? `P${item.priority}` : '';
+function formatListItem(label, meta = '') {
   return `
     <div class="capability-list-item">
-      <span>${escapeHtml(item.id || '-')}</span>
+      <span>${escapeHtml(label || '-')}</span>
       ${meta ? `<em>${escapeHtml(meta)}</em>` : ''}
     </div>
   `;
 }
 
-function formatDecoderGroup(key, title, items = [], expandedDecoderGroups, t) {
+function formatDecoderItem(item) {
+  return formatListItem(item.id || '-', item.priority !== undefined ? `P${item.priority}` : '');
+}
+
+function formatTextItem(item) {
+  return formatListItem(item);
+}
+
+function formatListGroup(key, title, items = [], expandedCapabilityGroups, t, formatter = formatTextItem, options = {}) {
   const list = Array.isArray(items) ? items : [];
-  const expanded = Boolean(expandedDecoderGroups[key]);
-  const visible = expanded ? list : list.slice(0, 4);
-  const hiddenCount = Math.max(0, list.length - visible.length);
+  const collapsedLimit = Number.isFinite(options.collapsedLimit) ? options.collapsedLimit : 4;
+  const count = Number.isFinite(options.count) ? options.count : list.length;
+  const expanded = Boolean(expandedCapabilityGroups[key]);
+  const visible = expanded ? list : list.slice(0, collapsedLimit);
+  const hiddenCount = Math.max(0, count - visible.length);
   return `
     <div class="capability-list-group${expanded ? ' capability-list-group--expanded' : ''}">
       <div class="capability-list-title">
         <span>${escapeHtml(title)}</span>
-        <em>${escapeHtml(formatCount(list.length))}</em>
+        <em>${escapeHtml(formatCount(count))}</em>
       </div>
       <div class="capability-list">
-        ${visible.length ? visible.map(formatDecoderItem).join('') : '-'}
-        ${list.length > 8 ? `
-          <button class="capability-list-more" type="button" data-decoder-group="${escapeAttr(key)}">
+        ${visible.length ? visible.map(formatter).join('') : '-'}
+        ${list.length > collapsedLimit ? `
+          <button class="capability-list-more" type="button" data-capability-group="${escapeAttr(key)}">
             ${expanded
               ? escapeHtml(t('settings.capabilityInfo.collapse'))
               : escapeHtml(t('settings.capabilityInfo.more', [formatCount(hiddenCount)]))}
@@ -87,6 +96,124 @@ function formatDecoderGroup(key, title, items = [], expandedDecoderGroups, t) {
     </div>
   `;
 }
+
+function formatDecoderGroup(key, title, items = [], expandedCapabilityGroups, t) {
+  return formatListGroup(key, title, items, expandedCapabilityGroups, t, formatDecoderItem);
+}
+
+function controllerGroupTitle(group) {
+  if (group && typeof group === 'object') {
+    return present(group.title || group.id);
+  }
+  return present(group);
+}
+
+function findControllerGroup(controllers, id) {
+  const groups = Array.isArray(controllers?.groups) ? controllers.groups : [];
+  return groups.find(group => group?.id === id);
+}
+
+function formatControllerGroupSelection(value, controllers) {
+  if (value === 'all') return controllerGroupTitle(findControllerGroup(controllers, 'all') || 'all');
+  const groups = Array.isArray(value) ? value : [];
+  return groups.length
+    ? groups.map(item => controllerGroupTitle(findControllerGroup(controllers, item) || item)).join(', ')
+    : '';
+}
+
+function normalizeControllerItems(items = []) {
+  return Array.isArray(items)
+    ? items.map(item => String(item ?? '').trim()).filter(Boolean)
+    : [];
+}
+
+function formatControllerChip(item) {
+  return `<span class="capability-controller-chip">${escapeHtml(item)}</span>`;
+}
+
+function formatControllerGroup(group, t, expandedCapabilityGroups) {
+  const id = String(group?.id || '');
+  const items = normalizeControllerItems(group?.items);
+  const rawCount = Number(group?.count);
+  const count = Number.isFinite(rawCount) ? rawCount : items.length;
+  const expanded = Boolean(expandedCapabilityGroups[`controller:${id}`]);
+  const collapsedLimit = 10;
+  const visible = expanded ? items : items.slice(0, collapsedLimit);
+  const hiddenCount = Math.max(0, count - visible.length);
+  return `
+    <div class="capability-controller-group${expanded ? ' capability-controller-group--expanded' : ''}">
+      <div class="capability-controller-group-head">
+        <strong>${escapeHtml(controllerGroupTitle(group))}</strong>
+        <span>${escapeHtml(formatCount(count))}</span>
+      </div>
+      ${group.description ? `<div class="capability-controller-group-description">${escapeHtml(group.description)}</div>` : ''}
+      <div class="capability-controller-chip-grid">
+        ${visible.length ? visible.map(formatControllerChip).join('') : '-'}
+      </div>
+      ${items.length > collapsedLimit ? `
+        <button class="capability-list-more" type="button" data-capability-group="${escapeAttr(`controller:${id}`)}">
+          ${expanded
+            ? escapeHtml(t('settings.capabilityInfo.collapse'))
+            : escapeHtml(t('settings.capabilityInfo.more', [formatCount(hiddenCount)]))}
+        </button>
+      ` : ''}
+    </div>
+  `;
+}
+
+function formatFlatControllerInventory(items, t, expandedCapabilityGroups) {
+  return formatListGroup(
+    'controller:all',
+    'all',
+    items.sort((a, b) => a.localeCompare(b)),
+    expandedCapabilityGroups,
+    t,
+    formatTextItem,
+    { collapsedLimit: 24 }
+  );
+}
+
+function formatControllerDefaults(controllers, t) {
+  const defaultGroups = formatControllerGroupSelection(controllers?.defaultGroups, controllers);
+  if (!defaultGroups) return '';
+  return `
+    <dl class="capability-kv-list capability-controller-defaults">
+      ${formatKeyValueRows([[t('settings.capabilityInfo.defaultControllerGroups'), defaultGroups]])}
+    </dl>
+  `;
+}
+
+function formatControllerInventory(controllers, t, expandedCapabilityGroups) {
+  const groups = Array.isArray(controllers?.groups)
+    ? controllers.groups.filter(group => group && typeof group === 'object')
+    : [];
+  const items = normalizeControllerItems(controllers?.items);
+  if (!groups.length && !items.length) return '';
+
+  const body = groups.length
+    ? `<div class="capability-list-grid capability-controller-grid">
+        ${groups.map(group => formatControllerGroup(group, t, expandedCapabilityGroups)).join('')}
+      </div>`
+    : formatFlatControllerInventory(items, t, expandedCapabilityGroups);
+
+  return `
+    <section class="capability-card">
+      <div class="capability-card-title">${escapeHtml(t('settings.capabilityInfo.controllerInventory'))}</div>
+      <div class="capability-card-note">${escapeHtml(t('settings.capabilityInfo.controllerGroupNote'))}</div>
+      ${formatControllerDefaults(controllers, t)}
+      ${body}
+    </section>
+  `;
+}
+
+function formatSelectedControllerGroups(selectedControllerGroups, controllers) {
+  const selection = Array.isArray(selectedControllerGroups) ? selectedControllerGroups : [];
+  if (!selection.length || selection.includes('all')) {
+    return controllerGroupTitle(findControllerGroup(controllers, 'all') || 'all');
+  }
+  return selection.map(item => controllerGroupTitle(findControllerGroup(controllers, item) || item)).join(', ');
+}
+
 
 function formatCapabilityTitle(item, t) {
   const name = item.name || '';
@@ -127,19 +254,20 @@ function formatCapability(item, t) {
   `;
 }
 
-export function formatServerInfo(data, t, expandedDecoderGroups = {}) {
-  if (data?.schemaVersion === 'fdnext.capabilities.v1') {
-    return formatFdnextCapabilities(data, t, expandedDecoderGroups);
+export function formatServerInfo(data, t, expandedCapabilityGroups = {}, options = {}) {
+  if (String(data?.schemaVersion || '').startsWith('fdnext.capabilities.')) {
+    return formatFdnextCapabilities(data, t, expandedCapabilityGroups, options);
   }
   return escapeHtml(JSON.stringify(data, null, 2)).replace(/\n/g, '<br/>');
 }
 
-export function formatFdnextCapabilities(data, t, expandedDecoderGroups = {}) {
+export function formatFdnextCapabilities(data, t, expandedCapabilityGroups = {}, options = {}) {
   const inventory = data.inventory || {};
   const partNumbers = inventory.partNumbers || {};
   const micronFbga = inventory.micronFbga || {};
   const decoders = data.decoders || {};
   const capabilities = Array.isArray(data.capabilities) ? data.capabilities : [];
+  const controllerGroupSelection = formatSelectedControllerGroups(options.selectedControllerGroups, inventory.controllers);
 
   return `
     <div class="capability-info">
@@ -149,6 +277,7 @@ export function formatFdnextCapabilities(data, t, expandedDecoderGroups = {}) {
           [t('settings.capabilityInfo.version'), data.server?.version],
           [t('settings.capabilityInfo.commitHash'), data.server?.build?.commitHash],
           [t('settings.capabilityInfo.buildTime'), data.server?.build?.buildTime],
+          [t('settings.capabilityInfo.selectedControllerGroups'), controllerGroupSelection],
           [t('settings.capabilityInfo.schema'), data.schemaVersion]
         ])}
         ${formatInfoCard(t('settings.capabilityInfo.database'), [
@@ -171,6 +300,7 @@ export function formatFdnextCapabilities(data, t, expandedDecoderGroups = {}) {
           ${formatInventoryMetric(t('settings.capabilityInfo.dramLookup'), micronFbga.dramLookup)}
         </div>
       </section>
+      ${formatControllerInventory(inventory.controllers, t, expandedCapabilityGroups)}
       <section class="capability-card">
         <div class="capability-card-title">${escapeHtml(t('settings.capabilityInfo.capabilities'))}</div>
         <div class="capability-op-list">${capabilities.length ? capabilities.map(item => formatCapability(item, t)).join('') : '-'}</div>
@@ -178,14 +308,19 @@ export function formatFdnextCapabilities(data, t, expandedDecoderGroups = {}) {
       <section class="capability-card">
         <div class="capability-card-title">${escapeHtml(t('settings.capabilityInfo.decoders'))}</div>
         <div class="capability-list-grid">
-          ${formatDecoderGroup('partNumber', t('settings.capabilityInfo.partNumberDecoders'), decoders.partNumber, expandedDecoderGroups, t)}
-          ${formatDecoderGroup('identifier', t('settings.capabilityInfo.identifierDecoders'), decoders.identifier, expandedDecoderGroups, t)}
+          ${formatDecoderGroup('decoder:partNumber', t('settings.capabilityInfo.partNumberDecoders'), decoders.partNumber, expandedCapabilityGroups, t)}
+          ${formatDecoderGroup('decoder:identifier', t('settings.capabilityInfo.identifierDecoders'), decoders.identifier, expandedCapabilityGroups, t)}
         </div>
       </section>
     </div>
   `;
 }
 
-export function decoderGroupFromEvent(event) {
-  return event.target?.closest?.('[data-decoder-group]')?.getAttribute('data-decoder-group') || '';
+export function capabilityGroupFromEvent(event) {
+  const target = event.target;
+  return target?.closest?.('[data-capability-group]')?.getAttribute('data-capability-group')
+    || target?.closest?.('[data-decoder-group]')?.getAttribute('data-decoder-group')
+    || '';
 }
+
+export const decoderGroupFromEvent = capabilityGroupFromEvent;

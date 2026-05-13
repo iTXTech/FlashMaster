@@ -35,8 +35,12 @@ function limitOption(limit) {
   return Number.isFinite(value) && value > 0 ? { limit: value } : {};
 }
 
+function controllerGroupOption() {
+  return { controllerGroup: store.getControllerGroupParam() };
+}
+
 export const getEmbeddedInfo = () => {
-  const capabilities = getEngine().getCapabilities();
+  const capabilities = getEngine().getCapabilities({ lang: currentLang() });
   return {
     ...capabilities,
     server: {
@@ -48,12 +52,14 @@ export const getEmbeddedInfo = () => {
 
 export const decodeEmbeddedPartNumber = pn => getEngine().decodePart({
   query: pn,
-  lang: currentLang()
+  lang: currentLang(),
+  ...controllerGroupOption()
 });
 
 export const searchEmbeddedPartNumber = (pn, limit = 0) => getEngine().searchParts({
   query: pn,
   lang: currentLang(),
+  ...controllerGroupOption(),
   ...limitOption(limit)
 });
 
@@ -62,13 +68,15 @@ export const summarizeEmbeddedPartNumber = pn => summaryText(decodeEmbeddedPartN
 export const decodeEmbeddedFlashId = id => getEngine().decodeIdentifier({
   query: id,
   lang: currentLang(),
-  idScheme: 'nand.flash_id'
+  idScheme: 'nand.flash_id',
+  ...controllerGroupOption()
 });
 
 export const searchEmbeddedFlashId = (id, limit = 0) => getEngine().searchIdentifiers({
   query: id,
   lang: currentLang(),
   idScheme: 'nand.flash_id',
+  ...controllerGroupOption(),
   ...limitOption(limit)
 });
 
