@@ -1,18 +1,15 @@
 FlashMaster by PeratX <peratx@itxtech.org>
 版权所有 (c) 2019-2026 iTX Technologies
 ===================================
-版本 2.1.1
-- 更新内嵌 fdnext 到 v2.2.0（90b91d6），刷新 NAND Flash ID process 查询与控制器资源，提升解码/搜索匹配覆盖。
-- 更新内嵌 fdnext 到 v2.2.0（7726513），新增 Micron HBM/HMC 与更完整的 Micron DRAM PNS decodepack 覆盖，依据官方文档扩展 SpecTek DRAM/mobile/managed memory 规则，隐藏内部 decodepack code 字段，并随统一 prefix crawler 刷新 MDB/FDB 搜索资源。
-- 更新内嵌 fdnext 到 v2.2.0（41422c3），清理生成的 FDB 数据，移除歧义别名、占位变体、泛化标签、合成 key、仅控制器料号和低置信 Flash ID，同时保留可信支持列表料号。
-- 优化 fdnext 控制器分组投影，decode/search 的 controllerGroup 筛选现在使用更新后的分组定义与本地化 capabilities 元数据。
-- 更新内嵌 fdnext 到 v2.2.0（a614e0d），新增本地化控制器分组标题/说明、显式全部/精选分组，并支持 decode/search 通过 controllerGroup 筛选控制器输出。
-- 设置页新增独立控制器分组卡片；分组名称、说明与展示顺序完全使用 fdnext capabilities 返回的数据，不再由 FlashMaster 内置翻译或二次分段。
-- 更新内嵌 fdnext 到 v2.2.0（048f7a3），扩展 Samsung DRAM 与 KIOXIA NAND token 覆盖、Phison NAND/UFD 支持、Innostor 与 Alcor 控制器支持列表资源，并增强 decodepack token 校验。
-- 更新内嵌 fdnext 到 v2.2.0（e86d0ea），新增 Samsung UFS dump 元数据，扩展 ISSI DRAM 解析覆盖，并统一各厂商 DRAM decodepack 字段输出。
-- 更新内嵌 fdnext 到 v2.2.0（96941db），扩展 NAND Flash ID decodepack 覆盖，补充 Intel、KIOXIA、Micron/Intel 定义、Samsung、SanDisk、SK hynix、SpecTek、YMTC 等识别规则，改进 Flash ID 后处理与 decodepack 编译，并修复 fdnext capabilities 版本元数据。
-- 更新内嵌 fdnext 到 v2.1.0（7f3fc54），新增 ESMT 与 Etron DRAM decodepack，并扩展非 Micron DRAM 料号覆盖。
+版本 2.2.0
+- 设置页新增控制器分组卡片；FlashMaster 会将选择的控制器分组保存到本地，并应用到料号解析、料号搜索、Flash ID 解析和 Flash ID 搜索。
+- 解析器能力详情增强控制器清单展示，支持按 capabilities 返回的本地化名称/说明展示分组、默认分组和可展开控制器列表。
 - 新增构建期侧边栏页脚信息环境变量，可显示 ICP 备案号或其他公开部署信息，并支持配置外部链接。
+- 优化 Cloudflare Pages history 模式部署规则，静态资源直通、SPA 路由回落，并新增应用内 404 页面，对未知路由标记 noindex。
+- 统一料号和 Flash ID 解析结果中的厂商 Logo 渲染，改善深色 Logo 处理和不同主题下的尺寸一致性。
+- 精简搜索结果展示，从紧凑摘要和 Flash ID 结果表格中隐藏控制器投影字段，减少重复信息。
+- 清理更新日志弹窗，移除冗余副标题，同时保留带 hash 的完整 FlashMaster 版本展示，并继续按基础版本记录已读状态。
+- 内嵌解析器更新内容见 fdnext v2.2.0 release notes：https://github.com/iTXTech/fdnext/releases/tag/v2.2.0
 
 ===================================
 版本 2.1.0

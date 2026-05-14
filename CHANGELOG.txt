@@ -1,18 +1,15 @@
 FlashMaster by PeratX <peratx@itxtech.org>
 Copyright (c) 2019-2026 iTX Technologies
 ===================================
-Version 2.1.1
-- Updated embedded fdnext to v2.2.0 (90b91d6), refreshing NAND Flash ID process lookups and controller resources for more complete decode/search matching.
-- Updated embedded fdnext to v2.2.0 (7726513), adding Micron HBM/HMC and expanded Micron DRAM PNS decodepack coverage, broadening SpecTek DRAM/mobile/managed memory rules from official documentation, hiding internal decodepack code fields, and refreshing MDB/FDB search resources around the unified prefix crawler.
-- Updated embedded fdnext to v2.2.0 (41422c3), cleaning generated FDB data by dropping ambiguous aliases, placeholder variants, generic labels, synthetic keys, controller-only parts, and low-confidence Flash IDs while preserving trusted support part numbers.
-- Refined fdnext controller group projections so decode/search controller filtering uses the updated group definitions and localized capability metadata.
-- Updated embedded fdnext to v2.2.0 (a614e0d), adding localized controller group titles/descriptions, explicit all/selected groups, and controllerGroup filtering for decode/search operations.
-- Settings now has a dedicated controller group card; group names, descriptions, and display order come directly from fdnext capabilities instead of FlashMaster-maintained labels or secondary grouping.
-- Updated embedded fdnext to v2.2.0 (048f7a3), expanding Samsung DRAM and KIOXIA NAND token coverage, Phison NAND/UFD support, Innostor and Alcor controller support-list resources, and decodepack token validation.
-- Updated embedded fdnext to v2.2.0 (e86d0ea), adding Samsung UFS dump metadata, expanding ISSI DRAM decoder coverage, and normalizing DRAM decodepack field output across vendors.
-- Updated embedded fdnext to v2.2.0 (96941db), expanding NAND Flash ID decodepack coverage across Intel, KIOXIA, Micron/Intel-def, Samsung, SanDisk, SK hynix, SpecTek, and YMTC identifiers, improving Flash ID post-processing and decodepack compilation, and fixing fdnext capabilities version metadata.
-- Updated embedded fdnext to v2.1.0 (7f3fc54), adding ESMT and Etron DRAM decodepacks and expanding non-Micron DRAM PN coverage.
+Version 2.2.0
+- Added a Settings controller group card. FlashMaster now stores the selected controller groups locally and applies them to PN decode, PN search, Flash ID decode, and Flash ID search.
+- Improved parser capability details with grouped controller inventory, localized group names/descriptions from capabilities, default group display, and expandable controller lists.
 - Added build-time sidebar footer notice variables for ICP filing text or other public deployment information, with optional external links.
+- Improved history-mode deployment on Cloudflare Pages with static asset passthrough, SPA route fallback, and a dedicated in-app 404 page that marks unknown routes as noindex.
+- Unified vendor logo rendering across PN and Flash ID decode results, including dark-logo handling and more consistent sizing across themes.
+- Reduced search-result noise by hiding controller projection fields from compact result summaries and Flash ID result tables.
+- Cleaned up the changelog dialog by removing the redundant subtitle while keeping full hash-bearing FlashMaster version display and normalized read-state tracking.
+- Embedded parser updates are summarized in the fdnext v2.2.0 release notes: https://github.com/iTXTech/fdnext/releases/tag/v2.2.0
 
 ===================================
 Version 2.1.0
