@@ -75,7 +75,6 @@ export default {
             website: '网站',
             controllers: '控制器',
             controllerInventory: '控制器清单',
-            controllerGroupNote: '分组名称、说明和顺序来自 fdnext capabilities。',
             selectedControllerGroups: '当前控制器分组',
             defaultControllerGroups: '默认控制器分组',
             flashIds: 'Flash ID',

@@ -199,7 +199,6 @@ function formatControllerInventory(controllers, t, expandedCapabilityGroups) {
   return `
     <section class="capability-card">
       <div class="capability-card-title">${escapeHtml(t('settings.capabilityInfo.controllerInventory'))}</div>
-      <div class="capability-card-note">${escapeHtml(t('settings.capabilityInfo.controllerGroupNote'))}</div>
       ${formatControllerDefaults(controllers, t)}
       ${body}
     </section>

@@ -2,6 +2,7 @@ FlashMaster by PeratX <peratx@itxtech.org>
 Copyright (c) 2019-2026 iTX Technologies
 ===================================
 Version 2.1.1
+- Updated embedded fdnext to v2.2.0 (90b91d6), refreshing NAND Flash ID process lookups and controller resources for more complete decode/search matching.
 - Updated embedded fdnext to v2.2.0 (7726513), adding Micron HBM/HMC and expanded Micron DRAM PNS decodepack coverage, broadening SpecTek DRAM/mobile/managed memory rules from official documentation, hiding internal decodepack code fields, and refreshing MDB/FDB search resources around the unified prefix crawler.
 - Updated embedded fdnext to v2.2.0 (41422c3), cleaning generated FDB data by dropping ambiguous aliases, placeholder variants, generic labels, synthetic keys, controller-only parts, and low-confidence Flash IDs while preserving trusted support part numbers.
 - Refined fdnext controller group projections so decode/search controller filtering uses the updated group definitions and localized capability metadata.

@@ -2,6 +2,7 @@ FlashMaster by PeratX <peratx@itxtech.org>
 版权所有 (c) 2019-2026 iTX Technologies
 ===================================
 版本 2.1.1
+- 更新内嵌 fdnext 到 v2.2.0（90b91d6），刷新 NAND Flash ID process 查询与控制器资源，提升解码/搜索匹配覆盖。
 - 更新内嵌 fdnext 到 v2.2.0（7726513），新增 Micron HBM/HMC 与更完整的 Micron DRAM PNS decodepack 覆盖，依据官方文档扩展 SpecTek DRAM/mobile/managed memory 规则，隐藏内部 decodepack code 字段，并随统一 prefix crawler 刷新 MDB/FDB 搜索资源。
 - 更新内嵌 fdnext 到 v2.2.0（41422c3），清理生成的 FDB 数据，移除歧义别名、占位变体、泛化标签、合成 key、仅控制器料号和低置信 Flash ID，同时保留可信支持列表料号。
 - 优化 fdnext 控制器分组投影，decode/search 的 controllerGroup 筛选现在使用更新后的分组定义与本地化 capabilities 元数据。

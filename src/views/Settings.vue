@@ -53,13 +53,13 @@
         </div>
         <div class="panel-body query-stack">
           <v-select
-            v-model="controllerGroups"
+            :model-value="controllerGroups"
             :items="controllerGroupItems"
             item-title="title"
             item-value="value"
             multiple
             chips
-            closable-chips
+            :closable-chips="canRemoveControllerGroups"
             hide-details
             :loading="loadingControllerGroups"
             :label="$t('settings.activeControllerGroups')"
@@ -79,6 +79,7 @@
                     class="controller-group-option-checkbox"
                     color="primary"
                     density="compact"
+                    :disabled="isLastSelectedControllerGroup(item.raw.value)"
                     :model-value="isControllerGroupSelected(item.raw.value)"
                     :ripple="false"
                     tabindex="-1"
@@ -248,6 +249,7 @@ const serverItems = computed(() => store.getServerPresets().map(item => ({
 const isHttpParser = computed(() => parserMode.value === store.PARSER_HTTP);
 const infoButtonLabel = computed(() => isHttpParser.value ? t('settings.serverInfo') : t('settings.parserInfo'));
 const infoDialogTitle = computed(() => infoButtonLabel.value);
+const canRemoveControllerGroups = computed(() => controllerGroups.value.length > 1);
 
 const stats = computed(() => [
   { label: t('nav.decodePartNumber'), value: statsState.value.decodeId },
@@ -297,7 +299,10 @@ function normalizeControllerGroupSelection(value) {
   const selected = (Array.isArray(value) ? value : [value])
     .map(item => String(item || '').trim())
     .filter(Boolean);
-  const previous = controllerGroups.value;
+  const previous = controllerGroups.value.length ? controllerGroups.value : [store.CONTROLLER_GROUP_ALL];
+  if (!selected.length) {
+    return previous;
+  }
   const exclusive = selected.filter(item => exclusiveControllerGroups.has(item));
   const newlySelectedExclusive = exclusive.find(item => !previous.includes(item));
   if (newlySelectedExclusive) {
@@ -306,11 +311,16 @@ function normalizeControllerGroupSelection(value) {
   if (exclusive.length && selected.some(item => !exclusiveControllerGroups.has(item))) {
     return selected.filter(item => !exclusiveControllerGroups.has(item));
   }
-  return selected.length ? selected : [store.CONTROLLER_GROUP_ALL];
+  return selected;
 }
 
 function isControllerGroupSelected(value) {
   return controllerGroups.value.includes(String(value || ''));
+}
+
+function isLastSelectedControllerGroup(value) {
+  const group = String(value || '').trim();
+  return Boolean(group) && controllerGroups.value.length === 1 && controllerGroups.value[0] === group;
 }
 
 function applyControllerGroups(value) {
@@ -326,6 +336,7 @@ function changeControllerGroups(value) {
 function toggleControllerGroup(value) {
   const group = String(value || '').trim();
   if (!group) return;
+  if (isLastSelectedControllerGroup(group)) return;
   if (exclusiveControllerGroups.has(group)) {
     applyControllerGroups([group]);
     return;
@@ -334,7 +345,9 @@ function toggleControllerGroup(value) {
   const next = withoutExclusive.includes(group)
     ? withoutExclusive.filter(item => item !== group)
     : [...withoutExclusive, group];
-  applyControllerGroups(next.length ? next : [store.CONTROLLER_GROUP_ALL]);
+  if (next.length) {
+    applyControllerGroups(next);
+  }
 }
 
 function changeTheme(value) {

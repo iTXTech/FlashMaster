@@ -75,7 +75,6 @@ export default {
             website: 'Website',
             controllers: 'Controllers',
             controllerInventory: 'Controller Inventory',
-            controllerGroupNote: 'Group names, descriptions, and order come from fdnext capabilities.',
             selectedControllerGroups: 'Active Controller Groups',
             defaultControllerGroups: 'Default Controller Groups',
             flashIds: 'Flash IDs',
