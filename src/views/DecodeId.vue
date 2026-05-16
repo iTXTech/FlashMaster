@@ -169,7 +169,7 @@ import { idRoute, idsSearchRoute, localizeRouteLocation, routeParamText } from '
 import bus from '@/store/bus';
 import store from '@/store';
 
-const { t } = useI18n();
+const { locale, t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const input = ref(null);
@@ -181,6 +181,7 @@ const loading = ref(false);
 const loadingSuggestions = ref(false);
 let suggestionTimer;
 let suggestionRequestId = 0;
+let decodeRequestId = 0;
 let suppressedSuggestionValue = '';
 
 const header = computed(() => resultHeader(result.value));
@@ -244,13 +245,19 @@ function routeFlashId() {
   return store.queryInputFormat(routeParamText(route, 'id'));
 }
 
+function activeFlashId() {
+  return routeFlashId() || (loading.value || result.value ? store.partNumberFormat(flashId.value) : '');
+}
+
 function localizedRoute(location) {
   return localizeRouteLocation(location, route);
 }
 
-async function decode(syncRoute = true) {
+async function decode(syncRoute = true, { recordUsage = true } = {}) {
+  const requestId = ++decodeRequestId;
   const id = normalizeInput();
   if (!id) {
+    loading.value = false;
     notify(t('alert.missingFlashId'));
     return;
   }
@@ -263,25 +270,33 @@ async function decode(syncRoute = true) {
   loading.value = true;
   try {
     const payload = await decodeFlashId(id);
+    if (requestId !== decodeRequestId) return;
     result.value = payload;
-    store.statDecodeFidInc();
-    trackLookup({
-      target: 'flashid',
-      action: 'decode',
-      query: id,
-      resultCount: payload.status === 'ok' ? 1 : 0
-    });
+    if (recordUsage) {
+      store.statDecodeFidInc();
+      trackLookup({
+        target: 'flashid',
+        action: 'decode',
+        query: id,
+        resultCount: payload.status === 'ok' ? 1 : 0
+      });
+    }
   } catch (err) {
+    if (requestId !== decodeRequestId) return;
     result.value = null;
-    trackLookup({
-      target: 'flashid',
-      action: 'decode',
-      query: id,
-      success: false
-    });
+    if (recordUsage) {
+      trackLookup({
+        target: 'flashid',
+        action: 'decode',
+        query: id,
+        success: false
+      });
+    }
     notify(t('alert.fetchFailed', [err.message || err]));
   } finally {
-    loading.value = false;
+    if (requestId === decodeRequestId) {
+      loading.value = false;
+    }
   }
 }
 
@@ -367,6 +382,14 @@ function notify(text) {
   bus.emit('snackbar', { timeout: 3000, show: true, text });
 }
 
+function refreshForLanguage() {
+  const id = activeFlashId();
+  if (!id) return;
+  flashId.value = id;
+  clearSuggestions();
+  decode(false, { recordUsage: false });
+}
+
 onMounted(() => {
   const id = routeFlashId();
   if (id) {
@@ -383,10 +406,13 @@ watch(() => route.params.id, () => {
     flashId.value = next;
     decode(false);
   } else if (!next) {
+    decodeRequestId += 1;
+    loading.value = false;
     flashId.value = '';
     result.value = null;
     clearSuggestions();
     focusInput();
   }
 });
+watch(locale, refreshForLanguage);
 </script>

@@ -89,7 +89,7 @@ import { partRoute, partsSearchRoute, routeParamText } from '@/router/locations'
 import bus from '@/store/bus';
 import store from '@/store';
 
-const { t } = useI18n();
+const { locale, t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const input = ref(null);
@@ -97,6 +97,7 @@ const input = ref(null);
 const partNumber = ref('');
 const rows = ref([]);
 const loading = ref(false);
+let searchRequestId = 0;
 const partNumberInput = computed({
   get: () => partNumber.value,
   set: value => {
@@ -121,9 +122,15 @@ function routeSearchQuery() {
   return store.queryInputFormat(routeParamText(route, 'query'));
 }
 
-async function search(syncRoute = true) {
+function activeSearchQuery() {
+  return routeSearchQuery() || (loading.value || rows.value.length > 0 ? store.partNumberFormat(partNumber.value) : '');
+}
+
+async function search(syncRoute = true, { recordUsage = true } = {}) {
+  const requestId = ++searchRequestId;
   const pn = normalizeInput();
   if (!pn) {
+    loading.value = false;
     notify(t('alert.missingPartNumber'));
     return;
   }
@@ -136,25 +143,33 @@ async function search(syncRoute = true) {
   loading.value = true;
   try {
     const payload = await searchPartNumber(pn);
+    if (requestId !== searchRequestId) return;
     rows.value = partSearchRows(payload);
-    store.statSearchPnInc();
-    trackLookup({
-      target: 'pn',
-      action: 'search',
-      query: pn,
-      resultCount: rows.value.length
-    });
+    if (recordUsage) {
+      store.statSearchPnInc();
+      trackLookup({
+        target: 'pn',
+        action: 'search',
+        query: pn,
+        resultCount: rows.value.length
+      });
+    }
   } catch (err) {
+    if (requestId !== searchRequestId) return;
     rows.value = [];
-    trackLookup({
-      target: 'pn',
-      action: 'search',
-      query: pn,
-      success: false
-    });
+    if (recordUsage) {
+      trackLookup({
+        target: 'pn',
+        action: 'search',
+        query: pn,
+        success: false
+      });
+    }
     notify(t('alert.fetchFailed', [err.message || err]));
   } finally {
-    loading.value = false;
+    if (requestId === searchRequestId) {
+      loading.value = false;
+    }
   }
 }
 
@@ -170,6 +185,13 @@ function decodePartNumber(pn) {
 
 function notify(text) {
   bus.emit('snackbar', { timeout: 3000, show: true, text });
+}
+
+function refreshForLanguage() {
+  const query = activeSearchQuery();
+  if (!query) return;
+  partNumber.value = query;
+  search(false, { recordUsage: false });
 }
 
 onMounted(() => {
@@ -188,9 +210,12 @@ watch(() => route.params.query, () => {
     partNumber.value = next;
     search(false);
   } else if (!next) {
+    searchRequestId += 1;
+    loading.value = false;
     partNumber.value = '';
     rows.value = [];
     nextTick(() => input.value?.focus?.());
   }
 });
+watch(locale, refreshForLanguage);
 </script>

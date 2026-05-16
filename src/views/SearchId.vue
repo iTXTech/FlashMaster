@@ -92,7 +92,7 @@ import { idRoute, idsSearchRoute, partRoute, routeParamText } from '@/router/loc
 import bus from '@/store/bus';
 import store from '@/store';
 
-const { t } = useI18n();
+const { locale, t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const input = ref(null);
@@ -100,6 +100,7 @@ const input = ref(null);
 const flashId = ref('');
 const rows = ref([]);
 const loading = ref(false);
+let searchRequestId = 0;
 const flashIdInput = computed({
   get: () => flashId.value,
   set: value => {
@@ -123,9 +124,15 @@ function routeSearchQuery() {
   return store.queryInputFormat(routeParamText(route, 'query'));
 }
 
-async function search(syncRoute = true) {
+function activeSearchQuery() {
+  return routeSearchQuery() || (loading.value || rows.value.length > 0 ? store.partNumberFormat(flashId.value) : '');
+}
+
+async function search(syncRoute = true, { recordUsage = true } = {}) {
+  const requestId = ++searchRequestId;
   const id = normalizeInput();
   if (!id) {
+    loading.value = false;
     notify(t('alert.missingFlashId'));
     return;
   }
@@ -138,25 +145,33 @@ async function search(syncRoute = true) {
   loading.value = true;
   try {
     const payload = await searchFlashId(id);
+    if (requestId !== searchRequestId) return;
     rows.value = identifierSearchRows(payload);
-    store.statSearchIdInc();
-    trackLookup({
-      target: 'flashid',
-      action: 'search',
-      query: id,
-      resultCount: rows.value.length
-    });
+    if (recordUsage) {
+      store.statSearchIdInc();
+      trackLookup({
+        target: 'flashid',
+        action: 'search',
+        query: id,
+        resultCount: rows.value.length
+      });
+    }
   } catch (err) {
+    if (requestId !== searchRequestId) return;
     rows.value = [];
-    trackLookup({
-      target: 'flashid',
-      action: 'search',
-      query: id,
-      success: false
-    });
+    if (recordUsage) {
+      trackLookup({
+        target: 'flashid',
+        action: 'search',
+        query: id,
+        success: false
+      });
+    }
     notify(t('alert.fetchFailed', [err.message || err]));
   } finally {
-    loading.value = false;
+    if (requestId === searchRequestId) {
+      loading.value = false;
+    }
   }
 }
 
@@ -178,6 +193,13 @@ function notify(text) {
   bus.emit('snackbar', { timeout: 3000, show: true, text });
 }
 
+function refreshForLanguage() {
+  const query = activeSearchQuery();
+  if (!query) return;
+  flashId.value = query;
+  search(false, { recordUsage: false });
+}
+
 onMounted(() => {
   const query = routeSearchQuery();
   if (query) {
@@ -194,9 +216,12 @@ watch(() => route.params.query, () => {
     flashId.value = next;
     search(false);
   } else if (!next) {
+    searchRequestId += 1;
+    loading.value = false;
     flashId.value = '';
     rows.value = [];
     nextTick(() => input.value?.focus?.());
   }
 });
+watch(locale, refreshForLanguage);
 </script>
