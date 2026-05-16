@@ -1,187 +1,111 @@
-# 部署与分发
+# 部署与分发指南
 
-FlashMaster 以静态 Web 应用形式发布。常规 Web 构建支持 PWA 安装，单文件构建用于直接分发本地 HTML。
+FlashMaster 是一个纯静态 Web 应用，提供多种构建模式以适配不同的使用场景：从标准的在线托管到完全脱网的单文件运行。
 
-## 常规 Web 构建
+---
 
-构建静态应用，并发布生成的 `dist` 目录：
+## 1. 标准 Web 构建 (托管模式)
 
+这是最常用的构建方式，生成的静态资产可部署至 GitHub Pages、Vercel、Cloudflare Pages 或任何静态 Web 服务器。
+
+### 核心构建命令
 ```bash
+# 执行生产环境构建
 pnpm build
 ```
 
-默认构建使用 hash 路由和相对 base path：
+### 路由模式选择
+应用支持 `hash`（默认）和 `history` 两种路由模式，通过环境变量控制：
 
+- **Hash 模式 (推荐):**
+  ```bash
+  VITE_FLASHMASTER_ROUTER_MODE=hash pnpm build
+  ```
+  *特点：* 兼容性最强。无需服务器特殊配置，支持直接双击打开、静态托管及 WebView。
+
+- **History 模式:**
+  ```bash
+  VITE_FLASHMASTER_ROUTER_MODE=history pnpm build
+  ```
+  *特点：* 产生整洁的 URL（如 `/parts/MT29F`），利于 SEO。
+  *要求：* 服务端需配置 SPA 重写规则（Rewrite），将所有未知路径回落至 `index.html`。
+
+### Cloudflare Pages 适配
+若使用 History 模式部署至 Cloudflare Pages，需确保 `_redirects` 配置正确。项目已内置 `public/_redirects`，遵循“静态文件直通 + SPA 路由回落”的原则，避免 404 错误并支持爬虫优化。
+
+---
+
+## 2. 单文件离线构建 (自包含模式)
+
+针对极端的离线环境（如无网络的工作站、内网机房），FlashMaster 支持将整个应用打包为一个独立的 `.html` 文件。
+
+### 完整单文件 (Full Flavor)
 ```bash
-VITE_FLASHMASTER_ROUTER_MODE=hash pnpm build
+pnpm build:singlefile
 ```
+*输出：* `dist-singlefile/FlashMaster-<version>.html`
+*包含：* 完整的解析引擎、UI 图标、厂商 Logo、行情脉搏（联网时可用）及基础统计。
 
-hash 模式是静态托管、便携压缩包、WebView 和无法控制 rewrite 规则的镜像站点的最稳妥默认选择。
-
-history 模式会输出普通 URL：
-
+### 精简单文件 (Nano Flavor)
 ```bash
-VITE_FLASHMASTER_ROUTER_MODE=history pnpm build
+pnpm build:singlefile:nano
 ```
+*输出：* `dist-singlefile/FlashMaster-<version>-nano.html`
+*特点：* 极致精简，移除了所有外部连接。无行情功能、无统计代码、不加载 `lightweight-charts` 库。适合完全物理隔离（Air-gapped）的环境。
 
-history 模式要求应用路由回落到 `index.html`，真实静态文件也必须直接返回。Cloudflare Pages 的 `_redirects` 规则会优先于静态文件匹配，因此不能只写一个裸的 `/* /index.html 200`。仓库内置的 `public/_redirects` 采用“静态文件直通 + SPA 兜底”的顺序：
+---
 
-```text
-/robots.txt /robots.txt 200
-/sitemap.xml /sitemap.xml 200
-/site.webmanifest /site.webmanifest 200
-/og/* /og/:splat 200
-/assets/* /assets/:splat 200
+## 3. PWA 支持与移动端安装
 
-/parts /index.html 200
-/parts/* /index.html 200
-/ids /index.html 200
-/ids/* /index.html 200
-/* /index.html 200
-```
+标准 Web 构建默认包含 PWA (Progressive Web App) 支持。通过 HTTPS 部署后，用户可以将应用“安装”到设备桌面上。
 
-末尾的全局兜底会让未知 URL 进入 SPA 壳层；Vue Router 再显示 404 页面，并在客户端把 robots meta 改为 `noindex, follow`。不要把未知路由静默跳回首页，否则用户会迷失，搜索引擎也更容易看到大量首页重复内容。
+- **安装路径：**
+  - **iOS (Safari):** 分享 -> 添加到主屏幕。
+  - **Android (Chrome):** 选项 -> 安装应用 / 添加到主屏幕。
+  - **桌面端 (Chrome/Edge):** 地址栏右侧会出现“安装”图标。
+- **离线能力：** PWA 会通过 Service Worker 缓存应用壳层。首次成功访问后，即便断网也能正常启动应用（内嵌解析引擎可完全离线运行）。
 
-面向搜索引擎的公开站点应使用 history 构建：
+---
 
+## 4. 自定义部署配置
+
+你可以通过构建时的环境变量来自定义应用界面：
+
+### 页脚备案/公告信息
+在页脚版权信息下方显示自定义文本（如 ICP 备案号）：
 ```bash
-VITE_FLASHMASTER_ROUTER_MODE=history pnpm build
-```
-
-如果发布的是默认 hash 构建，应用仍可正常使用，但 sitemap 中的 `/parts`、`/ids`、`/about` 等普通 URL 需要服务器 rewrite 才能首次访问。
-
-公开部署地址是 [fm.itxtech.org](https://fm.itxtech.org)。
-
-### Cloudflare 入口域名
-
-`fm.itxtech.org` 应尽量作为真正的 canonical 站点服务内容，而不是通过 URL Redirect 跳到镜像域名。SEO 最稳妥的配置是：
-
-1. 在静态托管/CDN 侧绑定 `fm.itxtech.org` 作为自定义域名，或让 Cloudflare DNS 直接代理到同一个静态站点 origin。
-2. 删除会把 `fm.itxtech.org/*` 跳转到 `fm.imlxy.net/` 的 Redirect Rule、Page Rule 或 Bulk Redirect。
-3. 确认这些地址都是 `200`，且 Content-Type 正确：
-
-```bash
-curl -I https://fm.itxtech.org/parts
-curl -I https://fm.itxtech.org/robots.txt
-curl -I https://fm.itxtech.org/sitemap.xml
-curl -I https://fm.itxtech.org/og/flashmaster.png
-```
-
-如果短期内仍必须让普通用户从 `fm.itxtech.org` 跳到 `fm.imlxy.net`，不要使用静态目标 `https://fm.imlxy.net/`，否则 `/robots.txt`、`/sitemap.xml`、`/og/flashmaster.png` 等路径会全部丢失。Cloudflare Redirect Rule 至少应保留路径和 query：
-
-```text
-When incoming requests match:
-http.host eq "fm.itxtech.org" and not cf.client.bot
-
-Then:
-Type: Dynamic
-Expression: concat("https://fm.imlxy.net", http.request.uri.path)
-Status code: 308
-Preserve query string: Enabled
-```
-
-这里的 `not cf.client.bot` 会让 Cloudflare 识别出的已知搜索爬虫不命中跳转规则。前提是 `fm.itxtech.org` 本身也已经能从 origin 返回同一份站点内容；否则爬虫虽然不走 302，但仍会看到错误页或空 origin。若无法让 `fm.itxtech.org` 直连源站，就不要在 sitemap 和 canonical 里使用它。
-
-## 侧边栏备案/自定义页脚信息
-
-侧边栏版权信息下方可以通过构建环境变量追加一行备案或其他公开信息：
-
-```bash
+# 仅显示文本
 VITE_FLASHMASTER_FOOTER_NOTICE_TEXT="蜀ICP备XXXXXXXX号" pnpm build
-```
 
-如需点击跳转，同时设置链接地址：
-
-```bash
+# 显示带链接的文本
 VITE_FLASHMASTER_FOOTER_NOTICE_TEXT="蜀ICP备XXXXXXXX号" \
 VITE_FLASHMASTER_FOOTER_NOTICE_URL="https://beian.miit.gov.cn/" \
 pnpm build
 ```
 
-未设置 `VITE_FLASHMASTER_FOOTER_NOTICE_TEXT` 时，界面只显示默认版权信息。设置文本但不设置 URL 时，该行会以纯文本展示；设置 URL 后会作为外部链接在新窗口打开。
+---
 
-## PWA 可安装 Web 构建
+## 5. 持续集成与自动发布
 
-常规 Web 构建会生成 `site.webmanifest`、service worker 和 Workbox 预缓存：
+项目集成了 GitHub Actions 流。每当推送以 `v*` 开头的 Tag（例如 `v2.3.0`）时，系统会自动执行以下操作：
+1. 构建全量 Web 压缩包（Hash 与 History 两种版本）。
+2. 构建单文件离线 HTML（Full 与 Nano 两种版本）。
+3. 自动创建 GitHub Release 并上传所有构建成品。
 
+**发布新版本：**
 ```bash
-pnpm build
+git tag v2.x.x
+git push origin v2.x.x
 ```
 
-将 `dist` 目录通过 HTTPS 发布后，可以从浏览器安装 FlashMaster：
+---
 
-- iOS Safari：打开站点，点击分享按钮，然后选择“添加到主屏幕”。
-- Android Chrome：打开站点，使用“安装应用”或“添加到主屏幕”。
-- 桌面 Chrome 或 Edge：地址栏出现安装按钮时点击安装。
+## 6. 公开路由与 SEO
 
-PWA 会缓存构建后的应用壳。首次成功访问并完成缓存后，FlashMaster 可以在没有网络连接时重新打开。内嵌 fdnext 解析器可以离线工作；HTTP 解析模式仍依赖已配置的服务器及其 CORS 策略。
+无论使用何种路由模式，FlashMaster 均暴露以下标准入口：
+- `/parts` - Part Number 解码与搜索
+- `/ids` - Flash ID 解码与搜索
+- `/settings` - 全局设置
+- `/about` - 关于项目
 
-导航行为：
-
-- hash 模式入口为 `./#/parts`，不需要服务器 rewrite 规则。
-- history 模式入口为 `./parts`；首次访问仍需要服务器端 SPA rewrite，service worker 安装后会处理导航回落。
-
-更新使用生成的 service worker 自动更新流程。新版本部署后，用户正常刷新页面即可让浏览器获取新的缓存。
-
-## 单文件离线构建
-
-对于不方便启动本地服务器的工程师或客户机，FlashMaster 也可以构建为一个自包含 HTML 文件：
-
-```bash
-pnpm build:singlefile
-```
-
-生成文件命名为：
-
-```text
-dist-singlefile/FlashMaster-<version>-<commitHash>.html
-```
-
-该文件用于直接双击并在浏览器中打开。这个完整单文件 flavor 会强制使用 hash 路由，内联编译后的 JavaScript、CSS、SVG 图标子集和厂商 Logo，保留 Web analytics，并保留与在线版一致的 Market Pulse 与 K 线能力。单文件 analytics 使用固定页面路径 `/singlefile/FlashMaster-<version>-<commitHash>.html`，避免 `file://` 本地路径进入统计。
-
-如需无行情、无 analytics 的离线/内网分发包，可构建 nano flavor：
-
-```bash
-pnpm build:singlefile:nano
-```
-
-生成文件命名为：
-
-```text
-dist-singlefile/FlashMaster-<version>-<commitHash>-nano.html
-```
-
-nano flavor 不注入 Google tag，构建时将 analytics 替换为 noop 模块，不导入 Market Pulse、K 线组件、行情服务或商业服务横幅，因此不会打包 `lightweight-charts`。
-
-单文件 flavor 不启用 PWA，因为 service worker 和 Web App Manifest 需要浏览器提供 origin。
-
-## GitHub Release 自动发布
-
-推送 `v*` tag 时，GitHub Actions 会自动创建或更新同名 GitHub Release，并上传以下文件：
-
-- `FlashMaster-<version>-<commitHash>.html`：完整单文件构建，可直接在浏览器中打开。
-- `FlashMaster-<version>-<commitHash>-web-hash.zip`：完整静态 Web 包，使用 hash 路由。
-- `FlashMaster-<version>-<commitHash>-web-history.zip`：完整静态 Web 包，使用 history 路由，部署时需要 SPA rewrite。
-- `SHA256SUMS.txt`：Release 附件的 SHA-256 校验值。
-
-发布一个版本时，在目标提交上创建并推送 tag：
-
-```bash
-git tag v2.1.0
-git push origin v2.1.0
-```
-
-## 公开路由集合
-
-两种路由模式暴露同一组应用路由：
-
-- `/parts`
-- `/parts/:pn`
-- `/parts/search/:query`
-- `/ids`
-- `/ids/:id`
-- `/ids/search/:query`
-- `/settings`
-- `/about`
-
-每个路由也支持可选的 URL 语言前缀，例如 `/en/parts/:pn` 或 `/zh/ids/:id`。URL 前缀优先于本地保存的语言设置，并会同步回 localStorage。
+支持 URL 级别的语言强制切换，例如访问 `/en/parts` 或 `/zh/parts` 将会覆盖浏览器的默认语言首选项。

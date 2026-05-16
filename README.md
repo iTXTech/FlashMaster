@@ -1,115 +1,96 @@
 # iTXTech FlashMaster
 
-[简体中文](README-zh.md)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+[![Version](https://img.shields.io/github/v/release/iTXTech/FlashMaster?include_prereleases)](https://github.com/iTXTech/FlashMaster/releases)
 
-FlashMaster is a dense Memory Chip Intelligence Platform for memory-chip
-part-number lookup, NAND Flash ID lookup, database search, and result
-inspection.
+**FlashMaster** is a high-density Memory Chip Intelligence Platform designed for memory-chip Part Number decoding, NAND Flash ID lookup, and comprehensive database search.
 
-[Launch FlashMaster](https://fm.itxtech.org)
+[**🚀 Launch FlashMaster (Web)**](https://fm.itxtech.org) | [**📦 Download Offline HTML**](https://github.com/iTXTech/FlashMaster/releases) | [简体中文](README-zh.md)
 
-## Overview
+---
 
-FlashMaster 2.x is a static Vue application designed as a practical workstation
-surface rather than a marketing page. It runs the embedded fdnext parser in the
-browser by default and can also call a compatible fdnext HTTP API deployment
-when server-backed parsing is needed.
+## ✨ Overview
 
-Core workflows:
+FlashMaster is a workstation-grade static Vue application. Unlike marketing-heavy landing pages, it provides a "dense" surface optimized for engineers and technicians dealing with NAND Flash, DRAM, and managed storage (eMMC, UFS, SSD).
 
-- Part-number decode and search.
-- NAND Flash ID decode and search.
-- Dense result inspection with copy actions, vendor links, language switching,
-  theme settings, and persistent local preferences.
+### Core Workflows
+- **Part Number Decoding:** Instant decoding of complex part numbers for Micron, Samsung, SK Hynix, Kioxia, and more.
+- **Flash ID Decoding:** Detailed NAND Flash ID inspection with process, die-profile, and vendor-specific attributes.
+- **Smart Search:** Cross-database search for PN, FBGA codes, package markings, and Flash IDs.
+- **Offline-Ready:** Works entirely in your browser via PWA or as a standalone HTML file.
 
-## Architecture
+---
 
-The application has two parser backends:
+## 🏗️ Architecture
 
-- Embedded fdnext parser: the default mode. The fdnext engine and resources are
-  bundled from the `vendor/fdnext` Git submodule and run directly in the browser.
-- fdnext 2.0 HTTP API: an optional server-backed mode. The server endpoint is
-  configured manually in Settings and must return the fdnext 2.0 result
-  contract.
+FlashMaster is designed with a "Thin UI, Thick Engine" philosophy.
 
-Key local boundaries:
+- **Frontend:** Built with [Vue 3](https://vuejs.org/), [Vuetify 3](https://vuetifyjs.com/), and [Vite](https://vitejs.dev/).
+- **Engine ([fdnext](https://github.com/iTXTech/fdnext)):** The core logic is powered by the `fdnext` engine, bundled as a Git submodule. It handles all parsing, rule matching, and database queries.
+- **Dual Backends:**
+  - **Embedded (Default):** The engine runs directly in the browser. No server required.
+  - **HTTP API:** Can be configured to talk to a remote [fdnext server](https://github.com/iTXTech/fdnext) for centralized updates or heavy workloads.
 
-- `src/views` contains the application screens.
-- `src/services/flashApi.js` selects the active parser backend.
-- `src/services/fdnextApi.js` adapts the embedded fdnext library for the UI.
-- `src/store` owns runtime settings and local persistence.
-- `vendor/fdnext` is an upstream Git submodule, not local application source.
-- `vite.config.js` wires the fdnext submodule source and exposes build metadata.
+Key components:
+- [`src/services/flashApi.js`](src/services/flashApi.js): Backend selector and abstraction layer.
+- [`src/services/fdnextApi.js`](src/services/fdnextApi.js): Adapter for the embedded `fdnext` engine.
+- [`src/store/index.js`](src/store/index.js): Local persistence for settings, history, and preferences.
 
-## Toolchain
+---
 
-- Vite
-- Vue 3
-- Vue Router 4
-- Vue I18n 11
-- Vuetify 3
-- Material Design Icons
-- pnpm
+## 🛠️ Toolchain & Development
 
-## Development
+FlashMaster uses the modern [pnpm](https://pnpm.io/) toolchain.
 
-Clone the repository with submodules:
+### Prerequisites
+- Node.js 24+
+- pnpm 10+
 
+### Quick Start
 ```bash
+# Clone with submodules
 git clone --recurse-submodules https://github.com/iTXTech/FlashMaster.git
 cd FlashMaster
-```
 
-If the repository was cloned without submodules, initialize them later:
-
-```bash
-git submodule update --init --recursive
-```
-
-Install dependencies and start the development server:
-
-```bash
+# Install dependencies
 pnpm install
+
+# Start development server
 pnpm dev
 ```
 
-Useful commands:
+### Useful Commands
+| Command | Description |
+| :--- | :--- |
+| `pnpm build` | Standard Web build (PWA enabled) |
+| `pnpm build:singlefile` | Portable, self-contained HTML build |
+| `pnpm build:singlefile:nano` | Lightweight offline build (No charts/analytics) |
+| `pnpm lint` | Run ESLint |
+| `pnpm preview` | Preview local production build |
 
-```bash
-pnpm lint
-pnpm build
-pnpm build:singlefile
-pnpm preview
-```
+---
 
-To update the embedded fdnext dependency:
+## 📦 Deployment & Distribution
 
-```bash
-git submodule update --remote vendor/fdnext
-```
+FlashMaster is highly portable. Detailed guidance can be found in [**docs/DEPLOYMENT.md**](docs/DEPLOYMENT.md).
 
-## Documentation
+- **PWA:** Installable on iOS, Android, and Desktop for offline usage.
+- **Single-File:** Distributed as a single `.html` file via [GitHub Releases](https://github.com/iTXTech/FlashMaster/releases), ideal for air-gapped environments.
 
-- [Deployment, PWA, and offline distribution](docs/DEPLOYMENT.md)
+---
+
+## 📖 Documentation
+
+- [Deployment, PWA, and Offline](docs/DEPLOYMENT.md)
 - [Changelog](CHANGELOG.txt)
+- [iTXTech fdnext](https://github.com/iTXTech/fdnext)
 
-## Apps
+---
 
-- [FlashMasterAndroid](https://github.com/iTXTech/FlashMasterAndroid)
-- [FlashMasteriOS](https://github.com/iTXTech/FlashMasteriOS)
+## ⚖️ License
 
-## License
+Copyright (c) 2019-2026 iTX Technologies
 
-Copyright (C) 2019-2026 iTX Technologies
+This project is licensed under the **GNU Affero General Public License v3.0**. See the [LICENSE](LICENSE) file for details.
 
-This program is free software: you can redistribute it and/or modify it under
-the terms of the GNU Affero General Public License as published by the Free
-Software Foundation, either version 3 of the License, or (at your option) any
-later version.
-
-This program is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
-
-You should have received a copy of the GNU Affero General Public License along
-with this program. If not, see <https://www.gnu.org/licenses/>.
+> FlashMaster: Powering the next generation of memory chip analysis.

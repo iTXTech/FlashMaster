@@ -138,7 +138,7 @@ function pwaPlugin(routerMode) {
     manifestFilename: 'site.webmanifest',
     includeManifestIcons: false,
     manifest: {
-      name: 'iTXTech FlashMaster',
+      name: 'FlashMaster',
       short_name: 'FlashMaster',
       description: pwaDescription,
       start_url: routerMode === 'history' ? './parts' : './#/parts',
