@@ -121,7 +121,7 @@
                 @update:model-value="value => store.setAutoHideSoftKeyboard(value)"
               />
             </div>
-            <div class="settings-switch-row">
+            <div v-if="marketPulseAvailable" class="settings-switch-row">
               <span class="settings-switch-label">{{ $t('customization.marketPulse') }}</span>
               <v-switch
                 v-model="marketPulse"
@@ -168,7 +168,7 @@
           <v-btn icon="mdi-close" variant="text" @click="dialog.show = false" />
         </div>
         <div class="panel-body server-info-body">
-          <CapabilityInfo v-if="dialog.data" :data="dialog.data" :selected-controller-groups="controllerGroups" />
+          <CapabilityInfo v-if="dialog.data" :data="dialog.data" />
         </div>
       </section>
     </v-dialog>
@@ -194,7 +194,8 @@ const parserMode = ref(store.getParserMode());
 const controllerGroups = ref(store.getControllerGroups());
 const currentTheme = ref(store.getTheme());
 const hideKeyboard = ref(store.isAutoHideSoftKeyboard());
-const marketPulse = ref(store.isMarketPulseEnabled());
+const marketPulseAvailable = __FLASHMASTER_MARKET_PULSE__;
+const marketPulse = ref(marketPulseAvailable && store.isMarketPulseEnabled());
 const loadingInfo = ref(false);
 const loadingControllerGroups = ref(false);
 const statsState = ref(readStats());
@@ -356,6 +357,7 @@ function changeTheme(value) {
 }
 
 function changeMarketPulse(value) {
+  if (!marketPulseAvailable) return;
   store.setMarketPulseEnabled(value);
   marketPulse.value = store.isMarketPulseEnabled();
   trackMarketPulseEvent({
@@ -428,7 +430,7 @@ let controllerGroupRequestId = 0;
 onMounted(() => {
   loadControllerGroups();
   offMarketPulse = bus.on('marketPulse', () => {
-    marketPulse.value = store.isMarketPulseEnabled();
+    marketPulse.value = marketPulseAvailable && store.isMarketPulseEnabled();
   });
 });
 

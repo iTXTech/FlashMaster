@@ -87,7 +87,6 @@ export default {
             website: 'Website',
             controllers: 'Controllers',
             controllerInventory: 'Controller Inventory',
-            selectedControllerGroups: 'Active Controller Groups',
             defaultControllerGroups: 'Default Controller Groups',
             flashIds: 'Flash IDs',
             partNumbers: 'Part Numbers',

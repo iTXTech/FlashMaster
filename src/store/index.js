@@ -192,12 +192,19 @@ const getMarketPulseStorageValue = () => {
 }
 
 const setMarketPulseEnabled = (b) => {
+    if (!__FLASHMASTER_MARKET_PULSE__) {
+        localStorage.setItem(MARKET_PULSE_STORAGE_KEY, "0")
+        return;
+    }
     localStorage.setItem(MARKET_PULSE_STORAGE_KEY, b ? "1" : "0")
 }
 
 const isMarketPulseEnabled = () => {
+    if (!__FLASHMASTER_MARKET_PULSE__) {
+        return false;
+    }
     if (!["0", "1"].includes(getMarketPulseStorageValue())) {
-        setMarketPulseEnabled(!__FLASHMASTER_SINGLEFILE__);
+        setMarketPulseEnabled(true);
     }
     return localStorage.getItem(MARKET_PULSE_STORAGE_KEY) === "1"
 }

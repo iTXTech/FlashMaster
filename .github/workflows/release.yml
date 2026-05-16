@@ -92,7 +92,7 @@ jobs:
 
           Release assets:
 
-          - \`${base_name}.html\`: single-file offline build for direct browser opening.
+          - \`${base_name}.html\`: full single-file build for direct browser opening.
           - \`${base_name}-web-hash.zip\`: complete static web package using hash routing.
           - \`${base_name}-web-history.zip\`: complete static web package using history routing; deploy with SPA rewrite rules.
           - \`SHA256SUMS.txt\`: SHA-256 checksums for release assets.

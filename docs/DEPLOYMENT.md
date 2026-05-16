@@ -137,7 +137,21 @@ pnpm build:singlefile
 dist-singlefile/FlashMaster-<version>-<commitHash>.html
 ```
 
-该文件用于直接双击并在浏览器中打开。这个构建 flavor 会强制使用 hash 路由，内联编译后的 JavaScript、CSS、SVG 图标子集和厂商 Logo，移除 Web analytics，并默认关闭可选市场 ticker。
+该文件用于直接双击并在浏览器中打开。这个完整单文件 flavor 会强制使用 hash 路由，内联编译后的 JavaScript、CSS、SVG 图标子集和厂商 Logo，保留 Web analytics，并保留与在线版一致的 Market Pulse 与 K 线能力。单文件 analytics 使用固定页面路径 `/singlefile/FlashMaster-<version>-<commitHash>.html`，避免 `file://` 本地路径进入统计。
+
+如需无行情、无 analytics 的离线/内网分发包，可构建 nano flavor：
+
+```bash
+pnpm build:singlefile:nano
+```
+
+生成文件命名为：
+
+```text
+dist-singlefile/FlashMaster-<version>-<commitHash>-nano.html
+```
+
+nano flavor 不注入 Google tag，构建时将 analytics 替换为 noop 模块，不导入 Market Pulse、K 线组件、行情服务或商业服务横幅，因此不会打包 `lightweight-charts`。
 
 单文件 flavor 不启用 PWA，因为 service worker 和 Web App Manifest 需要浏览器提供 origin。
 
@@ -145,7 +159,7 @@ dist-singlefile/FlashMaster-<version>-<commitHash>.html
 
 推送 `v*` tag 时，GitHub Actions 会自动创建或更新同名 GitHub Release，并上传以下文件：
 
-- `FlashMaster-<version>-<commitHash>.html`：单文件离线构建，可直接在浏览器中打开。
+- `FlashMaster-<version>-<commitHash>.html`：完整单文件构建，可直接在浏览器中打开。
 - `FlashMaster-<version>-<commitHash>-web-hash.zip`：完整静态 Web 包，使用 hash 路由。
 - `FlashMaster-<version>-<commitHash>-web-history.zip`：完整静态 Web 包，使用 history 路由，部署时需要 SPA rewrite。
 - `SHA256SUMS.txt`：Release 附件的 SHA-256 校验值。

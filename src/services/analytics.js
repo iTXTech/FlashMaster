@@ -2,7 +2,7 @@ import store from '@/store';
 
 const appVersion = () => typeof VERSION !== 'undefined' ? VERSION : 'DEBUG';
 
-const hasGtag = () => typeof window !== 'undefined' && typeof window.gtag === 'function';
+const hasGtag = () => __FLASHMASTER_ANALYTICS__ && typeof window !== 'undefined' && typeof window.gtag === 'function';
 
 const stringParam = value => String(value ?? '').trim();
 

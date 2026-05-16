@@ -35,13 +35,6 @@
 
       <section v-if="hasControllerInventory" class="capability-card">
         <div class="capability-card-title">{{ t('settings.capabilityInfo.controllerInventory') }}</div>
-        <dl v-if="defaultControllerGroupsLabel" class="capability-kv-list capability-controller-defaults">
-          <div class="capability-kv-row">
-            <dt>{{ t('settings.capabilityInfo.defaultControllerGroups') }}</dt>
-            <dd>{{ defaultControllerGroupsLabel }}</dd>
-          </div>
-        </dl>
-
         <div v-if="controllerGroups.length" class="capability-list-grid capability-controller-grid">
           <div
             v-for="group in controllerGroups"
@@ -163,10 +156,6 @@ const props = defineProps({
   data: {
     type: Object,
     default: () => ({})
-  },
-  selectedControllerGroups: {
-    type: Array,
-    default: () => []
   }
 });
 
@@ -189,7 +178,7 @@ const parserRows = computed(() => keyValueRows([
   [t('settings.capabilityInfo.version'), props.data.server?.version],
   [t('settings.capabilityInfo.commitHash'), props.data.server?.build?.commitHash],
   [t('settings.capabilityInfo.buildTime'), props.data.server?.build?.buildTime],
-  [t('settings.capabilityInfo.selectedControllerGroups'), selectedControllerGroupsLabel.value],
+  [t('settings.capabilityInfo.defaultControllerGroups'), defaultControllerGroupsLabel.value],
   [t('settings.capabilityInfo.schema'), props.data.schemaVersion]
 ]));
 
@@ -217,7 +206,6 @@ const controllerGroups = computed(() => Array.isArray(controllers.value.groups)
 const controllerItems = computed(() => normalizeControllerItems(controllers.value.items).sort((a, b) => a.localeCompare(b)));
 const hasControllerInventory = computed(() => controllerGroups.value.length > 0 || controllerItems.value.length > 0);
 const defaultControllerGroupsLabel = computed(() => formatControllerGroupSelection(controllers.value.defaultGroups));
-const selectedControllerGroupsLabel = computed(() => formatSelectedControllerGroups(props.selectedControllerGroups));
 const visibleFlatControllerItems = computed(() => visibleItems(controllerItems.value, 'controller:all', flatControllerLimit));
 
 const decoderGroups = computed(() => [
@@ -294,13 +282,6 @@ function formatControllerGroupSelection(value) {
   return groups.length
     ? groups.map(item => controllerGroupTitle(findControllerGroup(item) || item)).join(', ')
     : '';
-}
-
-function formatSelectedControllerGroups(selection) {
-  if (!Array.isArray(selection) || !selection.length || selection.includes('all')) {
-    return controllerGroupTitle(findControllerGroup('all') || 'all');
-  }
-  return selection.map(item => controllerGroupTitle(findControllerGroup(item) || item)).join(', ');
 }
 
 function normalizeControllerItems(items = []) {

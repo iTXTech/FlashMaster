@@ -1978,10 +1978,6 @@ a.nav-footer-notice:hover {
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 236px), 1fr));
 }
 
-.capability-controller-defaults {
-  margin-block: 6px 8px;
-}
-
 .capability-card {
   min-width: 0;
   padding: 9px;

@@ -71,10 +71,14 @@
     </v-navigation-drawer>
 
     <v-main class="main-surface">
-      <MarketPulse v-if="marketPulseEnabled" @close="closeMarketPulse" />
+      <MarketPulse v-if="marketPulseAvailable && marketPulseEnabled" @close="closeMarketPulse" />
       <router-view />
-      <div v-if="serviceBannerVisible" class="service-banner-spacer" aria-hidden="true" />
-      <CommercialServiceBanner v-if="serviceBannerVisible" surface="commercial_banner" @dismiss="dismissServiceBanner" />
+      <div v-if="commercialBannerAvailable && serviceBannerVisible" class="service-banner-spacer" aria-hidden="true" />
+      <CommercialServiceBanner
+        v-if="commercialBannerAvailable && serviceBannerVisible"
+        surface="commercial_banner"
+        @dismiss="dismissServiceBanner"
+      />
     </v-main>
 
     <v-snackbar
@@ -94,13 +98,11 @@
 </template>
 
 <script setup>
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import { computed, defineAsyncComponent, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useDisplay, useTheme } from 'vuetify';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import ChangelogDialog from '@/components/ChangelogDialog.vue';
-import CommercialServiceBanner from '@/components/CommercialServiceBanner.vue';
-import MarketPulse from '@/components/MarketPulse.vue';
 import logo from '@/assets/app-icon.svg';
 import {
   aboutRoute,
@@ -131,7 +133,15 @@ const snackbar = ref({
   text: ''
 });
 const changelogDialog = ref(false);
-const marketPulseEnabled = ref(store.isMarketPulseEnabled());
+const marketPulseAvailable = __FLASHMASTER_MARKET_PULSE__;
+const MarketPulse = marketPulseAvailable
+  ? defineAsyncComponent(() => import('@/components/MarketPulse.vue'))
+  : null;
+const commercialBannerAvailable = __FLASHMASTER_COMMERCIAL_BANNER__;
+const CommercialServiceBanner = commercialBannerAvailable
+  ? defineAsyncComponent(() => import('@/components/CommercialServiceBanner.vue'))
+  : null;
+const marketPulseEnabled = ref(marketPulseAvailable && store.isMarketPulseEnabled());
 const footerNotice = {
   text: String(import.meta.env.VITE_FLASHMASTER_FOOTER_NOTICE_TEXT || '').trim(),
   url: String(import.meta.env.VITE_FLASHMASTER_FOOTER_NOTICE_URL || '').trim()
@@ -191,7 +201,7 @@ const languages = computed(() => Object.entries(messages.value).map(([code, mess
 
 const projectVersion = computed(() => store.getProjectVersion());
 const changelogVersion = computed(() => store.getChangelogVersion(projectVersion.value));
-const serviceBannerVisible = ref(store.shouldShowServiceBanner(changelogVersion.value));
+const serviceBannerVisible = ref(commercialBannerAvailable && store.shouldShowServiceBanner(changelogVersion.value));
 const routeSubject = computed(() => {
   if (route.name === ROUTE_NAMES.part) return routeParamText(route, 'pn');
   if (route.name === ROUTE_NAMES.id) return routeParamText(route, 'id');
@@ -227,12 +237,14 @@ const changeLanguage = value => {
 };
 
 const closeMarketPulse = () => {
+  if (!marketPulseAvailable) return;
   store.setMarketPulseEnabled(false);
   marketPulseEnabled.value = false;
   bus.emit('marketPulse');
 };
 
 const dismissServiceBanner = () => {
+  if (!commercialBannerAvailable) return;
   store.setServiceBannerDismissed(changelogVersion.value);
   serviceBannerVisible.value = false;
 };
@@ -298,7 +310,7 @@ onMounted(() => {
     changelogDialog.value = true;
   });
   offMarketPulse = bus.on('marketPulse', () => {
-    marketPulseEnabled.value = store.isMarketPulseEnabled();
+    marketPulseEnabled.value = marketPulseAvailable && store.isMarketPulseEnabled();
   });
   mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
   mediaQuery.addEventListener?.('change', applyTheme);
@@ -326,6 +338,6 @@ watch(changelogDialog, value => {
   }
 });
 watch(changelogVersion, value => {
-  serviceBannerVisible.value = store.shouldShowServiceBanner(value);
+  serviceBannerVisible.value = commercialBannerAvailable && store.shouldShowServiceBanner(value);
 });
 </script>

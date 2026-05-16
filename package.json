@@ -8,6 +8,7 @@
     "dev": "vite --host 127.0.0.1",
     "build": "vite build",
     "build:singlefile": "vite build --mode singlefile",
+    "build:singlefile:nano": "vite build --mode singlefile-nano",
     "preview": "vite preview --host 127.0.0.1",
     "lint": "eslint ."
   },
