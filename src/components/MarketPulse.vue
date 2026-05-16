@@ -46,7 +46,7 @@ import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 import MarketPulseChart from '@/components/MarketPulseChart.vue';
-import { trackInteractionEvent } from '@/services/analytics';
+import { trackMarketPulseEvent } from '@/services/analytics';
 import { loadCachedMarketQuotes, subscribeMarketQuotes } from '@/services/marketApi';
 
 const emit = defineEmits(['close']);
@@ -93,10 +93,13 @@ const baseItems = computed(() => quotes.value.map(item => ({
 const visibleItems = computed(() => {
   if (!baseItems.value.length) return [];
   return Array.from({ length: renderedSlotCount.value }, (_, offset) => {
-    const item = baseItems.value[(windowStart.value + offset) % baseItems.value.length];
+    const marketIndex = (windowStart.value + offset) % baseItems.value.length;
+    const item = baseItems.value[marketIndex];
     return {
       ...item,
       pulseKey: `${windowStart.value}-${offset}-${item.asset}`,
+      visibleIndex: offset + 1,
+      marketIndex: marketIndex + 1,
       x: offset * MARKET_PULSE_SLOT_WIDTH
     };
   });
@@ -209,36 +212,47 @@ function handleVisibilityChange() {
 }
 
 function closeMarketPulse() {
-  trackMarketPulseEvent('market_pulse_close', 'close');
+  trackPulseEvent('market_pulse_visibility', 'dismiss', null, { enabled: false });
   stopMarketService();
   selectedAsset.value = '';
   emit('close');
 }
 
 function openMarketChart(item) {
-  const nextAsset = selectedAsset.value === item.asset ? '' : item.asset;
-  selectedAsset.value = nextAsset;
-  trackMarketPulseEvent(
-    nextAsset ? 'market_pulse_chart_open' : 'market_pulse_chart_close',
-    nextAsset ? 'open_chart' : 'close_chart',
-    item.symbol
-  );
+  const previousItem = selectedMarketItem.value;
+  const shouldCloseCurrent = selectedAsset.value === item.asset;
+
+  if (shouldCloseCurrent) {
+    selectedAsset.value = '';
+    trackPulseEvent('market_pulse_chart', 'close', item);
+    return;
+  }
+
+  if (previousItem) {
+    trackPulseEvent('market_pulse_chart', 'switch_close', previousItem);
+  }
+
+  selectedAsset.value = item.asset;
+  trackPulseEvent('market_pulse_chart', 'open', item);
 }
 
 function closeMarketChart() {
   if (selectedMarketItem.value) {
-    trackMarketPulseEvent('market_pulse_chart_close', 'close_chart', selectedMarketItem.value.symbol);
+    trackPulseEvent('market_pulse_chart', 'close', selectedMarketItem.value);
   }
   selectedAsset.value = '';
 }
 
-function trackMarketPulseEvent(event, action, label = 'market_pulse') {
-  trackInteractionEvent({
+function trackPulseEvent(event, action, item = null, options = {}) {
+  trackMarketPulseEvent({
     event,
-    surface: 'market_pulse',
     routeName: route.name,
     action,
-    label
+    item,
+    visiblePosition: item?.visibleIndex,
+    cyclePosition: item?.marketIndex,
+    visibleSlots: renderedSlotCount.value,
+    ...options
   });
 }
 onMounted(() => {

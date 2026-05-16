@@ -84,7 +84,7 @@ import ExternalLinks from '@/components/ExternalLinks.vue';
 import PagedTable from '@/components/PagedTable.vue';
 import { searchPartNumber } from '@/services/flashApi';
 import { partSearchRows } from '@/services/fdnextResultView';
-import { trackLookup } from '@/services/analytics';
+import { trackPartNumberLookup } from '@/services/analytics';
 import { partRoute, partsSearchRoute, routeParamText } from '@/router/locations';
 import bus from '@/store/bus';
 import store from '@/store';
@@ -147,10 +147,10 @@ async function search(syncRoute = true, { recordUsage = true } = {}) {
     rows.value = partSearchRows(payload);
     if (recordUsage) {
       store.statSearchPnInc();
-      trackLookup({
-        target: 'pn',
+      trackPartNumberLookup({
         action: 'search',
-        query: pn,
+        routeName: route.name,
+        partNumber: pn,
         resultCount: rows.value.length
       });
     }
@@ -158,10 +158,10 @@ async function search(syncRoute = true, { recordUsage = true } = {}) {
     if (requestId !== searchRequestId) return;
     rows.value = [];
     if (recordUsage) {
-      trackLookup({
-        target: 'pn',
+      trackPartNumberLookup({
         action: 'search',
-        query: pn,
+        routeName: route.name,
+        partNumber: pn,
         success: false
       });
     }

@@ -2,6 +2,7 @@ FlashMaster by PeratX <peratx@itxtech.org>
 版权所有 (c) 2019-2026 iTX Technologies
 ===================================
 版本 2.3.0
+- 更新内嵌 fdnext 到 v2.3.0（52b9ea1），清理 raw NAND 分类口径，将 MT29FB/on-die ECC NAND 展示归并回 NAND，优化 Micron/Intel raw NAND 制程副标题，并重新生成 FDB 以移除异常或跨厂商污染的 raw NAND 记录。
 - 更新内嵌 fdnext 到 v2.3.0（4145cf7），将静态 NAND Flash ID 规则迁移到当前 fdnext 规则管线，便于维护 Flash ID 解析和搜索。
 - 更新内嵌 fdnext 到 v2.3.0（d9e0e2b），标准化 NAND die profile 与制程显示，改进 NAND die profile 解码并支持从 die stack 推导 raw NAND density，新增 YMTC raw NAND 映射、Micron 2100AI AT SSD 覆盖、DDR3 token、Micron 冒号 revision token，并优化 Samsung DRAM 后缀解析。
 

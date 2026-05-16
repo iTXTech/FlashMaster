@@ -166,7 +166,7 @@ import {
   summaryText,
   warnings
 } from '@/services/fdnextResultView';
-import { trackLookup } from '@/services/analytics';
+import { trackPartNumberLookup } from '@/services/analytics';
 import { idsSearchRoute, localizeRouteLocation, partRoute, partsSearchRoute, routeParamText } from '@/router/locations';
 import bus from '@/store/bus';
 import store from '@/store';
@@ -285,10 +285,10 @@ async function decode(syncRoute = true, { recordUsage = true } = {}) {
     result.value = payload;
     if (recordUsage) {
       store.statDecodeIdInc();
-      trackLookup({
-        target: 'pn',
+      trackPartNumberLookup({
         action: 'decode',
-        query: pn,
+        routeName: route.name,
+        partNumber: pn,
         resultCount: payload.status === 'ok' ? 1 : 0
       });
     }
@@ -296,10 +296,10 @@ async function decode(syncRoute = true, { recordUsage = true } = {}) {
     if (requestId !== decodeRequestId) return;
     result.value = null;
     if (recordUsage) {
-      trackLookup({
-        target: 'pn',
+      trackPartNumberLookup({
         action: 'decode',
-        query: pn,
+        routeName: route.name,
+        partNumber: pn,
         success: false
       });
     }

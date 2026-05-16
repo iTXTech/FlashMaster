@@ -178,13 +178,16 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useRoute } from 'vue-router';
 import CapabilityInfo from '@/components/CapabilityInfo.vue';
 import { getServerInfo } from '@/services/flashApi';
+import { trackMarketPulseEvent } from '@/services/analytics';
 import bus from '@/store/bus';
 import store from '@/store';
 import themeManager from '@/theme';
 
 const { locale, t } = useI18n();
+const route = useRoute();
 
 const server = ref(store.getServerAddress());
 const parserMode = ref(store.getParserMode());
@@ -355,6 +358,12 @@ function changeTheme(value) {
 function changeMarketPulse(value) {
   store.setMarketPulseEnabled(value);
   marketPulse.value = store.isMarketPulseEnabled();
+  trackMarketPulseEvent({
+    event: 'market_pulse_visibility',
+    routeName: route.name,
+    action: marketPulse.value ? 'enable' : 'disable',
+    enabled: marketPulse.value
+  });
   bus.emit('marketPulse');
 }
 

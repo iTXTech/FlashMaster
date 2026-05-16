@@ -87,7 +87,7 @@ import ExternalLinks from '@/components/ExternalLinks.vue';
 import PagedTable from '@/components/PagedTable.vue';
 import { searchFlashId } from '@/services/flashApi';
 import { identifierSearchRows } from '@/services/fdnextResultView';
-import { trackLookup } from '@/services/analytics';
+import { trackFlashIdLookup } from '@/services/analytics';
 import { idRoute, idsSearchRoute, partRoute, routeParamText } from '@/router/locations';
 import bus from '@/store/bus';
 import store from '@/store';
@@ -149,10 +149,10 @@ async function search(syncRoute = true, { recordUsage = true } = {}) {
     rows.value = identifierSearchRows(payload);
     if (recordUsage) {
       store.statSearchIdInc();
-      trackLookup({
-        target: 'flashid',
+      trackFlashIdLookup({
         action: 'search',
-        query: id,
+        routeName: route.name,
+        flashId: id,
         resultCount: rows.value.length
       });
     }
@@ -160,10 +160,10 @@ async function search(syncRoute = true, { recordUsage = true } = {}) {
     if (requestId !== searchRequestId) return;
     rows.value = [];
     if (recordUsage) {
-      trackLookup({
-        target: 'flashid',
+      trackFlashIdLookup({
         action: 'search',
-        query: id,
+        routeName: route.name,
+        flashId: id,
         success: false
       });
     }

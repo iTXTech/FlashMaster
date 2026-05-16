@@ -2,6 +2,7 @@ FlashMaster by PeratX <peratx@itxtech.org>
 Copyright (c) 2019-2026 iTX Technologies
 ===================================
 Version 2.3.0
+- Updated embedded fdnext to v2.3.0 (52b9ea1), cleaning raw NAND taxonomy by folding MT29FB/on-die ECC NAND display back into NAND, improving Micron/Intel raw NAND process subtitles, and regenerating FDB data to remove malformed or cross-vendor raw NAND pollution.
 - Updated embedded fdnext to v2.3.0 (4145cf7), migrating static NAND Flash ID rules into the current fdnext rule pipeline for cleaner Flash ID decode/search maintenance.
 - Updated embedded fdnext to v2.3.0 (d9e0e2b), standardizing NAND die profiles and process display, refining NAND die-profile decoding, deriving raw NAND density from die stack, adding YMTC raw NAND mapping, Micron 2100AI AT SSD coverage, DDR3 tokens, Micron colon revision tokens, and improved Samsung DRAM suffix parsing.
 
