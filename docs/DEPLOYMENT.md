@@ -43,15 +43,15 @@ pnpm build
 ```bash
 pnpm build:singlefile
 ```
-*输出：* `dist-singlefile/FlashMaster-<version>.html`
+*输出：* `dist-singlefile/FFlashMaster-<version>-<commitHash>.html`
 *包含：* 完整的解析引擎、UI 图标、厂商 Logo、行情脉搏（联网时可用）及基础统计。
 
 ### 精简单文件 (Nano Flavor)
 ```bash
 pnpm build:singlefile:nano
 ```
-*输出：* `dist-singlefile/FlashMaster-<version>-nano.html`
-*特点：* 极致精简，移除了所有外部连接。无行情功能、无统计代码、不加载 `lightweight-charts` 库。适合完全物理隔离（Air-gapped）的环境。
+*输出：* `dist-singlefile/FlashMaster-<version>-<commitHash>-nano.html`
+*特点：* 极致精简，无行情功能、无统计代码、不包含 `lightweight-charts` 库。适合完全物理隔离的环境。
 
 ---
 
@@ -89,7 +89,7 @@ pnpm build
 
 项目集成了 GitHub Actions 流。每当推送以 `v*` 开头的 Tag（例如 `v2.3.0`）时，系统会自动执行以下操作：
 1. 构建全量 Web 压缩包（Hash 与 History 两种版本）。
-2. 构建单文件离线 HTML（Full 与 Nano 两种版本）。
+2. 构建单文件离线 HTML。
 3. 自动创建 GitHub Release 并上传所有构建成品。
 
 **发布新版本：**

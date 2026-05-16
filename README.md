@@ -2,8 +2,9 @@
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![Version](https://img.shields.io/github/v/release/iTXTech/FlashMaster?include_prereleases)](https://github.com/iTXTech/FlashMaster/releases)
+[![Powered by iTXTech fdnext](https://img.shields.io/badge/Powered%20by-iTXTech%20fdnext-111827)](https://github.com/iTXTech/fdnext)
 
-**FlashMaster** is a high-density Memory Chip Intelligence Platform designed for memory-chip Part Number decoding, NAND Flash ID lookup, and comprehensive database search.
+**FlashMaster** is a high-density Memory Chip Intelligence Platform powered by **[iTXTech fdnext](https://github.com/iTXTech/fdnext)**, designed for memory-chip Part Number decoding, NAND Flash ID lookup, and comprehensive database search.
 
 [**🚀 Launch FlashMaster (Web)**](https://fm.itxtech.org) | [**📦 Download Offline HTML**](https://github.com/iTXTech/FlashMaster/releases) | [简体中文](README-zh.md)
 
@@ -28,7 +29,7 @@ FlashMaster is designed with a "Thin UI, Thick Engine" philosophy.
 - **Frontend:** Built with [Vue 3](https://vuejs.org/), [Vuetify 3](https://vuetifyjs.com/), and [Vite](https://vitejs.dev/).
 - **Engine ([fdnext](https://github.com/iTXTech/fdnext)):** The core logic is powered by the `fdnext` engine, bundled as a Git submodule. It handles all parsing, rule matching, and database queries.
 - **Dual Backends:**
-  - **Embedded (Default):** The engine runs directly in the browser. No server required.
+  - **Embedded:** The engine runs directly in the browser. No server required.
   - **HTTP API:** Can be configured to talk to a remote [fdnext server](https://github.com/iTXTech/fdnext) for centralized updates or heavy workloads.
 
 Key components:
@@ -83,7 +84,6 @@ FlashMaster is highly portable. Detailed guidance can be found in [**docs/DEPLOY
 
 - [Deployment, PWA, and Offline](docs/DEPLOYMENT.md)
 - [Changelog](CHANGELOG.txt)
-- [iTXTech fdnext](https://github.com/iTXTech/fdnext)
 
 ---
 

@@ -2,8 +2,9 @@
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![Version](https://img.shields.io/github/v/release/iTXTech/FlashMaster?include_prereleases)](https://github.com/iTXTech/FlashMaster/releases)
+[![Powered by iTXTech fdnext](https://img.shields.io/badge/Powered%20by-iTXTech%20fdnext-111827)](https://github.com/iTXTech/fdnext)
 
-**FlashMaster** 是一个存储芯片智能平台，专为存储芯片料号解析、NAND Flash ID 解析以及全面的数据库搜索而设计。
+**FlashMaster** 是一个由 **[iTXTech fdnext](https://github.com/iTXTech/fdnext)** 驱动的存储芯片智能平台，专为存储芯片料号解析、NAND Flash ID 解析以及全面的数据库搜索而设计。
 
 [**🚀 打开 FlashMaster (Web)**](https://fm.itxtech.org) | [**📦 下载离线 HTML**](https://github.com/iTXTech/FlashMaster/releases) | [English](README.md)
 
@@ -14,10 +15,10 @@
 FlashMaster 是一个工作站级别的静态 Vue 应用。与偏向营销的落地页不同，它为工程师和技术人员提供了一个“高密度”的界面，优化了对 NAND Flash、DRAM 以及托管存储（eMMC、UFS、SSD）的处理效率。
 
 ### 核心工作流
-- **料号解析 (Part Number Decoding):** 快速解析 美光、三星、SK海力士、铠侠 等主流厂商的复杂料号。
-- **Flash ID 解析 (Flash ID Decoding):** 详细的 NAND Flash ID 检查，包含制程、Die 和厂商特定属性。
-- **智能搜索 (Smart Search):** 跨数据库搜索料号、FBGA 代码、封装标记和 Flash ID。
-- **离线就绪 (Offline-Ready):** 通过 PWA 或独立 HTML 文件完全在浏览器中运行，无需联网。
+- **料号解析:** 快速解析 美光、三星、SK海力士、铠侠 等主流厂商的复杂料号。
+- **Flash ID 解析:** 详细的 NAND Flash ID 检查，包含制程、Die 和厂商特定属性。
+- **智能搜索:** 跨数据库搜索料号、FBGA 代码、封装标记和 Flash ID。
+- **离线就绪:** 通过 PWA 或独立 HTML 文件完全在浏览器中运行，无需联网。
 
 ---
 
@@ -25,11 +26,11 @@ FlashMaster 是一个工作站级别的静态 Vue 应用。与偏向营销的落
 
 FlashMaster 采用“轻 UI，重引擎”的设计哲学。
 
-- **前端 (Frontend):** 基于 [Vue 3](https://vuejs.org/)、[Vuetify 3](https://vuetifyjs.com/) 和 [Vite](https://vitejs.dev/) 构建。
+- **前端:** 基于 [Vue 3](https://vuejs.org/)、[Vuetify 3](https://vuetifyjs.com/) 和 [Vite](https://vitejs.dev/) 构建。
 - **引擎 ([fdnext](https://github.com/iTXTech/fdnext)):** 核心逻辑由作为 Git 子模块引入的 `fdnext` 引擎驱动。它处理所有的解析、规则匹配和数据库查询。
 - **双后端模式:**
-  - **内嵌模式 (默认):** 引擎直接在浏览器中运行，无需服务器。
-  - **HTTP API 模式:** 可配置连接到远程 [fdnext 服务器](https://github.com/iTXTech/fdnext)，适用于集中更新或重度负载。
+  - **内嵌模式:** 引擎直接在浏览器中运行，无需服务器。
+  - **HTTP API:** 可配置连接到远程 [fdnext 服务器](https://github.com/iTXTech/fdnext)，适用于集中更新或重度负载。
 
 关键组件:
 - [`src/services/flashApi.js`](src/services/flashApi.js): 后端选择器与抽象层。
