@@ -83,6 +83,12 @@ a {
   white-space: nowrap;
 }
 
+.market-pulse-shell {
+  position: relative;
+  z-index: 8;
+  margin: 8px 14px 0;
+}
+
 .market-pulse {
   --market-slot-width: 200px;
   --market-slot-duration: 18s;
@@ -93,7 +99,7 @@ a {
   width: auto;
   height: 28px;
   align-items: center;
-  margin: 8px 14px 0;
+  margin: 0;
   overflow: hidden;
   border: 1px solid rgba(var(--v-theme-on-surface), 0.08);
   border-radius: 999px;
@@ -137,13 +143,15 @@ a {
   width: calc(100% + var(--market-slot-width));
   height: 100%;
   overflow: hidden;
+  user-select: none;
   white-space: nowrap;
   animation: market-pulse-scroll var(--market-slot-duration) linear infinite;
   transform: translate3d(0, 0, 0);
   will-change: transform;
 }
 
-.market-pulse:hover .market-pulse-track {
+.market-pulse:hover .market-pulse-track,
+.market-pulse-shell.is-chart-open .market-pulse-track {
   animation-play-state: paused;
 }
 
@@ -157,10 +165,26 @@ a {
   width: 186px;
   height: 22px;
   padding: 0 7px;
+  border: 0;
   border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
   line-height: 1;
   transform: translateY(-50%);
   contain: layout paint;
+}
+
+.market-item:hover,
+.market-item:focus-visible,
+.market-item.is-selected {
+  background: rgba(var(--v-theme-primary), 0.12);
+  outline: none;
+}
+
+.market-item.is-selected {
+  box-shadow: inset 0 0 0 1px rgba(var(--v-theme-primary), 0.28);
 }
 
 .market-symbol {
@@ -225,6 +249,129 @@ a {
 
 .market-pulse-close .v-icon {
   font-size: 16px;
+}
+
+.market-chart-panel {
+  position: absolute;
+  z-index: 14;
+  top: 34px;
+  left: 0;
+  width: min(640px, 100%);
+  overflow: hidden;
+  border: 1px solid rgba(var(--v-theme-on-surface), 0.1);
+  border-radius: 8px;
+  background: rgb(var(--v-theme-surface));
+  box-shadow:
+    0 18px 46px rgba(0, 0, 0, 0.28),
+    0 0 0 1px rgba(var(--v-theme-surface), 0.72);
+}
+
+.market-chart-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content 28px;
+  align-items: center;
+  gap: 10px;
+  min-height: 42px;
+  padding: 8px 8px 7px 12px;
+  border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+}
+
+.market-chart-title,
+.market-chart-quote {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.market-chart-title {
+  overflow: hidden;
+}
+
+.market-chart-symbol {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.market-chart-meta {
+  color: rgba(var(--v-theme-on-surface), 0.58);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.market-chart-price,
+.market-chart-change {
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+}
+
+.market-chart-price {
+  color: rgba(var(--v-theme-on-surface), 0.84);
+  font-size: 0.82rem;
+}
+
+.market-chart-change {
+  font-size: 0.76rem;
+}
+
+.market-chart-change.is-up {
+  color: #00b386;
+}
+
+.market-chart-change.is-down {
+  color: #ff5b6b;
+}
+
+.market-chart-close {
+  width: 24px !important;
+  height: 24px !important;
+  min-width: 24px !important;
+  color: rgba(var(--v-theme-on-surface), 0.58) !important;
+}
+
+.market-chart-body {
+  position: relative;
+  height: 228px;
+}
+
+.market-chart-canvas {
+  width: 100%;
+  height: 100%;
+}
+
+.market-chart-state {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: rgba(var(--v-theme-surface), 0.78);
+  color: rgba(var(--v-theme-on-surface), 0.68);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.market-chart-state.is-error {
+  color: #ff5b6b;
+}
+
+.market-chart-footer {
+  display: flex;
+  min-height: 30px;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px;
+  overflow-x: auto;
+  border-top: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+  color: rgba(var(--v-theme-on-surface), 0.62);
+  font-size: 0.68rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 .service-banner {
@@ -2220,9 +2367,29 @@ a.nav-footer-notice:hover {
     padding: 8px;
   }
 
-  .market-pulse {
+  .market-pulse-shell {
     margin: 7px 8px 0;
+  }
+
+  .market-pulse {
     --market-slot-duration: 12s;
+  }
+
+  .market-chart-panel {
+    position: fixed;
+    top: auto;
+    right: 8px;
+    bottom: calc(8px + env(safe-area-inset-bottom));
+    left: 8px;
+    width: auto;
+  }
+
+  .market-chart-header {
+    grid-template-columns: minmax(0, 1fr) max-content 28px;
+  }
+
+  .market-chart-body {
+    height: 238px;
   }
 
   .service-banner {

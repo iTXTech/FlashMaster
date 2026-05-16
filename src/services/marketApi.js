@@ -2,12 +2,51 @@ const HYPERLIQUID_INFO_URL = 'https://api.hyperliquid.xyz/info';
 const HYPERLIQUID_WS_URL = 'wss://api.hyperliquid.xyz/ws';
 const MARKET_ENDPOINT = import.meta.env.VITE_FLASHMASTER_MARKET_ENDPOINT || HYPERLIQUID_INFO_URL;
 const MARKET_WS_ENDPOINT = import.meta.env.VITE_FLASHMASTER_MARKET_WS_ENDPOINT || HYPERLIQUID_WS_URL;
+const MARKET_CANDLE_ENDPOINT = import.meta.env.VITE_FLASHMASTER_MARKET_CANDLE_ENDPOINT || HYPERLIQUID_INFO_URL;
 const CACHE_KEY = 'flashmaster.marketQuotes.v1';
+const CANDLE_CACHE_KEY_PREFIX = 'flashmaster.marketCandles.v1';
 
 export const MARKET_REFRESH_INTERVAL_MS = 10_000;
 export const MARKET_UI_UPDATE_INTERVAL_MS = 2_000;
+export const MARKET_CANDLE_MAX_POINTS = 1000;
+export const DEFAULT_MARKET_CANDLE_RANGE = '1d';
 const MARKET_CACHE_INTERVAL_MS = 30_000;
+const MARKET_CANDLE_CACHE_INTERVAL_MS = 2 * 60_000;
 const MARKET_SOCKET_STALE_MS = 15_000;
+const MINUTE_MS = 60_000;
+const HOUR_MS = 60 * MINUTE_MS;
+const DAY_MS = 24 * HOUR_MS;
+
+export const MARKET_CANDLE_RANGES = [
+  { key: '1d', label: '1d', interval: '1d' }
+];
+
+function intervalToMs(interval) {
+  const value = Number.parseInt(interval, 10);
+  if (!Number.isFinite(value)) return HOUR_MS;
+  if (interval.endsWith('m')) return value * MINUTE_MS;
+  if (interval.endsWith('h')) return value * HOUR_MS;
+  if (interval.endsWith('d')) return value * DAY_MS;
+  if (interval.endsWith('w')) return value * 7 * DAY_MS;
+  return HOUR_MS;
+}
+
+export function getMarketCandleRange(key = DEFAULT_MARKET_CANDLE_RANGE) {
+  return MARKET_CANDLE_RANGES.find(range => range.key === key)
+    || MARKET_CANDLE_RANGES.find(range => range.key === DEFAULT_MARKET_CANDLE_RANGE)
+    || MARKET_CANDLE_RANGES[0];
+}
+
+export function getMarketCandleWindow(key = DEFAULT_MARKET_CANDLE_RANGE, endTime = Date.now()) {
+  const range = getMarketCandleRange(key);
+  const durationMs = intervalToMs(range.interval) * MARKET_CANDLE_MAX_POINTS;
+  return {
+    range,
+    endTime,
+    startTime: endTime - durationMs,
+    maxCandles: MARKET_CANDLE_MAX_POINTS
+  };
+}
 
 export const TARGET_ASSETS = [
   { asset: 'xyz:MU', symbol: 'MU', labels: { chs: '美光', eng: 'MU' } },
@@ -114,6 +153,37 @@ function normalizeMarketPayload(data) {
   return normalizeWorkerPayload(data) || normalizeHyperliquidPayload(data);
 }
 
+function normalizeMarketCandle(item) {
+  const open = toNumber(item?.o);
+  const high = toNumber(item?.h);
+  const low = toNumber(item?.l);
+  const close = toNumber(item?.c);
+  const timeMs = Number(item?.t);
+  if (![open, high, low, close].every(value => value !== null) || !Number.isFinite(timeMs)) return null;
+
+  return {
+    time: Math.floor(timeMs / 1000),
+    open,
+    high,
+    low,
+    close,
+    volume: toNumber(item?.v) ?? 0,
+    trades: Number.isFinite(Number(item?.n)) ? Number(item.n) : null,
+    sourceTime: timeMs,
+    closeTime: Number.isFinite(Number(item?.T)) ? Number(item.T) : null,
+    interval: item?.i || '',
+    symbol: item?.s || ''
+  };
+}
+
+function normalizeCandlePayload(data) {
+  if (!Array.isArray(data)) return [];
+  return data
+    .map(normalizeMarketCandle)
+    .filter(Boolean)
+    .sort((a, b) => a.time - b.time);
+}
+
 function readMidPrice(mids, target) {
   return toNumber(mids?.[target.asset]) ?? toNumber(mids?.[target.symbol]);
 }
@@ -150,9 +220,31 @@ function cacheQuotes(items) {
   }
 }
 
+function candleCacheKey(asset, interval, rangeKey) {
+  return `${CANDLE_CACHE_KEY_PREFIX}:${asset}:${rangeKey || interval}:${interval}`;
+}
+
+function cacheCandles(asset, interval, rangeKey, items) {
+  try {
+    localStorage.setItem(candleCacheKey(asset, interval, rangeKey), JSON.stringify({ items, cachedAt: Date.now() }));
+  } catch {
+    // Non-critical: expanded market charts can fetch fresh candles later.
+  }
+}
+
 export function loadCachedMarketQuotes(maxAgeMs = 5 * 60_000) {
   try {
     const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
+    if (!cached || Date.now() - Number(cached.cachedAt || 0) > maxAgeMs) return [];
+    return Array.isArray(cached.items) ? cached.items : [];
+  } catch {
+    return [];
+  }
+}
+
+export function loadCachedMarketCandles(asset, interval, rangeKey, maxAgeMs = MARKET_CANDLE_CACHE_INTERVAL_MS) {
+  try {
+    const cached = JSON.parse(localStorage.getItem(candleCacheKey(asset, interval, rangeKey)) || 'null');
     if (!cached || Date.now() - Number(cached.cachedAt || 0) > maxAgeMs) return [];
     return Array.isArray(cached.items) ? cached.items : [];
   } catch {
@@ -179,6 +271,47 @@ export async function fetchMarketQuotes(options = {}) {
   }
   if (options.cache !== false) {
     cacheQuotes(items);
+  }
+  return items;
+}
+
+export async function fetchMarketCandles(asset, options = {}) {
+  const interval = options.interval;
+  if (!interval) {
+    throw new Error('Missing candle interval');
+  }
+  const rangeKey = options.rangeKey || interval;
+  const maxCandles = options.maxCandles || MARKET_CANDLE_MAX_POINTS;
+  const endTime = options.endTime || Date.now();
+  const startTime = options.startTime || getMarketCandleWindow(rangeKey, endTime).startTime;
+  const cached = options.cache === false ? [] : loadCachedMarketCandles(asset, interval, rangeKey, options.maxAgeMs);
+  if (cached.length) return cached;
+
+  const response = await fetch(MARKET_CANDLE_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      type: 'candleSnapshot',
+      req: {
+        coin: asset,
+        interval,
+        startTime,
+        endTime
+      }
+    }),
+    signal: options.signal
+  });
+
+  if (!response.ok) {
+    throw new Error(`${response.status} ${response.statusText}`);
+  }
+
+  const items = normalizeCandlePayload(await response.json()).slice(-maxCandles);
+  if (!items.length) {
+    throw new Error('No candle data');
+  }
+  if (options.cache !== false) {
+    cacheCandles(asset, interval, rangeKey, items);
   }
   return items;
 }

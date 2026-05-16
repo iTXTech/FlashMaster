@@ -1,29 +1,43 @@
 <template>
-  <div ref="pulseRoot" class="market-pulse" :aria-label="$t('market.ariaLabel')" :title="pulseTitle">
-    <div ref="pulseViewport" class="market-pulse-viewport">
-      <div v-if="visibleItems.length" class="market-pulse-track" @animationiteration="advancePulseWindow">
-        <span
-          v-for="item in visibleItems"
-          :key="item.pulseKey"
-          :class="['market-item', flashClass(item.asset)]"
-          :style="{ left: `${item.x}px` }"
+  <div :class="['market-pulse-shell', { 'is-chart-open': selectedMarketItem }]">
+    <div ref="pulseRoot" class="market-pulse" :aria-label="$t('market.ariaLabel')" :title="pulseTitle">
+      <div
+        ref="pulseViewport"
+        class="market-pulse-viewport"
+      >
+        <div
+          v-if="visibleItems.length"
+          class="market-pulse-track"
+          @animationiteration="advancePulseWindow"
         >
-          <span class="market-symbol">{{ item.name }}</span>
-          <span class="market-price">{{ item.priceText }}</span>
-          <span :class="['market-change', item.trend]">{{ item.changeText }}</span>
-        </span>
+          <button
+            v-for="item in visibleItems"
+            :key="item.pulseKey"
+            type="button"
+            :class="['market-item', flashClass(item.asset), { 'is-selected': selectedAsset === item.asset }]"
+            :style="{ left: `${item.x}px` }"
+            :aria-expanded="selectedAsset === item.asset"
+            :title="$t('market.chartOpen', [item.name])"
+            @click="openMarketChart(item)"
+          >
+            <span class="market-symbol">{{ item.name }}</span>
+            <span class="market-price">{{ item.priceText }}</span>
+            <span :class="['market-change', item.trend]">{{ item.changeText }}</span>
+          </button>
+        </div>
+        <div v-else-if="loading" class="market-pulse-placeholder">{{ $t('market.loading') }}</div>
       </div>
-      <div v-else-if="loading" class="market-pulse-placeholder">{{ $t('market.loading') }}</div>
+      <v-btn
+        class="market-pulse-close"
+        icon="mdi-close"
+        size="x-small"
+        density="compact"
+        variant="text"
+        :title="$t('market.close')"
+        @click="closeMarketPulse"
+      />
     </div>
-    <v-btn
-      class="market-pulse-close"
-      icon="mdi-close"
-      size="x-small"
-      density="compact"
-      variant="text"
-      :title="$t('market.close')"
-      @click="closeMarketPulse"
-    />
+    <MarketPulseChart v-if="selectedMarketItem" :item="selectedMarketItem" @close="closeMarketChart" />
   </div>
 </template>
 
@@ -31,6 +45,7 @@
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
+import MarketPulseChart from '@/components/MarketPulseChart.vue';
 import { trackInteractionEvent } from '@/services/analytics';
 import { loadCachedMarketQuotes, subscribeMarketQuotes } from '@/services/marketApi';
 
@@ -44,6 +59,7 @@ const error = ref('');
 const flashingAssets = ref({});
 const renderedSlotCount = ref(4);
 const windowStart = ref(0);
+const selectedAsset = ref('');
 const pulseRoot = ref(null);
 const pulseViewport = ref(null);
 let unsubscribeMarket;
@@ -84,6 +100,10 @@ const visibleItems = computed(() => {
       x: offset * MARKET_PULSE_SLOT_WIDTH
     };
   });
+});
+
+const selectedMarketItem = computed(() => {
+  return baseItems.value.find(item => item.asset === selectedAsset.value) || null;
 });
 
 const pulseTitle = computed(() => error.value ? `${t('market.title')} · ${error.value}` : t('market.title'));
@@ -150,9 +170,15 @@ function updateRenderedSlotCount() {
   renderedSlotCount.value = Math.max(4, Math.ceil(viewportWidth / MARKET_PULSE_SLOT_WIDTH) + MARKET_PULSE_RENDER_BUFFER_SLOTS);
 }
 
+function movePulseWindow(offset) {
+  const length = baseItems.value.length;
+  if (!length) return;
+  windowStart.value = (windowStart.value + offset + length) % length;
+}
+
 function advancePulseWindow() {
   if (document.hidden || !baseItems.value.length) return;
-  windowStart.value = (windowStart.value + 1) % baseItems.value.length;
+  movePulseWindow(1);
 }
 
 function startMarketService() {
@@ -185,16 +211,34 @@ function handleVisibilityChange() {
 function closeMarketPulse() {
   trackMarketPulseEvent('market_pulse_close', 'close');
   stopMarketService();
+  selectedAsset.value = '';
   emit('close');
 }
 
-function trackMarketPulseEvent(event, action) {
+function openMarketChart(item) {
+  const nextAsset = selectedAsset.value === item.asset ? '' : item.asset;
+  selectedAsset.value = nextAsset;
+  trackMarketPulseEvent(
+    nextAsset ? 'market_pulse_chart_open' : 'market_pulse_chart_close',
+    nextAsset ? 'open_chart' : 'close_chart',
+    item.symbol
+  );
+}
+
+function closeMarketChart() {
+  if (selectedMarketItem.value) {
+    trackMarketPulseEvent('market_pulse_chart_close', 'close_chart', selectedMarketItem.value.symbol);
+  }
+  selectedAsset.value = '';
+}
+
+function trackMarketPulseEvent(event, action, label = 'market_pulse') {
   trackInteractionEvent({
     event,
     surface: 'market_pulse',
     routeName: route.name,
     action,
-    label: 'market_pulse'
+    label
   });
 }
 onMounted(() => {
@@ -219,6 +263,9 @@ onUnmounted(() => {
 watch(() => baseItems.value.length, () => {
   if (windowStart.value >= baseItems.value.length) {
     windowStart.value = 0;
+  }
+  if (selectedAsset.value && !selectedMarketItem.value) {
+    selectedAsset.value = '';
   }
   nextTick(() => {
     updateRenderedSlotCount();

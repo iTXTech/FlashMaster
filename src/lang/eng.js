@@ -139,7 +139,19 @@ export default {
         title: 'Market Pulse, USD quotes with current price and change',
         loading: 'Loading market data',
         ariaLabel: 'Market Pulse',
-        close: 'Hide Market Pulse'
+        close: 'Hide Market Pulse',
+        chartOpen: 'View {0} candles',
+        chartClose: 'Close candles',
+        chartLoading: 'Loading candles',
+        chartRetry: 'Retry',
+        chartAriaLabel: '{0} candles',
+        candleFields: {
+            open: 'O',
+            high: 'H',
+            low: 'L',
+            close: 'C',
+            volume: 'V'
+        }
     },
     serviceBanner: {
         ariaLabel: 'Custom development service entry',

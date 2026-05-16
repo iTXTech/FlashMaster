@@ -139,7 +139,19 @@ export default {
         title: 'Market Pulse，显示美元行情与变动',
         loading: '行情加载中',
         ariaLabel: 'Market Pulse 行情条',
-        close: '关闭 Market Pulse'
+        close: '关闭 Market Pulse',
+        chartOpen: '查看 {0} K线',
+        chartClose: '关闭K线',
+        chartLoading: 'K线加载中',
+        chartRetry: '重试',
+        chartAriaLabel: '{0} K线',
+        candleFields: {
+            open: '开',
+            high: '高',
+            low: '低',
+            close: '收',
+            volume: '量'
+        }
     },
     serviceBanner: {
         ariaLabel: '定制开发服务入口',
