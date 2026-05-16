@@ -58,9 +58,6 @@
               <div class="result-title-panel">
                 <div class="result-title">{{ displayValue(header.title) }}</div>
                 <div class="result-subtitle">{{ displayValue(header.subtitle) }}</div>
-                <div v-if="header.chips.length > 0" class="result-chip-row">
-                  <v-chip v-for="chip in header.chips" :key="chip" size="x-small" variant="tonal">{{ chip }}</v-chip>
-                </div>
               </div>
             </div>
             <div v-if="warningRows.length > 0" class="warning-list">

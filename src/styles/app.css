@@ -1803,6 +1803,13 @@ a.nav-footer-notice:hover {
   overflow-wrap: anywhere;
 }
 
+.capability-json {
+  margin: 0;
+  color: rgba(var(--v-theme-on-surface), 0.84);
+  font: inherit;
+  white-space: pre-wrap;
+}
+
 .capability-info {
   display: grid;
   gap: 10px;

@@ -1,5 +1,5 @@
 import { execSync } from 'node:child_process';
-import { existsSync, readdirSync, readFileSync, renameSync, rmSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath, URL } from 'node:url';
 import vue from '@vitejs/plugin-vue';
@@ -33,6 +33,8 @@ const fdnextCommitHash = (() => {
 const shortFdnextCommitHash = value => String(value || '').trim().slice(0, 7) || 'dev';
 const fdnextBuildCommitHash = shortFdnextCommitHash(process.env.FDNEXT_COMMIT_HASH || fdnextCommitHash);
 const fdnextBuildTime = process.env.FDNEXT_BUILD_TIME || new Date().toISOString();
+const appBuildTime = process.env.FLASHMASTER_BUILD_TIME || process.env.VITE_FLASHMASTER_BUILD_TIME || new Date().toISOString();
+const sitemapLastmod = appBuildTime.slice(0, 10);
 const fdnextVersion = fdnextPackageJson.version;
 const pwaDescription = 'Memory Chip Intelligence Platform for memory-chip part-number lookup, NAND Flash ID decoding, database search, and result inspection.';
 
@@ -125,6 +127,24 @@ function pwaPlugin(routerMode) {
   });
 }
 
+function sitemapLastmodPlugin(lastmod) {
+  let outDir;
+  return {
+    name: 'flashmaster-sitemap-lastmod',
+    apply: 'build',
+    configResolved(config) {
+      outDir = resolve(config.root, config.build.outDir);
+    },
+    closeBundle() {
+      const sitemapFile = join(outDir, 'sitemap.xml');
+      if (!existsSync(sitemapFile)) return;
+      const html = readFileSync(sitemapFile, 'utf8')
+        .replace(/<lastmod>[^<]*<\/lastmod>/g, `<lastmod>${lastmod}</lastmod>`);
+      writeFileSync(sitemapFile, html);
+    }
+  };
+}
+
 export default defineConfig(({ mode }) => {
   const singleFile = mode === 'singlefile'
     || process.env.VITE_FLASHMASTER_BUILD_FLAVOR === 'singlefile'
@@ -142,7 +162,8 @@ export default defineConfig(({ mode }) => {
         singleFileCleanupPlugin()
       ] : [
         pwaPlugin(routerMode)
-      ])
+      ]),
+      sitemapLastmodPlugin(sitemapLastmod)
     ],
     build: {
       outDir: singleFile ? 'dist-singlefile' : 'dist'
@@ -159,6 +180,7 @@ export default defineConfig(({ mode }) => {
       FDNEXT_VERSION: JSON.stringify(fdnextVersion),
       __FDNEXT_COMMIT_HASH__: JSON.stringify(fdnextBuildCommitHash),
       __FDNEXT_BUILD_TIME__: JSON.stringify(fdnextBuildTime),
+      __FLASHMASTER_BUILD_TIME__: JSON.stringify(appBuildTime),
       __FLASHMASTER_SINGLEFILE__: JSON.stringify(singleFile)
     }
   };

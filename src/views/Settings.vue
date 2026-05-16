@@ -168,7 +168,7 @@
           <v-btn icon="mdi-close" variant="text" @click="dialog.show = false" />
         </div>
         <div class="panel-body server-info-body">
-          <div class="server-info-content" @click="handleServerInfoClick" v-html="dialog.text" />
+          <CapabilityInfo v-if="dialog.data" :data="dialog.data" :selected-controller-groups="controllerGroups" />
         </div>
       </section>
     </v-dialog>
@@ -176,15 +176,15 @@
 </template>
 
 <script setup>
-import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import CapabilityInfo from '@/components/CapabilityInfo.vue';
 import { getServerInfo } from '@/services/flashApi';
-import { capabilityGroupFromEvent, formatServerInfo } from '@/services/capabilityHtml';
 import bus from '@/store/bus';
 import store from '@/store';
 import themeManager from '@/theme';
 
-const { t } = useI18n();
+const { locale, t } = useI18n();
 
 const server = ref(store.getServerAddress());
 const parserMode = ref(store.getParserMode());
@@ -198,10 +198,8 @@ const statsState = ref(readStats());
 const capabilityData = ref(null);
 const dialog = ref({
   show: false,
-  text: '',
   data: null
 });
-const expandedCapabilityGroups = ref({});
 
 const themes = computed(() => [
   { title: t('customization.theme_0'), value: themeManager.THEME_DARK },
@@ -326,7 +324,6 @@ function isLastSelectedControllerGroup(value) {
 function applyControllerGroups(value) {
   store.setControllerGroups(value);
   controllerGroups.value = store.getControllerGroups();
-  refreshInfoDialog();
 }
 
 function changeControllerGroups(value) {
@@ -361,33 +358,29 @@ function changeMarketPulse(value) {
   bus.emit('marketPulse');
 }
 
-function formatInfoText(data) {
-  return formatServerInfo(data, t, expandedCapabilityGroups.value, {
-    selectedControllerGroups: controllerGroups.value
-  });
-}
-
-function refreshInfoDialog() {
-  if (!dialog.value.data) return;
-  dialog.value = {
-    ...dialog.value,
-    text: formatInfoText(dialog.value.data)
-  };
-}
-
 async function loadControllerGroups({ notifyOnError = false } = {}) {
+  const requestId = ++controllerGroupRequestId;
   loadingControllerGroups.value = true;
   try {
     const data = await getServerInfo();
+    if (requestId !== controllerGroupRequestId) return;
     capabilityData.value = data;
-    refreshInfoDialog();
+    if (dialog.value.show) {
+      dialog.value = {
+        ...dialog.value,
+        data
+      };
+    }
   } catch (err) {
+    if (requestId !== controllerGroupRequestId) return;
     capabilityData.value = null;
     if (notifyOnError) {
       notify(t('alert.fetchFailed', [err.message || err]));
     }
   } finally {
-    loadingControllerGroups.value = false;
+    if (requestId === controllerGroupRequestId) {
+      loadingControllerGroups.value = false;
+    }
   }
 }
 
@@ -399,27 +392,15 @@ async function serverInfo() {
   try {
     const data = await getServerInfo();
     capabilityData.value = data;
-    expandedCapabilityGroups.value = {};
     dialog.value = {
       show: true,
-      data,
-      text: formatInfoText(data)
+      data
     };
   } catch (err) {
     notify(t('alert.fetchFailed', [err.message || err]));
   } finally {
     loadingInfo.value = false;
   }
-}
-
-function handleServerInfoClick(event) {
-  const group = capabilityGroupFromEvent(event);
-  if (!group || !dialog.value.data) return;
-  expandedCapabilityGroups.value = {
-    ...expandedCapabilityGroups.value,
-    [group]: !expandedCapabilityGroups.value[group]
-  };
-  refreshInfoDialog();
 }
 
 function resetStat() {
@@ -433,6 +414,7 @@ function notify(text) {
 }
 
 let offMarketPulse;
+let controllerGroupRequestId = 0;
 
 onMounted(() => {
   loadControllerGroups();
@@ -443,5 +425,9 @@ onMounted(() => {
 
 onUnmounted(() => {
   offMarketPulse?.();
+});
+
+watch(locale, () => {
+  loadControllerGroups();
 });
 </script>

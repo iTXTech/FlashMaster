@@ -22,7 +22,8 @@ const routes = [
         name: ROUTE_NAMES.partsSearch,
         component: () => import("@/views/SearchPn.vue"),
         meta: {
-            title: 'nav.searchPartNumber'
+            title: 'nav.searchPartNumber',
+            description: 'seo.partsSearchDescription'
         }
     },
     {
@@ -30,7 +31,8 @@ const routes = [
         name: ROUTE_NAMES.part,
         component: () => import("@/views/Decode.vue"),
         meta: {
-            title: 'nav.decodePartNumber'
+            title: 'nav.decodePartNumber',
+            description: 'seo.partDescription'
         }
     },
     {
@@ -38,7 +40,8 @@ const routes = [
         name: ROUTE_NAMES.parts,
         component: () => import("@/views/Decode.vue"),
         meta: {
-            title: 'nav.decodePartNumber'
+            title: 'nav.decodePartNumber',
+            description: 'seo.partsDescription'
         }
     },
     {
@@ -46,7 +49,8 @@ const routes = [
         name: ROUTE_NAMES.idsSearch,
         component: () => import("@/views/SearchId.vue"),
         meta: {
-            title: 'nav.searchFlashId'
+            title: 'nav.searchFlashId',
+            description: 'seo.idsSearchDescription'
         }
     },
     {
@@ -54,7 +58,8 @@ const routes = [
         name: ROUTE_NAMES.id,
         component: () => import("@/views/DecodeId.vue"),
         meta: {
-            title: 'nav.decodeId'
+            title: 'nav.decodeId',
+            description: 'seo.idDescription'
         }
     },
     {
@@ -62,7 +67,8 @@ const routes = [
         name: ROUTE_NAMES.ids,
         component: () => import("@/views/DecodeId.vue"),
         meta: {
-            title: 'nav.decodeId'
+            title: 'nav.decodeId',
+            description: 'seo.idsDescription'
         }
     },
     {
@@ -70,7 +76,8 @@ const routes = [
         name: ROUTE_NAMES.settings,
         component: () => import("@/views/Settings.vue"),
         meta: {
-            title: 'nav.settings'
+            title: 'nav.settings',
+            description: 'seo.settingsDescription'
         }
     },
     {
@@ -78,7 +85,8 @@ const routes = [
         name: ROUTE_NAMES.about,
         component: () => import("@/views/About.vue"),
         meta: {
-            title: 'nav.about'
+            title: 'nav.about',
+            description: 'seo.aboutDescription'
         }
     },
     {
@@ -87,6 +95,7 @@ const routes = [
         component: () => import("@/views/NotFound.vue"),
         meta: {
             title: 'nav.notFound',
+            description: 'seo.notFoundDescription',
             robots: 'noindex, follow'
         }
     },

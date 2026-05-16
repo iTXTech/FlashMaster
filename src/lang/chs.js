@@ -25,6 +25,18 @@ export default {
         ids: '打开 ID',
         about: '关于'
     },
+    seo: {
+        defaultDescription: 'FlashMaster 是面向存储芯片料号、NAND Flash ID、数据库搜索和结果检查的高密度智能解析工作台。',
+        partsDescription: '使用 FlashMaster 本地解析存储芯片料号，查看 fdnext 返回的器件身份、结构、封装、关联数据和外部链接。',
+        partDescription: '使用 FlashMaster 解析料号 {0}，查看器件身份、结构、封装、关联数据和可复制摘要。',
+        partsSearchDescription: '搜索存储芯片料号、封装标记和数据库记录，并打开匹配器件的详细解析结果。',
+        idsDescription: '使用 FlashMaster 解析 NAND Flash ID，查看厂商、页大小、块大小、时序、控制器和相关料号。',
+        idDescription: '使用 FlashMaster 解析 NAND Flash ID {0}，查看几何结构、时序、控制器和相关料号。',
+        idsSearchDescription: '搜索 NAND Flash ID 数据库，查看匹配 ID、几何结构、相关料号和外部链接。',
+        settingsDescription: '配置 FlashMaster 的解析模式、fdnext HTTP API 地址、控制器分组、主题、Market Pulse 和本地统计。',
+        aboutDescription: '了解 FlashMaster、内嵌 fdnext 解析器、许可证、版本信息和作者联系方式。',
+        notFoundDescription: '当前 URL 不匹配 FlashMaster 的公开工作台路由。'
+    },
     dashboard: {
         queryPanel: '查询输入',
         decodeResult: '解析结果',

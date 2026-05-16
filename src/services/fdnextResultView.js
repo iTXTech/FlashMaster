@@ -234,17 +234,12 @@ export function chipLabel(value) {
   return CHIP_LABELS[chipLabelKey(text)] || text.replaceAll('_', ' ');
 }
 
-export function resultChips() {
-  return [];
-}
-
 export function resultHeader(result) {
   const device = result?.device || {};
   return {
     vendor: deviceVendor(device),
     title: deviceTitle(device) || result?.input?.normalized || result?.input?.query || '',
     subtitle: result?.subtitle || '',
-    chips: resultChips(result),
     status: result?.status || '',
     device
   };

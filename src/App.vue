@@ -111,6 +111,7 @@ import {
   partsSearchRoute,
   ROUTE_NAMES,
   routeWithAppLocale,
+  routeParamText,
   settingsRoute
 } from '@/router/locations';
 import bus from '@/store/bus';
@@ -135,6 +136,7 @@ const footerNotice = {
   text: String(import.meta.env.VITE_FLASHMASTER_FOOTER_NOTICE_TEXT || '').trim(),
   url: String(import.meta.env.VITE_FLASHMASTER_FOOTER_NOTICE_URL || '').trim()
 };
+const canonicalOrigin = String(import.meta.env.VITE_FLASHMASTER_CANONICAL_ORIGIN || 'https://fm.itxtech.org').replace(/\/+$/, '');
 
 const isActiveRoute = names => names.includes(route.name);
 const navItems = computed(() => [
@@ -190,7 +192,22 @@ const languages = computed(() => Object.entries(messages.value).map(([code, mess
 const projectVersion = computed(() => store.getProjectVersion());
 const changelogVersion = computed(() => store.getChangelogVersion(projectVersion.value));
 const serviceBannerVisible = ref(store.shouldShowServiceBanner(changelogVersion.value));
-const pageTitle = computed(() => route.meta.title ? `FlashMaster / ${t(route.meta.title)}` : 'FlashMaster');
+const routeSubject = computed(() => {
+  if (route.name === ROUTE_NAMES.part) return routeParamText(route, 'pn');
+  if (route.name === ROUTE_NAMES.id) return routeParamText(route, 'id');
+  if ([ROUTE_NAMES.partsSearch, ROUTE_NAMES.idsSearch].includes(route.name)) return routeParamText(route, 'query');
+  return '';
+});
+const pageTitle = computed(() => {
+  if (!route.meta.title) return 'FlashMaster';
+  const parts = ['FlashMaster', t(route.meta.title), routeSubject.value].filter(Boolean);
+  return parts.join(' / ');
+});
+const pageDescription = computed(() => {
+  const key = route.meta.description || 'seo.defaultDescription';
+  const subject = routeSubject.value;
+  return subject ? t(key, [subject]) : t(key);
+});
 
 const applyTheme = () => {
   vuetifyTheme.change(themeManager.resolveThemeName(store.getTheme()));
@@ -223,18 +240,43 @@ const dismissServiceBanner = () => {
 const updateTitle = () => {
   document.title = pageTitle.value;
   document.documentElement.lang = locale.value === 'eng' ? 'en' : 'zh-CN';
-  const robots = document.querySelector('meta[name="robots"]');
-  robots?.setAttribute('content', route.meta.robots || 'index, follow');
+  setMeta('name', 'description', pageDescription.value);
+  setMeta('property', 'og:title', pageTitle.value);
+  setMeta('property', 'og:description', pageDescription.value);
+  setMeta('name', 'twitter:title', pageTitle.value);
+  setMeta('name', 'twitter:description', pageDescription.value);
+  setMeta('property', 'og:url', canonicalUrl());
+  setMeta('name', 'robots', route.meta.robots || 'index, follow');
+  setCanonical(canonicalUrl());
   const primary = vuetifyTheme.current.value.colors.primary;
   for (const name of ['theme-color', 'msapplication-navbutton-color', 'apple-mobile-web-app-status-bar-style']) {
-    let tag = document.querySelector(`meta[name="${name}"]`);
-    if (!tag) {
-      tag = document.createElement('meta');
-      tag.setAttribute('name', name);
-      document.head.appendChild(tag);
-    }
-    tag.setAttribute('content', primary);
+    setMeta('name', name, primary);
   }
+};
+
+const canonicalUrl = () => {
+  const path = route.path && route.path !== '/' ? route.path : '/parts';
+  return `${canonicalOrigin}${path}`;
+};
+
+const setMeta = (attribute, key, content) => {
+  let tag = document.querySelector(`meta[${attribute}="${key}"]`);
+  if (!tag) {
+    tag = document.createElement('meta');
+    tag.setAttribute(attribute, key);
+    document.head.appendChild(tag);
+  }
+  tag.setAttribute('content', content);
+};
+
+const setCanonical = url => {
+  let tag = document.querySelector('link[rel="canonical"]');
+  if (!tag) {
+    tag = document.createElement('link');
+    tag.setAttribute('rel', 'canonical');
+    document.head.appendChild(tag);
+  }
+  tag.setAttribute('href', url);
 };
 
 let offSnackbar;
@@ -274,7 +316,7 @@ onUnmounted(() => {
 });
 
 watch(() => route.params.locale, syncRouteLocale, { immediate: true });
-watch([() => route.meta.title, () => route.meta.robots, locale, () => vuetifyTheme.global.name.value], updateTitle);
+watch([() => route.fullPath, () => route.meta.title, () => route.meta.description, () => route.meta.robots, locale, () => vuetifyTheme.global.name.value], updateTitle);
 watch(mobile, value => {
   drawer.value = !value;
 });

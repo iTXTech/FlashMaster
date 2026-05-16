@@ -25,6 +25,18 @@ export default {
         ids: 'Open IDs',
         about: 'About'
     },
+    seo: {
+        defaultDescription: 'FlashMaster is a dense intelligence workstation for memory-chip part numbers, NAND Flash IDs, database search, and result inspection.',
+        partsDescription: 'Decode memory-chip part numbers locally with FlashMaster and inspect fdnext device identity, geometry, package, relations, and external links.',
+        partDescription: 'Decode part number {0} with FlashMaster and inspect device identity, geometry, package details, relations, and copy-ready summaries.',
+        partsSearchDescription: 'Search memory-chip part numbers, package markings, and database records, then open detailed decode results for matching devices.',
+        idsDescription: 'Decode NAND Flash IDs with FlashMaster and inspect vendor, page size, block size, timing, controllers, and related part numbers.',
+        idDescription: 'Decode NAND Flash ID {0} with FlashMaster and inspect geometry, timing, controllers, and related part numbers.',
+        idsSearchDescription: 'Search the NAND Flash ID database for matching IDs, geometry, related part numbers, and external links.',
+        settingsDescription: 'Configure FlashMaster parser mode, fdnext HTTP API address, controller groups, theme, Market Pulse, and local statistics.',
+        aboutDescription: 'Learn about FlashMaster, the embedded fdnext parser, license, version metadata, and author contact information.',
+        notFoundDescription: 'The current URL does not match a public FlashMaster workspace route.'
+    },
     dashboard: {
         queryPanel: 'Query',
         decodeResult: 'Result',
