@@ -1,6 +1,10 @@
 FlashMaster by PeratX <peratx@itxtech.org>
 Copyright (c) 2019-2026 iTX Technologies
 ===================================
+Version 2.3.0
+- Updated embedded fdnext to v2.3.0 (d9e0e2b), standardizing NAND die profiles and process display, refining NAND die-profile decoding, deriving raw NAND density from die stack, adding YMTC raw NAND mapping, Micron 2100AI AT SSD coverage, DDR3 tokens, Micron colon revision tokens, and improved Samsung DRAM suffix parsing.
+
+===================================
 Version 2.2.0
 - Added a Settings controller group card. FlashMaster now stores the selected controller groups locally and applies them to PN decode, PN search, Flash ID decode, and Flash ID search.
 - Improved parser capability details with grouped controller inventory, localized group names/descriptions from capabilities, default group display, and expandable controller lists.

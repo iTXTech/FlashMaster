@@ -14,9 +14,13 @@ import {
   mdiClose,
   mdiContentCopy,
   mdiCrosshairsGps,
+  mdiBriefcaseOutline,
+  mdiCheckCircleOutline,
   mdiDomain,
+  mdiEmailOutline,
   mdiFileDocumentOutline,
   mdiFlash,
+  mdiHammerWrench,
   mdiHistory,
   mdiInformationOutline,
   mdiMagnify,
@@ -25,7 +29,8 @@ import {
   mdiRefresh,
   mdiTools,
   mdiTranslate,
-  mdiTune
+  mdiTune,
+  mdiViewListOutline
 } from '@mdi/js';
 import { aliases, mdi as mdiSvg } from 'vuetify/iconsets/mdi-svg';
 
@@ -40,13 +45,17 @@ const mdiIconPaths = Object.freeze({
   'mdi-chevron-left': mdiChevronLeft,
   'mdi-chevron-right': mdiChevronRight,
   'mdi-chevron-up': mdiChevronUp,
+  'mdi-briefcase-outline': mdiBriefcaseOutline,
+  'mdi-check-circle-outline': mdiCheckCircleOutline,
   'mdi-chip': mdiChip,
   'mdi-close': mdiClose,
   'mdi-content-copy': mdiContentCopy,
   'mdi-crosshairs-gps': mdiCrosshairsGps,
   'mdi-domain': mdiDomain,
+  'mdi-email-outline': mdiEmailOutline,
   'mdi-file-document-outline': mdiFileDocumentOutline,
   'mdi-flash': mdiFlash,
+  'mdi-hammer-wrench': mdiHammerWrench,
   'mdi-history': mdiHistory,
   'mdi-information-outline': mdiInformationOutline,
   'mdi-magnify': mdiMagnify,
@@ -55,7 +64,8 @@ const mdiIconPaths = Object.freeze({
   'mdi-refresh': mdiRefresh,
   'mdi-tools': mdiTools,
   'mdi-translate': mdiTranslate,
-  'mdi-tune': mdiTune
+  'mdi-tune': mdiTune,
+  'mdi-view-list-outline': mdiViewListOutline
 });
 
 const mdi = {

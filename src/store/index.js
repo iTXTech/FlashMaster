@@ -15,6 +15,7 @@ const PARSER_EMBEDDED = "embedded";
 const PARSER_HTTP = "http";
 const CONTROLLER_GROUP_ALL = "all";
 const CONTROLLER_GROUP_SELECTED = "selected";
+const MARKET_PULSE_STORAGE_KEY = "marketPulse";
 
 const getDefaultServerAddress = () => DEFAULT_SERVER_ADDRESS;
 
@@ -122,6 +123,38 @@ const shouldShowChangelog = version => {
     return normalized && getSeenChangelogVersion() !== normalized;
 };
 
+const SERVICE_BANNER_DISMISS_MS = 48 * 60 * 60 * 1000;
+
+const getServiceBannerDismissed = () => {
+    try {
+        const data = JSON.parse(localStorage.serviceBannerDismissed || "{}");
+        return {
+            version: getChangelogVersion(data.version || ""),
+            dismissedAt: Number(data.dismissedAt) || 0
+        };
+    } catch {
+        return {
+            version: "",
+            dismissedAt: 0
+        };
+    }
+};
+
+const setServiceBannerDismissed = version => {
+    localStorage.serviceBannerDismissed = JSON.stringify({
+        version: getChangelogVersion(version),
+        dismissedAt: Date.now()
+    });
+};
+
+const shouldShowServiceBanner = version => {
+    const normalized = getChangelogVersion(version);
+    if (!normalized) return true;
+    const dismissed = getServiceBannerDismissed();
+    if (dismissed.version !== normalized) return true;
+    return Date.now() - dismissed.dismissedAt >= SERVICE_BANNER_DISMISS_MS;
+};
+
 const getLang = () => {
     return localStorage.lang || "chs"
 }
@@ -145,15 +178,28 @@ const isAutoHideSoftKeyboard = () => {
     return localStorage.autoHideSoftKeyboard === "1"
 }
 
-const setMarketTickerEnabled = (b) => {
-    localStorage.marketTicker = b ? "1" : "0"
+const getMarketPulseStorageValue = () => {
+    const value = localStorage.getItem(MARKET_PULSE_STORAGE_KEY);
+    if (["0", "1"].includes(value)) return value;
+    const legacyKey = ["market", "Ticker"].join("");
+    const legacyValue = localStorage.getItem(legacyKey);
+    if (["0", "1"].includes(legacyValue)) {
+        localStorage.setItem(MARKET_PULSE_STORAGE_KEY, legacyValue);
+        localStorage.removeItem(legacyKey);
+        return legacyValue;
+    }
+    return value;
 }
 
-const isMarketTickerEnabled = () => {
-    if (!["0", "1"].includes(localStorage.marketTicker)) {
-        setMarketTickerEnabled(!__FLASHMASTER_SINGLEFILE__);
+const setMarketPulseEnabled = (b) => {
+    localStorage.setItem(MARKET_PULSE_STORAGE_KEY, b ? "1" : "0")
+}
+
+const isMarketPulseEnabled = () => {
+    if (!["0", "1"].includes(getMarketPulseStorageValue())) {
+        setMarketPulseEnabled(!__FLASHMASTER_SINGLEFILE__);
     }
-    return localStorage.marketTicker === "1"
+    return localStorage.getItem(MARKET_PULSE_STORAGE_KEY) === "1"
 }
 
 const normalizeControllerGroups = value => {
@@ -239,12 +285,14 @@ export default {
     getSeenChangelogVersion,
     setSeenChangelogVersion,
     shouldShowChangelog,
+    setServiceBannerDismissed,
+    shouldShowServiceBanner,
     getLang,
     setLang,
     setAutoHideSoftKeyboard,
     isAutoHideSoftKeyboard,
-    setMarketTickerEnabled,
-    isMarketTickerEnabled,
+    setMarketPulseEnabled,
+    isMarketPulseEnabled,
     setControllerGroups,
     getControllerGroups,
     getControllerGroupParam,

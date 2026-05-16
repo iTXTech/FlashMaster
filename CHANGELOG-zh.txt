@@ -1,6 +1,10 @@
 FlashMaster by PeratX <peratx@itxtech.org>
 版权所有 (c) 2019-2026 iTX Technologies
 ===================================
+版本 2.3.0
+- 更新内嵌 fdnext 到 v2.3.0（d9e0e2b），标准化 NAND die profile 与制程显示，改进 NAND die profile 解码并支持从 die stack 推导 raw NAND density，新增 YMTC raw NAND 映射、Micron 2100AI AT SSD 覆盖、DDR3 token、Micron 冒号 revision token，并优化 Samsung DRAM 后缀解析。
+
+===================================
 版本 2.2.0
 - 设置页新增控制器分组卡片；FlashMaster 会将选择的控制器分组保存到本地，并应用到料号解析、料号搜索、Flash ID 解析和 Flash ID 搜索。
 - 解析器能力详情增强控制器清单展示，支持按 capabilities 返回的本地化名称/说明展示分组、默认分组和可展开控制器列表。

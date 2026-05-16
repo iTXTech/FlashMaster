@@ -1,10 +1,10 @@
 <template>
-  <div ref="tickerRoot" class="market-ticker" :aria-label="$t('market.ariaLabel')" :title="tickerTitle">
-    <div ref="tickerViewport" class="market-ticker-viewport">
-      <div v-if="visibleItems.length" class="market-ticker-track" @animationiteration="advanceTickerWindow">
+  <div ref="pulseRoot" class="market-pulse" :aria-label="$t('market.ariaLabel')" :title="pulseTitle">
+    <div ref="pulseViewport" class="market-pulse-viewport">
+      <div v-if="visibleItems.length" class="market-pulse-track" @animationiteration="advancePulseWindow">
         <span
           v-for="item in visibleItems"
-          :key="item.tickerKey"
+          :key="item.pulseKey"
           :class="['market-item', flashClass(item.asset)]"
           :style="{ left: `${item.x}px` }"
         >
@@ -13,16 +13,16 @@
           <span :class="['market-change', item.trend]">{{ item.changeText }}</span>
         </span>
       </div>
-      <div v-else-if="loading" class="market-ticker-placeholder">{{ $t('market.loading') }}</div>
+      <div v-else-if="loading" class="market-pulse-placeholder">{{ $t('market.loading') }}</div>
     </div>
     <v-btn
-      class="market-ticker-close"
+      class="market-pulse-close"
       icon="mdi-close"
       size="x-small"
       density="compact"
       variant="text"
       :title="$t('market.close')"
-      @click="closeTicker"
+      @click="closeMarketPulse"
     />
   </div>
 </template>
@@ -30,9 +30,12 @@
 <script setup>
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useRoute } from 'vue-router';
+import { trackInteractionEvent } from '@/services/analytics';
 import { loadCachedMarketQuotes, subscribeMarketQuotes } from '@/services/marketApi';
 
 const emit = defineEmits(['close']);
+const route = useRoute();
 const { locale, t } = useI18n();
 
 const quotes = ref(loadCachedMarketQuotes());
@@ -41,14 +44,14 @@ const error = ref('');
 const flashingAssets = ref({});
 const renderedSlotCount = ref(4);
 const windowStart = ref(0);
-const tickerRoot = ref(null);
-const tickerViewport = ref(null);
+const pulseRoot = ref(null);
+const pulseViewport = ref(null);
 let unsubscribeMarket;
 let resizeObserver;
 let flashTimer;
 let lastQuoteSignature = createQuoteSignature(quotes.value);
-const MARKET_RENDER_BUFFER_SLOTS = 2;
-const MARKET_ITEM_SLOT_WIDTH = 200;
+const MARKET_PULSE_RENDER_BUFFER_SLOTS = 2;
+const MARKET_PULSE_SLOT_WIDTH = 200;
 
 const priceFormatter = new Intl.NumberFormat('en-US', {
   style: 'currency',
@@ -77,13 +80,13 @@ const visibleItems = computed(() => {
     const item = baseItems.value[(windowStart.value + offset) % baseItems.value.length];
     return {
       ...item,
-      tickerKey: `${windowStart.value}-${offset}-${item.asset}`,
-      x: offset * MARKET_ITEM_SLOT_WIDTH
+      pulseKey: `${windowStart.value}-${offset}-${item.asset}`,
+      x: offset * MARKET_PULSE_SLOT_WIDTH
     };
   });
 });
 
-const tickerTitle = computed(() => error.value ? `${t('market.title')} · ${error.value}` : t('market.title'));
+const pulseTitle = computed(() => error.value ? `${t('market.title')} · ${error.value}` : t('market.title'));
 
 function formatPrice(value) {
   return (Math.abs(value) >= 100 ? priceFormatter : precisePriceFormatter).format(value);
@@ -142,12 +145,12 @@ function handleMarketUpdate(nextQuotes) {
 }
 
 function updateRenderedSlotCount() {
-  const viewportWidth = tickerViewport.value?.clientWidth || tickerRoot.value?.clientWidth || 0;
+  const viewportWidth = pulseViewport.value?.clientWidth || pulseRoot.value?.clientWidth || 0;
   if (!viewportWidth) return;
-  renderedSlotCount.value = Math.max(4, Math.ceil(viewportWidth / MARKET_ITEM_SLOT_WIDTH) + MARKET_RENDER_BUFFER_SLOTS);
+  renderedSlotCount.value = Math.max(4, Math.ceil(viewportWidth / MARKET_PULSE_SLOT_WIDTH) + MARKET_PULSE_RENDER_BUFFER_SLOTS);
 }
 
-function advanceTickerWindow() {
+function advancePulseWindow() {
   if (document.hidden || !baseItems.value.length) return;
   windowStart.value = (windowStart.value + 1) % baseItems.value.length;
 }
@@ -179,15 +182,25 @@ function handleVisibilityChange() {
   }
 }
 
-function closeTicker() {
+function closeMarketPulse() {
+  trackMarketPulseEvent('market_pulse_close', 'close');
   stopMarketService();
   emit('close');
 }
 
+function trackMarketPulseEvent(event, action) {
+  trackInteractionEvent({
+    event,
+    surface: 'market_pulse',
+    routeName: route.name,
+    action,
+    label: 'market_pulse'
+  });
+}
 onMounted(() => {
   resizeObserver = new ResizeObserver(updateRenderedSlotCount);
-  if (tickerViewport.value) {
-    resizeObserver.observe(tickerViewport.value);
+  if (pulseViewport.value) {
+    resizeObserver.observe(pulseViewport.value);
   }
   document.addEventListener('visibilitychange', handleVisibilityChange);
   startMarketService();

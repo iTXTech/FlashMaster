@@ -161,13 +161,13 @@ Manual smoke test:
 - Vendor logos are rendered through `src/services/vendorLogos.js`; if a link row
   uses `img: "logo"`, show the vendor logo.
 
-## Market Ticker
+## Market Pulse
 
-The optional market ticker is implemented by:
+The optional Market Pulse bar is implemented by:
 
-- `src/components/MarketTicker.vue`
+- `src/components/MarketPulse.vue`
 - `src/services/marketApi.js`
-- the `marketTicker` localStorage setting in `src/store/index.js`
+- the `marketPulse` localStorage setting in `src/store/index.js`
 
 It uses Hyperliquid `xyz` market data, preferring WebSocket updates and falling
 back to HTTP snapshots. The default endpoints can be overridden with:
@@ -175,13 +175,13 @@ back to HTTP snapshots. The default endpoints can be overridden with:
 - `VITE_FLASHMASTER_MARKET_ENDPOINT`
 - `VITE_FLASHMASTER_MARKET_WS_ENDPOINT`
 
-Keep the ticker optional, quiet, and easy to disable. It should not distract
+Keep Market Pulse optional, quiet, and easy to disable. It should not distract
 from FlashMaster's primary NAND tools.
 
 Performance expectations:
 
-- Render only the visible ticker slots plus a small buffer.
-- Use fixed ticker slots to avoid wide-screen jumpiness.
+- Render only the visible Market Pulse slots plus a small buffer.
+- Use fixed Market Pulse slots to avoid wide-screen jumpiness.
 - Keep the scrolling animation CSS-driven.
 - Stop the market service while the document is hidden.
 - Avoid excessive localStorage writes and UI updates.
@@ -212,7 +212,7 @@ Important persisted settings include:
 - soft keyboard behavior
 - local usage statistics
 - changelog seen version
-- market ticker visibility
+- Market Pulse visibility
 
 ## Test Plan
 
@@ -234,7 +234,7 @@ For UI changes, also run `pnpm dev` and manually verify in the browser:
 - theme switching
 - changelog dialog behavior
 - copy buttons
-- market ticker enable/disable behavior
+- Market Pulse enable/disable behavior
 
 ## Guardrails
 

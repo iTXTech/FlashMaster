@@ -109,7 +109,7 @@ export default {
         title: 'Customization',
         language: 'Language',
         autoHideSoftKeyboard: 'Auto hide soft keyboard',
-        marketTicker: 'Show market ticker',
+        marketPulse: 'Show Market Pulse',
         theme: 'Theme',
         theme_0: 'Dark',
         theme_1: 'Light',
@@ -124,10 +124,31 @@ export default {
         content: changelogText.trim()
     },
     market: {
-        title: 'USD quotes with current price and change',
+        title: 'Market Pulse, USD quotes with current price and change',
         loading: 'Loading market data',
-        ariaLabel: 'Market ticker',
-        close: 'Hide market ticker'
+        ariaLabel: 'Market Pulse',
+        close: 'Hide Market Pulse'
+    },
+    serviceBanner: {
+        ariaLabel: 'Custom development service entry',
+        title: 'Need to turn an idea or tool into deliverable software?',
+        description: 'Full-stack development, automation, data tools, AI integration, plus DIY USB drive, portable SSD, and SSD customization.',
+        contact: 'Contact',
+        scope: 'View scope',
+        close: 'Close this notice',
+        dialogTitle: 'Available scope',
+        introHtml: 'PeratX is the founder of <a class="service-scope-link" href="https://github.com/iTXTech" target="_blank" rel="noopener noreferrer">iTX Technologies</a>, a full-stack engineer and open-source builder focused on practical tools, automation systems, and deployable software.',
+        dialogDescription: 'For small teams, studios, and real business workflows, the priority is maintainable work that can ship and keep evolving.',
+        scopeItems: {
+            web: 'Web apps and admin systems',
+            backend: 'Backend APIs and databases',
+            automation: 'Automation tools and batch jobs',
+            data: 'Data cleanup, search, and reports',
+            ai: 'AI workflows and knowledge bases',
+            ops: 'Internal deployment, CI/CD, and engineering workflows',
+            diy: 'DIY USB drive, portable SSD, and SSD customization',
+            web3: 'Web3, financial systems, and open-source customization'
+        }
     },
     searchIdPage: {
         query: 'Decode ID',
@@ -185,5 +206,5 @@ export default {
     open: 'Open',
     yes: 'Yes',
     no: 'No',
-    about: '<div class="about-section"><div class="about-heading">FlashMaster</div><div><a href="https://fm.itxtech.org" target="_blank" rel="noopener noreferrer">iTXTech FlashMaster</a> is a Memory Chip Intelligence Platform for memory-chip part numbers and NAND Flash IDs, combining local decoding, database search, result inspection, copy actions, and multilingual operation.</div></div><div class="about-section"><div class="about-heading">Architecture</div><div>The current version is built with Vite, Vue 3, Vuetify 3, and pnpm. It can run fully in the browser with embedded fdnext, or call a configured fdnext 2.x HTTP API.</div></div><div class="about-section"><div class="about-heading">fdnext</div><div><a href="https://github.com/iTXTech/fdnext" target="_blank" rel="noopener noreferrer">fdnext 2.x</a> is the parsing and data engine behind FlashMaster, providing shared rules, resources, search, and canonical result models for memory-chip PN and NAND Flash ID intelligence. Embedded version: <strong>{1}</strong>.</div></div><div class="about-section"><div class="about-heading">License</div><div>FlashMaster is distributed under the GNU Affero General Public License v3.0 (AGPL 3.0).</div></div><div class="about-section about-contact"><div class="about-heading">Contact</div><a class="about-contact-link" href="mailto:peratx&#64;itxtech.org">PeratX &lt;peratx&#64;itxtech.org&gt;</a></div><div class="about-section about-meta">Client: {0}<br/>Copyright © 2019-2026 <a href="https://itxtech.org" target="_blank" rel="noopener noreferrer">iTX Technologies</a></div>'
+    about: '<div class="about-section"><div class="about-heading">FlashMaster</div><div><a href="https://fm.itxtech.org" target="_blank" rel="noopener noreferrer">iTXTech FlashMaster</a> is a Memory Chip Intelligence Platform for memory-chip part numbers and NAND Flash IDs, combining local decoding, database search, result inspection, copy actions, and multilingual operation.</div></div><div class="about-section"><div class="about-heading">Architecture</div><div>The current version is built with Vite, Vue 3, Vuetify 3, and pnpm. It can run fully in the browser with embedded fdnext, or call a configured fdnext 2.x HTTP API.</div></div><div class="about-section"><div class="about-heading">fdnext</div><div><a href="https://github.com/iTXTech/fdnext" target="_blank" rel="noopener noreferrer">iTXTech fdnext</a> is the parsing and data engine behind FlashMaster, providing shared rules, resources, search, and canonical result models for memory-chip PN and NAND Flash ID intelligence. Embedded version: <strong>{1}</strong>.</div></div><div class="about-section"><div class="about-heading">License</div><div>FlashMaster is distributed under the GNU Affero General Public License v3.0 (AGPL 3.0).</div></div><div class="about-section about-contact"><div class="about-heading">Contact</div><a class="about-contact-link" href="mailto:peratx&#64;itxtech.org">PeratX &lt;peratx&#64;itxtech.org&gt;</a></div><div class="about-section about-meta">Client: {0}<br/>Copyright © 2019-2026 <a href="https://itxtech.org" target="_blank" rel="noopener noreferrer">iTX Technologies</a></div>'
 }

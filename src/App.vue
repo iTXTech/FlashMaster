@@ -70,9 +70,11 @@
       </template>
     </v-navigation-drawer>
 
-    <v-main>
-      <MarketTicker v-if="marketTickerEnabled" @close="closeMarketTicker" />
+    <v-main class="main-surface">
+      <MarketPulse v-if="marketPulseEnabled" @close="closeMarketPulse" />
       <router-view />
+      <div v-if="serviceBannerVisible" class="service-banner-spacer" aria-hidden="true" />
+      <CommercialServiceBanner v-if="serviceBannerVisible" surface="commercial_banner" @dismiss="dismissServiceBanner" />
     </v-main>
 
     <v-snackbar
@@ -97,7 +99,8 @@ import { useDisplay, useTheme } from 'vuetify';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import ChangelogDialog from '@/components/ChangelogDialog.vue';
-import MarketTicker from '@/components/MarketTicker.vue';
+import CommercialServiceBanner from '@/components/CommercialServiceBanner.vue';
+import MarketPulse from '@/components/MarketPulse.vue';
 import logo from '@/assets/app-icon.svg';
 import {
   aboutRoute,
@@ -127,7 +130,7 @@ const snackbar = ref({
   text: ''
 });
 const changelogDialog = ref(false);
-const marketTickerEnabled = ref(store.isMarketTickerEnabled());
+const marketPulseEnabled = ref(store.isMarketPulseEnabled());
 const footerNotice = {
   text: String(import.meta.env.VITE_FLASHMASTER_FOOTER_NOTICE_TEXT || '').trim(),
   url: String(import.meta.env.VITE_FLASHMASTER_FOOTER_NOTICE_URL || '').trim()
@@ -186,6 +189,7 @@ const languages = computed(() => Object.entries(messages.value).map(([code, mess
 
 const projectVersion = computed(() => store.getProjectVersion());
 const changelogVersion = computed(() => store.getChangelogVersion(projectVersion.value));
+const serviceBannerVisible = ref(store.shouldShowServiceBanner(changelogVersion.value));
 const pageTitle = computed(() => route.meta.title ? `FlashMaster / ${t(route.meta.title)}` : 'FlashMaster');
 
 const applyTheme = () => {
@@ -205,10 +209,15 @@ const changeLanguage = value => {
   router.push(routeWithAppLocale(route, value));
 };
 
-const closeMarketTicker = () => {
-  store.setMarketTickerEnabled(false);
-  marketTickerEnabled.value = false;
-  bus.emit('marketTicker');
+const closeMarketPulse = () => {
+  store.setMarketPulseEnabled(false);
+  marketPulseEnabled.value = false;
+  bus.emit('marketPulse');
+};
+
+const dismissServiceBanner = () => {
+  store.setServiceBannerDismissed(changelogVersion.value);
+  serviceBannerVisible.value = false;
 };
 
 const updateTitle = () => {
@@ -231,7 +240,7 @@ const updateTitle = () => {
 let offSnackbar;
 let offTheme;
 let offChangelog;
-let offMarketTicker;
+let offMarketPulse;
 let mediaQuery;
 
 onMounted(() => {
@@ -246,8 +255,8 @@ onMounted(() => {
   offChangelog = bus.on('changelog', () => {
     changelogDialog.value = true;
   });
-  offMarketTicker = bus.on('marketTicker', () => {
-    marketTickerEnabled.value = store.isMarketTickerEnabled();
+  offMarketPulse = bus.on('marketPulse', () => {
+    marketPulseEnabled.value = store.isMarketPulseEnabled();
   });
   mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
   mediaQuery.addEventListener?.('change', applyTheme);
@@ -260,7 +269,7 @@ onUnmounted(() => {
   offSnackbar?.();
   offTheme?.();
   offChangelog?.();
-  offMarketTicker?.();
+  offMarketPulse?.();
   mediaQuery?.removeEventListener?.('change', applyTheme);
 });
 
@@ -273,5 +282,8 @@ watch(changelogDialog, value => {
   if (!value) {
     store.setSeenChangelogVersion(changelogVersion.value);
   }
+});
+watch(changelogVersion, value => {
+  serviceBannerVisible.value = store.shouldShowServiceBanner(value);
 });
 </script>

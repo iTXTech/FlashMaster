@@ -8,6 +8,13 @@ const eventName = (target, action) => {
 
 const hasGtag = () => typeof window !== 'undefined' && typeof window.gtag === 'function';
 
+const baseEventParams = () => ({
+    app_name: 'FlashMaster',
+    app_version: appVersion(),
+    language: store.getLang(),
+    parser_mode: store.getParserMode()
+});
+
 export const trackLookup = ({
     target,
     action,
@@ -18,15 +25,46 @@ export const trackLookup = ({
     if (!hasGtag()) return;
     const normalizedQuery = String(query || '');
     window.gtag('event', eventName(target, action), {
-        app_name: 'FlashMaster',
-        app_version: appVersion(),
-        language: store.getLang(),
-        parser_mode: store.getParserMode(),
+        ...baseEventParams(),
         lookup_target: target,
         lookup_action: action,
         search_term: normalizedQuery,
         query_length: normalizedQuery.length,
         result_count: Number(resultCount) || 0,
         success: success ? 1 : 0
+    });
+};
+
+export const trackServiceEvent = ({
+    event,
+    surface = 'global_top',
+    routeName = '',
+    action = '',
+    label = ''
+} = {}) => {
+    if (!hasGtag() || !event) return;
+    window.gtag('event', String(event), {
+        ...baseEventParams(),
+        surface: String(surface || 'global_top'),
+        route_name: String(routeName || ''),
+        service_action: String(action || ''),
+        service_label: String(label || '')
+    });
+};
+
+export const trackInteractionEvent = ({
+    event,
+    surface = 'global_top',
+    routeName = '',
+    action = '',
+    label = ''
+} = {}) => {
+    if (!hasGtag() || !event) return;
+    window.gtag('event', String(event), {
+        ...baseEventParams(),
+        surface: String(surface || 'global_top'),
+        route_name: String(routeName || ''),
+        interaction_action: String(action || ''),
+        interaction_label: String(label || '')
     });
 };

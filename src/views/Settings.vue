@@ -122,16 +122,16 @@
               />
             </div>
             <div class="settings-switch-row">
-              <span class="settings-switch-label">{{ $t('customization.marketTicker') }}</span>
+              <span class="settings-switch-label">{{ $t('customization.marketPulse') }}</span>
               <v-switch
-                v-model="marketTicker"
+                v-model="marketPulse"
                 class="settings-switch-control"
                 base-color="surface-variant"
                 color="primary"
                 density="compact"
                 hide-details
-                :aria-label="$t('customization.marketTicker')"
-                @update:model-value="changeMarketTicker"
+                :aria-label="$t('customization.marketPulse')"
+                @update:model-value="changeMarketPulse"
               />
             </div>
           </div>
@@ -191,7 +191,7 @@ const parserMode = ref(store.getParserMode());
 const controllerGroups = ref(store.getControllerGroups());
 const currentTheme = ref(store.getTheme());
 const hideKeyboard = ref(store.isAutoHideSoftKeyboard());
-const marketTicker = ref(store.isMarketTickerEnabled());
+const marketPulse = ref(store.isMarketPulseEnabled());
 const loadingInfo = ref(false);
 const loadingControllerGroups = ref(false);
 const statsState = ref(readStats());
@@ -355,10 +355,10 @@ function changeTheme(value) {
   bus.emit('theme');
 }
 
-function changeMarketTicker(value) {
-  store.setMarketTickerEnabled(value);
-  marketTicker.value = store.isMarketTickerEnabled();
-  bus.emit('marketTicker');
+function changeMarketPulse(value) {
+  store.setMarketPulseEnabled(value);
+  marketPulse.value = store.isMarketPulseEnabled();
+  bus.emit('marketPulse');
 }
 
 function formatInfoText(data) {
@@ -432,16 +432,16 @@ function notify(text) {
   bus.emit('snackbar', { timeout: 3000, show: true, text });
 }
 
-let offMarketTicker;
+let offMarketPulse;
 
 onMounted(() => {
   loadControllerGroups();
-  offMarketTicker = bus.on('marketTicker', () => {
-    marketTicker.value = store.isMarketTickerEnabled();
+  offMarketPulse = bus.on('marketPulse', () => {
+    marketPulse.value = store.isMarketPulseEnabled();
   });
 });
 
 onUnmounted(() => {
-  offMarketTicker?.();
+  offMarketPulse?.();
 });
 </script>

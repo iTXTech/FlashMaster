@@ -392,7 +392,7 @@ Local browser smoke:
 - Theme switching
 - Changelog dialog behavior
 - Copy buttons
-- Market ticker enable/disable behavior
+- Market Pulse enable/disable behavior
 - fdnext 2.0 HTTP parser mode when a fdnext server is available
 
 Suggested sample inputs:
