@@ -330,6 +330,44 @@ function applyControllerGroups(value) {
   controllerGroups.value = store.getControllerGroups();
 }
 
+function reportedControllerGroupIds(data) {
+  const groups = data?.inventory?.controllers?.groups;
+  if (!Array.isArray(groups) || !groups.length) {
+    return [];
+  }
+  return groups
+    .map(group => String(group?.id || '').trim())
+    .filter(Boolean);
+}
+
+function defaultControllerGroupsFromCapabilities(data, reportedIds) {
+  const ids = reportedIds instanceof Set ? reportedIds : new Set(reportedIds);
+  const rawDefaultGroups = data?.inventory?.controllers?.defaultGroups;
+  const defaults = (Array.isArray(rawDefaultGroups) ? rawDefaultGroups : [rawDefaultGroups])
+    .flatMap(item => String(item || '').split(','))
+    .map(item => item.trim())
+    .filter(item => item && ids.has(item));
+  if (defaults.length) {
+    return defaults;
+  }
+  if (ids.has(store.CONTROLLER_GROUP_ALL)) {
+    return [store.CONTROLLER_GROUP_ALL];
+  }
+  return [...ids].slice(0, 1);
+}
+
+function syncControllerGroupsWithCapabilities(data) {
+  const reportedIds = reportedControllerGroupIds(data);
+  if (!reportedIds.length) {
+    return;
+  }
+  const idSet = new Set(reportedIds);
+  if (controllerGroups.value.length && controllerGroups.value.every(group => idSet.has(group))) {
+    return;
+  }
+  applyControllerGroups(defaultControllerGroupsFromCapabilities(data, idSet));
+}
+
 function changeControllerGroups(value) {
   applyControllerGroups(normalizeControllerGroupSelection(value));
 }
@@ -376,6 +414,7 @@ async function loadControllerGroups({ notifyOnError = false } = {}) {
     const data = await getServerInfo();
     if (requestId !== controllerGroupRequestId) return;
     capabilityData.value = data;
+    syncControllerGroupsWithCapabilities(data);
     if (dialog.value.show) {
       dialog.value = {
         ...dialog.value,
@@ -403,6 +442,7 @@ async function serverInfo() {
   try {
     const data = await getServerInfo();
     capabilityData.value = data;
+    syncControllerGroupsWithCapabilities(data);
     dialog.value = {
       show: true,
       data

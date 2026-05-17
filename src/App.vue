@@ -210,6 +210,11 @@ const routeSubject = computed(() => {
 });
 const pageTitle = computed(() => {
   if (!route.meta.title) return 'FlashMaster';
+  const routeTitle = t(route.meta.title);
+  return ['FlashMaster', routeTitle].filter(Boolean).join(' / ');
+});
+const windowTitle = computed(() => {
+  if (!route.meta.title) return 'FlashMaster';
   const parts = ['FlashMaster', t(route.meta.title), routeSubject.value].filter(Boolean);
   return parts.join(' / ');
 });
@@ -250,12 +255,12 @@ const dismissServiceBanner = () => {
 };
 
 const updateTitle = () => {
-  document.title = pageTitle.value;
+  document.title = windowTitle.value;
   document.documentElement.lang = locale.value === 'eng' ? 'en' : 'zh-CN';
   setMeta('name', 'description', pageDescription.value);
-  setMeta('property', 'og:title', pageTitle.value);
+  setMeta('property', 'og:title', windowTitle.value);
   setMeta('property', 'og:description', pageDescription.value);
-  setMeta('name', 'twitter:title', pageTitle.value);
+  setMeta('name', 'twitter:title', windowTitle.value);
   setMeta('name', 'twitter:description', pageDescription.value);
   setMeta('property', 'og:url', canonicalUrl());
   setMeta('name', 'robots', route.meta.robots || 'index, follow');

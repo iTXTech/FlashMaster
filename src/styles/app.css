@@ -2375,7 +2375,7 @@ a.nav-footer-notice:hover {
     position: fixed;
     top: auto;
     right: 8px;
-    bottom: calc(8px + env(safe-area-inset-bottom));
+    bottom: calc(20px + env(safe-area-inset-bottom));
     left: 8px;
     width: auto;
   }
@@ -2391,7 +2391,7 @@ a.nav-footer-notice:hover {
   .service-banner {
     position: fixed;
     right: 8px;
-    bottom: calc(8px + env(safe-area-inset-bottom));
+    bottom: calc(20px + env(safe-area-inset-bottom));
     left: 8px;
     grid-template-columns: 28px minmax(0, 1fr) 28px;
     gap: 7px 8px;
@@ -2401,8 +2401,8 @@ a.nav-footer-notice:hover {
 
   .service-banner-spacer {
     display: block;
-    flex: 0 0 calc(118px + env(safe-area-inset-bottom));
-    height: calc(118px + env(safe-area-inset-bottom));
+    flex: 0 0 calc(130px + env(safe-area-inset-bottom));
+    height: calc(130px + env(safe-area-inset-bottom));
   }
 
   .service-banner-icon {
