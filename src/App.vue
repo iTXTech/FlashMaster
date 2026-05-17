@@ -70,7 +70,7 @@
       </template>
     </v-navigation-drawer>
 
-    <v-main class="main-surface">
+    <v-main class="main-surface" :style="mainSurfaceStyle">
       <MarketPulse v-if="marketPulseAvailable && marketPulseEnabled" @close="closeMarketPulse" />
       <router-view />
       <div v-if="commercialBannerAvailable && serviceBannerVisible" class="service-banner-spacer" aria-hidden="true" />
@@ -78,6 +78,7 @@
         v-if="commercialBannerAvailable && serviceBannerVisible"
         surface="commercial_banner"
         @dismiss="dismissServiceBanner"
+        @resize="updateServiceBannerHeight"
       />
     </v-main>
 
@@ -202,6 +203,12 @@ const languages = computed(() => Object.entries(messages.value).map(([code, mess
 const projectVersion = computed(() => store.getProjectVersion());
 const changelogVersion = computed(() => store.getChangelogVersion(projectVersion.value));
 const serviceBannerVisible = ref(commercialBannerAvailable && store.shouldShowServiceBanner(changelogVersion.value));
+const serviceBannerHeight = ref(0);
+const mainSurfaceStyle = computed(() => (
+  serviceBannerHeight.value > 0
+    ? { '--service-banner-height': `${serviceBannerHeight.value}px` }
+    : {}
+));
 const routeSubject = computed(() => {
   if (route.name === ROUTE_NAMES.part) return routeParamText(route, 'pn');
   if (route.name === ROUTE_NAMES.id) return routeParamText(route, 'id');
@@ -251,7 +258,12 @@ const closeMarketPulse = () => {
 const dismissServiceBanner = () => {
   if (!commercialBannerAvailable) return;
   store.setServiceBannerDismissed(changelogVersion.value);
+  serviceBannerHeight.value = 0;
   serviceBannerVisible.value = false;
+};
+
+const updateServiceBannerHeight = height => {
+  serviceBannerHeight.value = Number.isFinite(height) ? Math.max(0, Math.ceil(height)) : 0;
 };
 
 const updateTitle = () => {
@@ -344,5 +356,8 @@ watch(changelogDialog, value => {
 });
 watch(changelogVersion, value => {
   serviceBannerVisible.value = commercialBannerAvailable && store.shouldShowServiceBanner(value);
+  if (!serviceBannerVisible.value) {
+    serviceBannerHeight.value = 0;
+  }
 });
 </script>

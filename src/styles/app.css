@@ -367,6 +367,11 @@ a {
   font-variant-numeric: tabular-nums;
   font-weight: 700;
   white-space: nowrap;
+  scrollbar-width: none;
+}
+
+.market-chart-footer::-webkit-scrollbar {
+  display: none;
 }
 
 .service-banner {
@@ -2346,6 +2351,10 @@ a.nav-footer-notice:hover {
 }
 
 @media (max-width: 720px) {
+  .main-surface {
+    --mobile-bottom-overlay-offset: calc(10px + env(safe-area-inset-bottom));
+  }
+
   .workspace {
     padding: 8px;
   }
@@ -2362,7 +2371,7 @@ a.nav-footer-notice:hover {
     position: fixed;
     top: auto;
     right: 8px;
-    bottom: calc(20px + env(safe-area-inset-bottom));
+    bottom: var(--mobile-bottom-overlay-offset);
     left: 8px;
     width: auto;
   }
@@ -2375,10 +2384,16 @@ a.nav-footer-notice:hover {
     height: 238px;
   }
 
+  .market-chart-footer {
+    gap: 6px;
+    padding: 6px 8px;
+    font-size: 0.62rem;
+  }
+
   .service-banner {
     position: fixed;
     right: 8px;
-    bottom: calc(20px + env(safe-area-inset-bottom));
+    bottom: var(--mobile-bottom-overlay-offset);
     left: 8px;
     grid-template-columns: 28px minmax(0, 1fr) 28px;
     gap: 7px 8px;
@@ -2388,8 +2403,8 @@ a.nav-footer-notice:hover {
 
   .service-banner-spacer {
     display: block;
-    flex: 0 0 calc(130px + env(safe-area-inset-bottom));
-    height: calc(130px + env(safe-area-inset-bottom));
+    flex: 0 0 calc(max(var(--service-banner-height, 130px), 130px) + 22px + env(safe-area-inset-bottom));
+    height: calc(max(var(--service-banner-height, 130px), 130px) + 22px + env(safe-area-inset-bottom));
   }
 
   .service-banner-icon {

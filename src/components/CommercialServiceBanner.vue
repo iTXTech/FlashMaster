@@ -1,5 +1,5 @@
 <template>
-  <section class="service-banner" :aria-label="$t('serviceBanner.ariaLabel')">
+  <section ref="bannerRef" class="service-banner" :aria-label="$t('serviceBanner.ariaLabel')">
     <div class="service-banner-icon" aria-hidden="true">
       <v-icon icon="mdi-hammer-wrench" size="18" />
     </div>
@@ -87,7 +87,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 import { trackServiceEvent } from '@/services/analytics';
@@ -98,11 +98,12 @@ const props = defineProps({
     default: 'global_top'
   }
 });
-const emit = defineEmits(['dismiss']);
+const emit = defineEmits(['dismiss', 'resize']);
 
 const route = useRoute();
-const { tm } = useI18n();
+const { locale, tm } = useI18n();
 const scopeDialog = ref(false);
+const bannerRef = ref(null);
 const contactUrl = 'mailto:peratx@itxtech.org?subject=FlashMaster%20custom%20development';
 const contactTarget = computed(() => (/^https?:\/\//i.test(contactUrl) ? '_blank' : undefined));
 const contactRel = computed(() => (contactTarget.value ? 'noopener noreferrer' : undefined));
@@ -138,4 +139,44 @@ function dismissBanner() {
 function trackCommercialBannerInteraction(action) {
   track('commercial_banner_interaction', action);
 }
+
+let resizeObserver;
+let resizeTimer;
+
+function emitBannerSize() {
+  const height = bannerRef.value?.getBoundingClientRect().height || 0;
+  emit('resize', Math.ceil(height));
+}
+
+function scheduleBannerSizeEmit() {
+  window.clearTimeout(resizeTimer);
+  emitBannerSize();
+  window.requestAnimationFrame(() => {
+    emitBannerSize();
+    window.requestAnimationFrame(emitBannerSize);
+  });
+  resizeTimer = window.setTimeout(emitBannerSize, 240);
+}
+
+onMounted(async () => {
+  await nextTick();
+  scheduleBannerSizeEmit();
+  document.fonts?.ready?.then(scheduleBannerSizeEmit).catch(() => {});
+  window.addEventListener('resize', scheduleBannerSizeEmit);
+  if (bannerRef.value && window.ResizeObserver) {
+    resizeObserver = new ResizeObserver(scheduleBannerSizeEmit);
+    resizeObserver.observe(bannerRef.value);
+  }
+});
+
+onUnmounted(() => {
+  window.clearTimeout(resizeTimer);
+  window.removeEventListener('resize', scheduleBannerSizeEmit);
+  resizeObserver?.disconnect();
+});
+
+watch(locale, async () => {
+  await nextTick();
+  scheduleBannerSizeEmit();
+});
 </script>
