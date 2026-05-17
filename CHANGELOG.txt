@@ -2,9 +2,15 @@ FlashMaster by PeratX <peratx@itxtech.org>
 Copyright (c) 2019-2026 iTX Technologies
 ===================================
 Version 2.3.0
-- Updated embedded fdnext to v2.3.0 (52b9ea1), cleaning raw NAND taxonomy by folding MT29FB/on-die ECC NAND display back into NAND, improving Micron/Intel raw NAND process subtitles, and regenerating FDB data to remove malformed or cross-vendor raw NAND pollution.
-- Updated embedded fdnext to v2.3.0 (4145cf7), migrating static NAND Flash ID rules into the current fdnext rule pipeline for cleaner Flash ID decode/search maintenance.
-- Updated embedded fdnext to v2.3.0 (d9e0e2b), standardizing NAND die profiles and process display, refining NAND die-profile decoding, deriving raw NAND density from die stack, adding YMTC raw NAND mapping, Micron 2100AI AT SSD coverage, DDR3 tokens, Micron colon revision tokens, and improved Samsung DRAM suffix parsing.
+- Active PN and Flash ID pages now rerun the current decode/search automatically after language switching, keeping visible results in the selected language without duplicating local usage counts.
+- Added optional Market Pulse enhancements, including a quiet Settings toggle, visible-slot rendering, price-change flashes, and click-through candlestick/volume charts backed by cached Hyperliquid market snapshots.
+- Reworked Settings parser information into native capability cards for parser build metadata, FDB metadata, inventory counts, controller groups, supported operations, and decoder lists.
+- Hardened controller-group selection against stale or invalid capability data, falling back to reported defaults while preventing empty selections.
+- Added the `pnpm build:singlefile:nano` offline build flavor for a smaller single-file artifact with analytics and Market Pulse disabled.
+- Polished app chrome by keeping PN/Flash ID subjects in the browser title and SEO metadata while leaving the in-page title compact, plus improved mobile overlay spacing for bottom panels.
+- Updated embedded fdnext to v2.3.0 (410fe3f), standardizing NAND die profiles and process display, deriving raw NAND density from die stack, cleaning raw NAND taxonomy, and migrating static NAND Flash ID rules into the current decode pipeline.
+- fdnext parser coverage now includes YMTC raw NAND EBQ mapping, Micron 2100AI AT SSD, DDR3 naming tokens, Micron NAND/DRAM colon revision tokens, H25T die-count normalization, and refined Samsung DRAM suffix parsing.
+- fdnext resource quality was tightened with prioritized FDB extra overlays, stricter audit checks, vendor-ownership and lithography normalization, Intel raw NAND process aliases, and regenerated FDB data that removes malformed or cross-vendor raw NAND pollution.
 
 ===================================
 Version 2.2.0

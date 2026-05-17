@@ -2,9 +2,15 @@ FlashMaster by PeratX <peratx@itxtech.org>
 版权所有 (c) 2019-2026 iTX Technologies
 ===================================
 版本 2.3.0
-- 更新内嵌 fdnext 到 v2.3.0（52b9ea1），清理 raw NAND 分类口径，将 MT29FB/on-die ECC NAND 展示归并回 NAND，优化 Micron/Intel raw NAND 制程副标题，并重新生成 FDB 以移除异常或跨厂商污染的 raw NAND 记录。
-- 更新内嵌 fdnext 到 v2.3.0（4145cf7），将静态 NAND Flash ID 规则迁移到当前 fdnext 规则管线，便于维护 Flash ID 解析和搜索。
-- 更新内嵌 fdnext 到 v2.3.0（d9e0e2b），标准化 NAND die profile 与制程显示，改进 NAND die profile 解码并支持从 die stack 推导 raw NAND density，新增 YMTC raw NAND 映射、Micron 2100AI AT SSD 覆盖、DDR3 token、Micron 冒号 revision token，并优化 Samsung DRAM 后缀解析。
+- PN 与 Flash ID 页面在切换语言后会自动重新运行当前解析/搜索，让已显示结果同步到新语言，同时不重复累计本地使用次数。
+- 增强可选 Market Pulse：设置页可安静开关，滚动条只渲染可见槽位，支持价格变动闪动，并可点击展开带缓存快照的 K 线/成交量图表。
+- 设置页解析器信息改为原生能力卡片，展示解析器构建信息、FDB 元数据、资源统计、控制器分组、支持操作和 decoder 列表。
+- 加强控制器分组选择处理，遇到过期或无效 capabilities 数据时回退到解析器报告的默认分组，并避免出现空选择。
+- 新增 `pnpm build:singlefile:nano` 离线构建形态，可生成更小的单文件产物，并关闭统计与 Market Pulse。
+- 优化应用外壳：浏览器标题与 SEO 元数据继续包含 PN/Flash ID 查询对象，页面内标题保持简洁；同时改善移动端底部浮层间距。
+- 更新内嵌 fdnext 到 v2.3.0（410fe3f），标准化 NAND die profile 与制程显示，支持从 die stack 推导 raw NAND density，清理 raw NAND 分类口径，并将静态 NAND Flash ID 规则迁移到当前解析管线。
+- fdnext 解析覆盖新增 YMTC raw NAND EBQ 映射、Micron 2100AI AT SSD、DDR3 命名 token、Micron NAND/DRAM 冒号 revision token、H25T die count 归一化，并优化 Samsung DRAM 后缀解析。
+- fdnext 资源质量进一步收紧：支持优先级 FDB extra overlay、更严格的审计检查、厂商归属与光刻制程归一化、Intel raw NAND 制程别名，并重新生成 FDB 以移除异常或跨厂商污染的 raw NAND 记录。
 
 ===================================
 版本 2.2.0
