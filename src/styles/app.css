@@ -125,6 +125,7 @@ a {
   width: 26px;
   content: "";
   pointer-events: none;
+  backface-visibility: hidden;
 }
 
 .market-pulse-viewport::before {
@@ -148,6 +149,28 @@ a {
   transform: translate3d(0, 0, 0);
   will-change: transform;
   touch-action: pan-y;
+  contain: layout style paint;
+  animation: market-pulse-scroll var(--market-slot-duration) linear infinite;
+  animation-delay: var(--market-scroll-delay, 0ms);
+  animation-play-state: paused;
+}
+
+.market-pulse-track.is-scroll-running {
+  animation-play-state: running;
+}
+
+.market-pulse-track.is-manual-scroll {
+  animation: none;
+}
+
+@keyframes market-pulse-scroll {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+
+  to {
+    transform: translate3d(calc(-1 * var(--market-slot-width)), 0, 0);
+  }
 }
 
 .market-item {
@@ -168,7 +191,7 @@ a {
   font: inherit;
   line-height: 1;
   transform: translateY(-50%);
-  contain: layout paint;
+  contain: layout paint style;
 }
 
 .market-item:hover,

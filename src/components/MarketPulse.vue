@@ -8,10 +8,18 @@
         <div
           v-if="visibleItems.length"
           ref="trackRef"
-          class="market-pulse-track"
+          :class="[
+            'market-pulse-track',
+            {
+              'is-scroll-running': shouldAutoScroll && !isManualScroll,
+              'is-manual-scroll': isManualScroll
+            }
+          ]"
+          :style="trackStyle"
           @pointerdown="onPointerDown"
           @mouseenter="onMouseEnter"
           @mouseleave="onMouseLeave"
+          @animationiteration="onScrollIteration"
         >
           <button
             v-for="item in visibleItems"
@@ -68,18 +76,20 @@ const pulseViewport = ref(null);
 const trackRef = ref(null);
 const isHovered = ref(false);
 const isDragging = ref(false);
+const isManualScroll = ref(false);
+const documentVisible = ref(!document.hidden);
+const scrollOffset = ref(0);
 
 let unsubscribeMarket;
 let resizeObserver;
 let flashTimer;
-let rafId;
-let lastTime = 0;
-let scrollOffsetVal = 0;
+let manualResumeTimer;
 let lastClientX = 0;
 let dragDelta = 0;
 let lastQuoteSignature = createQuoteSignature(quotes.value);
 const MARKET_PULSE_RENDER_BUFFER_SLOTS = 2;
 const MARKET_PULSE_SLOT_WIDTH = 200;
+const MARKET_PULSE_SLOT_DURATION_MS = 18_000;
 
 const priceFormatter = new Intl.NumberFormat('en-US', {
   style: 'currency',
@@ -94,34 +104,60 @@ const precisePriceFormatter = new Intl.NumberFormat('en-US', {
   maximumFractionDigits: 3
 });
 
-const baseItems = computed(() => quotes.value.map(item => ({
-  ...item,
-  name: item.labels?.[locale.value] || item.labels?.eng || item.symbol,
-  priceText: formatPrice(item.price),
-  changeText: formatChange(item.changePercent),
-  trend: item.changePercent >= 0 ? 'is-up' : 'is-down'
-})));
-
 const visibleItems = computed(() => {
-  if (!baseItems.value.length) return [];
+  const items = quotes.value;
+  if (!items.length) return [];
   return Array.from({ length: renderedSlotCount.value }, (_, offset) => {
-    const marketIndex = (windowStart.value + offset) % baseItems.value.length;
-    const item = baseItems.value[marketIndex];
-    return {
-      ...item,
+    const marketIndex = (windowStart.value + offset) % items.length;
+    const item = items[marketIndex];
+    return formatMarketItem(item, {
       pulseKey: `${windowStart.value}-${offset}-${item.asset}`,
       visibleIndex: offset + 1,
       marketIndex: marketIndex + 1,
       x: offset * MARKET_PULSE_SLOT_WIDTH
-    };
+    });
   });
 });
 
+const selectedQuote = computed(() => {
+  return quotes.value.find(item => item.asset === selectedAsset.value) || null;
+});
+
 const selectedMarketItem = computed(() => {
-  return baseItems.value.find(item => item.asset === selectedAsset.value) || null;
+  return selectedQuote.value ? formatMarketItem(selectedQuote.value) : null;
 });
 
 const pulseTitle = computed(() => error.value ? `${t('market.title')} · ${error.value}` : t('market.title'));
+
+const shouldAutoScroll = computed(() =>
+  documentVisible.value
+  && !isHovered.value
+  && !isDragging.value
+  && selectedQuote.value === null
+  && quotes.value.length > 0
+);
+
+const trackStyle = computed(() => {
+  const style = {
+    '--market-slot-duration': `${MARKET_PULSE_SLOT_DURATION_MS}ms`,
+    '--market-scroll-delay': `${-scrollOffsetToPhase(scrollOffset.value)}ms`
+  };
+  if (isManualScroll.value) {
+    style.transform = `translate3d(${scrollOffset.value}px, 0, 0)`;
+  }
+  return style;
+});
+
+function formatMarketItem(item, extra = {}) {
+  return {
+    ...item,
+    name: item.labels?.[locale.value] || item.labels?.eng || item.symbol,
+    priceText: formatPrice(item.price),
+    changeText: formatChange(item.changePercent),
+    trend: item.changePercent >= 0 ? 'is-up' : 'is-down',
+    ...extra
+  };
+}
 
 function formatPrice(value) {
   return (Math.abs(value) >= 100 ? priceFormatter : precisePriceFormatter).format(value);
@@ -147,12 +183,26 @@ function flashClass(asset) {
   return direction ? `is-flashing-${direction}` : '';
 }
 
+function getVisibleAssetSet(items = quotes.value) {
+  const length = items.length;
+  const assets = new Set();
+  if (!length) return assets;
+  for (let offset = 0; offset < renderedSlotCount.value; offset += 1) {
+    const item = items[(windowStart.value + offset) % length];
+    if (item?.asset) {
+      assets.add(item.asset);
+    }
+  }
+  return assets;
+}
+
 function markPriceChanges(nextQuotes) {
   const previousByAsset = new Map(quotes.value.map(item => [item.asset, item.price]));
+  const visibleAssets = getVisibleAssetSet(nextQuotes);
   const nextFlashes = {};
   nextQuotes.forEach(item => {
     const previous = previousByAsset.get(item.asset);
-    if (typeof previous === 'number' && item.price !== previous) {
+    if (visibleAssets.has(item.asset) && typeof previous === 'number' && item.price !== previous) {
       nextFlashes[item.asset] = item.price > previous ? 'up' : 'down';
     }
   });
@@ -185,68 +235,68 @@ function updateRenderedSlotCount() {
   renderedSlotCount.value = Math.max(4, Math.ceil(viewportWidth / MARKET_PULSE_SLOT_WIDTH) + MARKET_PULSE_RENDER_BUFFER_SLOTS);
 }
 
-function applyScroll(newOffset) {
-  const length = baseItems.value.length;
+function applyManualScroll(delta) {
+  const length = quotes.value.length;
   if (!length) return;
 
   let wStart = windowStart.value;
-  let offset = newOffset;
+  let nextOffset = scrollOffset.value + delta;
 
   let changedWindow = false;
-  while (offset <= -MARKET_PULSE_SLOT_WIDTH) {
-    offset += MARKET_PULSE_SLOT_WIDTH;
+  while (nextOffset <= -MARKET_PULSE_SLOT_WIDTH) {
+    nextOffset += MARKET_PULSE_SLOT_WIDTH;
     wStart = (wStart + 1) % length;
     changedWindow = true;
   }
-  while (offset > 0) {
-    offset -= MARKET_PULSE_SLOT_WIDTH;
+  while (nextOffset > 0) {
+    nextOffset -= MARKET_PULSE_SLOT_WIDTH;
     wStart = (wStart - 1 + length) % length;
     changedWindow = true;
   }
 
-  scrollOffsetVal = offset;
-
-  if (trackRef.value) {
-    trackRef.value.style.transform = `translate3d(${scrollOffsetVal}px, 0, 0)`;
-  }
+  scrollOffset.value = nextOffset;
 
   if (changedWindow) {
     windowStart.value = wStart;
   }
 }
 
-function tick(time) {
-  rafId = requestAnimationFrame(tick);
+function scrollOffsetToPhase(offset) {
+  const progress = ((-offset / MARKET_PULSE_SLOT_WIDTH) % 1 + 1) % 1;
+  return progress * MARKET_PULSE_SLOT_DURATION_MS;
+}
 
-  if (document.hidden) {
-    lastTime = time;
-    return;
+function readTrackOffset() {
+  if (!trackRef.value) return scrollOffset.value;
+  const transform = getComputedStyle(trackRef.value).transform;
+  if (!transform || transform === 'none') return scrollOffset.value;
+  const matrix = new DOMMatrixReadOnly(transform);
+  return matrix.m41;
+}
+
+function freezeScroll() {
+  window.clearTimeout(manualResumeTimer);
+  if (!isManualScroll.value) {
+    scrollOffset.value = readTrackOffset();
   }
+  isManualScroll.value = true;
+}
 
-  const dt = time - lastTime;
-  lastTime = time;
-
-  if (dt > 1000) return; // Skip large jumps when tab becomes active
-
-  const isPaused = isHovered.value || isDragging.value || selectedMarketItem.value !== null;
-
-  if (!isPaused && baseItems.value.length > 0) {
-    const move = dt * (MARKET_PULSE_SLOT_WIDTH / 18000); // 18s per slot
-    applyScroll(scrollOffsetVal - move);
+function resumeScroll() {
+  window.clearTimeout(manualResumeTimer);
+  if (shouldAutoScroll.value) {
+    isManualScroll.value = false;
   }
 }
 
-function startTicker() {
-  if (rafId) return;
-  lastTime = performance.now();
-  rafId = requestAnimationFrame(tick);
+function scheduleManualScrollEnd() {
+  window.clearTimeout(manualResumeTimer);
+  manualResumeTimer = window.setTimeout(resumeScroll, 180);
 }
 
-function stopTicker() {
-  if (rafId) {
-    cancelAnimationFrame(rafId);
-    rafId = null;
-  }
+function onScrollIteration() {
+  if (!shouldAutoScroll.value || isManualScroll.value || !quotes.value.length) return;
+  windowStart.value = (windowStart.value + 1) % quotes.value.length;
 }
 
 function onMouseEnter() {
@@ -259,6 +309,7 @@ function onMouseLeave() {
 
 function onPointerDown(e) {
   if (e.button !== undefined && e.button !== 0) return;
+  freezeScroll();
   isDragging.value = true;
   lastClientX = e.clientX;
   dragDelta = 0;
@@ -274,11 +325,12 @@ function onPointerMove(e) {
   lastClientX = e.clientX;
 
   dragDelta += Math.abs(delta);
-  applyScroll(scrollOffsetVal + delta);
+  applyManualScroll(delta);
 }
 
 function onPointerUp() {
   isDragging.value = false;
+  resumeScroll();
   window.removeEventListener('pointermove', onPointerMove);
   window.removeEventListener('pointerup', onPointerUp);
   window.removeEventListener('pointercancel', onPointerUp);
@@ -290,7 +342,9 @@ function onPointerUp() {
 function onWheel(e) {
   if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
     e.preventDefault();
-    applyScroll(scrollOffsetVal - e.deltaX);
+    freezeScroll();
+    applyManualScroll(-e.deltaX);
+    scheduleManualScrollEnd();
   }
 }
 
@@ -313,6 +367,7 @@ function stopMarketService() {
 }
 
 function handleVisibilityChange() {
+  documentVisible.value = !document.hidden;
   if (document.hidden) {
     stopMarketService();
     flashingAssets.value = {};
@@ -381,15 +436,14 @@ onMounted(() => {
   }
   document.addEventListener('visibilitychange', handleVisibilityChange);
   startMarketService();
-  startTicker();
   nextTick(() => {
     updateRenderedSlotCount();
   });
 });
 
 onUnmounted(() => {
-  stopTicker();
   stopMarketService();
+  window.clearTimeout(manualResumeTimer);
   resizeObserver?.disconnect();
   if (pulseViewport.value) {
     pulseViewport.value.removeEventListener('wheel', onWheel);
@@ -401,8 +455,8 @@ onUnmounted(() => {
   window.removeEventListener('pointercancel', onPointerUp);
 });
 
-watch(() => baseItems.value.length, () => {
-  if (windowStart.value >= baseItems.value.length) {
+watch(() => quotes.value.length, length => {
+  if (windowStart.value >= length) {
     windowStart.value = 0;
   }
   if (selectedAsset.value && !selectedMarketItem.value) {
@@ -412,4 +466,12 @@ watch(() => baseItems.value.length, () => {
     updateRenderedSlotCount();
   });
 });
+
+watch(shouldAutoScroll, running => {
+  if (running) {
+    resumeScroll();
+  } else {
+    freezeScroll();
+  }
+}, { flush: 'sync' });
 </script>
