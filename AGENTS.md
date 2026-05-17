@@ -20,6 +20,12 @@ marketing-style first screen.
   - `pnpm preview`
 - The app is built with Vite, Vue 3, Vue Router 4, Vue I18n 11, Vuetify 3, and
   Material Design Icons.
+- Keep Vuetify components manually registered on demand in `src/main.js`.
+  Do not use `import * as components from 'vuetify/components'` or
+  `import * as directives from 'vuetify/directives'`; when adding Vuetify UI,
+  import and register only the components that are actually used.
+- Do not add `vite-plugin-vuetify` just to replace the manual on-demand
+  registration unless the user explicitly asks for that plugin path.
 - Do not reintroduce Vue CLI, webpack, Yarn, or Vue 2 dependencies.
 
 ## Public Routes

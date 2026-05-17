@@ -7,10 +7,9 @@ Version 2.3.0
 - Reworked Settings parser information into native capability cards for parser build metadata, FDB metadata, inventory counts, controller groups, supported operations, and decoder lists.
 - Hardened controller-group selection against stale or invalid capability data, falling back to reported defaults while preventing empty selections.
 - Added the `pnpm build:singlefile:nano` offline build flavor for a smaller single-file artifact with analytics and Market Pulse disabled.
+- Reduced regular and nano single-file bundle size by manually registering only the Vuetify components used by the UI, without adding a Vuetify Vite plugin.
 - Polished app chrome by keeping PN/Flash ID subjects in the browser title and SEO metadata while leaving the in-page title compact, plus improved mobile overlay spacing for bottom panels.
-- Updated embedded fdnext to v2.3.0 (410fe3f), standardizing NAND die profiles and process display, deriving raw NAND density from die stack, cleaning raw NAND taxonomy, and migrating static NAND Flash ID rules into the current decode pipeline.
-- fdnext parser coverage now includes YMTC raw NAND EBQ mapping, Micron 2100AI AT SSD, DDR3 naming tokens, Micron NAND/DRAM colon revision tokens, H25T die-count normalization, and refined Samsung DRAM suffix parsing.
-- fdnext resource quality was tightened with prioritized FDB extra overlays, stricter audit checks, vendor-ownership and lithography normalization, Intel raw NAND process aliases, and regenerated FDB data that removes malformed or cross-vendor raw NAND pollution.
+- Integrated fdnext v2.3.0 (b0010c0) in the embedded parser. Parser and resource details are tracked in the fdnext release notes: [iTXTech/fdnext](https://github.com/iTXTech/fdnext/releases/tag/v2.3.0)
 
 ===================================
 Version 2.2.0

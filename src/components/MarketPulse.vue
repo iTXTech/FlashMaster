@@ -7,8 +7,11 @@
       >
         <div
           v-if="visibleItems.length"
+          ref="trackRef"
           class="market-pulse-track"
-          @animationiteration="advancePulseWindow"
+          @pointerdown="onPointerDown"
+          @mouseenter="onMouseEnter"
+          @mouseleave="onMouseLeave"
         >
           <button
             v-for="item in visibleItems"
@@ -18,7 +21,7 @@
             :style="{ left: `${item.x}px` }"
             :aria-expanded="selectedAsset === item.asset"
             :title="$t('market.chartOpen', [item.name])"
-            @click="openMarketChart(item)"
+            @click="openMarketChart(item, $event)"
           >
             <span class="market-symbol">{{ item.name }}</span>
             <span class="market-price">{{ item.priceText }}</span>
@@ -62,9 +65,18 @@ const windowStart = ref(0);
 const selectedAsset = ref('');
 const pulseRoot = ref(null);
 const pulseViewport = ref(null);
+const trackRef = ref(null);
+const isHovered = ref(false);
+const isDragging = ref(false);
+
 let unsubscribeMarket;
 let resizeObserver;
 let flashTimer;
+let rafId;
+let lastTime = 0;
+let scrollOffsetVal = 0;
+let lastClientX = 0;
+let dragDelta = 0;
 let lastQuoteSignature = createQuoteSignature(quotes.value);
 const MARKET_PULSE_RENDER_BUFFER_SLOTS = 2;
 const MARKET_PULSE_SLOT_WIDTH = 200;
@@ -173,15 +185,113 @@ function updateRenderedSlotCount() {
   renderedSlotCount.value = Math.max(4, Math.ceil(viewportWidth / MARKET_PULSE_SLOT_WIDTH) + MARKET_PULSE_RENDER_BUFFER_SLOTS);
 }
 
-function movePulseWindow(offset) {
+function applyScroll(newOffset) {
   const length = baseItems.value.length;
   if (!length) return;
-  windowStart.value = (windowStart.value + offset + length) % length;
+
+  let wStart = windowStart.value;
+  let offset = newOffset;
+
+  let changedWindow = false;
+  while (offset <= -MARKET_PULSE_SLOT_WIDTH) {
+    offset += MARKET_PULSE_SLOT_WIDTH;
+    wStart = (wStart + 1) % length;
+    changedWindow = true;
+  }
+  while (offset > 0) {
+    offset -= MARKET_PULSE_SLOT_WIDTH;
+    wStart = (wStart - 1 + length) % length;
+    changedWindow = true;
+  }
+
+  scrollOffsetVal = offset;
+
+  if (trackRef.value) {
+    trackRef.value.style.transform = `translate3d(${scrollOffsetVal}px, 0, 0)`;
+  }
+
+  if (changedWindow) {
+    windowStart.value = wStart;
+  }
 }
 
-function advancePulseWindow() {
-  if (document.hidden || !baseItems.value.length) return;
-  movePulseWindow(1);
+function tick(time) {
+  rafId = requestAnimationFrame(tick);
+
+  if (document.hidden) {
+    lastTime = time;
+    return;
+  }
+
+  const dt = time - lastTime;
+  lastTime = time;
+
+  if (dt > 1000) return; // Skip large jumps when tab becomes active
+
+  const isPaused = isHovered.value || isDragging.value || selectedMarketItem.value !== null;
+
+  if (!isPaused && baseItems.value.length > 0) {
+    const move = dt * (MARKET_PULSE_SLOT_WIDTH / 18000); // 18s per slot
+    applyScroll(scrollOffsetVal - move);
+  }
+}
+
+function startTicker() {
+  if (rafId) return;
+  lastTime = performance.now();
+  rafId = requestAnimationFrame(tick);
+}
+
+function stopTicker() {
+  if (rafId) {
+    cancelAnimationFrame(rafId);
+    rafId = null;
+  }
+}
+
+function onMouseEnter() {
+  isHovered.value = true;
+}
+
+function onMouseLeave() {
+  isHovered.value = false;
+}
+
+function onPointerDown(e) {
+  if (e.button !== undefined && e.button !== 0) return;
+  isDragging.value = true;
+  lastClientX = e.clientX;
+  dragDelta = 0;
+
+  window.addEventListener('pointermove', onPointerMove);
+  window.addEventListener('pointerup', onPointerUp);
+  window.addEventListener('pointercancel', onPointerUp);
+}
+
+function onPointerMove(e) {
+  if (!isDragging.value) return;
+  const delta = e.clientX - lastClientX;
+  lastClientX = e.clientX;
+
+  dragDelta += Math.abs(delta);
+  applyScroll(scrollOffsetVal + delta);
+}
+
+function onPointerUp() {
+  isDragging.value = false;
+  window.removeEventListener('pointermove', onPointerMove);
+  window.removeEventListener('pointerup', onPointerUp);
+  window.removeEventListener('pointercancel', onPointerUp);
+  setTimeout(() => {
+    dragDelta = 0;
+  }, 0);
+}
+
+function onWheel(e) {
+  if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+    e.preventDefault();
+    applyScroll(scrollOffsetVal - e.deltaX);
+  }
 }
 
 function startMarketService() {
@@ -218,7 +328,15 @@ function closeMarketPulse() {
   emit('close');
 }
 
-function openMarketChart(item) {
+function openMarketChart(item, event) {
+  if (dragDelta > 5) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    return;
+  }
+
   const previousItem = selectedMarketItem.value;
   const shouldCloseCurrent = selectedAsset.value === item.asset;
 
@@ -259,19 +377,28 @@ onMounted(() => {
   resizeObserver = new ResizeObserver(updateRenderedSlotCount);
   if (pulseViewport.value) {
     resizeObserver.observe(pulseViewport.value);
+    pulseViewport.value.addEventListener('wheel', onWheel, { passive: false });
   }
   document.addEventListener('visibilitychange', handleVisibilityChange);
   startMarketService();
+  startTicker();
   nextTick(() => {
     updateRenderedSlotCount();
   });
 });
 
 onUnmounted(() => {
+  stopTicker();
   stopMarketService();
   resizeObserver?.disconnect();
+  if (pulseViewport.value) {
+    pulseViewport.value.removeEventListener('wheel', onWheel);
+  }
   document.removeEventListener('visibilitychange', handleVisibilityChange);
   window.clearTimeout(flashTimer);
+  window.removeEventListener('pointermove', onPointerMove);
+  window.removeEventListener('pointerup', onPointerUp);
+  window.removeEventListener('pointercancel', onPointerUp);
 });
 
 watch(() => baseItems.value.length, () => {

@@ -14,7 +14,25 @@
           <v-chip size="small" color="primary" variant="tonal">{{ $t('changelog.fdnextVersion', [fdnextVersion]) }}</v-chip>
         </div>
 
-        <div class="changelog-text" role="document" tabindex="0">{{ changelogContent }}</div>
+        <div class="changelog-text" role="document" tabindex="0">
+          <div
+            v-for="(line, lineIndex) in changelogLines"
+            :key="lineIndex"
+            class="changelog-line"
+          >
+            <template v-for="(part, partIndex) in line" :key="partIndex">
+              <a
+                v-if="part.href"
+                :href="part.href"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {{ part.text }}
+              </a>
+              <span v-else>{{ part.text }}</span>
+            </template>
+          </div>
+        </div>
       </div>
 
       <div class="changelog-actions">
@@ -44,6 +62,25 @@ const emit = defineEmits(['update:modelValue']);
 const { tm } = useI18n();
 const fdnextVersion = getEmbeddedVersion();
 const changelogContent = computed(() => String(tm('changelog.content') || ''));
+const changelogLines = computed(() => changelogContent.value.split('\n').map(parseChangelogLine));
+
+function parseChangelogLine(line) {
+  const parts = [];
+  const pattern = /\[([^\]]+)]\((https?:\/\/[^)\s]+)\)/g;
+  let cursor = 0;
+  let match;
+  while ((match = pattern.exec(line)) !== null) {
+    if (match.index > cursor) {
+      parts.push({ text: line.slice(cursor, match.index) });
+    }
+    parts.push({ text: match[1], href: match[2] });
+    cursor = match.index + match[0].length;
+  }
+  if (cursor < line.length) {
+    parts.push({ text: line.slice(cursor) });
+  }
+  return parts;
+}
 
 function updateVisible(value) {
   emit('update:modelValue', value);
@@ -81,7 +118,20 @@ function close() {
   font-size: 0.86rem;
   line-height: 1.6;
   outline: none;
+}
+
+.changelog-line {
+  min-height: 1.6em;
   white-space: pre-wrap;
+}
+
+.changelog-line a {
+  color: rgb(var(--v-theme-primary));
+  text-decoration: none;
+}
+
+.changelog-line a:hover {
+  text-decoration: underline;
 }
 
 .changelog-text:focus-visible {

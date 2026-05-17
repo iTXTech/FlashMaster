@@ -4,8 +4,30 @@ import './styles/app.css';
 import { createApp } from 'vue';
 import { createI18n } from 'vue-i18n';
 import { createVuetify } from 'vuetify';
-import * as components from 'vuetify/components';
-import * as directives from 'vuetify/directives';
+import {
+    VApp,
+    VAppBar,
+    VAppBarNavIcon,
+    VBtn,
+    VCheckboxBtn,
+    VChip,
+    VCombobox,
+    VDialog,
+    VDivider,
+    VIcon,
+    VList,
+    VListItem,
+    VMain,
+    VMenu,
+    VNavigationDrawer,
+    VProgressLinear,
+    VSelect,
+    VSnackbar,
+    VSpacer,
+    VSwitch,
+    VTextField,
+    VToolbarTitle
+} from 'vuetify/components';
 import App from './App.vue';
 import chs from './lang/chs.js';
 import eng from './lang/eng.js';
@@ -22,8 +44,30 @@ const i18n = createI18n({
 });
 
 const vuetify = createVuetify({
-    components,
-    directives,
+    components: {
+        VApp,
+        VAppBar,
+        VAppBarNavIcon,
+        VBtn,
+        VCheckboxBtn,
+        VChip,
+        VCombobox,
+        VDialog,
+        VDivider,
+        VIcon,
+        VList,
+        VListItem,
+        VMain,
+        VMenu,
+        VNavigationDrawer,
+        VProgressLinear,
+        VSelect,
+        VSnackbar,
+        VSpacer,
+        VSwitch,
+        VTextField,
+        VToolbarTitle
+    },
     icons: {
         defaultSet: 'mdi',
         aliases,

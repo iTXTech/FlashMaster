@@ -145,14 +145,9 @@ a {
   overflow: hidden;
   user-select: none;
   white-space: nowrap;
-  animation: market-pulse-scroll var(--market-slot-duration) linear infinite;
   transform: translate3d(0, 0, 0);
   will-change: transform;
-}
-
-.market-pulse:hover .market-pulse-track,
-.market-pulse-shell.is-chart-open .market-pulse-track {
-  animation-play-state: paused;
+  touch-action: pan-y;
 }
 
 .market-item {
@@ -571,15 +566,7 @@ a {
   margin-top: 12px;
 }
 
-@keyframes market-pulse-scroll {
-  from {
-    transform: translate3d(0, 0, 0);
-  }
 
-  to {
-    transform: translate3d(calc(var(--market-slot-width) * -1), 0, 0);
-  }
-}
 
 @keyframes market-flash-up {
   0% {
