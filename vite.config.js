@@ -230,10 +230,6 @@ export default defineConfig(({ mode }) => {
     {
       find: '@itxtech/fdnext-core',
       replacement: fileURLToPath(new URL('./vendor/fdnext/packages/core/src/index.ts', import.meta.url))
-    },
-    {
-      find: '@itxtech/fdnext-decodepack',
-      replacement: fileURLToPath(new URL('./vendor/fdnext/packages/decodepack/src/index.ts', import.meta.url))
     }
   ];
 
@@ -262,7 +258,7 @@ export default defineConfig(({ mode }) => {
     },
     define: {
       VERSION: JSON.stringify(appVersion),
-      FDNEXT_VERSION: JSON.stringify(fdnextVersion),
+      __FDNEXT_VERSION__: JSON.stringify(fdnextVersion),
       __FDNEXT_COMMIT_HASH__: JSON.stringify(fdnextBuildCommitHash),
       __FDNEXT_BUILD_TIME__: JSON.stringify(fdnextBuildTime),
       __FLASHMASTER_BUILD_TIME__: JSON.stringify(appBuildTime),

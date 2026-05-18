@@ -1,9 +1,4 @@
 import { createEngine } from '@itxtech/fdnext-core';
-import {
-  compileDecodePack,
-  defaultDecodePack
-} from '@itxtech/fdnext-decodepack';
-import { embeddedResourceBundle } from '../../vendor/fdnext/packages/resources';
 import { createExternalLinkPreviewProcessor } from '@/services/fdnextExternalLinkPreview';
 import { summaryText } from '@/services/fdnextResultView';
 import store from '@/store';
@@ -12,15 +7,9 @@ let engine;
 
 function getEngine() {
   if (!engine) {
-    const decodePack = compileDecodePack(defaultDecodePack);
-    const processors = [
-      createExternalLinkPreviewProcessor()
-    ].filter(Boolean);
+    const processor = createExternalLinkPreviewProcessor();
     engine = createEngine({
-      resources: embeddedResourceBundle,
-      decoders: decodePack.partDecoders,
-      identifierDecoders: decodePack.identifierDecoders,
-      processors
+      processors: [processor].filter(Boolean)
     });
   }
   return engine;

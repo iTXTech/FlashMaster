@@ -1,6 +1,10 @@
 FlashMaster by PeratX <peratx@itxtech.org>
 Copyright (c) 2019-2026 iTX Technologies
 ===================================
+Version 2.4.0
+- Updated the embedded fdnext parser to v3.0.0 (b78cd5a), including expanded DRAM and managed-NAND part-number coverage across SK hynix, Samsung, Nanya, ISSI, CXMT, GigaDevice, and Winbond, Samsung DYG NAND profile support, SK hynix H25T/HYV9 coverage, and the fdnext 3.0 public API integration.
+
+===================================
 Version 2.3.0
 - Active PN and Flash ID pages now rerun the current decode/search automatically after language switching, keeping visible results in the selected language without duplicating local usage counts.
 - Added optional Market Pulse enhancements, including a quiet Settings toggle, visible-slot rendering, price-change flashes, and click-through candlestick/volume charts backed by cached Hyperliquid market snapshots.

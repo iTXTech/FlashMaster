@@ -14,7 +14,7 @@ export default [
       globals: {
         ...globals.browser,
         VERSION: 'readonly',
-        FDNEXT_VERSION: 'readonly',
+        __FDNEXT_VERSION__: 'readonly',
         __FDNEXT_COMMIT_HASH__: 'readonly',
         __FDNEXT_BUILD_TIME__: 'readonly',
         __FLASHMASTER_SINGLEFILE__: 'readonly',

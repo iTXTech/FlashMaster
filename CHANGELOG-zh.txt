@@ -1,6 +1,10 @@
 FlashMaster by PeratX <peratx@itxtech.org>
 版权所有 (c) 2019-2026 iTX Technologies
 ===================================
+版本 2.4.0
+- 内嵌解析器更新到 fdnext v3.0.0（b78cd5a），扩展 SK hynix、Samsung、Nanya、ISSI、CXMT、GigaDevice、Winbond 等 DRAM 与 managed NAND 料号覆盖，新增 Samsung DYG NAND profile、SK hynix H25T/HYV9 覆盖，并适配 fdnext 3.0 public API。
+
+===================================
 版本 2.3.0
 - PN 与 Flash ID 页面在切换语言后会自动重新运行当前解析/搜索，让已显示结果同步到新语言，同时不重复累计本地使用次数。
 - 增强可选 Market Pulse：设置页可安静开关，滚动条只渲染可见槽位，支持价格变动闪动，并可点击展开带缓存快照的 K 线/成交量图表。

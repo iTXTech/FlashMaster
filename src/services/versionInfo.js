@@ -1,5 +1,5 @@
 export const getEmbeddedBuildMetadata = () => ({
-  version: typeof FDNEXT_VERSION !== 'undefined' ? FDNEXT_VERSION : 'dev',
+  version: typeof __FDNEXT_VERSION__ !== 'undefined' ? __FDNEXT_VERSION__ : 'dev',
   commitHash: typeof __FDNEXT_COMMIT_HASH__ !== 'undefined' ? __FDNEXT_COMMIT_HASH__ : 'dev',
   buildTime: typeof __FDNEXT_BUILD_TIME__ !== 'undefined' ? __FDNEXT_BUILD_TIME__ : ''
 });
