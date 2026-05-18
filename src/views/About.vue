@@ -19,10 +19,10 @@
 
 <script setup>
 import { computed } from 'vue';
-import { getEmbeddedVersion } from '@/services/versionInfo';
+import { getParserBuildLabel } from '@/services/versionInfo';
 import bus from '@/store/bus';
 
-const fdnextVersion = getEmbeddedVersion();
+const fdnextVersion = getParserBuildLabel();
 
 const client = computed(() => {
   const ua = navigator.userAgent;

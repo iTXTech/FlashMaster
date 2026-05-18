@@ -2,6 +2,7 @@ FlashMaster by PeratX <peratx@itxtech.org>
 Copyright (c) 2019-2026 iTX Technologies
 ===================================
 Version 2.4.0
+- Added the HTTP-only `pico` single-file flavor. It removes embedded fdnext from the bundle, inherits the nano feature trimming, shows `HTTP only` in parser version surfaces, and can lock the HTTP server at build time with `VITE_FLASHMASTER_LOCKED_SERVER`.
 - Updated the embedded fdnext parser to v3.0.0 (b78cd5a), including expanded DRAM and managed-NAND part-number coverage across SK hynix, Samsung, Nanya, ISSI, CXMT, GigaDevice, and Winbond, Samsung DYG NAND profile support, SK hynix H25T/HYV9 coverage, and the fdnext 3.0 public API integration.
 
 ===================================

@@ -9,6 +9,7 @@
           <v-select
             v-model="parserMode"
             :items="parserModes"
+            :disabled="!embeddedParserAvailable"
             item-title="title"
             item-value="value"
             hide-details
@@ -23,7 +24,8 @@
             item-value="value"
             :return-object="false"
             hide-details
-            clearable
+            :clearable="!serverLocked"
+            :disabled="serverLocked"
             :label="$t('settings.serverAddr')"
             @update:model-value="changeServer"
             @keydown.enter.prevent="commitServer()"
@@ -194,6 +196,8 @@ const parserMode = ref(store.getParserMode());
 const controllerGroups = ref(store.getControllerGroups());
 const currentTheme = ref(store.getTheme());
 const hideKeyboard = ref(store.isAutoHideSoftKeyboard());
+const embeddedParserAvailable = store.isEmbeddedParserAvailable();
+const serverLocked = store.isServerLocked();
 const marketPulseAvailable = __FLASHMASTER_MARKET_PULSE__;
 const marketPulse = ref(marketPulseAvailable && store.isMarketPulseEnabled());
 const loadingInfo = ref(false);
@@ -211,7 +215,7 @@ const themes = computed(() => [
   { title: t('customization.theme_2'), value: themeManager.THEME_SYSTEM }
 ]);
 const parserModes = computed(() => [
-  { title: t('settings.parserEmbedded'), value: store.PARSER_EMBEDDED },
+  ...(embeddedParserAvailable ? [{ title: t('settings.parserEmbedded'), value: store.PARSER_EMBEDDED }] : []),
   { title: t('settings.parserHttp'), value: store.PARSER_HTTP }
 ]);
 const exclusiveControllerGroups = new Set([
@@ -245,7 +249,11 @@ const controllerGroupSourceLabel = computed(() => capabilityData.value
   ? t('settings.controllerGroupsFromCapabilities')
   : t('settings.controllerGroupsFallback'));
 const serverItems = computed(() => store.getServerPresets().map(item => ({
-  title: item.id === store.SERVER_PRESET_CLOUD ? t('settings.fdnextCloud') : t('settings.fdnextLocalDev'),
+  title: item.id === store.SERVER_PRESET_CLOUD
+    ? t('settings.fdnextCloud')
+    : item.id === store.SERVER_PRESET_LOCAL_DEV
+      ? t('settings.fdnextLocalDev')
+      : item.address,
   value: item.address
 })));
 const isHttpParser = computed(() => parserMode.value === store.PARSER_HTTP);
@@ -278,6 +286,10 @@ function normalizeServer(value) {
 }
 
 function changeServer(value) {
+  if (serverLocked) {
+    server.value = store.getServerAddress();
+    return;
+  }
   const next = normalizeServer(value) || store.getDefaultServerAddress();
   server.value = next;
   store.setServerAddress(next);
@@ -292,7 +304,7 @@ function commitServer({ refreshGroups = true } = {}) {
 }
 
 function changeParserMode(value) {
-  parserMode.value = value === store.PARSER_HTTP ? store.PARSER_HTTP : store.PARSER_EMBEDDED;
+  parserMode.value = !embeddedParserAvailable || value === store.PARSER_HTTP ? store.PARSER_HTTP : store.PARSER_EMBEDDED;
   store.setParserMode(parserMode.value);
   loadControllerGroups();
 }

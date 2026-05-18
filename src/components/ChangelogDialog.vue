@@ -11,7 +11,7 @@
       <div class="panel-body changelog-body">
         <div class="changelog-meta">
           <v-chip size="small" color="primary" variant="tonal">{{ $t('changelog.appVersion', [appVersion]) }}</v-chip>
-          <v-chip size="small" color="primary" variant="tonal">{{ $t('changelog.fdnextVersion', [fdnextVersion]) }}</v-chip>
+          <v-chip size="small" color="primary" variant="tonal">{{ parserVersionChip }}</v-chip>
         </div>
 
         <div class="changelog-text" role="document" tabindex="0">
@@ -45,7 +45,7 @@
 <script setup>
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { getEmbeddedVersion } from '@/services/versionInfo';
+import { getEmbeddedVersion, isEmbeddedParserBuild } from '@/services/versionInfo';
 
 defineProps({
   modelValue: {
@@ -59,8 +59,10 @@ defineProps({
 });
 
 const emit = defineEmits(['update:modelValue']);
-const { tm } = useI18n();
-const fdnextVersion = getEmbeddedVersion();
+const { t, tm } = useI18n();
+const parserVersionChip = computed(() => isEmbeddedParserBuild()
+  ? t('changelog.fdnextVersion', [getEmbeddedVersion()])
+  : 'HTTP only');
 const changelogContent = computed(() => String(tm('changelog.content') || ''));
 const changelogLines = computed(() => changelogContent.value.split('\n').map(parseChangelogLine));
 

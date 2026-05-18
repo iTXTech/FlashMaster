@@ -1,5 +1,6 @@
 const SERVER_PRESET_CLOUD = "cloud";
 const SERVER_PRESET_LOCAL_DEV = "localDev";
+const SERVER_PRESET_LOCKED = "locked";
 const SERVER_PRESETS = Object.freeze([
     {
         id: SERVER_PRESET_CLOUD,
@@ -10,7 +11,9 @@ const SERVER_PRESETS = Object.freeze([
         address: "http://127.0.0.1:8080"
     }
 ]);
-const DEFAULT_SERVER_ADDRESS = import.meta.env.VITE_FLASHMASTER_SERVER || SERVER_PRESETS[0].address;
+const LOCKED_SERVER_ADDRESS = String(typeof __FLASHMASTER_LOCKED_SERVER__ !== "undefined" ? __FLASHMASTER_LOCKED_SERVER__ : "").trim();
+const DEFAULT_SERVER_ADDRESS = LOCKED_SERVER_ADDRESS || import.meta.env.VITE_FLASHMASTER_SERVER || SERVER_PRESETS[0].address;
+const EMBEDDED_PARSER_AVAILABLE = typeof __FLASHMASTER_EMBEDDED_PARSER__ === "undefined" ? true : Boolean(__FLASHMASTER_EMBEDDED_PARSER__);
 const PARSER_EMBEDDED = "embedded";
 const PARSER_HTTP = "http";
 const CONTROLLER_GROUP_ALL = "all";
@@ -19,13 +22,24 @@ const MARKET_PULSE_STORAGE_KEY = "marketPulse";
 
 const getDefaultServerAddress = () => DEFAULT_SERVER_ADDRESS;
 
-const getServerPresets = () => SERVER_PRESETS.map(item => ({ ...item }));
+const isServerLocked = () => Boolean(LOCKED_SERVER_ADDRESS);
+
+const getServerPresets = () => isServerLocked()
+    ? [{ id: SERVER_PRESET_LOCKED, address: LOCKED_SERVER_ADDRESS }]
+    : SERVER_PRESETS.map(item => ({ ...item }));
 
 const getServerAddress = () => {
+    if (isServerLocked()) {
+        return DEFAULT_SERVER_ADDRESS;
+    }
     return localStorage.server || DEFAULT_SERVER_ADDRESS
 };
 
 const setServerAddress = (addr) => {
+    if (isServerLocked()) {
+        localStorage.removeItem("server");
+        return;
+    }
     const normalized = String(addr || "").trim();
     if (normalized) {
         localStorage.server = normalized;
@@ -35,17 +49,23 @@ const setServerAddress = (addr) => {
 };
 
 const setParserMode = mode => {
-    localStorage.parserMode = mode === PARSER_HTTP ? PARSER_HTTP : PARSER_EMBEDDED;
+    localStorage.parserMode = !EMBEDDED_PARSER_AVAILABLE || mode === PARSER_HTTP ? PARSER_HTTP : PARSER_EMBEDDED;
 }
 
 const getParserMode = () => {
+    if (!EMBEDDED_PARSER_AVAILABLE) {
+        setParserMode(PARSER_HTTP);
+        return PARSER_HTTP;
+    }
     if (![PARSER_EMBEDDED, PARSER_HTTP].includes(localStorage.parserMode)) {
         setParserMode(PARSER_EMBEDDED);
     }
     return localStorage.parserMode;
 }
 
-const isEmbeddedParser = () => getParserMode() === PARSER_EMBEDDED;
+const isEmbeddedParserAvailable = () => EMBEDDED_PARSER_AVAILABLE;
+
+const isEmbeddedParser = () => isEmbeddedParserAvailable() && getParserMode() === PARSER_EMBEDDED;
 
 const statDecodeIdInc = () => {
     if (isNaN(Number(localStorage.statDecodeId))) {
@@ -271,12 +291,15 @@ export default {
     CONTROLLER_GROUP_SELECTED,
     SERVER_PRESET_CLOUD,
     SERVER_PRESET_LOCAL_DEV,
+    SERVER_PRESET_LOCKED,
     getDefaultServerAddress,
     getServerPresets,
     getServerAddress,
     setServerAddress,
+    isServerLocked,
     setParserMode,
     getParserMode,
+    isEmbeddedParserAvailable,
     isEmbeddedParser,
     statDecodeIdInc,
     statDecodeId,

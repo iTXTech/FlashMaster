@@ -42,6 +42,7 @@ const canonicalOrigin = String(process.env.VITE_FLASHMASTER_CANONICAL_ORIGIN || 
 const BUILD_FLAVOR_WEB = 'web';
 const BUILD_FLAVOR_SINGLEFILE = 'singlefile';
 const BUILD_FLAVOR_SINGLEFILE_NANO = 'singlefile:nano';
+const BUILD_FLAVOR_SINGLEFILE_PICO = 'singlefile:pico';
 
 function resolveBuildFlavor(mode) {
   const value = String(
@@ -54,6 +55,9 @@ function resolveBuildFlavor(mode) {
   if (['singlefile:nano', 'singlefile-nano', 'nano'].includes(value)) {
     return BUILD_FLAVOR_SINGLEFILE_NANO;
   }
+  if (['singlefile:pico', 'singlefile-pico', 'pico'].includes(value)) {
+    return BUILD_FLAVOR_SINGLEFILE_PICO;
+  }
   if (value === BUILD_FLAVOR_SINGLEFILE) {
     return BUILD_FLAVOR_SINGLEFILE;
   }
@@ -61,11 +65,20 @@ function resolveBuildFlavor(mode) {
 }
 
 function isSingleFileFlavor(flavor) {
-  return flavor === BUILD_FLAVOR_SINGLEFILE || flavor === BUILD_FLAVOR_SINGLEFILE_NANO;
+  return [
+    BUILD_FLAVOR_SINGLEFILE,
+    BUILD_FLAVOR_SINGLEFILE_NANO,
+    BUILD_FLAVOR_SINGLEFILE_PICO
+  ].includes(flavor);
 }
 
 function singleFileOutputFileName(flavor) {
-  return `FlashMaster-${appVersion}${flavor === BUILD_FLAVOR_SINGLEFILE_NANO ? '-nano' : ''}.html`;
+  const suffix = flavor === BUILD_FLAVOR_SINGLEFILE_NANO
+    ? '-nano'
+    : flavor === BUILD_FLAVOR_SINGLEFILE_PICO
+      ? '-pico'
+      : '';
+  return `FlashMaster-${appVersion}${suffix}.html`;
 }
 
 function singleFilePagePath(flavor) {
@@ -108,7 +121,8 @@ function singleFileCleanupPlugin(flavor) {
   const outputFileName = singleFileOutputFileName(flavor);
   const preservedHtmlFiles = new Set([
     singleFileOutputFileName(BUILD_FLAVOR_SINGLEFILE),
-    singleFileOutputFileName(BUILD_FLAVOR_SINGLEFILE_NANO)
+    singleFileOutputFileName(BUILD_FLAVOR_SINGLEFILE_NANO),
+    singleFileOutputFileName(BUILD_FLAVOR_SINGLEFILE_PICO)
   ]);
   return {
     name: 'flashmaster-singlefile-cleanup',
@@ -204,9 +218,13 @@ function sitemapLastmodPlugin(lastmod) {
 export default defineConfig(({ mode }) => {
   const buildFlavor = resolveBuildFlavor(mode);
   const singleFile = isSingleFileFlavor(buildFlavor);
-  const analyticsEnabled = buildFlavor !== BUILD_FLAVOR_SINGLEFILE_NANO;
-  const marketPulseEnabled = buildFlavor !== BUILD_FLAVOR_SINGLEFILE_NANO;
-  const commercialBannerEnabled = buildFlavor !== BUILD_FLAVOR_SINGLEFILE_NANO;
+  const pico = buildFlavor === BUILD_FLAVOR_SINGLEFILE_PICO;
+  const minimalSingleFile = buildFlavor === BUILD_FLAVOR_SINGLEFILE_NANO || pico;
+  const analyticsEnabled = !minimalSingleFile;
+  const marketPulseEnabled = !minimalSingleFile;
+  const commercialBannerEnabled = !minimalSingleFile;
+  const embeddedParserEnabled = !pico;
+  const lockedServer = String(process.env.VITE_FLASHMASTER_LOCKED_SERVER || '').trim();
   const routerMode = singleFile || process.env.VITE_FLASHMASTER_ROUTER_MODE !== 'history' ? 'hash' : 'history';
   const appBase = process.env.VITE_FLASHMASTER_BASE || (routerMode === 'history' ? '/' : './');
   const appSrc = fileURLToPath(new URL('./src', import.meta.url));
@@ -222,6 +240,10 @@ export default defineConfig(({ mode }) => {
     ...(!commercialBannerEnabled ? [{
       find: '@/components/CommercialServiceBanner.vue',
       replacement: fileURLToPath(new URL('./src/components/NoopFeature.js', import.meta.url))
+    }] : []),
+    ...(!embeddedParserEnabled ? [{
+      find: '@/services/fdnextApi',
+      replacement: fileURLToPath(new URL('./src/services/fdnextApiHttpOnly.js', import.meta.url))
     }] : []),
     {
       find: '@',
@@ -266,6 +288,8 @@ export default defineConfig(({ mode }) => {
       __FLASHMASTER_MARKET_PULSE__: JSON.stringify(marketPulseEnabled),
       __FLASHMASTER_ANALYTICS__: JSON.stringify(analyticsEnabled),
       __FLASHMASTER_COMMERCIAL_BANNER__: JSON.stringify(commercialBannerEnabled),
+      __FLASHMASTER_EMBEDDED_PARSER__: JSON.stringify(embeddedParserEnabled),
+      __FLASHMASTER_LOCKED_SERVER__: JSON.stringify(lockedServer),
       __FLASHMASTER_BUILD_FLAVOR__: JSON.stringify(buildFlavor)
     }
   };

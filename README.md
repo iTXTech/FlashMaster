@@ -66,6 +66,7 @@ pnpm dev
 | `pnpm build` | Standard Web build (PWA enabled) |
 | `pnpm build:singlefile` | Portable, self-contained HTML build |
 | `pnpm build:singlefile:nano` | Lightweight offline build (No charts/analytics) |
+| `pnpm build:singlefile:pico` | HTTP-only single-file build without embedded fdnext |
 | `pnpm lint` | Run ESLint |
 | `pnpm preview` | Preview local production build |
 
@@ -77,6 +78,7 @@ FlashMaster is highly portable. Detailed guidance can be found in [**docs/DEPLOY
 
 - **PWA:** Installable on iOS, Android, and Desktop for offline usage.
 - **Single-File:** Distributed as a single `.html` file via [GitHub Releases](https://github.com/iTXTech/FlashMaster/releases), ideal for air-gapped environments.
+- **Pico Single-File:** `pnpm build:singlefile:pico` removes embedded fdnext and always uses the HTTP API. Set `VITE_FLASHMASTER_LOCKED_SERVER=https://your-fdnext.example` at build time to ship a fixed, non-editable server address.
 
 ---
 

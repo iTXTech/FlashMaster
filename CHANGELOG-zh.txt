@@ -2,6 +2,7 @@ FlashMaster by PeratX <peratx@itxtech.org>
 版权所有 (c) 2019-2026 iTX Technologies
 ===================================
 版本 2.4.0
+- 新增 HTTP-only `pico` 单文件构建形态，移除内嵌 fdnext，继承 nano 的功能裁剪，解析器版本位置显示为 `HTTP only`，并可通过 `VITE_FLASHMASTER_LOCKED_SERVER` 在构建时锁定 HTTP 服务器。
 - 内嵌解析器更新到 fdnext v3.0.0（b78cd5a），扩展 SK hynix、Samsung、Nanya、ISSI、CXMT、GigaDevice、Winbond 等 DRAM 与 managed NAND 料号覆盖，新增 Samsung DYG NAND profile、SK hynix H25T/HYV9 覆盖，并适配 fdnext 3.0 public API。
 
 ===================================

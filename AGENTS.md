@@ -17,6 +17,9 @@ marketing-style first screen.
   - `pnpm dev`
   - `pnpm lint`
   - `pnpm build`
+  - `pnpm build:singlefile`
+  - `pnpm build:singlefile:nano`
+  - `pnpm build:singlefile:pico`
   - `pnpm preview`
 - The app is built with Vite, Vue 3, Vue Router 4, Vue I18n 11, Vuetify 3, and
   Material Design Icons.
@@ -54,6 +57,9 @@ backend based on Settings:
   `fdnext` engine and resources from the `vendor/fdnext` Git submodule.
 - HTTP parser: the legacy FlashDetector HTTP API remains available for
   compatibility and uses the configured server address.
+- Pico single-file builds are HTTP-only: they replace the embedded adapter at
+  build time, force HTTP parser mode, and may lock the server address with
+  `VITE_FLASHMASTER_LOCKED_SERVER`.
 
 Preserve behavior for these logical endpoints:
 
