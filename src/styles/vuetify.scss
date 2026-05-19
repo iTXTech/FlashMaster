@@ -1,0 +1,10 @@
+/* FlashMaster uses dense custom layouts, not Vuetify's generated utility pack.
+ * Keep Vuetify reset, base elements, animations, RTL, and transitions so
+ * components render normally. Trim only the generated color and utility packs.
+ */
+@use '../../node_modules/vuetify/lib/styles/settings' with (
+  $color-pack: false,
+  $utilities: false
+);
+@use '../../node_modules/vuetify/lib/styles/generic';
+@use '../../node_modules/vuetify/lib/styles/elements';

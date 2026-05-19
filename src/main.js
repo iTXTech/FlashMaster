@@ -1,4 +1,4 @@
-import 'vuetify/styles';
+import './styles/vuetify.scss';
 import './styles/app.css';
 
 import { createApp } from 'vue';

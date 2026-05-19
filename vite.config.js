@@ -245,6 +245,12 @@ export default defineConfig(({ mode }) => {
       find: '@/services/fdnextApi',
       replacement: fileURLToPath(new URL('./src/services/fdnextApiHttpOnly.js', import.meta.url))
     }] : []),
+    ...(pico ? [
+      {
+        find: '@/services/vendorLogos',
+        replacement: fileURLToPath(new URL('./src/services/vendorLogos-noop.js', import.meta.url))
+      }
+    ] : []),
     {
       find: '@',
       replacement: appSrc

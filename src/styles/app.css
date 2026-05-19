@@ -1,3 +1,19 @@
+/* Fallbacks for the few Vuetify utility classes removed by $utilities: false. */
+:where(.text-body-2) {
+  font-size: 0.875rem;
+  font-weight: 400;
+  letter-spacing: 0.0178571429em;
+  line-height: 1.25rem;
+}
+
+:where(.font-weight-bold) {
+  font-weight: 700;
+}
+
+:where(.mt-3) {
+  margin-top: 12px;
+}
+
 * {
   box-sizing: border-box;
 }
