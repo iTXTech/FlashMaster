@@ -110,8 +110,10 @@ function close() {
 }
 
 .changelog-text {
-  max-height: min(34vh, 260px);
+  max-height: min(58vh, 520px);
   overflow-y: auto;
+  scrollbar-color: rgba(var(--v-theme-on-surface), 0.26) transparent;
+  scrollbar-width: thin;
   padding: 10px;
   border: 1px solid rgba(var(--v-theme-on-surface), 0.08);
   border-radius: 6px;
@@ -120,6 +122,23 @@ function close() {
   font-size: 0.86rem;
   line-height: 1.6;
   outline: none;
+}
+
+.changelog-text::-webkit-scrollbar {
+  width: 6px;
+}
+
+.changelog-text::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.changelog-text::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(var(--v-theme-on-surface), 0.24);
+}
+
+.changelog-text::-webkit-scrollbar-thumb:hover {
+  background: rgba(var(--v-theme-on-surface), 0.38);
 }
 
 .changelog-line {

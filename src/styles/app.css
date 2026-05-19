@@ -3,7 +3,9 @@
 }
 
 html {
-  overflow-y: auto;
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
 }
 
 :root {
@@ -11,9 +13,17 @@ html {
 }
 
 body {
+  height: 100%;
   margin: 0;
+  overflow: hidden;
   font-family: var(--app-font-family);
   letter-spacing: 0;
+  overscroll-behavior: none;
+}
+
+#app {
+  height: 100%;
+  overflow: hidden;
 }
 
 .v-application,
@@ -45,15 +55,35 @@ a {
 }
 
 .app-shell {
-  min-height: 100vh;
+  height: 100dvh;
+  min-height: 100dvh;
+  overflow: hidden;
   background:
     linear-gradient(180deg, rgba(var(--v-theme-primary), 0.08), transparent 260px),
     rgb(var(--v-theme-background));
 }
 
+.app-shell .v-application__wrap {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
 .main-surface {
   display: flex;
+  flex: 1 1 auto;
+  height: 100%;
+  max-height: 100%;
+  min-height: 0;
   flex-direction: column;
+  overflow-y: auto;
+  scrollbar-width: none;
+  overscroll-behavior-y: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.main-surface::-webkit-scrollbar {
+  display: none;
 }
 
 .compact-app-bar .v-toolbar__content {
@@ -84,9 +114,16 @@ a {
 }
 
 .market-pulse-shell {
-  position: relative;
-  z-index: 8;
-  margin: 8px 14px 0;
+  position: sticky;
+  z-index: 12;
+  top: 0;
+  margin: 0;
+  padding: 8px 14px;
+  background: rgb(var(--v-theme-background));
+}
+
+.market-pulse-shell + .workspace {
+  padding-top: 0;
 }
 
 .market-pulse {
@@ -2383,7 +2420,7 @@ a.nav-footer-notice:hover {
   }
 
   .market-pulse-shell {
-    margin: 7px 8px 0;
+    padding: 7px 8px;
   }
 
   .market-pulse {
@@ -2426,8 +2463,8 @@ a.nav-footer-notice:hover {
 
   .service-banner-spacer {
     display: block;
-    flex: 0 0 calc(max(var(--service-banner-height, 130px), 130px) + 22px + env(safe-area-inset-bottom));
-    height: calc(max(var(--service-banner-height, 130px), 130px) + 22px + env(safe-area-inset-bottom));
+    flex: 0 0 calc(var(--service-banner-height, 112px) + 22px + env(safe-area-inset-bottom));
+    height: calc(var(--service-banner-height, 112px) + 22px + env(safe-area-inset-bottom));
   }
 
   .service-banner-icon {
