@@ -1,0 +1,271 @@
+:root {
+  color-scheme: dark;
+  --bg: #101418;
+  --surface: #171d22;
+  --surface-2: #20282f;
+  --line: #303a42;
+  --text: #ecf3f1;
+  --muted: #9aaba6;
+  --primary: #18b394;
+  --danger: #ff6b78;
+  font-family: Inter, Roboto, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+:root.light {
+  color-scheme: light;
+  --bg: #f5f7f8;
+  --surface: #ffffff;
+  --surface-2: #edf2f3;
+  --line: #d4dde0;
+  --text: #14201f;
+  --muted: #62716e;
+  --primary: #007c6a;
+  --danger: #b42336;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: inherit;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button {
+  min-height: 34px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface-2);
+  color: var(--text);
+  cursor: pointer;
+}
+
+button.primary {
+  border-color: transparent;
+  background: var(--primary);
+  color: white;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+input,
+select {
+  width: 100%;
+  min-height: 36px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 6px 9px;
+  background: var(--surface);
+  color: var(--text);
+}
+
+a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.shell {
+  display: grid;
+  grid-template-columns: 190px minmax(0, 1fr);
+  min-height: 100dvh;
+}
+
+.side {
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  border-right: 1px solid var(--line);
+  background: var(--surface);
+  padding: 14px;
+}
+
+.brand {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 18px;
+}
+
+.brand-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.muted,
+.hint,
+.meta {
+  color: var(--muted);
+}
+
+.nav {
+  display: grid;
+  gap: 6px;
+}
+
+.nav button {
+  justify-content: flex-start;
+  text-align: left;
+  padding-inline: 10px;
+  background: transparent;
+}
+
+.nav button.active {
+  border-color: rgba(24, 179, 148, 0.55);
+  background: rgba(24, 179, 148, 0.18);
+  color: var(--primary);
+}
+
+.main {
+  min-width: 0;
+  padding: 14px;
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.title {
+  font-weight: 700;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 420px) minmax(0, 1fr);
+  gap: 12px;
+}
+
+.panel {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  border-bottom: 1px solid var(--line);
+  padding: 10px 12px;
+  font-weight: 700;
+}
+
+.panel-body {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.row {
+  display: grid;
+  gap: 5px;
+}
+
+.cards,
+.blocks {
+  display: grid;
+  gap: 10px;
+}
+
+.kv {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.36fr) minmax(0, 1fr);
+  gap: 6px;
+  border-top: 1px solid var(--line);
+  padding-top: 7px;
+}
+
+.kv:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.list-card {
+  display: grid;
+  gap: 5px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 9px;
+  background: var(--surface-2);
+}
+
+.list-card button {
+  justify-self: start;
+  min-height: 30px;
+  padding: 3px 8px;
+}
+
+.status {
+  color: var(--primary);
+}
+
+.error {
+  color: var(--danger);
+}
+
+.footer {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  left: 14px;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.toast {
+  position: fixed;
+  right: 14px;
+  bottom: 14px;
+  max-width: min(420px, calc(100vw - 28px));
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 9px 12px;
+  background: var(--surface-2);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.28);
+}
+
+.hidden {
+  display: none !important;
+}
+
+@media (max-width: 760px) {
+  .shell {
+    grid-template-columns: 1fr;
+  }
+
+  .side {
+    position: static;
+    height: auto;
+  }
+
+  .footer {
+    position: static;
+    margin-top: 14px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

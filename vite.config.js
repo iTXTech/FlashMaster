@@ -145,6 +145,19 @@ function singleFileCleanupPlugin(flavor) {
   };
 }
 
+function picoEntryPlugin() {
+  const picoEntry = fileURLToPath(new URL('./src/pico/main.js', import.meta.url));
+  return {
+    name: 'flashmaster-pico-entry',
+    enforce: 'pre',
+    resolveId(id) {
+      if (id === '/src/main.js' || id.endsWith('/src/main.js')) {
+        return picoEntry;
+      }
+    }
+  };
+}
+
 function pwaPlugin(routerMode) {
   return VitePWA({
     injectRegister: 'auto',
@@ -265,6 +278,7 @@ export default defineConfig(({ mode }) => {
     base: appBase,
     plugins: [
       vue(),
+      ...(pico ? [picoEntryPlugin()] : []),
       ...(singleFile ? [
         singleFileHtmlPlugin({
           analyticsEnabled,
