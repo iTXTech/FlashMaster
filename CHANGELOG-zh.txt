@@ -6,6 +6,7 @@ FlashMaster by PeratX <peratx@itxtech.org>
 - 内嵌解析器更新到 fdnext v3.0.0（b78cd5a），扩展 SK hynix、Samsung、Nanya、ISSI、CXMT、GigaDevice、Winbond 等 DRAM 与 managed NAND 料号覆盖，新增 Samsung DYG NAND profile、SK hynix H25T/HYV9 覆盖，并适配 fdnext 3.0 public API。
 - 内嵌解析器更新到 fdnext v3.0.0（49d6841），对 Samsung、SanDisk/KIOXIA、SK hynix、YMTC 等 managed NAND 规则输出字段去重。
 - 内嵌解析器更新到 fdnext v3.0.0（d2ac73a），扩展 ESMT 与 Etron DRAM 料号覆盖，并移除重复的 managed NAND density 输出。
+- 内嵌解析器更新到 fdnext v3.0.0（d56fa01），修正 Samsung NAND Flash ID 几何信息解析，并改进 Worker 形态 fdnext 服务的构建元数据部署。
 - 补齐 ESMT、Etron、GigaDevice、ISSI、Silicon Motion、Winbond 等 decodepack 厂商 Logo 映射。
 - 将 GigaDevice 厂商 Logo 切换为官方 SVG 素材，提升解析结果与外部链接中的显示清晰度。
 

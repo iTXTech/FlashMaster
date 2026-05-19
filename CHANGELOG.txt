@@ -6,6 +6,7 @@ Version 2.4.0
 - Updated the embedded fdnext parser to v3.0.0 (b78cd5a), including expanded DRAM and managed-NAND part-number coverage across SK hynix, Samsung, Nanya, ISSI, CXMT, GigaDevice, and Winbond, Samsung DYG NAND profile support, SK hynix H25T/HYV9 coverage, and the fdnext 3.0 public API integration.
 - Updated the embedded fdnext parser to v3.0.0 (49d6841), deduplicating managed-NAND decode fields across Samsung, SanDisk/KIOXIA, SK hynix, and YMTC rule packs.
 - Updated the embedded fdnext parser to v3.0.0 (d2ac73a), expanding ESMT and Etron DRAM part-number coverage while removing duplicate managed-NAND density output.
+- Updated the embedded fdnext parser to v3.0.0 (d56fa01), refining Samsung NAND Flash ID geometry decoding and build metadata deployment for Worker-based fdnext services.
 - Added vendor logo coverage for ESMT, Etron, GigaDevice, ISSI, Silicon Motion, and Winbond decodepack vendors.
 - Switched the GigaDevice vendor logo to the official SVG artwork for sharper result and link rendering.
 

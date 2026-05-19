@@ -70,7 +70,11 @@
       </template>
     </v-navigation-drawer>
 
-    <v-main class="main-surface" :style="mainSurfaceStyle">
+    <v-main
+      class="main-surface"
+      :class="{ 'has-service-banner': commercialBannerAvailable && serviceBannerVisible }"
+      :style="mainSurfaceStyle"
+    >
       <MarketPulse v-if="marketPulseAvailable && marketPulseEnabled" @close="closeMarketPulse" />
       <router-view />
       <div v-if="commercialBannerAvailable && serviceBannerVisible" class="service-banner-spacer" aria-hidden="true" />
