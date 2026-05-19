@@ -3,7 +3,7 @@ import cxmt from '@/assets/cxmt.svg';
 import elpida from '@/assets/elpida.svg';
 import esmt from '@/assets/esmt.png';
 import etron from '@/assets/etron.svg';
-import gigadevice from '@/assets/gigadevice.png';
+import gigadevice from '@/assets/gigadevice.svg';
 import issi from '@/assets/issi.png';
 import kingston from '@/assets/kingston.svg';
 import kioxia from '@/assets/kioxia.svg';
@@ -98,7 +98,7 @@ const vendorAliases = {
     wd: 'sndk'
 };
 
-const darkLogoKeys = new Set(['biwin', 'micron', 'siliconmotion', 'solidigm']);
+const darkLogoKeys = new Set(['biwin', 'gigadevice', 'micron', 'siliconmotion', 'solidigm']);
 
 export function getVendorLogoKey(vendor) {
     const key = String(vendor || '').trim().toLowerCase().replace(/[\s/_-]+/g, '');
