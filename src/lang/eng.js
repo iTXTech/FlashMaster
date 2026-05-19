@@ -82,7 +82,6 @@ export default {
             version: 'Version',
             commitHash: 'Commit Hash',
             buildTime: 'Build Time',
-            schema: 'Schema',
             generated: 'Generated',
             website: 'Website',
             controllers: 'Controllers',

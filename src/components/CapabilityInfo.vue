@@ -178,8 +178,7 @@ const parserRows = computed(() => keyValueRows([
   [t('settings.capabilityInfo.version'), props.data.server?.version],
   [t('settings.capabilityInfo.commitHash'), props.data.server?.build?.commitHash],
   [t('settings.capabilityInfo.buildTime'), props.data.server?.build?.buildTime],
-  [t('settings.capabilityInfo.defaultControllerGroups'), defaultControllerGroupsLabel.value],
-  [t('settings.capabilityInfo.schema'), props.data.schemaVersion]
+  [t('settings.capabilityInfo.defaultControllerGroups'), defaultControllerGroupsLabel.value]
 ]));
 
 const databaseRows = computed(() => keyValueRows([

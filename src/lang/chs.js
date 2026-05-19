@@ -82,7 +82,6 @@ export default {
             version: '版本',
             commitHash: 'Commit Hash',
             buildTime: '构建时间',
-            schema: 'Schema',
             generated: '生成时间',
             website: '网站',
             controllers: '控制器',
