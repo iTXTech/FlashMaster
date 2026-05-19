@@ -2485,7 +2485,7 @@ a.nav-footer-notice:hover {
 
 @media (max-width: 720px) {
   :root {
-    --mobile-bottom-overlay-offset: calc(20px + var(--app-safe-area-bottom));
+    --mobile-bottom-overlay-offset: calc(8px + var(--app-safe-area-bottom));
   }
 
   .main-surface {
@@ -2493,7 +2493,7 @@ a.nav-footer-notice:hover {
   }
 
   .workspace {
-    padding: 8px 8px calc(8px + var(--mobile-bottom-overlay-offset));
+    padding: 8px;
   }
 
   .market-pulse-shell {
@@ -2519,7 +2519,7 @@ a.nav-footer-notice:hover {
   }
 
   .main-surface.has-service-banner .market-chart-panel {
-    --market-chart-bottom-offset: calc(var(--mobile-bottom-overlay-offset) + var(--service-banner-height, 112px) + 12px);
+    --market-chart-bottom-offset: calc(var(--mobile-bottom-overlay-offset) + var(--service-banner-height, 112px) + 8px);
   }
 
   .market-chart-header {
@@ -2551,8 +2551,8 @@ a.nav-footer-notice:hover {
 
   .service-banner-spacer {
     display: block;
-    flex: 0 0 calc(var(--service-banner-height, 112px) + var(--mobile-bottom-overlay-offset) + 12px);
-    height: calc(var(--service-banner-height, 112px) + var(--mobile-bottom-overlay-offset) + 12px);
+    flex: 0 0 calc(var(--service-banner-height, 112px) + var(--mobile-bottom-overlay-offset));
+    height: calc(var(--service-banner-height, 112px) + var(--mobile-bottom-overlay-offset));
   }
 
   .service-banner-icon {
@@ -2652,7 +2652,7 @@ a.nav-footer-notice:hover {
     margin:
       calc(8px + var(--app-safe-area-top))
       calc(8px + var(--app-safe-area-right))
-      calc(8px + var(--mobile-bottom-overlay-offset))
+      var(--mobile-bottom-overlay-offset)
       calc(8px + var(--app-safe-area-left));
   }
 
