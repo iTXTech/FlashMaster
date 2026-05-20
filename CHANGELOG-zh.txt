@@ -2,6 +2,7 @@ FlashMaster by PeratX <peratx@itxtech.org>
 版权所有 (c) 2019-2026 iTX Technologies
 ===================================
 版本 2.4.0
+- 内嵌解析器更新到 fdnext v3.0.0（f3f5d32），细化 KIOXIA raw NAND 解码规则。
 - 内嵌解析器更新到 fdnext v3.0.0（e50e903），对齐 KIOXIA managed NAND 的 Die Count 解码规则。
 - 内嵌解析器更新到 fdnext v3.0.0（4252e1e），DRAM 解析结果会将 chip select 数量作为原生 `CS 数` 字段输出，并细化 SK hynix H25 raw NAND / H25G / H25T 解码结果。
 - 新增 HTTP-only `pico` 单文件构建形态，移除内嵌 fdnext，继承 nano 的功能裁剪，解析器版本位置显示为 `HTTP only`，并可通过 `VITE_FLASHMASTER_LOCKED_SERVER` 在构建时锁定 HTTP 服务器。
