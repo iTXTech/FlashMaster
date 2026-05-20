@@ -12,6 +12,7 @@
           <v-combobox
             ref="input"
             v-model="partNumberInput"
+            v-model:menu="isMenuOpen"
             :items="suggestions"
             item-title="value"
             item-value="value"
@@ -24,7 +25,10 @@
             :label="$t('partNumberOrFlashId')"
             @update:search="searchSuggestions"
             @update:model-value="selectPartNumber"
-            @keydown.enter.prevent="decode"
+            @keydown.enter="onEnter"
+            @compositionstart="onCompositionStart"
+            @compositionend="onCompositionEnd"
+            @blur="onBlur"
           >
             <template #item="{ props, item }">
               <v-list-item v-bind="props" :title="item.raw.title" :subtitle="item.raw.subtitle" />
@@ -167,6 +171,7 @@ import {
   warnings
 } from '@/services/fdnextResultView';
 import { trackPartNumberLookup } from '@/services/analytics';
+import { useFormattedQueryInput } from '@/composables/useFormattedQueryInput';
 import { idsSearchRoute, localizeRouteLocation, partRoute, partsSearchRoute, routeParamText } from '@/router/locations';
 import bus from '@/store/bus';
 import store from '@/store';
@@ -187,6 +192,26 @@ let decodeRequestId = 0;
 let suppressedSuggestionValue = '';
 const suggestionLimit = 10;
 
+const isMenuOpen = ref(false);
+const {
+  model: partNumberInput,
+  onCompositionStart,
+  onCompositionEnd,
+  onBlur,
+  shouldSkipEnter
+} = useFormattedQueryInput(partNumber, {
+  format: store.queryInputFormat,
+  normalize: normalizePartNumberValue
+});
+
+function onEnter(event) {
+  if (shouldSkipEnter(event, isMenuOpen)) {
+    return;
+  }
+  event.preventDefault();
+  decode();
+}
+
 const header = computed(() => resultHeader(result.value));
 const resultPanelMeta = computed(() => {
   if (!result.value) return t('dashboard.empty');
@@ -201,13 +226,6 @@ const detailBlockViews = computed(() => detailBlocks(result.value).map(block => 
 const relations = computed(() => relationRows(result.value));
 const warningRows = computed(() => warnings(result.value));
 const externalLinks = computed(() => externalLinkRows(result.value?.links, header.value.vendor));
-const partNumberInput = computed({
-  get: () => partNumber.value,
-  set: value => {
-    partNumber.value = store.queryInputFormat(normalizePartNumberValue(value));
-  }
-});
-
 const fieldHeaders = computed(() => [
   { title: t('name'), key: 'name' },
   { title: t('value'), key: 'value' },

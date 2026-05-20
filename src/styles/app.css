@@ -194,7 +194,7 @@ a {
   background: rgb(var(--v-theme-background));
 }
 
-.market-pulse-shell + .workspace {
+.main-surface.has-market-pulse .workspace {
   padding-top: 0;
 }
 
@@ -2497,7 +2497,7 @@ a.nav-footer-notice:hover {
   }
 
   .market-pulse-shell {
-    padding: 7px 8px;
+    padding: 8px 8px;
   }
 
   .market-pulse {

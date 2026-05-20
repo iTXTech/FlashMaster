@@ -12,6 +12,7 @@
           <v-combobox
             ref="input"
             v-model="flashIdInput"
+            v-model:menu="isMenuOpen"
             :items="suggestions"
             item-title="value"
             item-value="value"
@@ -24,7 +25,10 @@
             :label="$t('flashId')"
             @update:search="searchSuggestions"
             @update:model-value="selectFlashId"
-            @keydown.enter.prevent="decode"
+            @keydown.enter="onEnter"
+            @compositionstart="onCompositionStart"
+            @compositionend="onCompositionEnd"
+            @blur="onBlur"
           >
             <template #item="{ props, item }">
               <v-list-item v-bind="props" :title="item.raw.title" :subtitle="item.raw.subtitle" />
@@ -162,6 +166,7 @@ import {
   warnings
 } from '@/services/fdnextResultView';
 import { trackFlashIdLookup } from '@/services/analytics';
+import { useFormattedQueryInput } from '@/composables/useFormattedQueryInput';
 import { idRoute, idsSearchRoute, localizeRouteLocation, routeParamText } from '@/router/locations';
 import bus from '@/store/bus';
 import store from '@/store';
@@ -181,6 +186,26 @@ let suggestionRequestId = 0;
 let decodeRequestId = 0;
 let suppressedSuggestionValue = '';
 
+const isMenuOpen = ref(false);
+const {
+  model: flashIdInput,
+  onCompositionStart,
+  onCompositionEnd,
+  onBlur,
+  shouldSkipEnter
+} = useFormattedQueryInput(flashId, {
+  format: store.queryInputFormat,
+  normalize: normalizeComboValue
+});
+
+function onEnter(event) {
+  if (shouldSkipEnter(event, isMenuOpen)) {
+    return;
+  }
+  event.preventDefault();
+  decode();
+}
+
 const header = computed(() => resultHeader(result.value));
 const resultPanelMeta = computed(() => {
   if (!result.value) return t('dashboard.empty');
@@ -195,13 +220,6 @@ const detailBlockViews = computed(() => detailBlocks(result.value).map(block => 
 const relations = computed(() => relationRows(result.value));
 const warningRows = computed(() => warnings(result.value));
 const externalLinks = computed(() => externalLinkRows(result.value?.links, header.value.vendor));
-const flashIdInput = computed({
-  get: () => flashId.value,
-  set: value => {
-    flashId.value = store.queryInputFormat(normalizeComboValue(value));
-  }
-});
-
 const fieldHeaders = computed(() => [
   { title: t('name'), key: 'name' },
   { title: t('value'), key: 'value' },

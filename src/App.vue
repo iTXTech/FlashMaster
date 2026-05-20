@@ -72,7 +72,10 @@
 
     <v-main
       class="main-surface"
-      :class="{ 'has-service-banner': commercialBannerAvailable && serviceBannerVisible }"
+      :class="{
+        'has-service-banner': commercialBannerAvailable && serviceBannerVisible,
+        'has-market-pulse': marketPulseAvailable && marketPulseEnabled
+      }"
       :style="mainSurfaceStyle"
     >
       <MarketPulse v-if="marketPulseAvailable && marketPulseEnabled" @close="closeMarketPulse" />

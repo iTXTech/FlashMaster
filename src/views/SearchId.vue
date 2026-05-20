@@ -17,7 +17,10 @@
             hide-details
             prepend-inner-icon="mdi-magnify"
             :label="$t('flashId')"
-            @keydown.enter.prevent="search"
+            @keydown.enter="onEnter"
+            @compositionstart="onCompositionStart"
+            @compositionend="onCompositionEnd"
+            @blur="onBlur"
           />
           <div class="action-row">
             <v-btn color="primary" prepend-icon="mdi-magnify" @click="search">{{ $t('searchId') }}</v-btn>
@@ -88,6 +91,7 @@ import PagedTable from '@/components/PagedTable.vue';
 import { searchFlashId } from '@/services/flashApi';
 import { identifierSearchRows } from '@/services/fdnextResultView';
 import { trackFlashIdLookup } from '@/services/analytics';
+import { useFormattedQueryInput } from '@/composables/useFormattedQueryInput';
 import { idRoute, idsSearchRoute, partRoute, routeParamText } from '@/router/locations';
 import bus from '@/store/bus';
 import store from '@/store';
@@ -101,11 +105,15 @@ const flashId = ref('');
 const rows = ref([]);
 const loading = ref(false);
 let searchRequestId = 0;
-const flashIdInput = computed({
-  get: () => flashId.value,
-  set: value => {
-    flashId.value = store.queryInputFormat(value);
-  }
+
+const {
+  model: flashIdInput,
+  onCompositionStart,
+  onCompositionEnd,
+  onBlur,
+  shouldSkipEnter
+} = useFormattedQueryInput(flashId, {
+  format: store.queryInputFormat
 });
 
 const headers = computed(() => [
@@ -114,6 +122,14 @@ const headers = computed(() => [
   { title: t('partNumber'), key: 'partNumbers', class: 'search-list-col' },
   { title: t('action'), key: 'action' }
 ]);
+
+function onEnter(event) {
+  if (shouldSkipEnter(event)) {
+    return;
+  }
+  event.preventDefault();
+  search();
+}
 
 function normalizeInput() {
   flashId.value = store.partNumberFormat(flashId.value || '');
