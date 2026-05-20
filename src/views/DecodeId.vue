@@ -166,7 +166,7 @@ import {
   warnings
 } from '@/services/fdnextResultView';
 import { trackFlashIdLookup } from '@/services/analytics';
-import { useFormattedQueryInput } from '@/composables/useFormattedQueryInput';
+import { useComboboxSuggestionCommit, useFormattedQueryInput } from '@/composables/useFormattedQueryInput';
 import { idRoute, idsSearchRoute, localizeRouteLocation, routeParamText } from '@/router/locations';
 import bus from '@/store/bus';
 import store from '@/store';
@@ -197,9 +197,18 @@ const {
   format: store.queryInputFormat,
   normalize: normalizeComboValue
 });
+const suggestionCommit = useComboboxSuggestionCommit(suggestions, {
+  normalize: normalizeComboValue,
+  commit: item => commitFlashId(item.value),
+  submit: () => decode()
+});
 
 function onEnter(event) {
-  if (shouldSkipEnter(event, isMenuOpen)) {
+  if (shouldSkipEnter(event)) {
+    return;
+  }
+  if (isMenuOpen.value) {
+    suggestionCommit.queueSubmit();
     return;
   }
   event.preventDefault();
@@ -317,10 +326,7 @@ async function decode(syncRoute = true, { recordUsage = true } = {}) {
 
 async function selectFlashId(value) {
   const text = normalizeComboValue(value).trim();
-  const hit = suggestions.value.find(item => item.value === text || item.title === text);
-  if (hit) {
-    commitFlashId(hit.value);
-    await decode();
+  if (await suggestionCommit.select(value)) {
     return;
   }
   flashId.value = store.queryInputFormat(text);
@@ -344,10 +350,10 @@ function searchSuggestions(inputValue) {
     try {
       const payload = await searchFlashId(query, 10);
       if (requestId !== suggestionRequestId) return;
-      suggestions.value = identifierSuggestions(payload);
+      suggestionCommit.updateItems(identifierSuggestions(payload));
     } catch {
       if (requestId !== suggestionRequestId) return;
-      suggestions.value = [];
+      suggestionCommit.updateItems([]);
     } finally {
       if (requestId === suggestionRequestId) {
         loadingSuggestions.value = false;

@@ -52,3 +52,62 @@ export function useFormattedQueryInput(source, {
     shouldSkipEnter
   };
 }
+
+export function useComboboxSuggestionCommit(items, {
+  itemKeys = item => [item?.value, item?.title],
+  normalize = defaultNormalize,
+  commit,
+  submit
+} = {}) {
+  let recentItemLookup = new Map();
+  let queuedSubmitToken = 0;
+
+  function normalizedKey(value) {
+    return normalize(value).trim();
+  }
+
+  function updateItems(nextItems) {
+    items.value = nextItems;
+    recentItemLookup = new Map();
+    for (const item of nextItems) {
+      for (const key of itemKeys(item)) {
+        const text = normalizedKey(key);
+        if (text) recentItemLookup.set(text, item);
+      }
+    }
+  }
+
+  function findItem(value) {
+    const text = normalizedKey(value);
+    return items.value.find(item => itemKeys(item).some(key => normalizedKey(key) === text))
+      || recentItemLookup.get(text);
+  }
+
+  function cancelQueuedSubmit() {
+    queuedSubmitToken += 1;
+  }
+
+  function queueSubmit() {
+    const token = ++queuedSubmitToken;
+    setTimeout(() => {
+      if (token !== queuedSubmitToken) return;
+      submit?.();
+    }, 0);
+  }
+
+  async function select(value) {
+    const item = findItem(value);
+    if (!item) return false;
+    cancelQueuedSubmit();
+    commit?.(item);
+    await submit?.();
+    return true;
+  }
+
+  return {
+    updateItems,
+    select,
+    queueSubmit,
+    cancelQueuedSubmit
+  };
+}

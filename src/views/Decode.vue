@@ -171,7 +171,7 @@ import {
   warnings
 } from '@/services/fdnextResultView';
 import { trackPartNumberLookup } from '@/services/analytics';
-import { useFormattedQueryInput } from '@/composables/useFormattedQueryInput';
+import { useComboboxSuggestionCommit, useFormattedQueryInput } from '@/composables/useFormattedQueryInput';
 import { idsSearchRoute, localizeRouteLocation, partRoute, partsSearchRoute, routeParamText } from '@/router/locations';
 import bus from '@/store/bus';
 import store from '@/store';
@@ -203,9 +203,18 @@ const {
   format: store.queryInputFormat,
   normalize: normalizePartNumberValue
 });
+const suggestionCommit = useComboboxSuggestionCommit(suggestions, {
+  normalize: normalizeComboValue,
+  commit: item => commitPartNumber(item.value),
+  submit: () => decode()
+});
 
 function onEnter(event) {
-  if (shouldSkipEnter(event, isMenuOpen)) {
+  if (shouldSkipEnter(event)) {
+    return;
+  }
+  if (isMenuOpen.value) {
+    suggestionCommit.queueSubmit();
     return;
   }
   event.preventDefault();
@@ -330,13 +339,7 @@ async function decode(syncRoute = true, { recordUsage = true } = {}) {
 }
 
 async function selectPartNumber(value) {
-  const text = normalizeComboValue(value).trim();
-  const hit = suggestions.value.find(item => item.value === text || item.title === text);
-  if (hit) {
-    commitPartNumber(hit.value);
-    await decode();
-    return;
-  }
+  await suggestionCommit.select(value);
 }
 
 function searchSuggestions(input) {
@@ -357,10 +360,10 @@ function searchSuggestions(input) {
     try {
       const payload = await searchPartNumber(query, suggestionLimit);
       if (requestId !== suggestionRequestId) return;
-      suggestions.value = partSuggestions(payload);
+      suggestionCommit.updateItems(partSuggestions(payload));
     } catch {
       if (requestId !== suggestionRequestId) return;
-      suggestions.value = [];
+      suggestionCommit.updateItems([]);
     } finally {
       if (requestId === suggestionRequestId) {
         loadingSuggestions.value = false;
