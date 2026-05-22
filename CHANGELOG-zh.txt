@@ -2,6 +2,7 @@ FlashMaster by PeratX <peratx@itxtech.org>
 版权所有 (c) 2019-2026 iTX Technologies
 ===================================
 版本 2.4.0
+- 内嵌解析器更新到 fdnext v3.0.0（e148f7c），细化 NAND Flash ID profile 解码，并新增 SK hynix H25 V9H/V9Q 解码数据。
 - 内嵌解析器更新到 fdnext v3.0.0（7485860），新增确定性的 Samsung QLC die profile，并隐藏重复的 managed NAND 明细字段。
 - 内嵌解析器更新到 fdnext v3.0.0（f3f5d32），细化 KIOXIA raw NAND 解码规则。
 - 内嵌解析器更新到 fdnext v3.0.0（e50e903），对齐 KIOXIA managed NAND 的 Die Count 解码规则。
