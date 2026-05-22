@@ -385,11 +385,14 @@ a {
 }
 
 .market-chart-panel {
+  --market-chart-desktop-offset-x: 12px;
+  --market-chart-desktop-offset-y: 8px;
+
   position: absolute;
   z-index: 14;
-  top: 34px;
-  left: 0;
-  width: min(640px, 100%);
+  top: calc(34px + var(--market-chart-desktop-offset-y));
+  left: var(--market-chart-desktop-offset-x);
+  width: min(640px, calc(100% - var(--market-chart-desktop-offset-x)));
   overflow: hidden;
   border: 1px solid rgba(var(--v-theme-on-surface), 0.1);
   border-radius: 8px;
