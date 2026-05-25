@@ -280,7 +280,10 @@ function relationKindLabel(kind) {
 }
 
 function relationDisplayLabel(relation, action, kindLabel) {
-  if (relation.kind === 'identifier_for') return '';
+  if (relation.kind === 'identifier_for') {
+    const label = action?.label || relation.label || kindLabel;
+    return label === 'identifier for' ? '' : label;
+  }
   const label = relation.label || action?.label || kindLabel;
   return label === 'identifier for' ? '' : label;
 }

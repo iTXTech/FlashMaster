@@ -90,7 +90,7 @@
             type="button"
             @click="item.route && router.push(localizedRoute(item.route))"
           >
-            <div class="search-card-label">{{ item.kind }}</div>
+            <div class="search-card-label">{{ item.actionLabel || item.kind }}</div>
             <span class="search-card-title">{{ item.target || item.value }}</span>
           </button>
         </div>
