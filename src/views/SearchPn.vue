@@ -87,7 +87,7 @@ import ExternalLinks from '@/components/ExternalLinks.vue';
 import PagedTable from '@/components/PagedTable.vue';
 import { searchPartNumber } from '@/services/flashApi';
 import { partSearchRows } from '@/services/fdnextResultView';
-import { trackPartNumberLookup } from '@/services/analytics';
+import { trackCoverageSignal, trackPartNumberLookup } from '@/services/analytics';
 import { useFormattedQueryInput } from '@/composables/useFormattedQueryInput';
 import { partRoute, partsSearchRoute, routeParamText } from '@/router/locations';
 import bus from '@/store/bus';
@@ -167,7 +167,17 @@ async function search(syncRoute = true, { recordUsage = true } = {}) {
         action: 'search',
         routeName: route.name,
         partNumber: pn,
-        resultCount: rows.value.length
+        resultCount: rows.value.length,
+        success: payload.status === 'ok'
+      });
+      trackCoverageSignal({
+        type: 'pn',
+        action: 'search',
+        routeName: route.name,
+        query: pn,
+        status: payload.status,
+        resultCount: rows.value.length,
+        operation: payload.operation
       });
     }
   } catch (err) {
@@ -178,6 +188,15 @@ async function search(syncRoute = true, { recordUsage = true } = {}) {
         action: 'search',
         routeName: route.name,
         partNumber: pn,
+        success: false
+      });
+      trackCoverageSignal({
+        type: 'pn',
+        action: 'search',
+        routeName: route.name,
+        query: pn,
+        status: 'request_failed',
+        operation: 'part.search',
         success: false
       });
     }

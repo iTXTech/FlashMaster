@@ -108,6 +108,44 @@ export const trackFlashIdLookup = ({
     }));
 };
 
+export const trackCoverageSignal = ({
+    type,
+    action,
+    routeName = '',
+    query = '',
+    status = '',
+    resultCount = 0,
+    operation = '',
+    success = true
+} = {}) => {
+    if (!hasGtag() || !type) return;
+    const lookupAction = lookupActionParam(action);
+    const count = lookupResultCount(resultCount);
+    const coverageStatus = stringParam(status) || (success ? (count > 0 ? 'ok' : 'not_found') : 'request_failed');
+    if (coverageStatus === 'ok' && count > 0) return;
+
+    const queryText = type === 'flash_id'
+        ? normalizeFlashIdQuery(query)
+        : normalizePartNumberQuery(query);
+    const flashBytes = type === 'flash_id' ? flashIdBytes(query) : [];
+
+    window.gtag('event', 'fdnext_coverage_signal', compactParams({
+        ...baseEventParams(),
+        surface: `${type}_coverage`,
+        route_name: String(routeName || ''),
+        lookup_type: String(type || ''),
+        lookup_action: lookupAction,
+        coverage_status: coverageStatus,
+        coverage_operation: String(operation || ''),
+        coverage_result_count: count,
+        coverage_query: queryText,
+        coverage_query_prefix: type === 'flash_id'
+            ? flashBytes.slice(0, 2).join('')
+            : queryText.slice(0, 6),
+        coverage_query_length: queryText.length
+    }));
+};
+
 export const trackServiceEvent = ({
     event,
     surface = 'global_top',

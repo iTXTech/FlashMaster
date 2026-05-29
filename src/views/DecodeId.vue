@@ -125,7 +125,7 @@ import {
   summaryText,
   warnings
 } from '@/services/fdnextResultView';
-import { trackFlashIdLookup } from '@/services/analytics';
+import { trackCoverageSignal, trackFlashIdLookup } from '@/services/analytics';
 import { useComboboxSuggestionCommit, useFormattedQueryInput } from '@/composables/useFormattedQueryInput';
 import { idRoute, idsSearchRoute, localizeRouteLocation, routeParamText } from '@/router/locations';
 import bus from '@/store/bus';
@@ -237,6 +237,11 @@ function localizedRoute(location) {
   return localizeRouteLocation(location, route);
 }
 
+function decodeResultCount(payload) {
+  if (payload?.status === 'ok') return 1;
+  return Array.isArray(payload?.candidates) ? payload.candidates.length : 0;
+}
+
 async function decode(syncRoute = true, { recordUsage = true } = {}) {
   const requestId = ++decodeRequestId;
   const id = normalizeInput();
@@ -257,12 +262,23 @@ async function decode(syncRoute = true, { recordUsage = true } = {}) {
     if (requestId !== decodeRequestId) return;
     result.value = payload;
     if (recordUsage) {
+      const resultCount = decodeResultCount(payload);
       store.statDecodeFidInc();
       trackFlashIdLookup({
         action: 'decode',
         routeName: route.name,
         flashId: id,
-        resultCount: payload.status === 'ok' ? 1 : 0
+        resultCount,
+        success: payload.status === 'ok'
+      });
+      trackCoverageSignal({
+        type: 'flash_id',
+        action: 'decode',
+        routeName: route.name,
+        query: id,
+        status: payload.status,
+        resultCount,
+        operation: payload.operation
       });
     }
   } catch (err) {
@@ -273,6 +289,15 @@ async function decode(syncRoute = true, { recordUsage = true } = {}) {
         action: 'decode',
         routeName: route.name,
         flashId: id,
+        success: false
+      });
+      trackCoverageSignal({
+        type: 'flash_id',
+        action: 'decode',
+        routeName: route.name,
+        query: id,
+        status: 'request_failed',
+        operation: 'identifier.decode',
         success: false
       });
     }

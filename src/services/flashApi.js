@@ -29,13 +29,28 @@ const assertFdnextPayload = (payload, schemaVersion, endpoint) => {
     return payload;
 };
 
+const parseResponsePayload = async response => {
+    const text = await response.text();
+    if (!text) return null;
+    try {
+        return JSON.parse(text);
+    } catch {
+        return null;
+    }
+};
+
 const request = async (endpoint, params = {}, schemaVersion = 'fdnext.result.v1') => {
     const response = await fetch(makeUrl(endpoint, params));
-    if (!response.ok) {
-        throw new Error(`${response.status} ${response.statusText}`);
+    const payload = await parseResponsePayload(response);
+    if (payload) {
+        try {
+            return assertFdnextPayload(payload, schemaVersion, endpoint);
+        } catch (err) {
+            if (response.ok) throw err;
+        }
     }
-    const payload = await response.json();
-    return assertFdnextPayload(payload, schemaVersion, endpoint);
+    if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+    throw new Error(`Unsupported fdnext response from ${endpoint}`);
 };
 
 const useEmbeddedParser = () => store.isEmbeddedParser();
@@ -53,41 +68,51 @@ const controllerGroupParams = () => ({
     controllerGroup: store.getControllerGroupParam()
 });
 
-export const getServerInfo = () => useEmbeddedParser()
+export const getServerInfo = async () => useEmbeddedParser()
     ? getEmbeddedInfo()
     : request('capabilities', langParams(), FDNEXT_CAPABILITIES_SCHEMA_VERSIONS);
 
-export const decodePartNumber = pn => useEmbeddedParser() ? decodeEmbeddedPartNumber(pn) : request('parts/decode', {
-    ...langParams(),
-    ...controllerGroupParams(),
-    query: pn
-});
+export const decodePartNumber = async pn => {
+    return useEmbeddedParser() ? decodeEmbeddedPartNumber(pn) : request('parts/decode', {
+        ...langParams(),
+        ...controllerGroupParams(),
+        query: pn
+    });
+};
 
-export const searchPartNumber = (pn, limit = 0) => useEmbeddedParser() ? searchEmbeddedPartNumber(pn, limit) : request('parts/search', {
-    ...langParams(),
-    query: pn,
-    ...controllerGroupParams(),
-    ...limitParams(limit)
-});
+export const searchPartNumber = async (pn, limit = 0) => {
+    return useEmbeddedParser() ? searchEmbeddedPartNumber(pn, limit) : request('parts/search', {
+        ...langParams(),
+        query: pn,
+        ...controllerGroupParams(),
+        ...limitParams(limit)
+    });
+};
 
 export const summarizePartNumber = async pn => useEmbeddedParser()
     ? summarizeEmbeddedPartNumber(pn)
     : summaryText(await decodePartNumber(pn));
 
-export const decodeFlashId = id => useEmbeddedParser() ? decodeEmbeddedFlashId(id) : request('identifiers/decode', {
-    ...langParams(),
-    query: id,
-    idScheme: 'nand.flash_id',
-    ...controllerGroupParams()
-});
+export const decodeFlashId = async id => {
+    const input = { idScheme: 'nand.flash_id' };
+    return useEmbeddedParser() ? decodeEmbeddedFlashId(id) : request('identifiers/decode', {
+        ...langParams(),
+        query: id,
+        ...input,
+        ...controllerGroupParams()
+    });
+};
 
-export const searchFlashId = (id, limit = 0) => useEmbeddedParser() ? searchEmbeddedFlashId(id, limit) : request('identifiers/search', {
-    ...langParams(),
-    query: id,
-    idScheme: 'nand.flash_id',
-    ...controllerGroupParams(),
-    ...limitParams(limit)
-});
+export const searchFlashId = async (id, limit = 0) => {
+    const input = { idScheme: 'nand.flash_id' };
+    return useEmbeddedParser() ? searchEmbeddedFlashId(id, limit) : request('identifiers/search', {
+        ...langParams(),
+        query: id,
+        ...input,
+        ...controllerGroupParams(),
+        ...limitParams(limit)
+    });
+};
 
 export const summarizeFlashId = async id => useEmbeddedParser()
     ? summarizeEmbeddedFlashId(id)

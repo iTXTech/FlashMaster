@@ -2,6 +2,7 @@ FlashMaster by PeratX <peratx@itxtech.org>
 Copyright (c) 2019-2026 iTX Technologies
 ===================================
 Version 2.4.0
+- Updated the embedded fdnext parser to v3.0.0 (15714bc), fixing constrained part-number search so product-type filtered searches keep enough candidates before scoring.
 - Updated the embedded fdnext parser to v3.0.0 (65be672), adding the Phison T27HGA5A1V decode rule and refreshing FDB controller-support data.
 - Updated the embedded fdnext parser to v3.0.0 (e148f7c), refining NAND identifier profile decoding and adding SK hynix H25 V9H/V9Q decode data.
 - Updated the embedded fdnext parser to v3.0.0 (7485860), adding deterministic Samsung QLC die profiles and hiding duplicate managed-NAND detail fields.

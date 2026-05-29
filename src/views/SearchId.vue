@@ -90,7 +90,7 @@ import ExternalLinks from '@/components/ExternalLinks.vue';
 import PagedTable from '@/components/PagedTable.vue';
 import { searchFlashId } from '@/services/flashApi';
 import { identifierSearchRows } from '@/services/fdnextResultView';
-import { trackFlashIdLookup } from '@/services/analytics';
+import { trackCoverageSignal, trackFlashIdLookup } from '@/services/analytics';
 import { useFormattedQueryInput } from '@/composables/useFormattedQueryInput';
 import { idRoute, idsSearchRoute, partRoute, routeParamText } from '@/router/locations';
 import bus from '@/store/bus';
@@ -169,7 +169,17 @@ async function search(syncRoute = true, { recordUsage = true } = {}) {
         action: 'search',
         routeName: route.name,
         flashId: id,
-        resultCount: rows.value.length
+        resultCount: rows.value.length,
+        success: payload.status === 'ok'
+      });
+      trackCoverageSignal({
+        type: 'flash_id',
+        action: 'search',
+        routeName: route.name,
+        query: id,
+        status: payload.status,
+        resultCount: rows.value.length,
+        operation: payload.operation
       });
     }
   } catch (err) {
@@ -180,6 +190,15 @@ async function search(syncRoute = true, { recordUsage = true } = {}) {
         action: 'search',
         routeName: route.name,
         flashId: id,
+        success: false
+      });
+      trackCoverageSignal({
+        type: 'flash_id',
+        action: 'search',
+        routeName: route.name,
+        query: id,
+        status: 'request_failed',
+        operation: 'identifier.search',
         success: false
       });
     }
