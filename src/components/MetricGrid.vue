@@ -8,6 +8,9 @@
           class="metric-expandable-list"
           :items="item.items"
           :limit="listLimit"
+          :fill-row="fillListRow"
+          :min-column-width="listMinColumnWidth"
+          :preview-rows="listPreviewRows"
         />
         <template v-else>{{ item.value }}</template>
       </div>
@@ -32,6 +35,18 @@ const props = defineProps({
   listLimit: {
     type: Number,
     default: 4
+  },
+  fillListRow: {
+    type: Boolean,
+    default: false
+  },
+  listMinColumnWidth: {
+    type: Number,
+    default: 112
+  },
+  listPreviewRows: {
+    type: Number,
+    default: 1
   }
 });
 

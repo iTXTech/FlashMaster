@@ -32,6 +32,7 @@ html {
   --app-safe-area-left: env(safe-area-inset-left, 0px);
   --mobile-bottom-overlay-offset: calc(10px + var(--app-safe-area-bottom));
   --workspace-page-padding: 14px;
+  --decode-workspace-max-width: 1360px;
   --query-workspace-max-width: 100%;
   --app-scrollbar-thumb: rgba(128, 128, 128, 0.28);
   --app-scrollbar-thumb-hover: rgba(128, 128, 128, 0.42);
@@ -835,7 +836,10 @@ a.nav-footer-notice:hover {
 }
 
 .workspace--decode-id,
-.workspace--decode,
+.workspace--decode {
+  --workspace-max-width: var(--decode-workspace-max-width);
+}
+
 .workspace--search {
   --workspace-max-width: var(--query-workspace-max-width);
 }
@@ -1137,6 +1141,10 @@ a.nav-footer-notice:hover {
   margin-top: 12px;
 }
 
+.workspace--decode .decode-detail-grid--with-relations {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) minmax(280px, 0.9fr);
+}
+
 .decode-detail-panel,
 .decode-relation-panel,
 .external-link-panel {
@@ -1147,6 +1155,15 @@ a.nav-footer-notice:hover {
 .decode-detail-panel.detail-panel--wide,
 .decode-detail-panel--balanced {
   grid-column: span 2;
+}
+
+.workspace--decode .decode-detail-grid--with-relations .decode-relation-panel {
+  grid-column: 3;
+  grid-row: 1 / span 6;
+}
+
+.workspace--decode .decode-detail-grid--with-relations .external-link-panel {
+  grid-column: 3;
 }
 
 .workspace--decode .panel-body,
@@ -1727,6 +1744,10 @@ a.nav-footer-notice:hover {
   margin-top: 12px;
 }
 
+.workspace--decode-id .decode-id-secondary-grid--with-relations {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) minmax(280px, 0.9fr);
+}
+
 .decode-id-pn-panel {
   grid-column: span 2;
 }
@@ -1738,6 +1759,15 @@ a.nav-footer-notice:hover {
 
 .decode-id-link-panel {
   grid-column: span 2;
+}
+
+.workspace--decode-id .decode-id-secondary-grid--with-relations .decode-id-pn-panel {
+  grid-column: 3;
+  grid-row: 1 / span 6;
+}
+
+.workspace--decode-id .decode-id-secondary-grid--with-relations .decode-id-link-panel {
+  grid-column: 3;
 }
 
 .decode-id-details-panel {
@@ -1768,6 +1798,11 @@ a.nav-footer-notice:hover {
 
 .decode-id-pn-panel .decode-id-pn-grid {
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+}
+
+.workspace--decode-id .decode-id-secondary-grid--with-relations .decode-id-pn-panel .decode-id-pn-grid {
+  max-height: clamp(280px, calc(100dvh - 280px), 560px);
+  overflow-y: auto;
 }
 
 .decode-id-info-grid {
@@ -1831,6 +1866,11 @@ a.nav-footer-notice:hover {
 
 .decode-relation-panel .relation-card-grid {
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+}
+
+.workspace--decode .decode-detail-grid--with-relations .decode-relation-panel .relation-card-grid {
+  max-height: clamp(280px, calc(100dvh - 280px), 560px);
+  overflow-y: auto;
 }
 
 .decode-relation-panel .relation-card {
@@ -2440,13 +2480,56 @@ a.nav-footer-notice:hover {
     grid-template-columns: 1fr;
   }
 
+  .workspace--decode .decode-detail-grid--with-relations {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .workspace--decode-id .decode-id-secondary-grid--with-relations {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .decode-detail-panel.detail-panel--wide,
   .decode-detail-panel--balanced,
+  .workspace--decode .decode-detail-grid--with-relations .decode-detail-panel.detail-panel--wide,
+  .workspace--decode .decode-detail-grid--with-relations .decode-detail-panel--balanced,
+  .workspace--decode .decode-detail-grid--with-relations .decode-detail-panel:not(.decode-detail-panel--single),
+  .workspace--decode .decode-detail-grid--with-relations .decode-relation-panel,
+  .workspace--decode .decode-detail-grid--with-relations .external-link-panel,
   .decode-id-pn-panel,
   .decode-id-info-panel.detail-panel--wide,
   .decode-id-info-panel--balanced,
   .decode-id-link-panel {
     grid-column: span 1;
+  }
+
+  .workspace--decode .decode-detail-grid--with-relations .decode-relation-panel {
+    grid-row: auto;
+  }
+
+  .workspace--decode-id .decode-id-secondary-grid--with-relations .decode-id-pn-panel {
+    grid-row: auto;
+  }
+
+  .workspace--decode .decode-detail-grid--with-relations .decode-relation-panel .relation-card-grid {
+    max-height: none;
+    overflow-y: visible;
+  }
+
+  .workspace--decode-id .decode-id-secondary-grid--with-relations .decode-id-pn-panel .decode-id-pn-grid {
+    max-height: none;
+    overflow-y: visible;
+  }
+
+  .workspace--decode .decode-detail-grid--with-relations .decode-detail-panel:not(.decode-detail-panel--single),
+  .workspace--decode .decode-detail-grid--with-relations .decode-relation-panel,
+  .workspace--decode .decode-detail-grid--with-relations .external-link-panel {
+    grid-column: span 2;
+  }
+
+  .workspace--decode-id .decode-id-secondary-grid--with-relations .decode-id-info-panel:not(.decode-id-info-panel--single),
+  .workspace--decode-id .decode-id-secondary-grid--with-relations .decode-id-pn-panel,
+  .workspace--decode-id .decode-id-secondary-grid--with-relations .decode-id-link-panel {
+    grid-column: span 2;
   }
 
   .workspace--decode .vendor-logo-wrap,
@@ -2486,6 +2569,30 @@ a.nav-footer-notice:hover {
   .external-link-list--compact .external-link-image {
     width: min(120px, 100%);
     max-height: 28px;
+  }
+}
+
+@media (max-width: 560px) {
+  .workspace--decode .decode-detail-grid--with-relations {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace--decode-id .decode-id-secondary-grid--with-relations {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace--decode .decode-detail-grid--with-relations .decode-detail-panel,
+  .workspace--decode .decode-detail-grid--with-relations .decode-detail-panel:not(.decode-detail-panel--single),
+  .workspace--decode .decode-detail-grid--with-relations .decode-relation-panel,
+  .workspace--decode .decode-detail-grid--with-relations .external-link-panel {
+    grid-column: span 1;
+  }
+
+  .workspace--decode-id .decode-id-secondary-grid--with-relations .decode-id-info-panel,
+  .workspace--decode-id .decode-id-secondary-grid--with-relations .decode-id-info-panel:not(.decode-id-info-panel--single),
+  .workspace--decode-id .decode-id-secondary-grid--with-relations .decode-id-pn-panel,
+  .workspace--decode-id .decode-id-secondary-grid--with-relations .decode-id-link-panel {
+    grid-column: span 1;
   }
 }
 

@@ -43,70 +43,32 @@
         </div>
       </section>
 
-      <section class="panel">
-        <div class="panel-header">
-          <div>
-            <div class="panel-title">{{ $t('dashboard.decodeResult') }}</div>
-            <div v-if="resultPanelMeta" class="panel-meta">{{ resultPanelMeta }}</div>
-          </div>
-          <v-btn icon="mdi-content-copy" variant="text" :disabled="!result" @click="copyOverview" />
-        </div>
-        <div class="panel-body">
-          <div v-if="result" class="result-stack">
-            <div class="result-hero">
-              <div class="metric decode-vendor-metric">
-                <div class="metric-label">{{ $t('vendor') }}</div>
-                <VendorLogo :vendor="header.vendor">
-                  <div class="metric-value">{{ displayValue(header.vendor) }}</div>
-                </VendorLogo>
-              </div>
-              <div class="result-title-panel">
-                <div class="result-title">{{ displayValue(header.title) }}</div>
-                <div class="result-subtitle">{{ displayValue(header.subtitle) }}</div>
-              </div>
-            </div>
-            <div v-if="warningRows.length > 0" class="warning-list">
-              <div v-for="item in warningRows" :key="item.code" class="warning-item">{{ item.message }}</div>
-            </div>
-            <MetricGrid :items="mainMetrics" />
-          </div>
-          <div v-else class="empty-state">{{ $t('dashboard.empty') }}</div>
-        </div>
-      </section>
+      <DecodeResultPanel
+        :result="result"
+        :header="header"
+        :meta="resultPanelMeta"
+        :metrics="mainMetrics"
+        :warnings="warningRows"
+        vendor-metric-class="decode-vendor-metric"
+        @copy-overview="copyOverview"
+      />
     </div>
 
-    <div v-if="result" class="decode-detail-grid">
-      <section
+    <div
+      v-if="result"
+      class="decode-detail-grid"
+      :class="{ 'decode-detail-grid--with-relations': relations.length > 0 }"
+    >
+      <DecodeDetailBlock
         v-for="block in detailBlockViews"
         :key="block.id"
-        class="panel decode-detail-panel"
-        :class="{
-          'detail-panel--wide': block.wide,
-          'decode-detail-panel--card': block.cardView,
-          'decode-detail-panel--table': !block.cardView,
-          'decode-detail-panel--balanced': block.cardView && block.metrics.length === 3
-        }"
-      >
-        <div class="panel-header">
-          <div>
-            <div class="panel-title">{{ block.label }}</div>
-            <div v-if="!block.cardView" class="panel-meta">{{ $t('dashboard.resultCount', [block.rows.length]) }}</div>
-          </div>
-          <v-btn icon="mdi-content-copy" variant="text" @click="copyRows(block.rows)" />
-        </div>
-        <div v-if="block.cardView" class="panel-body detail-card-body">
-          <MetricGrid class="detail-card-grid" :items="block.metrics" />
-        </div>
-        <PagedTable v-else :headers="fieldHeaders" :items="block.rows" :per-page-options="[8, 16, 32]">
-          <template #value="{ item }">
-            <ExpandableListCell v-if="item.items?.length" class="table-controller-list" :items="item.items" :limit="4" />
-            <span v-else>{{ item.value }}</span>
-          </template>
-          <template #action="{ item }">
-            <v-btn icon="mdi-content-copy" variant="text" @click="copyLine(`${item.name}: ${item.value}`)" />
-          </template>
-        </PagedTable>
-      </section>
+        :block="block"
+        :headers="fieldHeaders"
+        panel-class="decode-detail-panel"
+        class-prefix="decode-detail-panel"
+        @copy-rows="copyRows"
+        @copy-line="copyLine"
+      />
 
       <section v-if="relations.length > 0" class="panel relation-panel decode-relation-panel">
         <div class="panel-header">
@@ -152,13 +114,10 @@
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
-import MetricGrid from '@/components/MetricGrid.vue';
-import PagedTable from '@/components/PagedTable.vue';
-import ExpandableListCell from '@/components/ExpandableListCell.vue';
+import DecodeDetailBlock from '@/components/DecodeDetailBlock.vue';
+import DecodeResultPanel from '@/components/DecodeResultPanel.vue';
 import ExternalLinks from '@/components/ExternalLinks.vue';
-import VendorLogo from '@/components/VendorLogo.vue';
 import { copyText } from '@/services/clipboard';
-import { displayValue } from '@/services/display';
 import { decodePartNumber, searchPartNumber, summarizePartNumber } from '@/services/flashApi';
 import {
   detailBlocks,
