@@ -78,7 +78,6 @@ FlashMaster 具有极高的便携性。详细指南请参阅 [**docs/DEPLOYMENT.
 
 - **PWA:** 可在 iOS、Android 和桌面端安装以供离线使用。
 - **单文件:** 通过 [GitHub Releases](https://github.com/iTXTech/FlashMaster/releases) 以单个 `.html` 文件分发，非常适合隔离环境。
-- **Pico 单文件:** `pnpm build:singlefile:pico` 会移除内嵌 fdnext，并始终使用 HTTP API。构建时设置 `VITE_FLASHMASTER_LOCKED_SERVER=https://your-fdnext.example` 可交付固定且不可编辑的服务器地址。
 
 ---
 

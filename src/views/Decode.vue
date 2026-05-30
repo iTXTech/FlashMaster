@@ -9,31 +9,19 @@
           <v-btn icon="mdi-book-information-variant" variant="text" :disabled="!partNumber" @click="copySummary" />
         </div>
         <div class="panel-body query-stack">
-          <v-combobox
+          <QuerySuggestionInput
             ref="input"
             v-model="partNumberInput"
-            v-model:menu="isMenuOpen"
             :items="suggestions"
-            item-title="value"
-            item-value="value"
-            :return-object="false"
             :loading="loadingSuggestions"
-            class="pn"
-            clearable
-            hide-details
-            no-filter
             :label="$t('partNumberOrFlashId')"
-            @update:search="searchSuggestions"
-            @update:model-value="selectPartNumber"
-            @keydown.enter="onEnter"
+            @search="searchSuggestions"
+            @select="selectPartSuggestion"
+            @submit="decode"
             @compositionstart="onCompositionStart"
             @compositionend="onCompositionEnd"
             @blur="onBlur"
-          >
-            <template #item="{ props, item }">
-              <v-list-item v-bind="props" :title="item.raw.title" :subtitle="item.raw.subtitle" />
-            </template>
-          </v-combobox>
+          />
           <div class="action-row">
             <v-btn color="primary" prepend-icon="mdi-crosshairs-gps" @click="decode">{{ $t('query') }}</v-btn>
             <v-btn variant="tonal" prepend-icon="mdi-magnify" @click="goSearchPn">{{ $t('search') }}</v-btn>
@@ -117,6 +105,7 @@ import { useRoute, useRouter } from 'vue-router';
 import DecodeDetailBlock from '@/components/DecodeDetailBlock.vue';
 import DecodeResultPanel from '@/components/DecodeResultPanel.vue';
 import ExternalLinks from '@/components/ExternalLinks.vue';
+import QuerySuggestionInput from '@/components/QuerySuggestionInput.vue';
 import { copyText } from '@/services/clipboard';
 import { decodePartNumber, searchPartNumber, summarizePartNumber } from '@/services/flashApi';
 import {
@@ -130,7 +119,7 @@ import {
   warnings
 } from '@/services/fdnextResultView';
 import { trackCoverageSignal, trackPartNumberLookup } from '@/services/analytics';
-import { useComboboxSuggestionCommit, useFormattedQueryInput } from '@/composables/useFormattedQueryInput';
+import { useFormattedQueryInput } from '@/composables/useFormattedQueryInput';
 import { idsSearchRoute, localizeRouteLocation, partRoute, partsSearchRoute, routeParamText } from '@/router/locations';
 import bus from '@/store/bus';
 import store from '@/store';
@@ -151,34 +140,15 @@ let decodeRequestId = 0;
 let suppressedSuggestionValue = '';
 const suggestionLimit = 10;
 
-const isMenuOpen = ref(false);
 const {
   model: partNumberInput,
   onCompositionStart,
   onCompositionEnd,
-  onBlur,
-  shouldSkipEnter
+  onBlur
 } = useFormattedQueryInput(partNumber, {
   format: store.queryInputFormat,
   normalize: normalizePartNumberValue
 });
-const suggestionCommit = useComboboxSuggestionCommit(suggestions, {
-  normalize: normalizeComboValue,
-  commit: item => commitPartNumber(item.value),
-  submit: () => decode()
-});
-
-function onEnter(event) {
-  if (shouldSkipEnter(event)) {
-    return;
-  }
-  if (isMenuOpen.value) {
-    suggestionCommit.queueSubmit();
-    return;
-  }
-  event.preventDefault();
-  decode();
-}
 
 const header = computed(() => resultHeader(result.value));
 const resultPanelMeta = computed(() => {
@@ -322,8 +292,9 @@ async function decode(syncRoute = true, { recordUsage = true } = {}) {
   }
 }
 
-async function selectPartNumber(value) {
-  await suggestionCommit.select(value);
+async function selectPartSuggestion(item) {
+  commitPartNumber(item?.value);
+  await decode();
 }
 
 function searchSuggestions(input) {
@@ -344,10 +315,10 @@ function searchSuggestions(input) {
     try {
       const payload = await searchPartNumber(query, suggestionLimit);
       if (requestId !== suggestionRequestId) return;
-      suggestionCommit.updateItems(partSuggestions(payload));
+      suggestions.value = partSuggestions(payload);
     } catch {
       if (requestId !== suggestionRequestId) return;
-      suggestionCommit.updateItems([]);
+      suggestions.value = [];
     } finally {
       if (requestId === suggestionRequestId) {
         loadingSuggestions.value = false;

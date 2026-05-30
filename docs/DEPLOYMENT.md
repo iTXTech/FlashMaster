@@ -43,7 +43,7 @@ pnpm build
 ```bash
 pnpm build:singlefile
 ```
-*输出：* `dist-singlefile/FFlashMaster-<version>-<commitHash>.html`
+*输出：* `dist-singlefile/FlashMaster-<version>-<commitHash>.html`
 *包含：* 完整的解析引擎、UI 图标、厂商 Logo、行情脉搏（联网时可用）及基础统计。
 
 ### 精简单文件 (Nano Flavor)
@@ -52,6 +52,19 @@ pnpm build:singlefile:nano
 ```
 *输出：* `dist-singlefile/FlashMaster-<version>-<commitHash>-nano.html`
 *特点：* 极致精简，无行情功能、无统计代码、不包含 `lightweight-charts` 库。适合完全物理隔离的环境。
+
+### HTTP-only 单文件 (Pico Flavor)
+```bash
+pnpm build:singlefile:pico
+```
+*输出：* `dist-singlefile/FlashMaster-<version>-<commitHash>-pico.html`
+*特点：* 不内嵌 fdnext 解析引擎，应用始终通过 HTTP API 查询远端 fdnext 服务。适合统一维护服务端解析资源、前端只作为轻量入口的部署。
+
+如需交付固定且不可编辑的服务器地址，可在构建时设置：
+
+```bash
+VITE_FLASHMASTER_LOCKED_SERVER=https://your-fdnext.example pnpm build:singlefile:pico
+```
 
 ---
 
@@ -87,7 +100,7 @@ pnpm build
 
 ## 5. 持续集成与自动发布
 
-项目集成了 GitHub Actions 流。每当推送以 `v*` 开头的 Tag（例如 `v2.3.0`）时，系统会自动执行以下操作：
+项目集成了 GitHub Actions 工作流。每当推送以 `v*` 开头的 Tag（例如 `v2.3.0`）时，系统会自动执行以下操作：
 1. 构建全量 Web 压缩包（Hash 与 History 两种版本）。
 2. 构建单文件离线 HTML。
 3. 自动创建 GitHub Release 并上传所有构建成品。

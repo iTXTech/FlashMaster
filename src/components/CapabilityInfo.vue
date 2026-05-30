@@ -26,7 +26,7 @@
       <section class="capability-card">
         <div class="capability-card-title">{{ t('settings.capabilityInfo.inventory') }}</div>
         <div class="capability-metric-grid">
-          <div v-for="item in inventoryMetrics" :key="item.label" class="capability-metric">
+          <div v-for="item in inventoryMetrics" :key="item.id || item.label" class="capability-metric">
             <div class="capability-metric-label">{{ item.label }}</div>
             <div class="capability-metric-value">{{ item.value }}</div>
           </div>
@@ -104,7 +104,6 @@
                 </div>
               </div>
             </div>
-            <p v-if="item.description">{{ item.description }}</p>
           </div>
           <div v-if="!capabilities.length">-</div>
         </div>
@@ -167,8 +166,6 @@ const flatControllerLimit = 24;
 
 const isFdnextCapabilities = computed(() => String(props.data?.schemaVersion || '').startsWith('fdnext.capabilities.'));
 const inventory = computed(() => props.data?.inventory || {});
-const partNumbers = computed(() => inventory.value.partNumbers || {});
-const micronFbga = computed(() => inventory.value.micronFbga || {});
 const controllers = computed(() => inventory.value.controllers || {});
 const decoders = computed(() => props.data?.decoders || {});
 const capabilities = computed(() => Array.isArray(props.data?.capabilities) ? props.data.capabilities : []);
@@ -188,16 +185,15 @@ const databaseRows = computed(() => keyValueRows([
   [t('settings.capabilityInfo.website'), props.data.fdb?.website]
 ]));
 
-const inventoryMetrics = computed(() => [
-  [t('settings.capabilityInfo.controllers'), controllers.value.count],
-  [t('settings.capabilityInfo.flashIds'), inventory.value.flashIds?.count],
-  [t('settings.capabilityInfo.partNumbers'), partNumbers.value.total],
-  [t('settings.capabilityInfo.fdbPartNumbers'), partNumbers.value.fdb],
-  [t('settings.capabilityInfo.managedNand'), partNumbers.value.managedNand],
-  [t('settings.capabilityInfo.dram'), partNumbers.value.dram],
-  [t('settings.capabilityInfo.micronFbga'), micronFbga.value.total],
-  [t('settings.capabilityInfo.dramLookup'), micronFbga.value.dramLookup]
-].map(([label, value]) => ({ label, value: formatCount(value) })));
+const inventoryMetrics = computed(() => Array.isArray(inventory.value.metrics)
+  ? inventory.value.metrics
+    .filter(item => item && typeof item === 'object' && item.count !== undefined && item.count !== null)
+    .map(item => ({
+      id: present(item.id, item.label),
+      label: present(item.label),
+      value: formatCount(item.count)
+    }))
+  : []);
 
 const controllerGroups = computed(() => Array.isArray(controllers.value.groups)
   ? controllers.value.groups.filter(group => group && typeof group === 'object')
@@ -337,12 +333,17 @@ function capabilityTitle(item) {
 }
 
 function capabilitySupportRows(item) {
-  return [
-    [t('settings.capabilityInfo.domain'), item.domains || [], value => value],
+  const domains = normalizeTextList(item.domains);
+  const showDomains = !(domains.length === 1 && domains[0] === 'memory');
+  const rows = [
     [t('settings.capabilityInfo.chipKind'), item.chipKinds || [], chipLabel],
     [t('settings.capabilityInfo.productType'), item.productTypes || [], chipLabel],
     [t('settings.capabilityInfo.idScheme'), item.idSchemes || [], chipLabel]
-  ]
+  ];
+  if (showDomains) {
+    rows.unshift([t('settings.capabilityInfo.domain'), domains, capabilityDomainLabel]);
+  }
+  return rows
     .map(([label, values, formatter]) => ({
       label,
       values: normalizeTextList(values).map(formatter).filter(Boolean)
@@ -352,5 +353,10 @@ function capabilitySupportRows(item) {
 
 function normalizeTextList(values) {
   return Array.isArray(values) ? values.filter(Boolean) : [];
+}
+
+function capabilityDomainLabel(value) {
+  if (value === 'memory') return t('settings.capabilityInfo.domainMemory');
+  return value;
 }
 </script>

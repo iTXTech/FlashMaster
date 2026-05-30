@@ -2,6 +2,7 @@ FlashMaster by PeratX <peratx@itxtech.org>
 版权所有 (c) 2019-2026 iTX Technologies
 ===================================
 版本 2.4.0
+- 内嵌解析器更新到 fdnext v3.0.0（1f7cbfc），在 Settings 使用后端报告的紧凑 capabilities 统计，并提供控制器分组互斥元数据。
 - 内嵌解析器更新到 fdnext v3.0.0（15714bc），修正带产品类型等约束的料号搜索，避免候选在评分前被过早截断。
 - 内嵌解析器更新到 fdnext v3.0.0（65be672），新增 Phison T27HGA5A1V 解析规则，并刷新控制器支持相关 FDB 数据。
 - 内嵌解析器更新到 fdnext v3.0.0（e148f7c），细化 NAND Flash ID profile 解码，并新增 SK hynix H25 V9H/V9Q 解码数据。

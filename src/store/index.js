@@ -17,7 +17,6 @@ const EMBEDDED_PARSER_AVAILABLE = typeof __FLASHMASTER_EMBEDDED_PARSER__ === "un
 const PARSER_EMBEDDED = "embedded";
 const PARSER_HTTP = "http";
 const CONTROLLER_GROUP_ALL = "all";
-const CONTROLLER_GROUP_SELECTED = "selected";
 const MARKET_PULSE_STORAGE_KEY = "marketPulse";
 
 const getDefaultServerAddress = () => DEFAULT_SERVER_ADDRESS;
@@ -237,13 +236,10 @@ const normalizeControllerGroups = value => {
     const groups = raw
         .map(item => String(item || "").trim())
         .filter(Boolean);
-    if (!groups.length || groups.includes(CONTROLLER_GROUP_ALL)) {
+    if (!groups.length) {
         return [CONTROLLER_GROUP_ALL];
     }
     const normalized = [...new Set(groups.filter(item => /^[a-z][a-z0-9_-]*(?::[a-z0-9][a-z0-9_-]*)?$/.test(item)))];
-    if (normalized.includes(CONTROLLER_GROUP_SELECTED)) {
-        return [CONTROLLER_GROUP_SELECTED];
-    }
     return normalized.length ? normalized : [CONTROLLER_GROUP_ALL];
 }
 
@@ -262,7 +258,7 @@ const getControllerGroups = () => {
 
 const getControllerGroupParam = () => {
     const groups = getControllerGroups();
-    return groups.includes(CONTROLLER_GROUP_ALL) ? CONTROLLER_GROUP_ALL : groups.join(",");
+    return groups.join(",");
 }
 
 const queryInputFormat = str => String(str || "").toUpperCase();
@@ -288,7 +284,6 @@ export default {
     PARSER_EMBEDDED,
     PARSER_HTTP,
     CONTROLLER_GROUP_ALL,
-    CONTROLLER_GROUP_SELECTED,
     SERVER_PRESET_CLOUD,
     SERVER_PRESET_LOCAL_DEV,
     SERVER_PRESET_LOCKED,

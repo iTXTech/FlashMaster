@@ -2200,7 +2200,7 @@ a.nav-footer-notice:hover {
 
 .capability-metric-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
   gap: 7px;
 }
 
@@ -2221,9 +2221,7 @@ a.nav-footer-notice:hover {
 }
 
 .capability-metric-label {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
 }
 
 .capability-list-title {
@@ -2251,7 +2249,7 @@ a.nav-footer-notice:hover {
 .capability-op-list {
   display: grid;
   min-width: 0;
-  gap: 6px;
+  gap: 5px;
 }
 
 .capability-list-group--expanded {
@@ -2370,8 +2368,8 @@ a.nav-footer-notice:hover {
 
 .capability-op {
   display: grid;
-  gap: 7px;
-  padding: 7px;
+  gap: 5px;
+  padding: 6px;
   border-radius: 5px;
   background: rgba(var(--v-theme-surface), 0.46);
 }
@@ -2396,7 +2394,7 @@ a.nav-footer-notice:hover {
 
 .capability-support {
   display: grid;
-  gap: 5px;
+  gap: 4px;
 }
 
 .capability-support-row {
@@ -2426,13 +2424,6 @@ a.nav-footer-notice:hover {
   background: rgba(var(--v-theme-primary), 0.12);
   color: rgba(var(--v-theme-on-surface), 0.82);
   font-size: 0.67rem;
-}
-
-.capability-op p {
-  margin: 0;
-  color: rgba(var(--v-theme-on-surface), 0.66);
-  font-size: 0.72rem;
-  line-height: 1.35;
 }
 
 @media (min-width: 1500px) {

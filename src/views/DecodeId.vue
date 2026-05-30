@@ -9,31 +9,19 @@
           <v-btn icon="mdi-book-information-variant" variant="text" :disabled="!flashId" @click="copySummary" />
         </div>
         <div class="panel-body query-stack">
-          <v-combobox
+          <QuerySuggestionInput
             ref="input"
             v-model="flashIdInput"
-            v-model:menu="isMenuOpen"
             :items="suggestions"
-            item-title="value"
-            item-value="value"
-            :return-object="false"
             :loading="loadingSuggestions"
-            class="pn"
-            clearable
-            hide-details
-            no-filter
             :label="$t('flashId')"
-            @update:search="searchSuggestions"
-            @update:model-value="selectFlashId"
-            @keydown.enter="onEnter"
+            @search="searchSuggestions"
+            @select="selectFlashIdSuggestion"
+            @submit="decode"
             @compositionstart="onCompositionStart"
             @compositionend="onCompositionEnd"
             @blur="onBlur"
-          >
-            <template #item="{ props, item }">
-              <v-list-item v-bind="props" :title="item.raw.title" :subtitle="item.raw.subtitle" />
-            </template>
-          </v-combobox>
+          />
           <div class="action-row">
             <v-btn color="primary" prepend-icon="mdi-memory" @click="decode">{{ $t('searchIdPage.query') }}</v-btn>
             <v-btn variant="tonal" prepend-icon="mdi-magnify" @click="goSearchId">{{ $t('searchIdPage.search') }}</v-btn>
@@ -113,6 +101,7 @@ import { useRoute, useRouter } from 'vue-router';
 import DecodeDetailBlock from '@/components/DecodeDetailBlock.vue';
 import DecodeResultPanel from '@/components/DecodeResultPanel.vue';
 import ExternalLinks from '@/components/ExternalLinks.vue';
+import QuerySuggestionInput from '@/components/QuerySuggestionInput.vue';
 import { copyText } from '@/services/clipboard';
 import { decodeFlashId, searchFlashId, summarizeFlashId } from '@/services/flashApi';
 import {
@@ -126,7 +115,7 @@ import {
   warnings
 } from '@/services/fdnextResultView';
 import { trackCoverageSignal, trackFlashIdLookup } from '@/services/analytics';
-import { useComboboxSuggestionCommit, useFormattedQueryInput } from '@/composables/useFormattedQueryInput';
+import { useFormattedQueryInput } from '@/composables/useFormattedQueryInput';
 import { idRoute, idsSearchRoute, localizeRouteLocation, routeParamText } from '@/router/locations';
 import bus from '@/store/bus';
 import store from '@/store';
@@ -146,34 +135,15 @@ let suggestionRequestId = 0;
 let decodeRequestId = 0;
 let suppressedSuggestionValue = '';
 
-const isMenuOpen = ref(false);
 const {
   model: flashIdInput,
   onCompositionStart,
   onCompositionEnd,
-  onBlur,
-  shouldSkipEnter
+  onBlur
 } = useFormattedQueryInput(flashId, {
   format: store.queryInputFormat,
   normalize: normalizeComboValue
 });
-const suggestionCommit = useComboboxSuggestionCommit(suggestions, {
-  normalize: normalizeComboValue,
-  commit: item => commitFlashId(item.value),
-  submit: () => decode()
-});
-
-function onEnter(event) {
-  if (shouldSkipEnter(event)) {
-    return;
-  }
-  if (isMenuOpen.value) {
-    suggestionCommit.queueSubmit();
-    return;
-  }
-  event.preventDefault();
-  decode();
-}
 
 const header = computed(() => resultHeader(result.value));
 const resultPanelMeta = computed(() => {
@@ -309,12 +279,9 @@ async function decode(syncRoute = true, { recordUsage = true } = {}) {
   }
 }
 
-async function selectFlashId(value) {
-  const text = normalizeComboValue(value).trim();
-  if (await suggestionCommit.select(value)) {
-    return;
-  }
-  flashId.value = store.queryInputFormat(text);
+async function selectFlashIdSuggestion(item) {
+  commitFlashId(item?.value);
+  await decode();
 }
 
 function searchSuggestions(inputValue) {
@@ -335,10 +302,10 @@ function searchSuggestions(inputValue) {
     try {
       const payload = await searchFlashId(query, 10);
       if (requestId !== suggestionRequestId) return;
-      suggestionCommit.updateItems(identifierSuggestions(payload));
+      suggestions.value = identifierSuggestions(payload);
     } catch {
       if (requestId !== suggestionRequestId) return;
-      suggestionCommit.updateItems([]);
+      suggestions.value = [];
     } finally {
       if (requestId === suggestionRequestId) {
         loadingSuggestions.value = false;

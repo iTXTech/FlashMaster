@@ -218,10 +218,6 @@ const parserModes = computed(() => [
   ...(embeddedParserAvailable ? [{ title: t('settings.parserEmbedded'), value: store.PARSER_EMBEDDED }] : []),
   { title: t('settings.parserHttp'), value: store.PARSER_HTTP }
 ]);
-const exclusiveControllerGroups = new Set([
-  store.CONTROLLER_GROUP_ALL,
-  store.CONTROLLER_GROUP_SELECTED
-]);
 const controllerGroupItems = computed(() => {
   const groups = capabilityData.value?.inventory?.controllers?.groups;
   if (Array.isArray(groups) && groups.length) {
@@ -230,6 +226,7 @@ const controllerGroupItems = computed(() => {
       .map(group => ({
         title: String(group.title || group.id),
         description: group.description ? String(group.description) : '',
+        exclusive: group.exclusive === true,
         value: String(group.id),
         props: {
           subtitle: group.description ? String(group.description) : String(group.id)
@@ -239,12 +236,14 @@ const controllerGroupItems = computed(() => {
   return controllerGroups.value.map(value => ({
     title: value,
     description: '',
+    exclusive: false,
     value,
     props: {
       subtitle: value
     }
   }));
 });
+const controllerGroupItemByValue = computed(() => new Map(controllerGroupItems.value.map(item => [item.value, item])));
 const controllerGroupSourceLabel = computed(() => capabilityData.value
   ? t('settings.controllerGroupsFromCapabilities')
   : t('settings.controllerGroupsFallback'));
@@ -317,15 +316,26 @@ function normalizeControllerGroupSelection(value) {
   if (!selected.length) {
     return previous;
   }
-  const exclusive = selected.filter(item => exclusiveControllerGroups.has(item));
+  const exclusive = selected.filter(isExclusiveControllerGroup);
   const newlySelectedExclusive = exclusive.find(item => !previous.includes(item));
   if (newlySelectedExclusive) {
     return [newlySelectedExclusive];
   }
-  if (exclusive.length && selected.some(item => !exclusiveControllerGroups.has(item))) {
-    return selected.filter(item => !exclusiveControllerGroups.has(item));
+  if (exclusive.length && selected.some(item => !isExclusiveControllerGroup(item))) {
+    return selected.filter(item => !isExclusiveControllerGroup(item));
+  }
+  if (exclusive.length > 1) {
+    return [exclusive[0]];
   }
   return selected;
+}
+
+function isExclusiveControllerGroup(value) {
+  return controllerGroupItemByValue.value.get(String(value || '').trim())?.exclusive === true;
+}
+
+function sameControllerGroups(a, b) {
+  return a.length === b.length && a.every((item, index) => item === b[index]);
 }
 
 function isControllerGroupSelected(value) {
@@ -374,10 +384,15 @@ function syncControllerGroupsWithCapabilities(data) {
     return;
   }
   const idSet = new Set(reportedIds);
-  if (controllerGroups.value.length && controllerGroups.value.every(group => idSet.has(group))) {
+  const normalizedCurrent = normalizeControllerGroupSelection(controllerGroups.value).filter(group => idSet.has(group));
+  if (
+    normalizedCurrent.length
+    && controllerGroups.value.every(group => idSet.has(group))
+    && sameControllerGroups(normalizedCurrent, controllerGroups.value)
+  ) {
     return;
   }
-  applyControllerGroups(defaultControllerGroupsFromCapabilities(data, idSet));
+  applyControllerGroups(normalizedCurrent.length ? normalizedCurrent : defaultControllerGroupsFromCapabilities(data, idSet));
 }
 
 function changeControllerGroups(value) {
@@ -388,11 +403,11 @@ function toggleControllerGroup(value) {
   const group = String(value || '').trim();
   if (!group) return;
   if (isLastSelectedControllerGroup(group)) return;
-  if (exclusiveControllerGroups.has(group)) {
+  if (isExclusiveControllerGroup(group)) {
     applyControllerGroups([group]);
     return;
   }
-  const withoutExclusive = controllerGroups.value.filter(item => !exclusiveControllerGroups.has(item));
+  const withoutExclusive = controllerGroups.value.filter(item => !isExclusiveControllerGroup(item));
   const next = withoutExclusive.includes(group)
     ? withoutExclusive.filter(item => item !== group)
     : [...withoutExclusive, group];
