@@ -1,25 +1,28 @@
 FlashMaster by PeratX <peratx@itxtech.org>
 版权所有 (c) 2019-2026 iTX Technologies
 ===================================
-版本 2.4.0
-- 内嵌解析器更新到 fdnext v3.0.0（1f7cbfc），在 Settings 使用后端报告的紧凑 capabilities 统计，并提供控制器分组互斥元数据。
-- 内嵌解析器更新到 fdnext v3.0.0（15714bc），修正带产品类型等约束的料号搜索，避免候选在评分前被过早截断。
-- 内嵌解析器更新到 fdnext v3.0.0（65be672），新增 Phison T27HGA5A1V 解析规则，并刷新控制器支持相关 FDB 数据。
-- 内嵌解析器更新到 fdnext v3.0.0（e148f7c），细化 NAND Flash ID profile 解码，并新增 SK hynix H25 V9H/V9Q 解码数据。
-- 内嵌解析器更新到 fdnext v3.0.0（7485860），新增确定性的 Samsung QLC die profile，并隐藏重复的 managed NAND 明细字段。
-- 内嵌解析器更新到 fdnext v3.0.0（f3f5d32），细化 KIOXIA raw NAND 解码规则。
-- 内嵌解析器更新到 fdnext v3.0.0（e50e903），对齐 KIOXIA managed NAND 的 Die Count 解码规则。
-- 内嵌解析器更新到 fdnext v3.0.0（4252e1e），DRAM 解析结果会将 chip select 数量作为原生 `CS 数` 字段输出，并细化 SK hynix H25 raw NAND / H25G / H25T 解码结果。
+版本 2.4.0（发布日期：2026-05-31）
+FlashMaster 更新：
 - 新增 HTTP-only `pico` 单文件构建形态，移除内嵌 fdnext，继承 nano 的功能裁剪，解析器版本位置显示为 `HTTP only`，并可通过 `VITE_FLASHMASTER_LOCKED_SERVER` 在构建时锁定 HTTP 服务器。
-- 内嵌解析器更新到 fdnext v3.0.0（b78cd5a），扩展 SK hynix、Samsung、Nanya、ISSI、CXMT、GigaDevice、Winbond 等 DRAM 与 managed NAND 料号覆盖，新增 Samsung DYG NAND profile、SK hynix H25T/HYV9 覆盖，并适配 fdnext 3.0 public API。
-- 内嵌解析器更新到 fdnext v3.0.0（49d6841），对 Samsung、SanDisk/KIOXIA、SK hynix、YMTC 等 managed NAND 规则输出字段去重。
-- 内嵌解析器更新到 fdnext v3.0.0（d2ac73a），扩展 ESMT 与 Etron DRAM 料号覆盖，并移除重复的 managed NAND density 输出。
-- 内嵌解析器更新到 fdnext v3.0.0（d56fa01），修正 Samsung NAND Flash ID 几何信息解析，并改进 Worker 形态 fdnext 服务的构建元数据部署。
-- 补齐 ESMT、Etron、GigaDevice、ISSI、Silicon Motion、Winbond 等 decodepack 厂商 Logo 映射。
-- 将 GigaDevice 厂商 Logo 切换为官方 SVG 素材，提升解析结果与外部链接中的显示清晰度。
+- PN 与 Flash ID 查询输入改用共享联想组件，统一直接输入、候选选择、格式化输入、语言切换和控制器选择后的解析/搜索行为。
+- 重构解析与搜索结果展示，加入共享明细块、嵌套值展开、更清晰的关系标签、更少的重复查询回显，以及更高密度的结果表格。
+- 设置页解析器信息适配 fdnext v3 capabilities，展示后端报告的紧凑 inventory metrics、控制器分组互斥信息、HTTP-only/pico 版本状态，并避免使用陈旧 capabilities 缓存。
+- 打磨工作台 UI：统一滚动条，优化移动端/PWA 浮层间距和底部面板稳定性，并保持 PN/Flash ID 对象在浏览器标题与元数据中的紧凑展示。
+- 优化可选 Market Pulse 的展示体验：可见槽位滚动更平稳，桌面图表位置更安静，隐藏或离屏时更少干扰主工具界面。
+- 补齐 ESMT、Etron、GigaDevice、ISSI、Silicon Motion、Winbond 等 decodepack 厂商 Logo 映射，并将 GigaDevice 切换为官方 SVG 素材，提升解析结果与外部链接中的显示清晰度。
+
+fdnext v3.0.0 支持面摘要：
+- 内嵌解析器集成 fdnext v3.0.0（1f7cbfc）。
+- 扩展 Samsung、SK hynix、Nanya、ISSI、Winbond、ESMT、Etron、CXMT、GigaDevice 等 DRAM 料号覆盖。
+- 扩展 managed NAND、MCP、UFS、eMCP 覆盖，包括 SK hynix H25/UFS/eMCP/uMCP、Samsung MCP、Micron managed/eMCP/FBGA、SpecTek 后缀，以及 KIOXIA raw/managed/UFS 规则。
+- 增强 NAND Flash ID 解码，包含 Samsung QLC die profile、Samsung 几何信息解码，以及 SK hynix、SanDisk、KIOXIA identifier profile 更新。
+- 新增 Phison `T27HGA5A1V`，刷新 FDB V84 数据，并扩展 YS9205、SM2268XT2 等控制器/PN/Flash ID 映射。
+- 减少 managed NAND 重复字段，并避免内部实现字段出现在公开解析结果中。
+- 完整解析器与资源细节集中查看 fdnext release notes：[iTXTech/fdnext](https://github.com/iTXTech/fdnext/releases/tag/v3.0.0)
 
 ===================================
-版本 2.3.0
+版本 2.3.0（发布日期：2026-05-17）
+FlashMaster 更新：
 - PN 与 Flash ID 页面在切换语言后会自动重新运行当前解析/搜索，让已显示结果同步到新语言，同时不重复累计本地使用次数。
 - 增强可选 Market Pulse：设置页可安静开关，滚动条只渲染可见槽位，支持价格变动闪动，并可点击展开带缓存快照的 K 线/成交量图表。
 - 设置页解析器信息改为原生能力卡片，展示解析器构建信息、FDB 元数据、资源统计、控制器分组、支持操作和 decoder 列表。
@@ -27,10 +30,18 @@ FlashMaster by PeratX <peratx@itxtech.org>
 - 新增 `pnpm build:singlefile:nano` 离线构建形态，可生成更小的单文件产物，并关闭统计与 Market Pulse。
 - 通过在前端入口手工按需注册实际使用的 Vuetify 组件，降低常规与 nano 单文件构建体积，且不新增 Vuetify Vite 插件。
 - 优化应用外壳：浏览器标题与 SEO 元数据继续包含 PN/Flash ID 查询对象，页面内标题保持简洁；同时改善移动端底部浮层间距。
-- 内嵌解析器集成更新 fdnext v2.3.0（b0010c0）。解析器与资源细节集中查看 fdnext release notes：[iTXTech/fdnext](https://github.com/iTXTech/fdnext/releases/tag/v2.3.0)
+
+fdnext v2.3.0 支持面摘要：
+- 内嵌解析器集成 fdnext v2.3.0（b0010c0）。
+- 新增共享 NAND die profile 元数据，并将 NAND Flash ID 密度/codename 逻辑迁移到 DecodePack identifier 规则。
+- 扩展 Samsung DRAM 后缀、DDR3 命名 token、Micron DRAM/NAND 冒号修订 token、Micron 2100AI/2100AT SSD、YMTC raw NAND 与 process metadata 覆盖。
+- 更新内置 FDB 到 V83，新增 `fdnext.fdb.v1`，清理跨厂商与低可信记录，并将 process 字段规范到 die-profile key。
+- 新增 fdfdb extra overlay 与 audit-extra 流程，让候选 PN/Flash ID 数据先审计再进入生成 FDB。
+- 完整解析器与资源细节集中查看 fdnext release notes：[iTXTech/fdnext](https://github.com/iTXTech/fdnext/releases/tag/v2.3.0)
 
 ===================================
-版本 2.2.0
+版本 2.2.0（发布日期：2026-05-14）
+FlashMaster 更新：
 - 设置页新增控制器分组卡片；FlashMaster 会将选择的控制器分组保存到本地，并应用到料号解析、料号搜索、Flash ID 解析和 Flash ID 搜索。
 - 解析器能力详情增强控制器清单展示，支持按 capabilities 返回的本地化名称/说明展示分组、默认分组和可展开控制器列表。
 - 新增构建期侧边栏页脚信息环境变量，可显示 ICP 备案号或其他公开部署信息，并支持配置外部链接。
@@ -38,60 +49,80 @@ FlashMaster by PeratX <peratx@itxtech.org>
 - 统一料号和 Flash ID 解析结果中的厂商 Logo 渲染，改善深色 Logo 处理和不同主题下的尺寸一致性。
 - 精简搜索结果展示，从紧凑摘要和 Flash ID 结果表格中隐藏控制器投影字段，减少重复信息。
 - 清理更新日志弹窗，移除冗余副标题，同时保留带 hash 的完整 FlashMaster 版本展示，并继续按基础版本记录已读状态。
-- 内嵌解析器更新内容见 fdnext v2.2.0 release notes：https://github.com/iTXTech/fdnext/releases/tag/v2.2.0
+
+fdnext v2.2.0 支持面摘要：
+- 内嵌解析器集成 fdnext v2.2.0（90b91d6）。
+- 扩展 NAND、Managed NAND、DRAM、HBM/HMC、SpecTek、KIOXIA、Samsung、Micron、ISSI、ESMT、Etron、Phison 等 DecodePack 规则覆盖。
+- 增强 NAND Flash ID 解码，加入更完整的厂商位域规则与 process-node sequence 匹配。
+- 新增控制器分组资源与 capability filtering，使 controller projection 更精细。
+- 更新 FDB 到 V82，新增 22 个 controller，导入 Alcor/Innostor/Phison UFD/CBM 等 support list，并清理低可信或非标准记录。
+- 隐藏公开结果中不应暴露的 DecodePack code/token 字段，并修正 capabilities 中 fdnext version 的来源。
+- 完整解析器与资源细节集中查看 fdnext release notes：[iTXTech/fdnext](https://github.com/iTXTech/fdnext/releases/tag/v2.2.0)
 
 ===================================
-版本 2.1.0
+版本 2.1.0（发布日期：2026-05-11）
+FlashMaster 更新：
 - 新增常规 Web 构建的 PWA 支持。执行 `pnpm build` 后将 `dist` 通过 HTTPS 发布，即可在浏览器安装或添加到主屏幕；首次访问缓存完成后可离线重新打开应用壳。
 - 新增 `pnpm build:singlefile` 单文件离线分发构建，产物命名为 `FlashMaster-<版本号>-<commitHash>.html`。
-- 更新内嵌 fdnext 到 v2.1.0（6a48b2e），从公开 PN 解析结果中隐藏内部 decodepack token 与分组字段。
-- 更新内嵌 fdnext 到 v2.1.0（268679e），适配重命名后的 decodepack 包结构用于内嵌解析器构建。
+- 新增 tag 触发的 GitHub Actions Release 流水线，自动构建 singlefile、hash zip、history zip 与校验文件。
 - 移除旧的 `deploy.bat` GitHub Pages 部署脚本。
 - 将 FlashMaster 的产品定位调整为存储芯片智能解析平台（Memory Chip Intelligence Platform），并同步应用文案与文档。
 - 重构公开路由为 `/parts`、`/ids`、`/settings`、`/about`，并支持可选 `/en` 与 `/zh` 语言前缀。
 - 新增 `VITE_FLASHMASTER_ROUTER_MODE=hash|history`；默认继续使用 hash 模式，history 模式使用正常 URL 并配合 SPA rewrite。
-- 更新内嵌 fdnext 到 v2.1.0（4c1c609），扩展 DRAM 与 Managed NAND 覆盖，包含 CXMT DRAM process、Silicon Motion managed NAND、SK hynix ZUFS 4.1 与更完整的旧款 Micron eMCP 解析。
 - 简化 About 项目信息，仅强调 GNU AGPL 3.0 许可证，不再重复源码链接和 HTTP API 模式。
-- 更新内嵌 fdnext 到 v2.0.0（fe99a8c），改用 fdnext 标准 build metadata，并使用 7 位短 commit hash。
 - 设置页解析器/服务器信息现在会从 capabilities API 展示 fdnext 的 commit hash 与 build time，内嵌和 HTTP 模式均支持。
 - 新增内置 fdnext HTTP API 预设，包含 iTXTech fdnext 云端与本地 fdnext 开发。
-- 更新内嵌 fdnext 到 v2.0.0（c0e005d），新增共享 runtime adapter 层与标准 ExternalLink 结果合约。
 - 新增 ExternalLink 渲染，覆盖解析结果与搜索卡片，支持厂商 Logo 链接图，并保留可显式开启的 fdnext processor 预览数据注入。
-- 更新内嵌 fdnext 到 v2.0.0（de51be4），对料号搜索中的 marking 候选去重，让 FBGA 与封装标记搜索结果更干净。
 - Controller 字段在解析和搜索结果中统一拆分为可折叠列表展示。
 - 优化宽屏布局：搜索/设置工作区居中收束，解析详情保持更高信息密度，并精简英文界面文案。
-- 更新内嵌 fdnext 到 v2.0.0（9b3ec2f），新增 capabilities inventory 合约，提供解析器、FDB、资源统计和 decoder 元数据。
 - 设置页解析器信息改为结构化卡片展示，包含解析器版本、FDB 元数据、资源统计、decoder 列表和支持能力。
-- 更新内嵌 fdnext 到 v2.0.0（36fa208），并将所有解析/搜索路径迁移到 fdnext 2.0 标准结果合约。
 - 重新基于标准 device、blocks、relations、warnings、candidates 和 search items 渲染 PN 与 Flash ID 结果。
 - HTTP 解析模式改为仅支持 fdnext 2.0 接口，并移除外部服务器列表获取。
 - 优化宽屏和窄屏下的高密度布局，包括结果头部、字段表格、关联行、搜索卡片和控制器摘要。
 - 移除旧的 bit 单位偏好设置，容量/密度显示改由 fdnext 2.0 字段单位统一提供。
 
-===================================
-版本 2.0.2
-- 更新内嵌 fdnext 到 v1.1.0（7176c5b），新增支持DRAM，eMCP，eMMC，UFS，Managed NAND等 PN 解析。
-- Managed NAND：扩展 SK hynix、Samsung、SanDisk/KIOXIA、YMTC、Micron 的 PN DSL 覆盖与厂商元数据。
-- DRAM：增加 Micron/Crucial、SK hynix、Samsung、Nanya、Elpida、CXMT DRAM 料号解析、资源、文档和测试。
-- DRAM 输出：优化公开类型与 CE/Die 分类输出，减少 DRAM 解析结果中的冗余内部字段。
-- Micron FBGA/MDB：增加统一 Micron FBGA 资源，通过改进后的抓取刷新 MDB 数据、DRAM 料号搜索数据、原始 MDB 刷新流程，以及内置资源启动修复。
-- FDB：增加 FirstChip 控制器生成来源，扩充 FlashDB 控制器与 PN/Flash ID 匹配数据。
-- Managed NAND 建议：增加结构化 PN 建议资源，并统一兼容性 baseline 检查。
-- 厂商 Logo：补齐 fdnext 当前支持厂商的 Logo 映射，并调整 Kingston、Elpida 等原始商标资源显示比例。
+fdnext v2.1.0 / v2.0.0 支持面摘要：
+- 集成 fdnext v2.1.0 阶段的内嵌解析器更新（6a48b2e，基于 v2.1.0）与 fdnext 2.0 标准结果合约。
+- 适配 DecodePack 包结构、共享 runtime adapter 层、标准 ExternalLink 结果合约，以及带 7 位短 hash 的 fdnext build metadata。
+- 扩展 DRAM 与 managed NAND 覆盖，包含 CXMT DRAM process、Silicon Motion managed NAND、SK hynix ZUFS 4.1 与更完整的旧款 Micron eMCP 解析。
+- 新增 capabilities inventory，展示解析器、FDB、资源、已注册 decoder、commit hash 与 build time。
+- 将解析/搜索渲染迁移到标准 device、blocks、relations、warnings、candidates、search items、typed Flash ID identifier 与去重后的 marking 候选。
+- 完整解析器与资源细节集中查看 fdnext release notes：[v2.1.0](https://github.com/iTXTech/fdnext/releases/tag/v2.1.0)、[v2.0.0](https://github.com/iTXTech/fdnext/releases/tag/v2.0.0)
 
 ===================================
-版本 2.0.1
-- 更新内嵌 fdnext 到 f870a05，扩展 managed NAND 料号规则、料号建议、三星/闪迪/铠侠/SK hynix 等解析覆盖，统一解析元数据键，并优化 managed NAND 元数据输出。
+版本 2.0.2（发布日期：2026-05-09）
+FlashMaster 更新：
+- 新增 2.x 更新日志弹窗，继续打磨解析结果、查询输入、服务器设置、可选 Market ticker，以及 `window.gtag` 存在时的查询统计。
+- 继续清理 Vite/Vue 3/Vuetify 3 迁移后的工具链，同时保留内嵌解析器与 HTTP 解析器模式。
+
+fdnext v1.1.0 支持面摘要：
+- 内嵌解析器集成 fdnext v1.1.0（a561a60）。
+- 新增 DRAM、eMCP、eMMC、UFS、Managed NAND 等 PN 解析支持。
+- 扩展 SK hynix、Samsung、SanDisk/KIOXIA、YMTC、Micron 的 Managed NAND PN 覆盖与厂商元数据。
+- 新增 Micron/Crucial、SK hynix、Samsung、Nanya、Elpida、CXMT 的 DRAM 料号解析，并优化公开类型与 CE/Die 分类输出。
+- 增加统一 Micron FBGA/MDB 资源、DRAM PN 搜索数据、raw MDB refresh 流程、FirstChip 控制器生成来源，以及结构化 Managed NAND 建议。
+- 完整解析器与资源细节集中查看 fdnext release notes：[iTXTech/fdnext](https://github.com/iTXTech/fdnext/releases/tag/v1.1.0)
+
+===================================
+版本 2.0.1（发布日期：2026-05-07）
+FlashMaster 更新：
+- 优化解析结果展示，减少重复料号字段，并将 Micron FBGA 解析出的美光料号提升到主结果区域。
+
+fdnext 支持面摘要：
+- 更新内嵌 fdnext 到上游 1.0.0 / f870a05，扩展 managed NAND 料号规则、料号建议、三星/闪迪/铠侠/SK hynix 等解析覆盖，统一解析元数据键，并优化 managed NAND 元数据输出。
 - 新增 fdnext NAND 解码规则与内置资源数据，SMI SATA/NVMe/U盘控制器，得一微，联云等。
 - 增加 YMTC/Samsung UFS 与 eMMC 解码。
 - 优化 fdnext 对 Intel、Kioxia BiCS、Western Digital/SanDisk、Phison 以及相关控制器和资源数据的改进。
-- 优化解析结果展示，减少重复料号字段，并将 Micron FBGA 解析出的美光料号提升到主结果区域。
 
 ===================================
-版本 2.0.0
+版本 2.0.0（发布日期：2026-05-07）
+FlashMaster 更新：
 - 升级项目工具链到 Vite、Vue 3、Vuetify 3 和 pnpm。
-- 新增内嵌 fdnext 解析器，默认在浏览器本地完成解析。
-- 保留 FlashDetector HTTP API 兼容模式，可在设置中切换服务端后端。
 - 将 UI 重编排为更高信息密度的工作台，覆盖查询、搜索、设置、关于、表格、链接和厂商 Logo 展示。
 - 优化联想查询、复制操作、主题与语言切换、默认输入焦点和设置持久化。
 - 新增按主版本显示一次的 ChangeLog 对话框，并可从关于页面再次打开。
+
+fdnext 支持面摘要：
+- 新增内嵌 fdnext 解析器，作为 PN 与 Flash ID 查询流程的默认本地解析引擎。
+- 保留 FlashDetector HTTP API 兼容模式，可在设置中切换为服务端后端。
+- 内置本地解析资源与厂商 Logo 映射，让 Vite 应用在无必需服务器的情况下展示更完整的解析与搜索结果。

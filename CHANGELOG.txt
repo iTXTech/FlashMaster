@@ -1,25 +1,28 @@
 FlashMaster by PeratX <peratx@itxtech.org>
 Copyright (c) 2019-2026 iTX Technologies
 ===================================
-Version 2.4.0
-- Updated the embedded fdnext parser to v3.0.0 (1f7cbfc), reporting compact backend-owned capability metrics and controller-group exclusivity metadata for Settings.
-- Updated the embedded fdnext parser to v3.0.0 (15714bc), fixing constrained part-number search so product-type filtered searches keep enough candidates before scoring.
-- Updated the embedded fdnext parser to v3.0.0 (65be672), adding the Phison T27HGA5A1V decode rule and refreshing FDB controller-support data.
-- Updated the embedded fdnext parser to v3.0.0 (e148f7c), refining NAND identifier profile decoding and adding SK hynix H25 V9H/V9Q decode data.
-- Updated the embedded fdnext parser to v3.0.0 (7485860), adding deterministic Samsung QLC die profiles and hiding duplicate managed-NAND detail fields.
-- Updated the embedded fdnext parser to v3.0.0 (f3f5d32), refining KIOXIA raw NAND decode rules.
-- Updated the embedded fdnext parser to v3.0.0 (e50e903), aligning KIOXIA managed-NAND die-count decoding rules.
-- Updated the embedded fdnext parser to v3.0.0 (4252e1e), reporting DRAM chip-select counts as native `CS Count` fields and refining SK hynix H25 raw NAND / H25G / H25T decode output.
+Version 2.4.0 (Release date: 2026-05-31)
+FlashMaster updates:
 - Added the HTTP-only `pico` single-file flavor. It removes embedded fdnext from the bundle, inherits the nano feature trimming, shows `HTTP only` in parser version surfaces, and can lock the HTTP server at build time with `VITE_FLASHMASTER_LOCKED_SERVER`.
-- Updated the embedded fdnext parser to v3.0.0 (b78cd5a), including expanded DRAM and managed-NAND part-number coverage across SK hynix, Samsung, Nanya, ISSI, CXMT, GigaDevice, and Winbond, Samsung DYG NAND profile support, SK hynix H25T/HYV9 coverage, and the fdnext 3.0 public API integration.
-- Updated the embedded fdnext parser to v3.0.0 (49d6841), deduplicating managed-NAND decode fields across Samsung, SanDisk/KIOXIA, SK hynix, and YMTC rule packs.
-- Updated the embedded fdnext parser to v3.0.0 (d2ac73a), expanding ESMT and Etron DRAM part-number coverage while removing duplicate managed-NAND density output.
-- Updated the embedded fdnext parser to v3.0.0 (d56fa01), refining Samsung NAND Flash ID geometry decoding and build metadata deployment for Worker-based fdnext services.
-- Added vendor logo coverage for ESMT, Etron, GigaDevice, ISSI, Silicon Motion, and Winbond decodepack vendors.
-- Switched the GigaDevice vendor logo to the official SVG artwork for sharper result and link rendering.
+- Improved PN and Flash ID query entry with a shared suggestion input, cleaner formatted input handling, and consistent decode/search behavior across direct entry, suggestions, language switching, and controller selections.
+- Reworked decode and search result presentation with shared detail blocks, expandable nested values, clearer relation labels, fewer repeated query echoes, and denser result tables.
+- Updated Settings parser information for fdnext v3 capability data, including compact backend-owned inventory metrics, controller-group exclusivity, clearer HTTP-only/pico version surfaces, and fresh capability requests instead of stale cached data.
+- Polished workstation UI behavior with unified scrollbars, tighter mobile/PWA overlay spacing, steadier bottom panels, and compact browser title/metadata handling for active PN and Flash ID subjects.
+- Improved optional Market Pulse presentation with smoother visible-slot scrolling, quieter desktop chart placement, and less distracting behavior while hidden or off-screen.
+- Added vendor logo coverage for ESMT, Etron, GigaDevice, ISSI, Silicon Motion, and Winbond decodepack vendors, and switched GigaDevice to official SVG artwork for sharper result and link rendering.
+
+fdnext v3.0.0 support highlights:
+- Integrated fdnext v3.0.0 (1f7cbfc) in the embedded parser.
+- Expanded DRAM PN coverage across Samsung, SK hynix, Nanya, ISSI, Winbond, ESMT, Etron, CXMT, and GigaDevice.
+- Expanded managed NAND, MCP, UFS, and eMCP coverage, including SK hynix H25/UFS/eMCP/uMCP, Samsung MCP, Micron managed/eMCP/FBGA, SpecTek suffixes, and KIOXIA raw/managed/UFS rules.
+- Improved NAND Flash ID decoding with Samsung QLC die profiles, Samsung geometry decoding, and updated SK hynix, SanDisk, and KIOXIA identifier profiles.
+- Added Phison `T27HGA5A1V`, refreshed FDB V84 data, and expanded controller/PN/Flash ID coverage including YS9205 and SM2268XT2 mappings.
+- Reduced duplicate managed NAND fields and kept internal implementation fields out of public results.
+- Full parser and resource details are tracked in the fdnext release notes: [iTXTech/fdnext](https://github.com/iTXTech/fdnext/releases/tag/v3.0.0)
 
 ===================================
-Version 2.3.0
+Version 2.3.0 (Release date: 2026-05-17)
+FlashMaster updates:
 - Active PN and Flash ID pages now rerun the current decode/search automatically after language switching, keeping visible results in the selected language without duplicating local usage counts.
 - Added optional Market Pulse enhancements, including a quiet Settings toggle, visible-slot rendering, price-change flashes, and click-through candlestick/volume charts backed by cached Hyperliquid market snapshots.
 - Reworked Settings parser information into native capability cards for parser build metadata, FDB metadata, inventory counts, controller groups, supported operations, and decoder lists.
@@ -27,10 +30,18 @@ Version 2.3.0
 - Added the `pnpm build:singlefile:nano` offline build flavor for a smaller single-file artifact with analytics and Market Pulse disabled.
 - Reduced regular and nano single-file bundle size by manually registering only the Vuetify components used by the UI, without adding a Vuetify Vite plugin.
 - Polished app chrome by keeping PN/Flash ID subjects in the browser title and SEO metadata while leaving the in-page title compact, plus improved mobile overlay spacing for bottom panels.
-- Integrated fdnext v2.3.0 (b0010c0) in the embedded parser. Parser and resource details are tracked in the fdnext release notes: [iTXTech/fdnext](https://github.com/iTXTech/fdnext/releases/tag/v2.3.0)
+
+fdnext v2.3.0 support highlights:
+- Integrated fdnext v2.3.0 (b0010c0) in the embedded parser.
+- Added shared NAND die profile metadata and moved NAND Flash ID density/codename logic into DecodePack identifier rules.
+- Expanded coverage for Samsung DRAM suffixes, DDR3 naming tokens, Micron DRAM/NAND colon revision tokens, Micron 2100AI/2100AT SSDs, and YMTC raw NAND/process metadata.
+- Updated bundled FDB to V83, added `fdnext.fdb.v1`, cleaned cross-vendor and low-confidence records, and normalized process fields to die-profile keys.
+- Added fdfdb extra overlays and audit-extra tooling so candidate PN/Flash ID data can be reviewed before entering generated FDB output.
+- Full parser and resource details are tracked in the fdnext release notes: [iTXTech/fdnext](https://github.com/iTXTech/fdnext/releases/tag/v2.3.0)
 
 ===================================
-Version 2.2.0
+Version 2.2.0 (Release date: 2026-05-14)
+FlashMaster updates:
 - Added a Settings controller group card. FlashMaster now stores the selected controller groups locally and applies them to PN decode, PN search, Flash ID decode, and Flash ID search.
 - Improved parser capability details with grouped controller inventory, localized group names/descriptions from capabilities, default group display, and expandable controller lists.
 - Added build-time sidebar footer notice variables for ICP filing text or other public deployment information, with optional external links.
@@ -38,57 +49,80 @@ Version 2.2.0
 - Unified vendor logo rendering across PN and Flash ID decode results, including dark-logo handling and more consistent sizing across themes.
 - Reduced search-result noise by hiding controller projection fields from compact result summaries and Flash ID result tables.
 - Cleaned up the changelog dialog by removing the redundant subtitle while keeping full hash-bearing FlashMaster version display and normalized read-state tracking.
-- Embedded parser updates are summarized in the fdnext v2.2.0 release notes: https://github.com/iTXTech/fdnext/releases/tag/v2.2.0
+
+fdnext v2.2.0 support highlights:
+- Integrated fdnext v2.2.0 (90b91d6) in the embedded parser.
+- Expanded DecodePack coverage across NAND, Managed NAND, DRAM, HBM/HMC, SpecTek, KIOXIA, Samsung, Micron, ISSI, ESMT, Etron, and Phison rules.
+- Improved NAND Flash ID decoding with more complete vendor bitfield rules and process-node sequence matching.
+- Added controller group resources and capability filtering for more precise controller projection.
+- Updated FDB to V82, added 22 controllers, imported support lists from Alcor/Innostor/Phison UFD/CBM sources, and cleaned low-confidence or non-canonical records.
+- Hid internal DecodePack code/token fields from public results and fixed fdnext version reporting in capabilities.
+- Full parser and resource details are tracked in the fdnext release notes: [iTXTech/fdnext](https://github.com/iTXTech/fdnext/releases/tag/v2.2.0)
 
 ===================================
-Version 2.1.0
+Version 2.1.0 (Release date: 2026-05-11)
+FlashMaster updates:
 - Added PWA support to the regular web build. Run `pnpm build`, serve `dist` over HTTPS, then install FlashMaster from the browser or home-screen prompt; the cached app shell can reopen after the first successful visit.
 - Added `pnpm build:singlefile` for self-contained offline HTML distribution as `FlashMaster-<version>-<commitHash>.html`.
-- Updated embedded fdnext to v2.1.0 (6a48b2e), hiding internal decodepack token and grouping fields from public PN decode results.
-- Updated embedded fdnext to v2.1.0 (268679e), adopting the renamed decodepack package layout for embedded parser builds.
+- Added tag-triggered GitHub Actions release packaging for single-file, hash-router, history-router, and checksum artifacts.
 - Removed the obsolete `deploy.bat` GitHub Pages deployment script.
 - Repositioned FlashMaster as a Memory Chip Intelligence Platform in app copy and documentation.
 - Reworked the public route set to `/parts`, `/ids`, `/settings`, and `/about`, with optional `/en` and `/zh` language prefixes.
 - Added `VITE_FLASHMASTER_ROUTER_MODE=hash|history`; hash mode remains the default, while history mode uses normal URLs with SPA rewrite support.
-- Updated embedded fdnext to v2.1.0 (4c1c609), expanding DRAM and managed NAND coverage with CXMT DRAM process decoding, Silicon Motion managed NAND, SK hynix ZUFS 4.1, and broader legacy Micron eMCP decoding.
 - Simplified the About project section so it only emphasizes the GNU AGPL 3.0 license instead of repeating the source link and HTTP API mode.
-- Updated embedded fdnext to v2.0.0 (fe99a8c), using fdnext standard build metadata with 7-character commit hashes.
 - Settings parser/server information now displays fdnext commit hash and build time from the capabilities API for both embedded and HTTP modes.
 - Added built-in fdnext HTTP API presets for iTXTech fdnext Cloud and Local fdnext Dev.
-- Updated embedded fdnext to v2.0.0 (c0e005d), adding the shared runtime adapter layer and the canonical ExternalLink result contract.
 - Added ExternalLink rendering for decode results and search cards, including vendor-logo link images and opt-in preview data injected through an fdnext processor.
-- Updated embedded fdnext to v2.0.0 (de51be4), deduplicating part-search marking candidates for cleaner FBGA and package-marking search results.
 - Split controller fields into collapsible lists across decode and search result views.
 - Refined wide-screen layouts by centering search/settings workspaces, keeping decode details denser, and tightening English UI labels.
-- Updated embedded fdnext to v2.0.0 (9b3ec2f), adding the capabilities inventory contract for parser, FDB, resource, and decoder metadata.
 - Reworked Settings parser information into structured cards for parser version, FDB metadata, inventory counts, decoder lists, and supported capabilities.
-- Updated embedded fdnext to v2.0.0 (36fa208) and migrated all decode/search paths to the fdnext 2.0 canonical result contract.
 - Rebuilt PN and Flash ID result rendering around canonical devices, blocks, relations, warnings, candidates, and search items.
 - Changed HTTP parser mode to fdnext 2.0 endpoints only and removed external server-list fetching.
 - Improved dense wide-screen and narrow-screen layouts for result headers, field tables, relation rows, search cards, and controller summaries.
 - Removed the legacy bit-unit preference because fdnext 2.0 now supplies canonical display units per field.
-- Updated embedded fdnext to v1.1.0 (7176c5b), adding PN parsing support for DRAM, eMCP, eMMC, UFS, Managed NAND, and more.
-- Managed NAND: expanded PN DSL coverage for SK hynix, Samsung, SanDisk/KIOXIA, YMTC, Micron, and vendor metadata.
-- DRAM: added Micron/Crucial, SK hynix, Samsung, Nanya, Elpida, and CXMT DRAM PN decoding, resources, docs, and tests.
-- DRAM output: refined public type and CE/Die classification output, reducing redundant internal fields in DRAM decode results.
-- Micron FBGA/MDB: added unified Micron FBGA resources, refreshed MDB data from the improved crawl, DRAM PN search data, raw MDB refresh flow, and startup fixes around bundled resources.
-- FDB: added FirstChip controller generation sources and expanded FlashDB controller plus PN/Flash ID matching data.
-- Managed NAND suggestions: added structured PN suggestion resources and unified compat baseline checks.
-- Vendor logos: filled logo mappings for fdnext-supported vendors and tuned original logo artwork sizing for Kingston, Elpida, and related brands.
+
+fdnext v2.1.0 / v2.0.0 support highlights:
+- Integrated fdnext v2.1.0-era embedded parser updates (6a48b2e, based on v2.1.0) and the fdnext 2.0 standard result contract.
+- Adopted the DecodePack package layout, shared runtime adapter layer, canonical ExternalLink result contract, and fdnext build metadata with 7-character commit hashes.
+- Expanded DRAM and managed NAND coverage, including CXMT DRAM process decoding, Silicon Motion managed NAND, SK hynix ZUFS 4.1, and broader legacy Micron eMCP decoding.
+- Added capabilities inventory for parser, FDB, resources, registered decoders, commit hash, and build time.
+- Migrated decode/search rendering to canonical devices, blocks, relations, warnings, candidates, search items, typed Flash ID identifiers, and deduplicated marking candidates.
+- Full parser and resource details are tracked in the fdnext release notes: [v2.1.0](https://github.com/iTXTech/fdnext/releases/tag/v2.1.0), [v2.0.0](https://github.com/iTXTech/fdnext/releases/tag/v2.0.0)
 
 ===================================
-Version 2.0.1
+Version 2.0.2 (Release date: 2026-05-09)
+FlashMaster updates:
+- Added the first 2.x changelog dialog, decode result polish, query input/server settings UX fixes, optional market ticker, and lookup analytics when `window.gtag` exists.
+- Continued the Vite/Vue 3/Vuetify 3 toolchain migration cleanup while keeping the embedded parser and HTTP parser modes available.
+
+fdnext v1.1.0 support highlights:
+- Integrated fdnext v1.1.0 (a561a60) in the embedded parser.
+- Added PN parsing support for DRAM, eMCP, eMMC, UFS, Managed NAND, and related memory-chip categories.
+- Expanded Managed NAND PN coverage for SK hynix, Samsung, SanDisk/KIOXIA, YMTC, Micron, and vendor metadata.
+- Added DRAM PN decoding for Micron/Crucial, SK hynix, Samsung, Nanya, Elpida, and CXMT, with richer public type and CE/Die classification output.
+- Added unified Micron FBGA/MDB resources, DRAM PN search data, raw MDB refresh flow, FirstChip controller generation sources, and structured Managed NAND suggestions.
+- Full parser and resource details are tracked in the fdnext release notes: [iTXTech/fdnext](https://github.com/iTXTech/fdnext/releases/tag/v1.1.0)
+
+===================================
+Version 2.0.1 (Release date: 2026-05-07)
+FlashMaster updates:
+- Improved decode result presentation by reducing repeated part-number fields and promoting Micron FBGA-resolved part numbers in the main result area.
+
+fdnext support highlights:
 - Updated embedded fdnext to f870a05, expanding managed NAND part-number rules, part-number suggestions, Samsung/SanDisk/Kioxia/SK hynix coverage, canonical parser metadata keys, and refined managed NAND metadata output.
 - Added new fdnext NAND decoding rules and bundled resource data, including SMI SATA/NVMe/USB controllers, Yeestor, Maxio, and more.
 - Added YMTC/Samsung UFS and eMMC decoding.
 - Improved fdnext coverage for Intel, Kioxia BiCS, Western Digital/SanDisk, Phison, and related controller/resource data.
-- Improved decode result presentation by reducing repeated part-number fields and promoting Micron FBGA-resolved part numbers in the main result area.
 
 ===================================
-Version 2.0.0
+Version 2.0.0 (Release date: 2026-05-07)
+FlashMaster updates:
 - Migrated the application to Vite, Vue 3, Vuetify 3, and pnpm.
-- Added the embedded fdnext parser as the default local decoding engine.
-- Kept FlashDetector HTTP API compatibility as an optional server-backed mode.
 - Reworked the UI into a denser workstation layout for decoding, searching, settings, About, tables, links, and vendor logos.
 - Improved suggestion handling, copy actions, theme and language switching, default input focus, and settings persistence.
 - Added a per-major-version ChangeLog dialog that can also be reopened from the About page.
+
+fdnext support highlights:
+- Added the embedded fdnext parser as the default local decoding engine for PN and Flash ID lookup workflows.
+- Kept FlashDetector HTTP API compatibility as an optional server-backed parser mode.
+- Bundled local parser resources and vendor-logo mapping so the Vite app could render richer decode and search results without a required server.
