@@ -16,6 +16,7 @@
             clearable
             hide-details
             prepend-inner-icon="mdi-magnify"
+            :loading="loading"
             :label="$t('flashId')"
             @keydown.enter="onEnter"
             @compositionstart="onCompositionStart"
@@ -26,7 +27,6 @@
             <v-btn color="primary" prepend-icon="mdi-magnify" @click="search">{{ $t('searchId') }}</v-btn>
             <v-btn variant="tonal" prepend-icon="mdi-memory" :disabled="!flashId" @click="decodeCurrent">{{ $t('searchIdPage.query') }}</v-btn>
           </div>
-          <v-progress-linear v-if="loading" indeterminate color="primary" />
         </div>
       </section>
 

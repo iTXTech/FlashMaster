@@ -27,6 +27,7 @@
             :clearable="!serverLocked"
             :disabled="serverLocked"
             :label="$t('settings.serverAddr')"
+            :loading="loadingInfo"
             @update:model-value="changeServer"
             @keydown.enter.prevent="commitServer()"
             @blur="commitServer()"
@@ -38,7 +39,6 @@
           <div class="action-row">
             <v-btn color="primary" prepend-icon="mdi-information-outline" @click="serverInfo">{{ infoButtonLabel }}</v-btn>
           </div>
-          <v-progress-linear v-if="loadingInfo" indeterminate color="primary" />
         </div>
       </section>
 

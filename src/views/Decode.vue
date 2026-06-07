@@ -13,7 +13,7 @@
             ref="input"
             v-model="partNumberInput"
             :items="suggestions"
-            :loading="loadingSuggestions"
+            :loading="loadingSuggestions || loading"
             :label="$t('partNumberOrFlashId')"
             @search="searchSuggestions"
             @select="selectPartSuggestion"
@@ -27,7 +27,6 @@
             <v-btn variant="tonal" prepend-icon="mdi-magnify" @click="goSearchPn">{{ $t('search') }}</v-btn>
             <v-btn variant="tonal" prepend-icon="mdi-flash" @click="goSearchId">{{ $t('searchId') }}</v-btn>
           </div>
-          <v-progress-linear v-if="loading" indeterminate color="primary" />
         </div>
       </section>
 

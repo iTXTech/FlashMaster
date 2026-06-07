@@ -13,7 +13,7 @@
             ref="input"
             v-model="flashIdInput"
             :items="suggestions"
-            :loading="loadingSuggestions"
+            :loading="loadingSuggestions || loading"
             :label="$t('flashId')"
             @search="searchSuggestions"
             @select="selectFlashIdSuggestion"
@@ -26,7 +26,6 @@
             <v-btn color="primary" prepend-icon="mdi-memory" @click="decode">{{ $t('searchIdPage.query') }}</v-btn>
             <v-btn variant="tonal" prepend-icon="mdi-magnify" @click="goSearchId">{{ $t('searchIdPage.search') }}</v-btn>
           </div>
-          <v-progress-linear v-if="loading" indeterminate color="primary" />
         </div>
       </section>
 

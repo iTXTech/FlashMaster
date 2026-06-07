@@ -16,6 +16,7 @@
             clearable
             hide-details
             prepend-inner-icon="mdi-magnify"
+            :loading="loading"
             :label="$t('partNumber')"
             @keydown.enter="onEnter"
             @compositionstart="onCompositionStart"
@@ -26,7 +27,6 @@
             <v-btn color="primary" prepend-icon="mdi-magnify" @click="search">{{ $t('search') }}</v-btn>
             <v-btn variant="tonal" prepend-icon="mdi-crosshairs-gps" :disabled="!partNumber" @click="decodeCurrent">{{ $t('query') }}</v-btn>
           </div>
-          <v-progress-linear v-if="loading" indeterminate color="primary" />
         </div>
       </section>
 
