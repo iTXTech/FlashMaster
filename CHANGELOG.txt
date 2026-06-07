@@ -1,8 +1,10 @@
 FlashMaster by PeratX <peratx@itxtech.org>
 Copyright (c) 2019-2026 iTX Technologies
 ===================================
-Version 2.5.0-dev (Development snapshot date: 2026-06-07)
+Version 2.5.0-dev (Development snapshot date: 2026-06-08)
 FlashMaster updates:
+- Improved embedded fdnext responsiveness in web builds: the parser now warms up after the first paint and runs embedded decode/search work asynchronously in a module worker, while single-file and HTTP-only fallbacks remain available.
+- Improved PN and Flash ID suggestions by keeping debounce behavior, clearing stale candidates immediately for new queries, and avoiding UI-render blocking during embedded searches.
 - Improved Market Pulse chart behavior: desktop charts now open near the clicked ticker and close on ticker drag or horizontal scroll, while mobile keeps the bottom-sheet layout.
 
 fdnext v3.1.0-dev support highlights:

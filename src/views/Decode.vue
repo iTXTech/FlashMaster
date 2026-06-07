@@ -310,6 +310,8 @@ function searchSuggestions(input) {
   }
   suppressedSuggestionValue = '';
   const requestId = ++suggestionRequestId;
+  suggestions.value = [];
+  loadingSuggestions.value = true;
   suggestionTimer = setTimeout(async () => {
     loadingSuggestions.value = true;
     try {

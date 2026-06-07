@@ -5,8 +5,7 @@ import {
     getEmbeddedInfo,
     searchEmbeddedFlashId,
     searchEmbeddedPartNumber,
-    summarizeEmbeddedFlashId,
-    summarizeEmbeddedPartNumber
+    warmEmbeddedParser as warmEmbeddedFdnextParser
 } from '@/services/fdnextApi';
 import { FDNEXT_CAPABILITIES_SCHEMA_VERSIONS, summaryText } from '@/services/fdnextResultView';
 
@@ -72,6 +71,11 @@ export const getServerInfo = async () => useEmbeddedParser()
     ? getEmbeddedInfo()
     : request('capabilities', langParams(), FDNEXT_CAPABILITIES_SCHEMA_VERSIONS);
 
+export const warmEmbeddedParser = () => {
+    if (!useEmbeddedParser()) return Promise.resolve();
+    return warmEmbeddedFdnextParser();
+};
+
 export const decodePartNumber = async pn => {
     return useEmbeddedParser() ? decodeEmbeddedPartNumber(pn) : request('parts/decode', {
         ...langParams(),
@@ -89,9 +93,7 @@ export const searchPartNumber = async (pn, limit = 0) => {
     });
 };
 
-export const summarizePartNumber = async pn => useEmbeddedParser()
-    ? summarizeEmbeddedPartNumber(pn)
-    : summaryText(await decodePartNumber(pn));
+export const summarizePartNumber = async pn => summaryText(await decodePartNumber(pn));
 
 export const decodeFlashId = async id => {
     const input = { idScheme: 'nand.flash_id' };
@@ -114,6 +116,4 @@ export const searchFlashId = async (id, limit = 0) => {
     });
 };
 
-export const summarizeFlashId = async id => useEmbeddedParser()
-    ? summarizeEmbeddedFlashId(id)
-    : summaryText(await decodeFlashId(id));
+export const summarizeFlashId = async id => summaryText(await decodeFlashId(id));

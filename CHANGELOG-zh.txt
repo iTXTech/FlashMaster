@@ -1,8 +1,10 @@
 FlashMaster by PeratX <peratx@itxtech.org>
 版权所有 (c) 2019-2026 iTX Technologies
 ===================================
-版本 2.5.0-dev（开发快照日期：2026-06-07）
+版本 2.5.0-dev（开发快照日期：2026-06-08）
 FlashMaster 更新：
+- 优化内嵌 fdnext 响应速度：常规 Web 构建在首屏渲染后预热解析器，并通过 module worker 异步执行内嵌解析/搜索，同时保留单文件与 HTTP-only 降级路径。
+- 优化 PN 与 Flash ID 联想输入：继续保留防抖，新查询会立即清空旧候选，并避免内嵌搜索阻塞 UI 渲染。
 - 优化 Market Pulse 图表交互：桌面端靠近点击的 ticker 展开，拖动或横向滚动 ticker 时关闭图表，移动端保持底部面板布局。
 
 fdnext v3.1.0-dev 支持面摘要：

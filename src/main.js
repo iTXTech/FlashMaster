@@ -102,8 +102,60 @@ const vuetify = createVuetify({
     }
 });
 
+function scheduleIdleTask(task) {
+    const runWhenIdle = () => {
+        if (typeof window.requestIdleCallback === 'function') {
+            window.requestIdleCallback(task, { timeout: 2500 });
+        } else {
+            window.setTimeout(task, 600);
+        }
+    };
+
+    if (typeof window.requestAnimationFrame === 'function') {
+        window.requestAnimationFrame(() => {
+            window.requestAnimationFrame(runWhenIdle);
+        });
+    } else {
+        runWhenIdle();
+    }
+}
+
+function scheduleAfterFirstPaint(task) {
+    const runAfterPaint = () => window.setTimeout(task, 0);
+
+    if (typeof window.requestAnimationFrame === 'function') {
+        window.requestAnimationFrame(() => {
+            window.requestAnimationFrame(runAfterPaint);
+        });
+    } else {
+        runAfterPaint();
+    }
+}
+
+function isSingleFileBuild() {
+    return typeof __FLASHMASTER_SINGLEFILE__ !== 'undefined' && Boolean(__FLASHMASTER_SINGLEFILE__);
+}
+
+function scheduleEmbeddedParserWarmup() {
+    if (!store.isEmbeddedParser()) return;
+    const scheduleWarmup = isSingleFileBuild() ? scheduleIdleTask : scheduleAfterFirstPaint;
+    scheduleWarmup(async () => {
+        if (!store.isEmbeddedParser()) return;
+        try {
+            const { warmEmbeddedParser } = await import('./services/flashApi');
+            if (store.isEmbeddedParser()) {
+                await warmEmbeddedParser();
+            }
+        } catch {
+            // Warmup is opportunistic; normal lookup paths will still initialize on demand.
+        }
+    });
+}
+
 createApp(App)
     .use(router)
     .use(i18n)
     .use(vuetify)
     .mount('#app');
+
+scheduleEmbeddedParserWarmup();

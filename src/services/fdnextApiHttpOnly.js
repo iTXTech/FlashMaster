@@ -9,3 +9,4 @@ export const summarizeEmbeddedPartNumber = unavailable;
 export const decodeEmbeddedFlashId = unavailable;
 export const searchEmbeddedFlashId = unavailable;
 export const summarizeEmbeddedFlashId = unavailable;
+export const warmEmbeddedParser = () => {};
