@@ -386,14 +386,15 @@ a {
 }
 
 .market-chart-panel {
-  --market-chart-desktop-offset-x: 12px;
-  --market-chart-desktop-offset-y: 8px;
+  --market-chart-desktop-margin: 12px;
+  --market-chart-anchor-left: var(--market-chart-desktop-margin);
+  --market-chart-anchor-top: 42px;
 
   position: absolute;
   z-index: 14;
-  top: calc(34px + var(--market-chart-desktop-offset-y));
-  left: var(--market-chart-desktop-offset-x);
-  width: min(640px, calc(100% - var(--market-chart-desktop-offset-x)));
+  top: var(--market-chart-anchor-top);
+  left: var(--market-chart-anchor-left);
+  width: min(640px, calc(100% - (var(--market-chart-desktop-margin) * 2)));
   overflow: hidden;
   border: 1px solid rgba(var(--v-theme-on-surface), 0.1);
   border-radius: 8px;

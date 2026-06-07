@@ -1,5 +1,5 @@
 <template>
-  <div :class="['market-pulse-shell', { 'is-chart-open': selectedMarketItem }]">
+  <div ref="shellRef" :class="['market-pulse-shell', { 'is-chart-open': selectedMarketItem }]">
     <div ref="pulseRoot" class="market-pulse" :aria-label="$t('market.ariaLabel')" :title="pulseTitle">
       <div
         ref="pulseViewport"
@@ -48,7 +48,12 @@
         @click="closeMarketPulse"
       />
     </div>
-    <MarketPulseChart v-if="selectedMarketItem" :item="selectedMarketItem" @close="closeMarketChart" />
+    <MarketPulseChart
+      v-if="selectedMarketItem"
+      :item="selectedMarketItem"
+      :style="chartPlacementStyle"
+      @close="closeMarketChart"
+    />
   </div>
 </template>
 
@@ -71,6 +76,7 @@ const flashingAssets = ref({});
 const renderedSlotCount = ref(4);
 const windowStart = ref(0);
 const selectedAsset = ref('');
+const shellRef = ref(null);
 const pulseRoot = ref(null);
 const pulseViewport = ref(null);
 const trackRef = ref(null);
@@ -79,6 +85,7 @@ const isDragging = ref(false);
 const isManualScroll = ref(false);
 const documentVisible = ref(!document.hidden);
 const scrollOffset = ref(0);
+const chartPlacement = ref(null);
 
 let unsubscribeMarket;
 let resizeObserver;
@@ -86,10 +93,15 @@ let flashTimer;
 let manualResumeTimer;
 let lastClientX = 0;
 let dragDelta = 0;
+let lastViewportWidth = 0;
 let lastQuoteSignature = createQuoteSignature(quotes.value);
 const MARKET_PULSE_RENDER_BUFFER_SLOTS = 2;
 const MARKET_PULSE_SLOT_WIDTH = 200;
 const MARKET_PULSE_SLOT_DURATION_MS = 18_000;
+const MARKET_CHART_MAX_WIDTH = 640;
+const MARKET_CHART_EDGE_MARGIN = 12;
+const MARKET_CHART_VERTICAL_GAP = 8;
+const MARKET_DRAG_CLOSE_THRESHOLD = 5;
 
 const priceFormatter = new Intl.NumberFormat('en-US', {
   style: 'currency',
@@ -146,6 +158,14 @@ const trackStyle = computed(() => {
     style.transform = `translate3d(${scrollOffset.value}px, 0, 0)`;
   }
   return style;
+});
+
+const chartPlacementStyle = computed(() => {
+  if (!chartPlacement.value) return {};
+  return {
+    '--market-chart-anchor-left': `${Math.round(chartPlacement.value.left)}px`,
+    '--market-chart-anchor-top': `${Math.round(chartPlacement.value.top)}px`
+  };
 });
 
 function formatMarketItem(item, extra = {}) {
@@ -232,6 +252,10 @@ function handleMarketUpdate(nextQuotes) {
 function updateRenderedSlotCount() {
   const viewportWidth = pulseViewport.value?.clientWidth || pulseRoot.value?.clientWidth || 0;
   if (!viewportWidth) return;
+  if (lastViewportWidth && Math.abs(viewportWidth - lastViewportWidth) > 1 && selectedMarketItem.value) {
+    closeMarketChart();
+  }
+  lastViewportWidth = viewportWidth;
   renderedSlotCount.value = Math.max(4, Math.ceil(viewportWidth / MARKET_PULSE_SLOT_WIDTH) + MARKET_PULSE_RENDER_BUFFER_SLOTS);
 }
 
@@ -325,6 +349,9 @@ function onPointerMove(e) {
   lastClientX = e.clientX;
 
   dragDelta += Math.abs(delta);
+  if (dragDelta > MARKET_DRAG_CLOSE_THRESHOLD && selectedMarketItem.value) {
+    closeMarketChart();
+  }
   applyManualScroll(delta);
 }
 
@@ -342,6 +369,9 @@ function onPointerUp() {
 function onWheel(e) {
   if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
     e.preventDefault();
+    if (selectedMarketItem.value) {
+      closeMarketChart();
+    }
     freezeScroll();
     applyManualScroll(-e.deltaX);
     scheduleManualScrollEnd();
@@ -380,11 +410,12 @@ function closeMarketPulse() {
   trackPulseEvent('market_pulse_visibility', 'dismiss', null, { enabled: false });
   stopMarketService();
   selectedAsset.value = '';
+  chartPlacement.value = null;
   emit('close');
 }
 
 function openMarketChart(item, event) {
-  if (dragDelta > 5) {
+  if (dragDelta > MARKET_DRAG_CLOSE_THRESHOLD) {
     if (event) {
       event.preventDefault();
       event.stopPropagation();
@@ -397,6 +428,7 @@ function openMarketChart(item, event) {
 
   if (shouldCloseCurrent) {
     selectedAsset.value = '';
+    chartPlacement.value = null;
     trackPulseEvent('market_pulse_chart', 'close', item);
     return;
   }
@@ -405,6 +437,8 @@ function openMarketChart(item, event) {
     trackPulseEvent('market_pulse_chart', 'switch_close', previousItem);
   }
 
+  freezeScroll();
+  chartPlacement.value = calculateChartPlacement(event?.currentTarget);
   selectedAsset.value = item.asset;
   trackPulseEvent('market_pulse_chart', 'open', item);
 }
@@ -414,6 +448,26 @@ function closeMarketChart() {
     trackPulseEvent('market_pulse_chart', 'close', selectedMarketItem.value);
   }
   selectedAsset.value = '';
+  chartPlacement.value = null;
+}
+
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+}
+
+function calculateChartPlacement(anchorElement) {
+  const shellRect = shellRef.value?.getBoundingClientRect();
+  const anchorRect = anchorElement?.getBoundingClientRect();
+  if (!shellRect || !anchorRect) return null;
+
+  const chartWidth = Math.max(0, Math.min(MARKET_CHART_MAX_WIDTH, shellRect.width - MARKET_CHART_EDGE_MARGIN * 2));
+  const minLeft = MARKET_CHART_EDGE_MARGIN;
+  const maxLeft = Math.max(minLeft, shellRect.width - chartWidth - MARKET_CHART_EDGE_MARGIN);
+  const anchorCenter = anchorRect.left - shellRect.left + anchorRect.width / 2;
+  const left = clamp(anchorCenter - chartWidth / 2, minLeft, maxLeft);
+  const top = Math.max(0, anchorRect.bottom - shellRect.top + MARKET_CHART_VERTICAL_GAP);
+
+  return { left, top };
 }
 
 function trackPulseEvent(event, action, item = null, options = {}) {
@@ -461,6 +515,7 @@ watch(() => quotes.value.length, length => {
   }
   if (selectedAsset.value && !selectedMarketItem.value) {
     selectedAsset.value = '';
+    chartPlacement.value = null;
   }
   nextTick(() => {
     updateRenderedSlotCount();

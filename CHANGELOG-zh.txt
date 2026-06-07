@@ -1,6 +1,17 @@
 FlashMaster by PeratX <peratx@itxtech.org>
 版权所有 (c) 2019-2026 iTX Technologies
 ===================================
+版本 2.5.0-dev（开发快照日期：2026-06-07）
+FlashMaster 更新：
+- 优化 Market Pulse 图表交互：桌面端靠近点击的 ticker 展开，拖动或横向滚动 ticker 时关闭图表，移动端保持底部面板布局。
+
+fdnext v3.1.0-dev 支持面摘要：
+- 内嵌解析器集成 fdnext v3.1.0-dev（c9eee03）。
+- 新增并优化 Micron raw NAND DecodePack 覆盖，包括 `MT29FB` HSC raw NAND、HSC NAND 技术备注、冒号修订归一，以及 current/legacy raw NAND 结构化 token 解码。
+- 更新 SK hynix H25 raw NAND current 与 legacy 料号族解码，扩展 HYV4-HYV9/HYV9Q profile 匹配、die density、die count、CE/R/B/channel 与电压输出。
+- 扩展已确认 SK hynix H25 HYV9/HYV9Q package tail 处理，让 package 表命中的条目可输出封装尺寸、产品级别和速率信息；未知 tail 继续按稳定 token 字段降级。
+
+===================================
 版本 2.4.0（发布日期：2026-05-31）
 FlashMaster 更新：
 - 新增 HTTP-only `pico` 单文件构建形态，移除内嵌 fdnext，继承 nano 的功能裁剪，解析器版本位置显示为 `HTTP only`，并可通过 `VITE_FLASHMASTER_LOCKED_SERVER` 在构建时锁定 HTTP 服务器。

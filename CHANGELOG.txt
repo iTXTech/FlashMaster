@@ -1,6 +1,17 @@
 FlashMaster by PeratX <peratx@itxtech.org>
 Copyright (c) 2019-2026 iTX Technologies
 ===================================
+Version 2.5.0-dev (Development snapshot date: 2026-06-07)
+FlashMaster updates:
+- Improved Market Pulse chart behavior: desktop charts now open near the clicked ticker and close on ticker drag or horizontal scroll, while mobile keeps the bottom-sheet layout.
+
+fdnext v3.1.0-dev support highlights:
+- Integrated fdnext v3.1.0-dev (c9eee03) in the embedded parser.
+- Added and refined Micron raw NAND DecodePack coverage, including `MT29FB` HSC raw NAND, HSC NAND technology notes, colon revision normalization, and structured current/legacy raw NAND token decoding.
+- Updated SK hynix H25 raw NAND decoding across current and legacy part-number families, including broader HYV4-HYV9/HYV9Q profile matching, die density, die count, CE/R/B/channel, and voltage output.
+- Expanded confirmed SK hynix H25 HYV9/HYV9Q package-tail handling so known package-table entries can surface package dimensions, product class, and speed details while unknown tails continue to degrade to stable token fields.
+
+===================================
 Version 2.4.0 (Release date: 2026-05-31)
 FlashMaster updates:
 - Added the HTTP-only `pico` single-file flavor. It removes embedded fdnext from the bundle, inherits the nano feature trimming, shows `HTTP only` in parser version surfaces, and can lock the HTTP server at build time with `VITE_FLASHMASTER_LOCKED_SERVER`.
