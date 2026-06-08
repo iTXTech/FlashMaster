@@ -168,7 +168,6 @@ export const searchEmbeddedPartNumber = (pn, limit = 0) => {
   const payload = {
     query: pn,
     lang: currentLang(),
-    controllerGroup: currentControllerGroup(),
     limit: limitValue(limit)
   };
   return runEmbeddedOperation('searchParts', payload, async () => (await getEngine()).searchParts(payload));
@@ -189,7 +188,6 @@ export const searchEmbeddedFlashId = (id, limit = 0) => {
     query: id,
     lang: currentLang(),
     idScheme: 'nand.flash_id',
-    controllerGroup: currentControllerGroup(),
     limit: limitValue(limit)
   };
   return runEmbeddedOperation('searchIdentifiers', payload, async () => (await getEngine()).searchIdentifiers(payload));

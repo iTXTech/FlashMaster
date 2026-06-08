@@ -88,7 +88,6 @@ export const searchPartNumber = async (pn, limit = 0) => {
     return useEmbeddedParser() ? searchEmbeddedPartNumber(pn, limit) : request('parts/search', {
         ...langParams(),
         query: pn,
-        ...controllerGroupParams(),
         ...limitParams(limit)
     });
 };
@@ -111,7 +110,6 @@ export const searchFlashId = async (id, limit = 0) => {
         ...langParams(),
         query: id,
         ...input,
-        ...controllerGroupParams(),
         ...limitParams(limit)
     });
 };

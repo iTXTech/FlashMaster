@@ -8,7 +8,8 @@ FlashMaster updates:
 - Improved Market Pulse chart behavior: desktop charts now open near the clicked ticker and close on ticker drag or horizontal scroll, while mobile keeps the bottom-sheet layout.
 
 fdnext v3.1.0-dev support highlights:
-- Integrated fdnext v3.1.0-dev (c9eee03) in the embedded parser.
+- Integrated fdnext v3.1.0-dev (ae3099f) in the embedded parser.
+- Optimized fdnext PN search fast paths and aligned search result contracts: `/parts/search` and `/identifiers/search` stay summary-focused, while controller projection remains a decode-only detail.
 - Added and refined Micron raw NAND DecodePack coverage, including `MT29FB` HSC raw NAND, HSC NAND technology notes, colon revision normalization, and structured current/legacy raw NAND token decoding.
 - Updated SK hynix H25 raw NAND decoding across current and legacy part-number families, including broader HYV4-HYV9/HYV9Q profile matching, die density, die count, CE/R/B/channel, and voltage output.
 - Expanded confirmed SK hynix H25 HYV9/HYV9Q package-tail handling so known package-table entries can surface package dimensions, product class, and speed details while unknown tails continue to degrade to stable token fields.
