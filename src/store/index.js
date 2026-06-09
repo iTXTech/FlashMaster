@@ -126,7 +126,9 @@ const getProjectVersion = () => {
 };
 
 const getChangelogVersion = (version = getProjectVersion()) => {
-    return String(version || "").split("-").at(0) || "";
+    const value = String(version || "").trim();
+    const buildHash = value.match(/-([0-9a-f]{7,40}|dev)$/i)?.[1];
+    return buildHash || value;
 };
 
 const getSeenChangelogVersion = () => {

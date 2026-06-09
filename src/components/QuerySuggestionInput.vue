@@ -15,7 +15,7 @@
     :auto-select-first="false"
     :label="label"
     @update:menu="menuOpen = $event"
-    @update:search="value => emit('search', value)"
+    @update:search="handleSearchUpdate"
     @update:model-value="commitModelValue"
     @keydown.enter="submitCurrentInput"
     @compositionstart="onCompositionStart"
@@ -125,6 +125,11 @@ function submitCurrentInput(event) {
   }, 0);
 }
 
+function handleSearchUpdate(value) {
+  if (isComposing.value) return;
+  emit('search', value);
+}
+
 function onCompositionStart(event) {
   isComposing.value = true;
   emit('compositionstart', event);
@@ -133,6 +138,7 @@ function onCompositionStart(event) {
 function onCompositionEnd(event) {
   isComposing.value = false;
   emit('compositionend', event);
+  emit('search', event?.target?.value || props.modelValue);
 }
 
 function focus() {
