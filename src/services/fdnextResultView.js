@@ -201,6 +201,8 @@ const CHIP_LABELS = {
   nand_flash_id: 'NAND Flash ID',
   nand: 'NAND',
   dram: 'DRAM',
+  '3d_xpoint': '3D XPoint',
+  '3dxpoint': '3D XPoint',
   nor: 'NOR',
   pmic: 'PMIC',
   controller: 'Controller',
