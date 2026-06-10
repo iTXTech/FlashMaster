@@ -93,6 +93,7 @@ let flashTimer;
 let manualResumeTimer;
 let lastClientX = 0;
 let dragDelta = 0;
+let dragClosedChart = false;
 let lastViewportWidth = 0;
 let lastQuoteSignature = createQuoteSignature(quotes.value);
 const MARKET_PULSE_RENDER_BUFFER_SLOTS = 2;
@@ -337,6 +338,13 @@ function onPointerDown(e) {
   isDragging.value = true;
   lastClientX = e.clientX;
   dragDelta = 0;
+  dragClosedChart = false;
+
+  try {
+    trackRef.value?.setPointerCapture?.(e.pointerId);
+  } catch {
+    // Pointer capture can fail if the browser already ended the pointer stream.
+  }
 
   window.addEventListener('pointermove', onPointerMove);
   window.addEventListener('pointerup', onPointerUp);
@@ -349,20 +357,34 @@ function onPointerMove(e) {
   lastClientX = e.clientX;
 
   dragDelta += Math.abs(delta);
-  if (dragDelta > MARKET_DRAG_CLOSE_THRESHOLD && selectedMarketItem.value) {
+  if (!dragClosedChart && dragDelta > MARKET_DRAG_CLOSE_THRESHOLD && selectedMarketItem.value) {
+    dragClosedChart = true;
     closeMarketChart();
   }
   applyManualScroll(delta);
 }
 
-function onPointerUp() {
+function onPointerUp(e) {
+  const shouldResumeAfterDragClose = dragClosedChart && !selectedMarketItem.value;
   isDragging.value = false;
+  if (shouldResumeAfterDragClose) {
+    isHovered.value = false;
+  }
   resumeScroll();
+  if (shouldResumeAfterDragClose) {
+    nextTick(resumeScroll);
+  }
+  try {
+    trackRef.value?.releasePointerCapture?.(e.pointerId);
+  } catch {
+    // Ignore stale pointer capture on cancel/up races.
+  }
   window.removeEventListener('pointermove', onPointerMove);
   window.removeEventListener('pointerup', onPointerUp);
   window.removeEventListener('pointercancel', onPointerUp);
   setTimeout(() => {
     dragDelta = 0;
+    dragClosedChart = false;
   }, 0);
 }
 
