@@ -271,6 +271,17 @@ a {
   animation-play-state: paused;
 }
 
+@media (pointer: fine) {
+  .market-pulse-track {
+    cursor: grab;
+  }
+
+  .market-pulse-track.is-dragging,
+  .market-pulse-track.is-dragging .market-item {
+    cursor: grabbing;
+  }
+}
+
 .market-pulse-track.is-scroll-running {
   animation-play-state: running;
 }
@@ -307,6 +318,9 @@ a {
   font: inherit;
   line-height: 1;
   transform: translateY(-50%);
+  transition:
+    background-color 120ms ease,
+    box-shadow 120ms ease;
   contain: layout paint style;
 }
 

@@ -5,14 +5,16 @@ Version 2.5.0-dev (Development snapshot date: 2026-06-11)
 FlashMaster updates:
 - Improved embedded fdnext responsiveness in web builds: the parser now warms up after the first paint and runs embedded decode/search work asynchronously in a module worker, while single-file and HTTP-only fallbacks remain available.
 - Improved PN and Flash ID suggestions by keeping debounce behavior, clearing stale candidates immediately for new queries, and avoiding UI-render blocking during embedded searches.
-- Improved Market Pulse chart behavior: desktop charts now open near the clicked ticker, close on ticker drag or horizontal scroll, and resume ticker auto-scroll after a drag closes an open chart.
+- Improved Market Pulse chart behavior: desktop ticker clicks and horizontal drags now use a cleaner gesture threshold, clicks reliably open charts near the clicked ticker, drags or horizontal scroll close open charts, and ticker auto-scroll resumes after a drag closes an open chart.
 - Added a polished FlashMaster display label for fdnext's new `3d_xpoint` chip kind in result badges and capability views.
 
 fdnext v3.1.0 support highlights:
-- Integrated fdnext v3.1.0 (b4ca75b) in the embedded parser.
+- Integrated fdnext v3.1.0 (ad97955) in the embedded parser.
 - Added Intel and Micron 3D XPoint part-number decoding, including the new `3d_xpoint` result kind and field profile.
 - Improved raw NAND part-number coverage for Samsung stack and die-profile decoding, KIOXIA profiles, SanDisk ECB/WCS raw NAND, and SpecTek `PF285` / `PF580` families.
 - Fixed Intel QLC 3D4 profile normalization for matching Intel raw NAND part-number results.
+- Added dashless part-number decoding so normalized PN input can resolve without separator characters.
+- Fixed Samsung raw NAND token/package output and Micron HSC channel-count output.
 - Optimized fdnext PN search fast paths and aligned search result contracts: `/parts/search` and `/identifiers/search` stay summary-focused, while controller projection remains a decode-only detail.
 - Added and refined Micron raw NAND DecodePack coverage, including `MT29FB` HSC raw NAND, HSC NAND technology notes, colon revision normalization, and structured current/legacy raw NAND token decoding.
 - Updated SK hynix H25 raw NAND decoding across current and legacy part-number families, including broader HYV4-HYV9/HYV9Q profile matching, die density, die count, CE/R/B/channel, and voltage output.
