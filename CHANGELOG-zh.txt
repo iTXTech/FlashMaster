@@ -11,7 +11,7 @@ FlashMaster 更新：
 - 为 fdnext 新增的 `3d_xpoint` 芯片类型补充 FlashMaster 显示标签，让结果 badge 与能力页显示为 `3D XPoint`。
 
 fdnext v3.1.0 支持面摘要：
-- 内嵌解析器集成 fdnext v3.1.0（cd964df）。
+- 内嵌解析器集成 fdnext v3.1.0（65de4f7）。
 - 新增 Intel 与 Micron 3D XPoint 料号解码，包含新的 `3d_xpoint` 结果类型与字段分组。
 - 新增 Micron EDY DDR4 料号解码，并扩展 Micron DDR4/DDR5 package、speed 与覆盖范围处理。
 - 优化 SpecTek DDR5/DDR3 解码，并降低 fdnext decode warmup 开销。

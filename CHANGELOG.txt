@@ -11,7 +11,7 @@ FlashMaster updates:
 - Added a polished FlashMaster display label for fdnext's new `3d_xpoint` chip kind in result badges and capability views.
 
 fdnext v3.1.0 support highlights:
-- Integrated fdnext v3.1.0 (cd964df) in the embedded parser.
+- Integrated fdnext v3.1.0 (65de4f7) in the embedded parser.
 - Added Intel and Micron 3D XPoint part-number decoding, including the new `3d_xpoint` result kind and field profile.
 - Added Micron EDY DDR4 part-number decoding and broadened Micron DDR4/DDR5 package, speed, and coverage handling.
 - Optimized SpecTek DDR5/DDR3 decoding and reduced fdnext decode warmup overhead.
