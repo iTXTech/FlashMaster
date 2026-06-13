@@ -3,14 +3,17 @@ FlashMaster by PeratX <peratx@itxtech.org>
 ===================================
 版本 2.5.0-dev（开发快照日期：2026-06-11）
 FlashMaster 更新：
-- 优化内嵌 fdnext 响应速度：常规 Web 构建在首屏渲染后预热解析器，并通过 module worker 异步执行内嵌解析/搜索，同时保留单文件与 HTTP-only 降级路径。
+- 优化内嵌 fdnext 响应速度：常规 Web 与 full/nano 单文件构建会在合适时机预热解析器，并通过 module worker 异步执行内嵌解析/搜索；常规 Web 构建继续保留主线程降级路径，HTTP-only 构建保持可用。
 - 优化 PN 与 Flash ID 联想输入：继续保留防抖，新查询会立即清空旧候选，并避免内嵌搜索阻塞 UI 渲染。
 - 优化 Market Pulse 图表交互：桌面端点击 ticker 与横向拖动现在使用更清晰的手势阈值，点击可可靠展开靠近点击位置的图表，拖动或横向滚动 ticker 时关闭图表，并在拖动被动关闭图表后恢复 ticker 自动滚动。
 - 为 fdnext 新增的 `3d_xpoint` 芯片类型补充 FlashMaster 显示标签，让结果 badge 与能力页显示为 `3D XPoint`。
 
 fdnext v3.1.0 支持面摘要：
-- 内嵌解析器集成 fdnext v3.1.0（ad97955）。
+- 内嵌解析器集成 fdnext v3.1.0（f2d7c8b）。
 - 新增 Intel 与 Micron 3D XPoint 料号解码，包含新的 `3d_xpoint` 结果类型与字段分组。
+- 新增 Micron EDY DDR4 料号解码，并扩展 Micron DDR4/DDR5 package、speed 与覆盖范围处理。
+- 优化 SpecTek DDR5/DDR3 解码，并降低 fdnext decode warmup 开销。
+- 新增 fdnext decodepack array table 支持，并优化 MDB crawl header routing。
 - 优化 raw NAND 料号覆盖，包括 Samsung stack 与 die-profile 解码、KIOXIA profile、SanDisk ECB/WCS raw NAND，以及 SpecTek `PF285` / `PF580` 系列。
 - 修复 Intel QLC 3D4 profile 归一，让 Intel raw NAND 料号结果匹配到正确 profile。
 - 新增无连字符料号解码，让归一化后的 PN 输入可在缺少分隔符时继续解析。

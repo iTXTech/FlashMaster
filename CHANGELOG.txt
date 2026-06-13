@@ -3,14 +3,17 @@ Copyright (c) 2019-2026 iTX Technologies
 ===================================
 Version 2.5.0-dev (Development snapshot date: 2026-06-11)
 FlashMaster updates:
-- Improved embedded fdnext responsiveness in web builds: the parser now warms up after the first paint and runs embedded decode/search work asynchronously in a module worker, while single-file and HTTP-only fallbacks remain available.
+- Improved embedded fdnext responsiveness in web and full/nano single-file builds: the parser now warms up after the first paint where appropriate and runs embedded decode/search work asynchronously in a module worker, while regular web builds keep a main-thread fallback and HTTP-only builds remain available.
 - Improved PN and Flash ID suggestions by keeping debounce behavior, clearing stale candidates immediately for new queries, and avoiding UI-render blocking during embedded searches.
 - Improved Market Pulse chart behavior: desktop ticker clicks and horizontal drags now use a cleaner gesture threshold, clicks reliably open charts near the clicked ticker, drags or horizontal scroll close open charts, and ticker auto-scroll resumes after a drag closes an open chart.
 - Added a polished FlashMaster display label for fdnext's new `3d_xpoint` chip kind in result badges and capability views.
 
 fdnext v3.1.0 support highlights:
-- Integrated fdnext v3.1.0 (ad97955) in the embedded parser.
+- Integrated fdnext v3.1.0 (f2d7c8b) in the embedded parser.
 - Added Intel and Micron 3D XPoint part-number decoding, including the new `3d_xpoint` result kind and field profile.
+- Added Micron EDY DDR4 part-number decoding and broadened Micron DDR4/DDR5 package, speed, and coverage handling.
+- Optimized SpecTek DDR5/DDR3 decoding and reduced fdnext decode warmup overhead.
+- Added fdnext decodepack array-table support and improved MDB crawl header routing.
 - Improved raw NAND part-number coverage for Samsung stack and die-profile decoding, KIOXIA profiles, SanDisk ECB/WCS raw NAND, and SpecTek `PF285` / `PF580` families.
 - Fixed Intel QLC 3D4 profile normalization for matching Intel raw NAND part-number results.
 - Added dashless part-number decoding so normalized PN input can resolve without separator characters.

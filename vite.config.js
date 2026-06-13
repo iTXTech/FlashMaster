@@ -224,6 +224,7 @@ export default defineConfig(({ mode }) => {
   const marketPulseEnabled = !minimalSingleFile;
   const commercialBannerEnabled = !minimalSingleFile;
   const embeddedParserEnabled = !pico;
+  const inlineEmbeddedWorker = singleFile && embeddedParserEnabled;
   const lockedServer = String(process.env.VITE_FLASHMASTER_LOCKED_SERVER || '').trim();
   const routerMode = singleFile || process.env.VITE_FLASHMASTER_ROUTER_MODE !== 'history' ? 'hash' : 'history';
   const appBase = process.env.VITE_FLASHMASTER_BASE || (routerMode === 'history' ? '/' : './');
@@ -244,6 +245,13 @@ export default defineConfig(({ mode }) => {
     ...(!embeddedParserEnabled ? [{
       find: '@/services/fdnextApi',
       replacement: fileURLToPath(new URL('./src/services/fdnextApiHttpOnly.js', import.meta.url))
+    }] : []),
+    ...(inlineEmbeddedWorker ? [{
+      find: '@/services/fdnextWorkerFactory',
+      replacement: fileURLToPath(new URL('./src/services/fdnextWorkerFactoryInline.js', import.meta.url))
+    }, {
+      find: '@/services/fdnextMainEngine',
+      replacement: fileURLToPath(new URL('./src/services/fdnextMainEngineUnavailable.js', import.meta.url))
     }] : []),
     ...(pico ? [
       {
@@ -281,6 +289,9 @@ export default defineConfig(({ mode }) => {
       outDir: singleFile ? 'dist-singlefile' : 'dist',
       emptyOutDir: !singleFile
     },
+    worker: inlineEmbeddedWorker ? {
+      format: 'es'
+    } : undefined,
     resolve: {
       alias: aliases
     },

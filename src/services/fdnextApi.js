@@ -1,28 +1,24 @@
-import { createExternalLinkPreviewProcessor } from '@/services/fdnextExternalLinkPreview';
+import { createFdnextWorker } from '@/services/fdnextWorkerFactory';
 import store from '@/store';
 
 const WORKER_REQUEST_TIMEOUT_MS = 30000;
 
-let engine;
-let enginePromise;
+let mainEngineApiPromise;
 let worker;
 let workerDisabled = false;
 let workerRequestId = 0;
 const workerRequests = new Map();
 
-async function getEngine() {
-  if (engine) return engine;
-  if (!enginePromise) {
-    enginePromise = import('@itxtech/fdnext-core').then(({ createEngine }) => {
-      if (engine) return engine;
-      const processor = createExternalLinkPreviewProcessor();
-      engine = createEngine({
-        processors: [processor].filter(Boolean)
-      });
-      return engine;
-    });
+async function getMainEngineApi() {
+  if (!mainEngineApiPromise) {
+    mainEngineApiPromise = import('@/services/fdnextMainEngine');
   }
-  return enginePromise;
+  return mainEngineApiPromise;
+}
+
+async function runMainEngineOperation(operation, payload) {
+  const api = await getMainEngineApi();
+  return api[operation](payload);
 }
 
 function currentLang() {
@@ -38,13 +34,8 @@ function limitValue(limit) {
   return Number.isFinite(value) && value > 0 ? value : undefined;
 }
 
-function isSingleFileBuild() {
-  return typeof __FLASHMASTER_SINGLEFILE__ !== 'undefined' && Boolean(__FLASHMASTER_SINGLEFILE__);
-}
-
 function embeddedWorkerAvailable() {
   return typeof Worker !== 'undefined'
-    && !isSingleFileBuild()
     && !workerDisabled;
 }
 
@@ -93,10 +84,7 @@ function getWorker() {
   if (!embeddedWorkerAvailable()) return null;
   if (worker) return worker;
   try {
-    worker = new Worker(new URL('./fdnextWorker.js', import.meta.url), {
-      name: 'flashmaster-fdnext',
-      type: 'module'
-    });
+    worker = createFdnextWorker();
     worker.addEventListener('message', handleWorkerMessage);
     worker.addEventListener('error', handleWorkerFailure);
     return worker;
@@ -134,25 +122,13 @@ async function runEmbeddedOperation(type, payload, fallback) {
   }
 }
 
-async function embeddedInfo(payload) {
-  const capabilities = (await getEngine()).getCapabilities({ lang: payload.lang });
-  return {
-    ...capabilities,
-    server: {
-      ...capabilities.server,
-      name: 'Embedded iTXTech fdnext'
-    }
-  };
-}
-
 export const warmEmbeddedParser = () => runEmbeddedOperation('warm', {}, async () => {
-  await getEngine();
-  return { warmed: true };
+  return runMainEngineOperation('warmMainEmbeddedParser');
 });
 
 export const getEmbeddedInfo = () => {
   const payload = { lang: currentLang() };
-  return runEmbeddedOperation('info', payload, () => embeddedInfo(payload));
+  return runEmbeddedOperation('info', payload, () => runMainEngineOperation('getMainEmbeddedInfo', payload));
 };
 
 export const decodeEmbeddedPartNumber = pn => {
@@ -161,7 +137,7 @@ export const decodeEmbeddedPartNumber = pn => {
     lang: currentLang(),
     controllerGroup: currentControllerGroup()
   };
-  return runEmbeddedOperation('decodePart', payload, async () => (await getEngine()).decodePart(payload));
+  return runEmbeddedOperation('decodePart', payload, () => runMainEngineOperation('decodeMainEmbeddedPartNumber', payload));
 };
 
 export const searchEmbeddedPartNumber = (pn, limit = 0) => {
@@ -170,7 +146,7 @@ export const searchEmbeddedPartNumber = (pn, limit = 0) => {
     lang: currentLang(),
     limit: limitValue(limit)
   };
-  return runEmbeddedOperation('searchParts', payload, async () => (await getEngine()).searchParts(payload));
+  return runEmbeddedOperation('searchParts', payload, () => runMainEngineOperation('searchMainEmbeddedPartNumber', payload));
 };
 
 export const decodeEmbeddedFlashId = id => {
@@ -180,7 +156,7 @@ export const decodeEmbeddedFlashId = id => {
     idScheme: 'nand.flash_id',
     controllerGroup: currentControllerGroup()
   };
-  return runEmbeddedOperation('decodeIdentifier', payload, async () => (await getEngine()).decodeIdentifier(payload));
+  return runEmbeddedOperation('decodeIdentifier', payload, () => runMainEngineOperation('decodeMainEmbeddedFlashId', payload));
 };
 
 export const searchEmbeddedFlashId = (id, limit = 0) => {
@@ -190,5 +166,5 @@ export const searchEmbeddedFlashId = (id, limit = 0) => {
     idScheme: 'nand.flash_id',
     limit: limitValue(limit)
   };
-  return runEmbeddedOperation('searchIdentifiers', payload, async () => (await getEngine()).searchIdentifiers(payload));
+  return runEmbeddedOperation('searchIdentifiers', payload, () => runMainEngineOperation('searchMainEmbeddedFlashId', payload));
 };
