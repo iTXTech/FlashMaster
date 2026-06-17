@@ -39,6 +39,9 @@
           </button>
         </div>
         <div v-else-if="loading" class="market-pulse-placeholder">{{ $t('market.loading') }}</div>
+        <div v-else-if="error" class="market-pulse-placeholder is-error" role="status">
+          {{ $t('market.unavailable') }}
+        </div>
       </div>
       <v-btn
         class="market-pulse-close"

@@ -130,6 +130,7 @@ export default {
     market: {
         title: 'Market Pulse，显示美元行情与变动',
         loading: '行情加载中',
+        unavailable: '无法连接 Market Pulse',
         ariaLabel: 'Market Pulse 行情条',
         close: '关闭 Market Pulse',
         chartOpen: '查看 {0} K线',

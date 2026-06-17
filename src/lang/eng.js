@@ -130,6 +130,7 @@ export default {
     market: {
         title: 'Market Pulse, USD quotes with current price and change',
         loading: 'Loading market data',
+        unavailable: 'Market Pulse unavailable',
         ariaLabel: 'Market Pulse',
         close: 'Hide Market Pulse',
         chartOpen: 'View {0} candles',
