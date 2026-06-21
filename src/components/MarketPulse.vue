@@ -125,7 +125,8 @@ const precisePriceFormatter = new Intl.NumberFormat('en-US', {
 const visibleItems = computed(() => {
   const items = quotes.value;
   if (!items.length) return [];
-  return Array.from({ length: renderedSlotCount.value }, (_, offset) => {
+  const slotCount = Math.min(renderedSlotCount.value, items.length);
+  return Array.from({ length: slotCount }, (_, offset) => {
     const marketIndex = (windowStart.value + offset) % items.length;
     const item = items[marketIndex];
     return formatMarketItem(item, {
@@ -152,7 +153,7 @@ const shouldAutoScroll = computed(() =>
   && !isHovered.value
   && !isPointerActive.value
   && selectedQuote.value === null
-  && quotes.value.length > 0
+  && quotes.value.length > renderedSlotCount.value
 );
 
 const trackStyle = computed(() => {
@@ -213,7 +214,8 @@ function getVisibleAssetSet(items = quotes.value) {
   const length = items.length;
   const assets = new Set();
   if (!length) return assets;
-  for (let offset = 0; offset < renderedSlotCount.value; offset += 1) {
+  const slotCount = Math.min(renderedSlotCount.value, length);
+  for (let offset = 0; offset < slotCount; offset += 1) {
     const item = items[(windowStart.value + offset) % length];
     if (item?.asset) {
       assets.add(item.asset);
@@ -325,7 +327,7 @@ function scheduleManualScrollEnd() {
 }
 
 function onScrollIteration() {
-  if (!shouldAutoScroll.value || isManualScroll.value || !quotes.value.length) return;
+  if (!shouldAutoScroll.value || isManualScroll.value || quotes.value.length <= renderedSlotCount.value) return;
   windowStart.value = (windowStart.value + 1) % quotes.value.length;
 }
 

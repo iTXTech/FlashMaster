@@ -372,6 +372,20 @@ function applyMidsToQuotes(currentItems, mids) {
     .filter(Boolean);
 }
 
+function mergeQuoteUpdates(currentItems, updates) {
+  if (!currentItems.length) return updates;
+  if (!updates.length) return currentItems;
+
+  const nextByAsset = new Map(currentItems.map(item => [item.asset, item]));
+  updates.forEach(item => {
+    nextByAsset.set(item.asset, item);
+  });
+
+  return TARGET_ASSETS
+    .map(target => nextByAsset.get(target.asset))
+    .filter(Boolean);
+}
+
 function cacheQuotes(items) {
   try {
     localStorage.setItem(CACHE_KEY, JSON.stringify({ items, cachedAt: Date.now() }));
@@ -802,12 +816,14 @@ export function subscribeMarketQuotes({ onUpdate, onError } = {}) {
   const handleLighterStats = data => {
     const items = normalizeLighterPayload(data);
     if (!items.length) return;
+    const isIncrementalUpdate = data?.type === 'update/market_stats';
+    const nextItems = isIncrementalUpdate ? mergeQuoteUpdates(currentItems, items) : items;
     latestMids = null;
     socketSource = MARKET_SOURCE_LIGHTER;
     lastSocketMidsAt = Date.now();
     socketStreaming = true;
     stopFallback();
-    emit(items);
+    emit(nextItems);
   };
 
   const processQueuedSocketData = () => {
