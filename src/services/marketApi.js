@@ -446,7 +446,7 @@ export async function fetchMarketQuotes(options = {}) {
         primaryError?.message || String(primaryError),
         `${fallbackName}: ${fallbackError?.message || String(fallbackError)}`
       ].join('; ');
-      throw new Error(message);
+      throw new Error(message, { cause: fallbackError });
     }
   }
 }
@@ -536,7 +536,7 @@ export async function fetchMarketCandles(asset, options = {}) {
         primaryError?.message || String(primaryError),
         `Fallback candles: ${fallbackError?.message || String(fallbackError)}`
       ].join('; ');
-      throw new Error(message);
+      throw new Error(message, { cause: fallbackError });
     }
   }
 

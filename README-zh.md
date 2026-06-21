@@ -26,7 +26,7 @@ FlashMaster 是一个工作站级别的静态 Vue 应用。与偏向营销的落
 
 FlashMaster 采用“轻 UI，重引擎”的设计哲学。
 
-- **前端:** 基于 [Vue 3](https://vuejs.org/)、[Vuetify 3](https://vuetifyjs.com/) 和 [Vite](https://vitejs.dev/) 构建。
+- **前端:** 基于 [Vue 3](https://vuejs.org/)、[Vuetify](https://vuetifyjs.com/) 和 [Vite](https://vitejs.dev/) 构建。
 - **引擎 ([fdnext](https://github.com/iTXTech/fdnext)):** 核心逻辑由作为 Git 子模块引入的 `fdnext` 引擎驱动。它处理所有的解析、规则匹配和数据库查询。
 - **双后端模式:**
   - **内嵌模式:** 引擎直接在浏览器中运行，无需服务器。

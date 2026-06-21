@@ -26,7 +26,7 @@ FlashMaster is a workstation-grade static Vue application. Unlike marketing-heav
 
 FlashMaster is designed with a "Thin UI, Thick Engine" philosophy.
 
-- **Frontend:** Built with [Vue 3](https://vuejs.org/), [Vuetify 3](https://vuetifyjs.com/), and [Vite](https://vitejs.dev/).
+- **Frontend:** Built with [Vue 3](https://vuejs.org/), [Vuetify](https://vuetifyjs.com/), and [Vite](https://vitejs.dev/).
 - **Engine ([fdnext](https://github.com/iTXTech/fdnext)):** The core logic is powered by the `fdnext` engine, bundled as a Git submodule. It handles all parsing, rule matching, and database queries.
 - **Dual Backends:**
   - **Embedded:** The engine runs directly in the browser. No server required.

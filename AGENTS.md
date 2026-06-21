@@ -2,7 +2,7 @@
 
 ## Current Scope
 
-FlashMaster is now a Vite + Vue 3 + Vuetify 3 dense Memory Chip Intelligence
+FlashMaster is now a Vite + Vue 3 + Vuetify dense Memory Chip Intelligence
 Platform for memory-chip part-number lookup, NAND Flash ID lookup, database
 search, and result inspection. It is no longer in the Step 1 migration phase.
 
@@ -21,8 +21,13 @@ marketing-style first screen.
   - `pnpm build:singlefile:nano`
   - `pnpm build:singlefile:pico`
   - `pnpm preview`
-- The app is built with Vite, Vue 3, Vue Router 4, Vue I18n 11, Vuetify 3, and
+- The app is built with Vite, Vue 3, Vue Router, Vue I18n, Vuetify, and
   Material Design Icons.
+- Keep frontend/runtime tooling dependencies on the latest compatible versions
+  by default. When dependency major versions move, update `package.json` and
+  `pnpm-lock.yaml` together and run `pnpm lint` plus `pnpm build`.
+- Do not pin repository notes or docs to old major dependency versions unless a
+  known compatibility constraint requires it.
 - Keep Vuetify components manually registered on demand in `src/main.js`.
   Do not use `import * as components from 'vuetify/components'` or
   `import * as directives from 'vuetify/directives'`; when adding Vuetify UI,
