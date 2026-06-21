@@ -63,7 +63,12 @@ const { locale, t } = useI18n();
 const chartRoot = ref(null);
 const activeRangeKey = ref(DEFAULT_MARKET_CANDLE_RANGE);
 const activeRange = computed(() => getMarketCandleRange(activeRangeKey.value));
-const candles = ref(loadCachedMarketCandles(props.item.asset, activeRange.value.interval, activeRange.value.key));
+const candles = ref(loadCachedMarketCandles(
+  props.item.asset,
+  activeRange.value.interval,
+  activeRange.value.key,
+  props.item.source
+));
 const activeCandle = ref(candles.value.at(-1) || null);
 const loading = ref(false);
 const error = ref('');
@@ -231,6 +236,7 @@ async function loadCandles({ silent = false } = {}) {
       startTime,
       endTime,
       maxCandles,
+      source: props.item.source,
       signal: requestController.signal
     });
     if (currentRequestId !== requestId) return;
@@ -250,7 +256,7 @@ async function loadCandles({ silent = false } = {}) {
 
 async function loadCachedRange() {
   const range = activeRange.value;
-  const cached = loadCachedMarketCandles(props.item.asset, range.interval, range.key);
+  const cached = loadCachedMarketCandles(props.item.asset, range.interval, range.key, props.item.source);
   if (!cached.length) {
     clearCandles();
     return false;
@@ -289,7 +295,7 @@ onUnmounted(() => {
   chart?.remove();
 });
 
-watch(() => props.item.asset, () => {
+watch(() => [props.item.asset, props.item.source], () => {
   loadCachedRange().then(hasCachedRange => {
     loadCandles({ silent: hasCachedRange });
   });
