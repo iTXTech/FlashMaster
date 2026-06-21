@@ -33,7 +33,7 @@
             @blur="commitServer()"
           >
             <template #item="{ props, item }">
-              <v-list-item v-bind="props" :title="item.raw.title" :subtitle="item.raw.value" />
+              <v-list-item v-bind="props" :title="item.title" :subtitle="item.value" />
             </template>
           </v-combobox>
           <div class="action-row">
@@ -67,25 +67,23 @@
             :label="$t('settings.activeControllerGroups')"
             @update:model-value="changeControllerGroups"
           >
-            <template #item="{ item }">
+            <template #item="{ props, item }">
               <v-list-item
+                v-bind="props"
                 class="controller-group-option"
-                :active="isControllerGroupSelected(item.raw.value)"
-                :subtitle="item.raw.description || item.raw.value"
-                :title="item.raw.title"
-                role="option"
-                @click.stop.prevent="toggleControllerGroup(item.raw.value)"
+                :active="isControllerGroupSelected(item.value)"
+                :subtitle="item.description || item.value"
+                :title="item.title"
               >
                 <template #prepend>
                   <v-checkbox-btn
                     class="controller-group-option-checkbox"
                     color="primary"
                     density="compact"
-                    :disabled="isLastSelectedControllerGroup(item.raw.value)"
-                    :model-value="isControllerGroupSelected(item.raw.value)"
+                    :model-value="isControllerGroupSelected(item.value)"
                     :ripple="false"
                     tabindex="-1"
-                    @click.stop.prevent="toggleControllerGroup(item.raw.value)"
+                    aria-hidden="true"
                   />
                 </template>
               </v-list-item>
@@ -342,11 +340,6 @@ function isControllerGroupSelected(value) {
   return controllerGroups.value.includes(String(value || ''));
 }
 
-function isLastSelectedControllerGroup(value) {
-  const group = String(value || '').trim();
-  return Boolean(group) && controllerGroups.value.length === 1 && controllerGroups.value[0] === group;
-}
-
 function applyControllerGroups(value) {
   store.setControllerGroups(value);
   controllerGroups.value = store.getControllerGroups();
@@ -397,23 +390,6 @@ function syncControllerGroupsWithCapabilities(data) {
 
 function changeControllerGroups(value) {
   applyControllerGroups(normalizeControllerGroupSelection(value));
-}
-
-function toggleControllerGroup(value) {
-  const group = String(value || '').trim();
-  if (!group) return;
-  if (isLastSelectedControllerGroup(group)) return;
-  if (isExclusiveControllerGroup(group)) {
-    applyControllerGroups([group]);
-    return;
-  }
-  const withoutExclusive = controllerGroups.value.filter(item => !isExclusiveControllerGroup(item));
-  const next = withoutExclusive.includes(group)
-    ? withoutExclusive.filter(item => item !== group)
-    : [...withoutExclusive, group];
-  if (next.length) {
-    applyControllerGroups(next);
-  }
 }
 
 function changeTheme(value) {

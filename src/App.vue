@@ -48,7 +48,6 @@
           :title="$t(item.title)"
           :to="item.to"
           :active="item.active"
-          color="primary"
           rounded="sm"
         />
       </v-list>
@@ -93,7 +92,7 @@
       v-model="snackbar.show"
       :timeout="snackbar.timeout"
       color="surface-variant"
-      location="bottom right"
+      :style="snackbarStyle"
     >
       {{ snackbar.text }}
       <template #actions>
@@ -216,6 +215,12 @@ const mainSurfaceStyle = computed(() => (
     ? { '--service-banner-height': `${serviceBannerHeight.value}px` }
     : {}
 ));
+const snackbarStyle = computed(() => {
+  const offset = commercialBannerAvailable && serviceBannerVisible.value && serviceBannerHeight.value > 0
+    ? serviceBannerHeight.value + (mobile.value ? 8 : 10)
+    : 0;
+  return { '--v-snackbar-offset': `${offset}px` };
+});
 const routeSubject = computed(() => {
   if (route.name === ROUTE_NAMES.part) return routeParamText(route, 'pn');
   if (route.name === ROUTE_NAMES.id) return routeParamText(route, 'id');

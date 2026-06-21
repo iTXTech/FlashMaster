@@ -11,6 +11,7 @@
     class="pn"
     clearable
     hide-details
+    :menu-props="{ contentClass: 'query-suggestion-menu' }"
     no-filter
     :auto-select-first="false"
     :label="label"
@@ -25,8 +26,9 @@
     <template #item="{ props, item }">
       <v-list-item
         v-bind="props"
-        :title="item.raw.title"
-        :subtitle="item.raw.subtitle"
+        class="query-suggestion-option"
+        :title="item.title || item.value"
+        :subtitle="item.subtitle"
       />
     </template>
   </v-combobox>

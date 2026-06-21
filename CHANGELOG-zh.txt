@@ -5,6 +5,8 @@ FlashMaster by PeratX <peratx@itxtech.org>
 本版本特别致谢 HFB 提供的资料支持，帮助完善 Raw NAND 解码规则。
 
 FlashMaster 更新：
+- 更新前端与运行时依赖到最新兼容版本，保持 Vue 3 + Vuetify 工具界面与当前依赖生态同步。
+- 打磨依赖刷新后的使用体验：优化侧边栏文字颜色、菜单与联想候选显示、控制器分组选择、snackbar 位置、按钮对比度，以及关联卡片的焦点和边框表现。
 - 优化内嵌 fdnext 响应速度：常规 Web 与 full/nano 单文件构建会在合适时机预热解析器，并通过 module worker 异步执行内嵌解析/搜索；常规 Web 构建继续保留主线程降级路径，HTTP-only 构建保持可用。
 - 优化 PN 与 Flash ID 联想输入：继续保留防抖，新查询会立即清空旧候选，并避免内嵌搜索阻塞 UI 渲染。
 - 优化 Market Pulse 图表交互：桌面端点击 ticker 与横向拖动现在使用更清晰的手势阈值，点击可可靠展开靠近点击位置的图表，拖动或横向滚动 ticker 时关闭图表，并在拖动被动关闭图表后恢复 ticker 自动滚动。

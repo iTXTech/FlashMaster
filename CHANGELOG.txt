@@ -5,6 +5,8 @@ Version 2.5.0-dev (Development snapshot date: 2026-06-15)
 Special thanks to HFB for providing reference material that helped refine the Raw NAND decoding rules in this release.
 
 FlashMaster updates:
+- Updated frontend and runtime dependencies to the latest compatible releases, keeping the Vue 3 + Vuetify tool surface current.
+- Polished the dependency-refresh UX: improved sidebar text colors, menu and suggestion rendering, controller-group selection, snackbar placement, button contrast, and relation-card focus/border behavior.
 - Improved embedded fdnext responsiveness in web and full/nano single-file builds: the parser now warms up after the first paint where appropriate and runs embedded decode/search work asynchronously in a module worker, while regular web builds keep a main-thread fallback and HTTP-only builds remain available.
 - Improved PN and Flash ID suggestions by keeping debounce behavior, clearing stale candidates immediately for new queries, and avoiding UI-render blocking during embedded searches.
 - Improved Market Pulse chart behavior: desktop ticker clicks and horizontal drags now use a cleaner gesture threshold, clicks reliably open charts near the clicked ticker, drags or horizontal scroll close open charts, and ticker auto-scroll resumes after a drag closes an open chart.

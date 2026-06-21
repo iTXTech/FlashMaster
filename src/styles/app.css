@@ -119,6 +119,17 @@ body {
   text-transform: none;
 }
 
+.v-btn.bg-primary {
+  color: rgb(var(--v-theme-on-primary)) !important;
+}
+
+.v-btn.bg-primary .v-btn__content,
+.v-btn.bg-primary .v-btn__prepend,
+.v-btn.bg-primary .v-btn__append,
+.v-btn.bg-primary .v-icon {
+  color: inherit !important;
+}
+
 a {
   color: rgb(var(--v-theme-primary));
   text-decoration: none;
@@ -811,8 +822,14 @@ a {
 }
 
 .side-nav .v-list-item {
+  color: rgba(var(--v-theme-on-surface), 0.78) !important;
   min-height: 46px;
   margin: 4px 0;
+}
+
+.side-nav .v-list-item .v-icon,
+.side-nav .v-list-item-title {
+  color: inherit !important;
 }
 
 .side-nav .v-list-item-title {
@@ -822,6 +839,7 @@ a {
 
 .side-nav .v-list-item--active {
   background: rgba(var(--v-theme-primary), 0.24);
+  color: rgba(var(--v-theme-on-surface), 0.96) !important;
 }
 
 .nav-footer {
@@ -950,6 +968,18 @@ a.nav-footer-notice:hover {
 
 .action-row .v-icon {
   font-size: 1.08rem;
+}
+
+.query-suggestion-menu .v-list-item {
+  color: rgba(var(--v-theme-on-surface), 0.9) !important;
+}
+
+.query-suggestion-menu .v-list-item-title {
+  color: rgba(var(--v-theme-on-surface), 0.94) !important;
+}
+
+.query-suggestion-menu .v-list-item-subtitle {
+  color: rgba(var(--v-theme-on-surface), 0.64) !important;
 }
 
 .metric-grid {
@@ -1837,6 +1867,7 @@ a.nav-footer-notice:hover {
   align-content: start;
   gap: 3px;
   padding: 8px 10px;
+  border: 0;
   border-right: 1px solid rgba(var(--v-theme-on-surface), 0.08);
   border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.08);
 }
@@ -1849,6 +1880,16 @@ a.nav-footer-notice:hover {
   cursor: pointer;
   font: inherit;
   text-align: left;
+}
+
+.decode-id-pn-card:focus,
+.relation-card:focus {
+  outline: none;
+}
+
+.decode-id-pn-card:focus-visible,
+.relation-card:focus-visible {
+  box-shadow: inset 0 0 0 1px rgba(var(--v-theme-primary), 0.55);
 }
 
 .decode-id-pn-panel .decode-id-pn-card {
@@ -2089,6 +2130,7 @@ a.nav-footer-notice:hover {
 
 .controller-group-option-checkbox {
   margin-inline-start: -2px;
+  pointer-events: none;
 }
 
 .server-address-line {
@@ -2770,14 +2812,6 @@ a.nav-footer-notice:hover {
 
   .server-info-panel {
     max-height: calc(100dvh - var(--app-safe-area-top) - var(--app-safe-area-bottom) - 16px);
-  }
-
-  .v-snackbar {
-    margin:
-      calc(8px + var(--app-safe-area-top))
-      calc(8px + var(--app-safe-area-right))
-      var(--mobile-bottom-overlay-offset)
-      calc(8px + var(--app-safe-area-left));
   }
 
   .paged-table--cards .table-scroll {
