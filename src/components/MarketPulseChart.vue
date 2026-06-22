@@ -245,6 +245,7 @@ async function loadCandles({ silent = false } = {}) {
     await ensureChart();
     renderCandles();
   } catch (err) {
+    if (currentRequestId !== requestId) return;
     if (err?.name === 'AbortError') return;
     error.value = err?.message || String(err);
   } finally {

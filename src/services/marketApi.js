@@ -115,6 +115,13 @@ function isHyperliquidSource(source) {
   return source === MARKET_SOURCE_HYPERLIQUID || source === 'HL';
 }
 
+function isAbortError(error) {
+  if (!error) return false;
+  return error.name === 'AbortError'
+    || (error.code === 20 && String(error.message || '').toLowerCase().includes('abort'))
+    || isAbortError(error.cause);
+}
+
 function getAlternateMarketSource(source) {
   return source === MARKET_SOURCE_LIGHTER
     ? MARKET_SOURCE_HYPERLIQUID
@@ -438,9 +445,11 @@ export async function fetchMarketQuotes(options = {}) {
   try {
     return await fetchPrimary(options);
   } catch (primaryError) {
+    if (isAbortError(primaryError)) throw primaryError;
     try {
       return await fetchFallback(options);
     } catch (fallbackError) {
+      if (isAbortError(fallbackError)) throw fallbackError;
       const fallbackName = preferLighter ? 'Hyperliquid fallback' : 'Lighter fallback';
       const message = [
         primaryError?.message || String(primaryError),
@@ -522,6 +531,7 @@ export async function fetchMarketCandles(asset, options = {}) {
       startTime
     });
   } catch (primaryError) {
+    if (isAbortError(primaryError)) throw primaryError;
     try {
       items = await fetchFallback(asset, {
         ...options,
@@ -532,6 +542,7 @@ export async function fetchMarketCandles(asset, options = {}) {
         startTime
       });
     } catch (fallbackError) {
+      if (isAbortError(fallbackError)) throw fallbackError;
       const message = [
         primaryError?.message || String(primaryError),
         `Fallback candles: ${fallbackError?.message || String(fallbackError)}`
