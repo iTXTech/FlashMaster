@@ -47,6 +47,7 @@ import {
   fetchMarketCandles,
   getMarketCandleRange,
   getMarketCandleWindow,
+  isAbortError,
   loadCachedMarketCandles
 } from '@/services/marketApi';
 
@@ -246,7 +247,7 @@ async function loadCandles({ silent = false } = {}) {
     renderCandles();
   } catch (err) {
     if (currentRequestId !== requestId) return;
-    if (err?.name === 'AbortError') return;
+    if (isAbortError(err)) return;
     error.value = err?.message || String(err);
   } finally {
     if (currentRequestId === requestId) {

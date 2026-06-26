@@ -115,11 +115,17 @@ function isHyperliquidSource(source) {
   return source === MARKET_SOURCE_HYPERLIQUID || source === 'HL';
 }
 
-function isAbortError(error) {
+export function isAbortError(error, seen = new Set()) {
   if (!error) return false;
+  if (seen.has(error)) return false;
+  seen.add(error);
+  const message = String(error.message || '').toLowerCase();
   return error.name === 'AbortError'
-    || (error.code === 20 && String(error.message || '').toLowerCase().includes('abort'))
-    || isAbortError(error.cause);
+    || error.code === 20
+    || message.includes('abort')
+    || message.includes('cancelled')
+    || message.includes('canceled')
+    || isAbortError(error.cause, seen);
 }
 
 function getAlternateMarketSource(source) {
@@ -791,7 +797,7 @@ export function subscribeMarketQuotes({ onUpdate, onError } = {}) {
         forceCache: true
       });
     } catch (err) {
-      if (err?.name === 'AbortError') return;
+      if (isAbortError(err)) return;
       onError?.(err);
     } finally {
       if (fallbackSnapshotController === controller) {

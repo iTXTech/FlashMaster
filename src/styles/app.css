@@ -140,9 +140,7 @@ a {
   min-height: 100dvh;
   overflow: hidden;
   padding-bottom: var(--app-safe-area-bottom);
-  background:
-    linear-gradient(180deg, rgba(var(--v-theme-primary), 0.08), transparent 260px),
-    rgb(var(--v-theme-background));
+  background: rgb(var(--v-theme-background));
 }
 
 .app-shell .v-application__wrap {
@@ -219,6 +217,8 @@ a {
 .market-pulse {
   --market-slot-width: 200px;
   --market-slot-duration: 18s;
+  --market-pulse-background: rgba(var(--v-theme-surface-variant), 0.34);
+  --market-pulse-edge-background: var(--market-pulse-background);
 
   position: relative;
   display: grid;
@@ -230,7 +230,7 @@ a {
   overflow: hidden;
   border: 1px solid rgba(var(--v-theme-on-surface), 0.08);
   border-radius: 999px;
-  background: rgba(var(--v-theme-surface-variant), 0.34);
+  background: var(--market-pulse-background);
   color: rgba(var(--v-theme-on-surface), 0.88);
   font-size: 0.74rem;
   line-height: 1;
@@ -257,12 +257,12 @@ a {
 
 .market-pulse-viewport::before {
   left: 0;
-  background: linear-gradient(90deg, rgb(var(--v-theme-surface)), transparent);
+  background: linear-gradient(90deg, var(--market-pulse-edge-background), transparent);
 }
 
 .market-pulse-viewport::after {
   right: 0;
-  background: linear-gradient(270deg, rgb(var(--v-theme-surface)), transparent);
+  background: linear-gradient(270deg, var(--market-pulse-edge-background), transparent);
 }
 
 .market-pulse-track {
