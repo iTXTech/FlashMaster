@@ -1,7 +1,7 @@
 FlashMaster by PeratX <peratx@itxtech.org>
 Copyright (c) 2019-2026 iTX Technologies
 ===================================
-Version 2.5.0-dev (Development snapshot date: 2026-06-15)
+Version 2.5.0-dev (Development snapshot date: 2026-06-29)
 Special thanks to HFB for providing reference material that helped refine the Raw NAND decoding rules in this release.
 
 FlashMaster updates:
@@ -13,7 +13,8 @@ FlashMaster updates:
 - Added a polished FlashMaster display label for fdnext's new `3d_xpoint` chip kind in result badges and capability views.
 
 fdnext v3.1.0 support highlights:
-- Integrated fdnext v3.1.0 (f614dc1) in the embedded parser.
+- Integrated fdnext v3.1.0 (9494ff6) in the embedded parser.
+- Fixed Micron `D9XLQ` TwinDie DDR3L part-number decoding.
 - Expanded Micron SSD DecodePack coverage, including broader Micron SSD part-number decoding.
 - Added Micron DDR3 DRAM decoding coverage and expanded SpecTek DRAM package/product-code token handling.
 - Refined DRAM die-count geometry, Samsung raw NAND notes, and FDB NAND relation trimming by DecodePack profiles.

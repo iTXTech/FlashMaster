@@ -1,7 +1,7 @@
 FlashMaster by PeratX <peratx@itxtech.org>
 版权所有 (c) 2019-2026 iTX Technologies
 ===================================
-版本 2.5.0-dev（开发快照日期：2026-06-15）
+版本 2.5.0-dev（开发快照日期：2026-06-29）
 本版本特别致谢 HFB 提供的资料支持，帮助完善 Raw NAND 解码规则。
 
 FlashMaster 更新：
@@ -13,7 +13,8 @@ FlashMaster 更新：
 - 为 fdnext 新增的 `3d_xpoint` 芯片类型补充 FlashMaster 显示标签，让结果 badge 与能力页显示为 `3D XPoint`。
 
 fdnext v3.1.0 支持面摘要：
-- 内嵌解析器集成 fdnext v3.1.0（f614dc1）。
+- 内嵌解析器集成 fdnext v3.1.0（9494ff6）。
+- 修复 Micron `D9XLQ` TwinDie DDR3L 料号解码。
 - 扩展 Micron SSD DecodePack 覆盖，包括更广的 Micron SSD 料号解码。
 - 新增 Micron DDR3 DRAM 解码覆盖，并扩展 SpecTek DRAM package / product code token 处理。
 - 优化 DRAM die count geometry、Samsung raw NAND notes，以及基于 DecodePack profiles 的 FDB NAND relations 裁剪。
