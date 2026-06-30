@@ -189,10 +189,12 @@ function pwaPlugin(routerMode) {
     },
     workbox: {
       cleanupOutdatedCaches: true,
-      globIgnores: ['**/og/**'],
+      clientsClaim: true,
+      globIgnores: ['**/og/**', 'registerSW.js'],
       globPatterns: ['**/*.{html,js,css,svg,png,ico}'],
       maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
-      navigateFallback: 'index.html'
+      navigateFallback: 'index.html',
+      skipWaiting: true
     }
   });
 }
@@ -287,7 +289,8 @@ export default defineConfig(({ mode }) => {
     ],
     build: {
       outDir: singleFile ? 'dist-singlefile' : 'dist',
-      emptyOutDir: !singleFile
+      emptyOutDir: !singleFile,
+      chunkSizeWarningLimit: 3000
     },
     worker: inlineEmbeddedWorker ? {
       format: 'es'

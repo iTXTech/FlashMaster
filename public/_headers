@@ -8,7 +8,73 @@
 
 /site.webmanifest
   Content-Type: application/manifest+json; charset=utf-8
-  Cache-Control: public, max-age=3600
+  Cache-Control: no-cache
+
+/
+  Cache-Control: no-cache
+
+/index.html
+  Cache-Control: no-cache
+
+/en
+  Cache-Control: no-cache
+
+/zh
+  Cache-Control: no-cache
+
+/parts
+  Cache-Control: no-cache
+
+/parts/*
+  Cache-Control: no-cache
+
+/ids
+  Cache-Control: no-cache
+
+/ids/*
+  Cache-Control: no-cache
+
+/settings
+  Cache-Control: no-cache
+
+/about
+  Cache-Control: no-cache
+
+/en/parts
+  Cache-Control: no-cache
+
+/en/parts/*
+  Cache-Control: no-cache
+
+/en/ids
+  Cache-Control: no-cache
+
+/en/ids/*
+  Cache-Control: no-cache
+
+/en/settings
+  Cache-Control: no-cache
+
+/en/about
+  Cache-Control: no-cache
+
+/zh/parts
+  Cache-Control: no-cache
+
+/zh/parts/*
+  Cache-Control: no-cache
+
+/zh/ids
+  Cache-Control: no-cache
+
+/zh/ids/*
+  Cache-Control: no-cache
+
+/zh/settings
+  Cache-Control: no-cache
+
+/zh/about
+  Cache-Control: no-cache
 
 /sw.js
   Content-Type: application/javascript; charset=utf-8
@@ -20,6 +86,9 @@
 
 /workbox-*
   Content-Type: application/javascript; charset=utf-8
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/*
   Cache-Control: public, max-age=31536000, immutable
 
 /AppIcon.svg
