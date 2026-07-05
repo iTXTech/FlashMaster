@@ -1,7 +1,7 @@
 FlashMaster by PeratX <peratx@itxtech.org>
 Copyright (c) 2019-2026 iTX Technologies
 ===================================
-Version 2.5.0-dev (Development snapshot date: 2026-07-05)
+Version 2.5.0-dev (Development snapshot date: 2026-07-06)
 Special thanks to HFB for providing reference material that helped refine the Raw NAND decoding rules in this release.
 
 FlashMaster updates:
@@ -14,8 +14,8 @@ FlashMaster updates:
 - Added a polished FlashMaster display label for fdnext's new `3d_xpoint` chip kind in result badges and capability views.
 
 fdnext v3.1.0 support highlights:
-- Integrated fdnext v3.1.0 (dd9d8f1) in the embedded parser.
-- Expanded SK hynix raw NAND decoding rules with broader H25/H27/HY27 raw NAND token coverage and updated rule routing.
+- Integrated fdnext v3.1.0 (6a852c1) in the embedded parser.
+- Expanded SK hynix raw NAND decoding rules with broader H25/H27/HY27 raw NAND token coverage, added H2E/H2N details, and updated rule routing.
 - Exposed Micron DRAM stack-series output for TwinDie, QuadDie, and DDR4 3DS packages.
 - Broadened Micron DDR3/DDR3L/DDR4/DDR5 package coverage, including DDR4 JE/KH and additional package-specific die/CS mappings.
 - Fixed Micron `D9XLQ` TwinDie DDR3L part-number decoding.
