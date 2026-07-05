@@ -1,7 +1,7 @@
 FlashMaster by PeratX <peratx@itxtech.org>
 版权所有 (c) 2019-2026 iTX Technologies
 ===================================
-版本 2.5.0-dev（开发快照日期：2026-06-30）
+版本 2.5.0-dev（开发快照日期：2026-07-05）
 本版本特别致谢 HFB 提供的资料支持，帮助完善 Raw NAND 解码规则。
 
 FlashMaster 更新：
@@ -14,7 +14,8 @@ FlashMaster 更新：
 - 为 fdnext 新增的 `3d_xpoint` 芯片类型补充 FlashMaster 显示标签，让结果 badge 与能力页显示为 `3D XPoint`。
 
 fdnext v3.1.0 支持面摘要：
-- 内嵌解析器集成 fdnext v3.1.0（afa3366）。
+- 内嵌解析器集成 fdnext v3.1.0（dd9d8f1）。
+- 扩展 SK hynix raw NAND 解码规则，补充更广的 H25/H27/HY27 raw NAND token 覆盖并更新规则路由。
 - 暴露 Micron DRAM stack series 输出，覆盖 TwinDie、QuadDie 与 DDR4 3DS 封装。
 - 扩展 Micron DDR3/DDR3L/DDR4/DDR5 package 覆盖，包括 DDR4 JE/KH 和更多按封装区分的 die/CS 映射。
 - 修复 Micron `D9XLQ` TwinDie DDR3L 料号解码。
