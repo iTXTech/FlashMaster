@@ -1,42 +1,27 @@
 FlashMaster by PeratX <peratx@itxtech.org>
 版权所有 (c) 2019-2026 iTX Technologies
 ===================================
-版本 2.5.0-dev（开发快照日期：2026-07-06）
+版本 2.5.0（发布日期：2026-07-06）
 本版本特别致谢 HFB 提供的资料支持，帮助完善 Raw NAND 解码规则。
 
 FlashMaster 更新：
-- 更新前端与运行时依赖到最新兼容版本，保持 Vue 3 + Vuetify 工具界面与当前依赖生态同步。
-- 打磨依赖刷新后的使用体验：优化侧边栏文字颜色、菜单与联想候选显示、控制器分组选择、snackbar 位置、按钮对比度，以及关联卡片的焦点和边框表现。
 - 优化 PWA 更新与缓存策略：入口 HTML、公开 SPA 路由、Service Worker 文件和 manifest 打开时重新验证，hash 静态资源继续长期缓存；已安装用户在新版 Service Worker 接管后自动刷新一次进入新版本。
 - 优化内嵌 fdnext 响应速度：常规 Web 与 full/nano 单文件构建会在合适时机预热解析器，并通过 module worker 异步执行内嵌解析/搜索；常规 Web 构建继续保留主线程降级路径，HTTP-only 构建保持可用。
 - 优化 PN 与 Flash ID 联想输入：继续保留防抖，新查询会立即清空旧候选，并避免内嵌搜索阻塞 UI 渲染。
+- 打磨依赖刷新后的高密度工作台体验，包括侧边栏文字颜色、菜单与联想候选显示、控制器分组选择、snackbar 位置、按钮对比度，以及关联卡片的焦点和边框表现。
 - 优化 Market Pulse 图表交互：桌面端点击 ticker 与横向拖动现在使用更清晰的手势阈值，点击可可靠展开靠近点击位置的图表，拖动或横向滚动 ticker 时关闭图表，并在拖动被动关闭图表后恢复 ticker 自动滚动。
 - 为 fdnext 新增的 `3d_xpoint` 芯片类型补充 FlashMaster 显示标签，让结果 badge 与能力页显示为 `3D XPoint`。
 
 fdnext v3.1.0 支持面摘要：
-- 内嵌解析器集成 fdnext v3.1.0（6a852c1）。
-- 扩展 SK hynix raw NAND 解码规则，补充更广的 H25/H27/HY27 raw NAND token 覆盖，新增 H2E/H2N 细节并更新规则路由。
-- 暴露 Micron DRAM stack series 输出，覆盖 TwinDie、QuadDie 与 DDR4 3DS 封装。
-- 扩展 Micron DDR3/DDR3L/DDR4/DDR5 package 覆盖，包括 DDR4 JE/KH 和更多按封装区分的 die/CS 映射。
-- 修复 Micron `D9XLQ` TwinDie DDR3L 料号解码。
-- 扩展 Micron SSD DecodePack 覆盖，包括更广的 Micron SSD 料号解码。
-- 新增 Micron DDR3 DRAM 解码覆盖，并扩展 SpecTek DRAM package / product code token 处理。
-- 优化 DRAM die count geometry、Samsung raw NAND notes，以及基于 DecodePack profiles 的 FDB NAND relations 裁剪。
-- 新增 fd-server Workers 部署支持，并修复上游 Workers deploy script 参数转发。
-- 新增 Intel 与 Micron 3D XPoint 料号解码，包含新的 `3d_xpoint` 结果类型与字段分组。
-- 新增 Micron EDY DDR4 料号解码，并扩展 Micron DDR4/DDR5 package、speed 与覆盖范围处理。
-- 优化 SpecTek DDR5/DDR3 解码，并降低 fdnext decode warmup 开销。
-- 新增 fdnext decodepack array table 支持，并优化 MDB crawl header routing。
-- 优化 Samsung raw NAND 后缀解码、MCP 公开字段、DecodePack package 输出归一化，以及基于 DecodePack metadata 的 FDB 查询匹配。
-- 新增 fdnext 上游 FlashDetector 兼容 `fd-server` 包，便于 legacy API 兼容部署场景。
-- 优化 raw NAND 料号覆盖，包括 Samsung stack 与 die-profile 解码、KIOXIA profile、SanDisk ECB/WCS raw NAND，以及 SpecTek `PF285` / `PF580` 系列。
-- 修复 Intel QLC 3D4 profile 归一，让 Intel raw NAND 料号结果匹配到正确 profile。
-- 新增无连字符料号解码，让归一化后的 PN 输入可在缺少分隔符时继续解析。
-- 修复 Samsung raw NAND token/package 输出与 Micron HSC channel count 输出。
-- 优化 fdnext PN 搜索快速路径，并同步搜索结果契约：`/parts/search` 与 `/identifiers/search` 保持摘要型输出，控制器投影继续由 decode 接口提供。
-- 新增并优化 Micron raw NAND DecodePack 覆盖，包括 `MT29FB` HSC raw NAND、HSC NAND 技术备注、冒号修订归一，以及 current/legacy raw NAND 结构化 token 解码。
-- 更新 SK hynix H25 raw NAND current 与 legacy 料号族解码，扩展 HYV4-HYV9/HYV9Q profile 匹配、die density、die count、CE/R/B/channel 与电压输出。
-- 扩展已确认 SK hynix H25 HYV9/HYV9Q package tail 处理，让 package 表命中的条目可输出封装尺寸、产品级别和速率信息；未知 tail 继续按稳定 token 字段降级。
+- 内嵌解析器集成 fdnext v3.1.0（d7d9655）。
+- 扩展 SK hynix、Samsung、Micron、KIOXIA、SanDisk、SpecTek、Intel 等 Raw NAND 料号解码，覆盖更广的 SK hynix H25/H27/HY27 路由、H2E/H2N 细节、受控的 SK hynix 3D die-profile identifier 匹配、结构化 Micron MT29FB/HSC 处理，以及 Samsung stack/die/suffix/package、KIOXIA/SanDisk/SpecTek/Intel QLC profile 归一优化。
+- 新增 Intel 与 Micron 3D XPoint 料号解码，并引入新的 `3d_xpoint` 芯片类型。
+- 扩展 Micron DRAM 覆盖，包括 DDR3/DDR3L/DDR4/DDR5 封装、`D9XLQ` TwinDie DDR3L、EDY DDR4、JE/KH DDR4，以及 TwinDie / QuadDie / DDR4 3DS stack-series 输出。
+- 扩展 Micron SSD DecodePack 覆盖，支持更多 client 与 automotive SSD 料号结构，并优化 SpecTek DRAM product code 与 mobile DRAM package 解码。
+- 新增 DecodePack array table 支持，归一 package 输出，优化 MCP 公开字段，拆分 DRAM die-count geometry，降低 decode warmup 开销，并收紧公开输出措辞与 code-token 审计。
+- FDB 关联裁剪规则改为基于 DecodePack NAND die/profile metadata 匹配 PN 与 Flash ID 关系，让 KIOXIA/SanDisk、Micron/SpecTek、Samsung、SK hynix 周边的 Raw NAND alias 更准确。
+- 上游新增 FlashDetector 兼容 `fd-server` 包，并补充 Node.js 与 Cloudflare Workers 部署支持，便于 legacy HTTP 路由兼容场景。
+- 完整解析器与资源细节集中查看 fdnext release notes：[iTXTech/fdnext](https://github.com/iTXTech/fdnext/releases/tag/v3.1.0)
 
 ===================================
 版本 2.4.0（发布日期：2026-05-31）

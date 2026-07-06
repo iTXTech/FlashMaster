@@ -1,42 +1,27 @@
 FlashMaster by PeratX <peratx@itxtech.org>
 Copyright (c) 2019-2026 iTX Technologies
 ===================================
-Version 2.5.0-dev (Development snapshot date: 2026-07-06)
+Version 2.5.0 (Release date: 2026-07-06)
 Special thanks to HFB for providing reference material that helped refine the Raw NAND decoding rules in this release.
 
 FlashMaster updates:
-- Updated frontend and runtime dependencies to the latest compatible releases, keeping the Vue 3 + Vuetify tool surface current.
-- Polished the dependency-refresh UX: improved sidebar text colors, menu and suggestion rendering, controller-group selection, snackbar placement, button contrast, and relation-card focus/border behavior.
 - Improved PWA update freshness while preserving offline cache: entry HTML, public SPA routes, service-worker files, and the manifest now revalidate on open, hashed static assets stay long-cached, and installed users refresh once after a new service worker takes control.
 - Improved embedded fdnext responsiveness in web and full/nano single-file builds: the parser now warms up after the first paint where appropriate and runs embedded decode/search work asynchronously in a module worker, while regular web builds keep a main-thread fallback and HTTP-only builds remain available.
 - Improved PN and Flash ID suggestions by keeping debounce behavior, clearing stale candidates immediately for new queries, and avoiding UI-render blocking during embedded searches.
+- Polished the dense workstation UI after the dependency refresh, including sidebar text colors, menus, suggestion rendering, controller-group selection, snackbar placement, button contrast, and relation-card focus/border behavior.
 - Improved Market Pulse chart behavior: desktop ticker clicks and horizontal drags now use a cleaner gesture threshold, clicks reliably open charts near the clicked ticker, drags or horizontal scroll close open charts, and ticker auto-scroll resumes after a drag closes an open chart.
 - Added a polished FlashMaster display label for fdnext's new `3d_xpoint` chip kind in result badges and capability views.
 
 fdnext v3.1.0 support highlights:
-- Integrated fdnext v3.1.0 (6a852c1) in the embedded parser.
-- Expanded SK hynix raw NAND decoding rules with broader H25/H27/HY27 raw NAND token coverage, added H2E/H2N details, and updated rule routing.
-- Exposed Micron DRAM stack-series output for TwinDie, QuadDie, and DDR4 3DS packages.
-- Broadened Micron DDR3/DDR3L/DDR4/DDR5 package coverage, including DDR4 JE/KH and additional package-specific die/CS mappings.
-- Fixed Micron `D9XLQ` TwinDie DDR3L part-number decoding.
-- Expanded Micron SSD DecodePack coverage, including broader Micron SSD part-number decoding.
-- Added Micron DDR3 DRAM decoding coverage and expanded SpecTek DRAM package/product-code token handling.
-- Refined DRAM die-count geometry, Samsung raw NAND notes, and FDB NAND relation trimming by DecodePack profiles.
-- Added fd-server Workers deployment support and fixed Workers deploy script forwarding upstream.
-- Added Intel and Micron 3D XPoint part-number decoding, including the new `3d_xpoint` result kind and field profile.
-- Added Micron EDY DDR4 part-number decoding and broadened Micron DDR4/DDR5 package, speed, and coverage handling.
-- Optimized SpecTek DDR5/DDR3 decoding and reduced fdnext decode warmup overhead.
-- Added fdnext decodepack array-table support and improved MDB crawl header routing.
-- Refined Samsung raw NAND suffix decoding, MCP public fields, DecodePack package output normalization, and FDB lookup matching through DecodePack metadata.
-- Added fdnext's upstream FlashDetector-compatible `fd-server` package for legacy API compatibility scenarios.
-- Improved raw NAND part-number coverage for Samsung stack and die-profile decoding, KIOXIA profiles, SanDisk ECB/WCS raw NAND, and SpecTek `PF285` / `PF580` families.
-- Fixed Intel QLC 3D4 profile normalization for matching Intel raw NAND part-number results.
-- Added dashless part-number decoding so normalized PN input can resolve without separator characters.
-- Fixed Samsung raw NAND token/package output and Micron HSC channel-count output.
-- Optimized fdnext PN search fast paths and aligned search result contracts: `/parts/search` and `/identifiers/search` stay summary-focused, while controller projection remains a decode-only detail.
-- Added and refined Micron raw NAND DecodePack coverage, including `MT29FB` HSC raw NAND, HSC NAND technology notes, colon revision normalization, and structured current/legacy raw NAND token decoding.
-- Updated SK hynix H25 raw NAND decoding across current and legacy part-number families, including broader HYV4-HYV9/HYV9Q profile matching, die density, die count, CE/R/B/channel, and voltage output.
-- Expanded confirmed SK hynix H25 HYV9/HYV9Q package-tail handling so known package-table entries can surface package dimensions, product class, and speed details while unknown tails continue to degrade to stable token fields.
+- Integrated fdnext v3.1.0 (d7d9655) in the embedded parser.
+- Expanded Raw NAND PN decoding across SK hynix, Samsung, Micron, KIOXIA, SanDisk, SpecTek, and Intel, including broader SK hynix H25/H27/HY27 routing, H2E/H2N details, gated SK hynix 3D die-profile identifier matching, structured Micron MT29FB/HSC handling, improved Samsung stack/die/suffix/package decoding, and cleaner KIOXIA/SanDisk/SpecTek/Intel QLC profile normalization.
+- Added Intel and Micron 3D XPoint part-number decoding with the new `3d_xpoint` chip kind.
+- Expanded Micron DRAM coverage across DDR3/DDR3L/DDR4/DDR5 packages, `D9XLQ` TwinDie DDR3L, EDY DDR4, JE/KH DDR4 packages, and TwinDie / QuadDie / DDR4 3DS stack-series output.
+- Expanded Micron SSD DecodePack coverage for broader client and automotive SSD part-number structures, and improved SpecTek DRAM product-code and mobile DRAM package decoding.
+- Added DecodePack array-table support, normalized package outputs, refined MCP public fields, separated DRAM die-count geometry, reduced decode warmup overhead, and tightened public-output wording/code-token audits.
+- Updated FDB relation trimming to match PN and Flash ID relations against DecodePack NAND die/profile metadata, producing more accurate Raw NAND aliases around KIOXIA/SanDisk, Micron/SpecTek, Samsung, and SK hynix records.
+- Added the FlashDetector-compatible `fd-server` package upstream, including Node.js and Cloudflare Workers deployment support for legacy HTTP routes.
+- Full parser and resource details are tracked in the fdnext release notes: [iTXTech/fdnext](https://github.com/iTXTech/fdnext/releases/tag/v3.1.0)
 
 ===================================
 Version 2.4.0 (Release date: 2026-05-31)
