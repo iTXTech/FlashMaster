@@ -109,11 +109,20 @@ function isImageUrl(value) {
   }
 }
 
+function isBundledImageUrl(value) {
+  const text = String(value || '').trim();
+  return text.startsWith('/') && !text.startsWith('//');
+}
+
+function isInlineImageUrl(value) {
+  return /^data:image\/(?:svg\+xml|png|jpe?g|webp)(?:[;,])/i.test(String(value || '').trim());
+}
+
 function linkImage(image, vendor) {
   const value = String(image || '').trim();
   if (!value) return '';
   if (value.toLowerCase() === 'logo') return getVendorLogo(vendor);
-  return isImageUrl(value) ? value : '';
+  return isImageUrl(value) || isBundledImageUrl(value) || isInlineImageUrl(value) ? value : '';
 }
 
 function linkImageDark(image, vendor) {
@@ -135,7 +144,7 @@ export function externalLinkRows(links = [], vendor = '') {
         url,
         category,
         categoryLabel: category ? chipLabel(category) : '',
-        icon: LINK_CATEGORY_ICONS[category] || 'mdi-open-in-new',
+        icon: String(link.icon || '').trim() || LINK_CATEGORY_ICONS[category] || 'mdi-open-in-new',
         hint: String(link.hint || '').trim(),
         fieldKey: link.fieldKey || '',
         image: linkImage(link.image || link.img, vendor),

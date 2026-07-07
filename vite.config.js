@@ -72,6 +72,14 @@ function isSingleFileFlavor(flavor) {
   ].includes(flavor);
 }
 
+function optionalBoolean(value) {
+  const text = String(value ?? '').trim().toLowerCase();
+  if (!text) return undefined;
+  if (['1', 'true', 'yes', 'on', 'enabled'].includes(text)) return true;
+  if (['0', 'false', 'no', 'off', 'disabled'].includes(text)) return false;
+  return undefined;
+}
+
 function singleFileOutputFileName(flavor) {
   const suffix = flavor === BUILD_FLAVOR_SINGLEFILE_NANO
     ? '-nano'
@@ -225,6 +233,10 @@ export default defineConfig(({ mode }) => {
   const analyticsEnabled = !minimalSingleFile;
   const marketPulseEnabled = !minimalSingleFile;
   const commercialBannerEnabled = !minimalSingleFile;
+  const erExternalLinkEnabled = optionalBoolean(
+    process.env.VITE_FLASHMASTER_ER_EXTERNAL_LINK
+    ?? process.env.FLASHMASTER_ER_EXTERNAL_LINK
+  ) ?? !minimalSingleFile;
   const embeddedParserEnabled = !pico;
   const inlineEmbeddedWorker = singleFile && embeddedParserEnabled;
   const lockedServer = String(process.env.VITE_FLASHMASTER_LOCKED_SERVER || '').trim();
@@ -243,6 +255,10 @@ export default defineConfig(({ mode }) => {
     ...(!commercialBannerEnabled ? [{
       find: '@/components/CommercialServiceBanner.vue',
       replacement: fileURLToPath(new URL('./src/components/NoopFeature.js', import.meta.url))
+    }] : []),
+    ...(!erExternalLinkEnabled ? [{
+      find: '@/services/fdnextResearchLink',
+      replacement: fileURLToPath(new URL('./src/services/fdnextResearchLink-noop.js', import.meta.url))
     }] : []),
     ...(!embeddedParserEnabled ? [{
       find: '@/services/fdnextApi',
@@ -308,6 +324,7 @@ export default defineConfig(({ mode }) => {
       __FLASHMASTER_MARKET_PULSE__: JSON.stringify(marketPulseEnabled),
       __FLASHMASTER_ANALYTICS__: JSON.stringify(analyticsEnabled),
       __FLASHMASTER_COMMERCIAL_BANNER__: JSON.stringify(commercialBannerEnabled),
+      __FLASHMASTER_ER_EXTERNAL_LINK__: JSON.stringify(erExternalLinkEnabled),
       __FLASHMASTER_EMBEDDED_PARSER__: JSON.stringify(embeddedParserEnabled),
       __FLASHMASTER_LOCKED_SERVER__: JSON.stringify(lockedServer),
       __FLASHMASTER_BUILD_FLAVOR__: JSON.stringify(buildFlavor)

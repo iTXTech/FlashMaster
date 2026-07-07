@@ -1,5 +1,6 @@
 import { createEngine } from '@itxtech/fdnext-core';
 import { createExternalLinkPreviewProcessor } from '@/services/fdnextExternalLinkPreview';
+import { createEtherealmResearchLinkProcessor } from '@/services/fdnextResearchLink';
 
 let engine;
 
@@ -7,7 +8,7 @@ function getEngine() {
   if (!engine) {
     const processor = createExternalLinkPreviewProcessor();
     engine = createEngine({
-      processors: [processor].filter(Boolean)
+      processors: [processor, createEtherealmResearchLinkProcessor()].filter(Boolean)
     });
   }
   return engine;
