@@ -1,6 +1,14 @@
 FlashMaster by PeratX <peratx@itxtech.org>
 版权所有 (c) 2019-2026 iTX Technologies
 ===================================
+版本 2.6.0-dev（开发快照日期：2026-07-07）
+
+fdnext v3.2.0 highlights：
+- 内嵌解析器集成 fdnext v3.2.0（86f3672）。
+- 修正 Micron raw NAND DecodePack feature token：`Q` 显示为 Enterprise Q，`QZ` / `ZQ` 显示为 Enterprise Q + Polyimide Process Applied。
+- 收紧 Micron raw NAND optional suffix 在冒号或输入末尾边界处的 feature 与 production-status token 解析。
+
+===================================
 版本 2.5.0（发布日期：2026-07-06）
 本版本特别致谢 HFB 提供的资料支持，帮助完善 Raw NAND 解码规则。
 

@@ -1,6 +1,14 @@
 FlashMaster by PeratX <peratx@itxtech.org>
 Copyright (c) 2019-2026 iTX Technologies
 ===================================
+Version 2.6.0-dev (Development snapshot date: 2026-07-07)
+
+fdnext v3.2.0 highlights:
+- Integrated fdnext v3.2.0 (86f3672) in the embedded parser.
+- Corrected Micron raw NAND DecodePack feature tokens: `Q` now reports Enterprise Q, and `QZ` / `ZQ` report Enterprise Q + Polyimide Process Applied.
+- Tightened Micron raw NAND optional-suffix parsing around feature and production-status tokens at colon/end-of-input boundaries.
+
+===================================
 Version 2.5.0 (Release date: 2026-07-06)
 Special thanks to HFB for providing reference material that helped refine the Raw NAND decoding rules in this release.
 
