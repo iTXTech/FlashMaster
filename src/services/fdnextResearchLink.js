@@ -1,12 +1,16 @@
 const ETHEREALM_RESEARCH_LINK = Object.freeze({
   id: 'etherealm.research',
   label: '免费投资研究与存储行业报告',
-  url: 'https://pub.etherealm.one/?ref=FlashMaster',
+  url: 'https://pub.etherealm.one/?utm_source=flashmaster&utm_medium=referral&utm_campaign=elp',
   category: 'reference',
   icon: 'mdi-file-chart-outline',
   hint: 'Etherealm Research',
   priority: 4
 });
+
+function isChineseContext(context) {
+  return String(context?.lang || context?.input?.lang || '').trim().toLowerCase() === 'chs';
+}
 
 function isFdnextResult(result) {
   return result?.schemaVersion === 'fdnext.result.v1';
@@ -22,8 +26,8 @@ function appendResearchLink(links = []) {
 
 export function createEtherealmResearchLinkProcessor() {
   return {
-    afterOperation(_context, result) {
-      if (!isFdnextResult(result) || result.status === 'invalid_input') {
+    afterOperation(context, result) {
+      if (!isChineseContext(context) || !isFdnextResult(result) || result.status === 'invalid_input') {
         return result;
       }
       return {
