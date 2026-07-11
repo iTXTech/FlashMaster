@@ -1,5 +1,5 @@
 <template>
-  <section class="panel">
+  <section class="panel decode-result-panel">
     <div class="panel-header">
       <div>
         <div class="panel-title">{{ t('dashboard.decodeResult') }}</div>

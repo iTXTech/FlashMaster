@@ -1,5 +1,5 @@
 <template>
-  <div class="metric-grid">
+  <div class="metric-grid" :style="gridStyle">
     <div v-for="item in normalizedItems" :key="item.label" class="metric">
       <div class="metric-label">{{ item.label }}</div>
       <div class="metric-value">
@@ -55,4 +55,18 @@ const normalizedItems = computed(() => props.items.map(item => ({
   value: displayValue(item.value, props.emptyValue),
   items: Array.isArray(item.items) ? item.items : []
 })));
+
+function wideColumnCount(count) {
+  return count <= 10 ? count : Math.ceil(count / 2);
+}
+
+function balancedColumnCount(count) {
+  return count <= 6 ? count : Math.ceil(count / 2);
+}
+
+const gridStyle = computed(() => ({
+  '--metric-column-count': String(Math.max(1, wideColumnCount(normalizedItems.value.length))),
+  '--metric-balanced-column-count': String(Math.max(1, balancedColumnCount(normalizedItems.value.length))),
+  '--metric-compact-column-count': String(Math.max(1, Math.min(normalizedItems.value.length, 4)))
+}));
 </script>

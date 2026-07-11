@@ -908,6 +908,7 @@ a.nav-footer-notice:hover {
 .workspace--decode-id .workspace-grid,
 .workspace--decode .workspace-grid {
   grid-template-columns: minmax(280px, 320px) minmax(0, 1fr);
+  align-items: start;
 }
 
 .workspace--settings .settings-grid {
@@ -938,6 +939,10 @@ a.nav-footer-notice:hover {
 
 .panel-body {
   padding: 10px;
+}
+
+.decode-result-panel {
+  container-type: inline-size;
 }
 
 .query-stack {
@@ -1182,17 +1187,18 @@ a.nav-footer-notice:hover {
   grid-template-columns: minmax(0, 1fr);
 }
 
-.decode-detail-grid {
+.auto-flow-grid {
   display: grid;
-  grid-auto-flow: dense;
+  grid-auto-flow: row dense;
+  grid-auto-rows: 4px;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
   align-items: start;
-  gap: 12px;
-  margin-top: 12px;
+  column-gap: 10px;
+  row-gap: 4px;
 }
 
-.workspace--decode .decode-detail-grid--with-relations {
-  grid-template-columns: repeat(2, minmax(0, 1fr)) minmax(280px, 0.9fr);
+.decode-detail-grid {
+  margin-top: 12px;
 }
 
 .decode-detail-panel,
@@ -1203,18 +1209,49 @@ a.nav-footer-notice:hover {
 }
 
 .decode-detail-panel.detail-panel--wide,
-.decode-detail-panel--balanced {
+.decode-detail-panel--balanced,
+.decode-relation-panel--wide {
   grid-column: span 2;
 }
 
-.workspace--decode .decode-detail-grid--with-relations .decode-relation-panel {
-  grid-column: 3;
-  grid-row: auto;
-}
+@media (min-width: 721px) {
+  .decode-detail-panel--compact,
+  .decode-detail-panel--balanced {
+    display: grid;
+    grid-template-columns: minmax(108px, 0.36fr) minmax(0, 1fr);
+  }
 
-.workspace--decode .decode-detail-grid--with-relations .external-link-panel {
-  grid-column: 3;
-  grid-row: auto;
+  .decode-detail-panel--compact .panel-header,
+  .decode-detail-panel--balanced .panel-header {
+    min-height: 100%;
+    align-items: center;
+    padding: 6px 8px;
+    border-right: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+    border-bottom: 0;
+  }
+
+  .decode-detail-panel--compact .panel-title,
+  .decode-detail-panel--balanced .panel-title {
+    font-size: 0.8rem;
+  }
+
+  .workspace--decode .decode-detail-panel--compact .detail-card-body,
+  .workspace--decode .decode-detail-panel--balanced .detail-card-body {
+    min-width: 0;
+    padding: 5px;
+  }
+
+  .workspace--decode .decode-detail-panel--compact .detail-card-grid,
+  .workspace--decode .decode-detail-panel--balanced .detail-card-grid {
+    grid-template-columns: repeat(var(--metric-compact-column-count), minmax(0, 1fr));
+    gap: 5px;
+  }
+
+  .workspace--decode .decode-detail-panel--compact .detail-card-grid .metric,
+  .workspace--decode .decode-detail-panel--balanced .detail-card-grid .metric {
+    min-height: 44px;
+    padding: 5px 7px;
+  }
 }
 
 .workspace--decode .panel-body,
@@ -1258,6 +1295,18 @@ a.nav-footer-notice:hover {
 .workspace--decode-id .result-stack > .metric-grid {
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 126px), 1fr));
   gap: 6px;
+}
+
+@container (min-width: 540px) and (max-width: 839px) {
+  .workspace--decode-id .result-stack > .decode-id-detail-grid {
+    grid-template-columns: repeat(var(--metric-balanced-column-count), minmax(0, 1fr));
+  }
+}
+
+@container (min-width: 840px) {
+  .workspace--decode-id .result-stack > .decode-id-detail-grid {
+    grid-template-columns: repeat(var(--metric-column-count), minmax(0, 1fr));
+  }
 }
 
 .workspace--decode .result-stack > .metric-grid .metric,
@@ -1787,16 +1836,7 @@ a.nav-footer-notice:hover {
 }
 
 .decode-id-secondary-grid {
-  display: grid;
-  grid-auto-flow: dense;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
-  align-items: start;
-  gap: 12px;
   margin-top: 12px;
-}
-
-.workspace--decode-id .decode-id-secondary-grid--with-relations {
-  grid-template-columns: repeat(2, minmax(0, 1fr)) minmax(280px, 0.9fr);
 }
 
 .decode-id-pn-panel {
@@ -1809,17 +1849,73 @@ a.nav-footer-notice:hover {
 }
 
 .decode-id-link-panel {
-  grid-column: span 2;
+  grid-column: span 1;
 }
 
-.workspace--decode-id .decode-id-secondary-grid--with-relations .decode-id-pn-panel {
-  grid-column: 3;
-  grid-row: auto;
+.decode-id-link-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+  gap: 10px;
+  margin-top: 8px;
 }
 
-.workspace--decode-id .decode-id-secondary-grid--with-relations .decode-id-link-panel {
-  grid-column: 3;
-  grid-row: auto;
+@media (min-width: 721px) {
+  .decode-id-info-panel--compact,
+  .decode-id-info-panel--balanced {
+    display: grid;
+    grid-template-columns: minmax(108px, 0.36fr) minmax(0, 1fr);
+  }
+
+  .decode-id-info-panel--compact .panel-header,
+  .decode-id-info-panel--balanced .panel-header {
+    min-height: 100%;
+    align-items: center;
+    padding: 6px 8px;
+    border-right: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+    border-bottom: 0;
+  }
+
+  .decode-id-info-panel--compact .panel-title,
+  .decode-id-info-panel--balanced .panel-title {
+    font-size: 0.8rem;
+  }
+
+  .workspace--decode-id .decode-id-info-panel--compact .detail-card-body,
+  .workspace--decode-id .decode-id-info-panel--balanced .detail-card-body {
+    min-width: 0;
+    padding: 5px;
+  }
+
+  .workspace--decode-id .decode-id-info-panel--compact .detail-card-grid,
+  .workspace--decode-id .decode-id-info-panel--balanced .detail-card-grid {
+    grid-template-columns: repeat(var(--metric-compact-column-count), minmax(0, 1fr));
+    gap: 5px;
+  }
+
+  .workspace--decode-id .decode-id-info-panel--compact .detail-card-grid .metric,
+  .workspace--decode-id .decode-id-info-panel--balanced .detail-card-grid .metric {
+    min-height: 44px;
+    padding: 5px 7px;
+  }
+}
+
+.decode-id-link-panel .panel-header {
+  padding: 6px 8px;
+}
+
+.decode-id-link-panel .panel-header > div {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  gap: 7px;
+}
+
+.decode-id-link-panel .panel-meta {
+  white-space: nowrap;
+}
+
+.decode-id-link-panel .external-link-card {
+  padding: 6px 8px;
 }
 
 .decode-id-details-panel {
@@ -1850,11 +1946,6 @@ a.nav-footer-notice:hover {
 
 .decode-id-pn-panel .decode-id-pn-grid {
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
-}
-
-.workspace--decode-id .decode-id-secondary-grid--with-relations .decode-id-pn-panel .decode-id-pn-grid {
-  max-height: clamp(280px, calc(100dvh - 280px), 560px);
-  overflow-y: auto;
 }
 
 .decode-id-info-grid {
@@ -1929,11 +2020,6 @@ a.nav-footer-notice:hover {
 
 .decode-relation-panel .relation-card-grid {
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
-}
-
-.workspace--decode .decode-detail-grid--with-relations .decode-relation-panel .relation-card-grid {
-  max-height: clamp(280px, calc(100dvh - 280px), 560px);
-  overflow-y: auto;
 }
 
 .decode-relation-panel .relation-card {
@@ -2527,62 +2613,17 @@ a.nav-footer-notice:hover {
 
   .result-hero,
   .workspace--decode .result-hero,
-  .workspace--decode-id .result-hero,
-  .decode-detail-grid,
-  .decode-id-secondary-grid {
+  .workspace--decode-id .result-hero {
     grid-template-columns: 1fr;
-  }
-
-  .workspace--decode .decode-detail-grid--with-relations {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .workspace--decode-id .decode-id-secondary-grid--with-relations {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .decode-detail-panel.detail-panel--wide,
   .decode-detail-panel--balanced,
-  .workspace--decode .decode-detail-grid--with-relations .decode-detail-panel.detail-panel--wide,
-  .workspace--decode .decode-detail-grid--with-relations .decode-detail-panel--balanced,
-  .workspace--decode .decode-detail-grid--with-relations .decode-detail-panel:not(.decode-detail-panel--single),
-  .workspace--decode .decode-detail-grid--with-relations .decode-relation-panel,
-  .workspace--decode .decode-detail-grid--with-relations .external-link-panel,
+  .decode-relation-panel--wide,
   .decode-id-pn-panel,
   .decode-id-info-panel.detail-panel--wide,
-  .decode-id-info-panel--balanced,
-  .decode-id-link-panel {
+  .decode-id-info-panel--balanced {
     grid-column: span 1;
-  }
-
-  .workspace--decode .decode-detail-grid--with-relations .decode-relation-panel {
-    grid-row: auto;
-  }
-
-  .workspace--decode-id .decode-id-secondary-grid--with-relations .decode-id-pn-panel {
-    grid-row: auto;
-  }
-
-  .workspace--decode .decode-detail-grid--with-relations .decode-relation-panel .relation-card-grid {
-    max-height: none;
-    overflow-y: visible;
-  }
-
-  .workspace--decode-id .decode-id-secondary-grid--with-relations .decode-id-pn-panel .decode-id-pn-grid {
-    max-height: none;
-    overflow-y: visible;
-  }
-
-  .workspace--decode .decode-detail-grid--with-relations .decode-detail-panel:not(.decode-detail-panel--single),
-  .workspace--decode .decode-detail-grid--with-relations .decode-relation-panel,
-  .workspace--decode .decode-detail-grid--with-relations .external-link-panel {
-    grid-column: span 2;
-  }
-
-  .workspace--decode-id .decode-id-secondary-grid--with-relations .decode-id-info-panel:not(.decode-id-info-panel--single),
-  .workspace--decode-id .decode-id-secondary-grid--with-relations .decode-id-pn-panel,
-  .workspace--decode-id .decode-id-secondary-grid--with-relations .decode-id-link-panel {
-    grid-column: span 2;
   }
 
   .workspace--decode .vendor-logo-wrap,
@@ -2625,31 +2666,18 @@ a.nav-footer-notice:hover {
   }
 }
 
-@media (max-width: 560px) {
-  .workspace--decode .decode-detail-grid--with-relations {
-    grid-template-columns: 1fr;
-  }
-
-  .workspace--decode-id .decode-id-secondary-grid--with-relations {
-    grid-template-columns: 1fr;
-  }
-
-  .workspace--decode .decode-detail-grid--with-relations .decode-detail-panel,
-  .workspace--decode .decode-detail-grid--with-relations .decode-detail-panel:not(.decode-detail-panel--single),
-  .workspace--decode .decode-detail-grid--with-relations .decode-relation-panel,
-  .workspace--decode .decode-detail-grid--with-relations .external-link-panel {
-    grid-column: span 1;
-  }
-
-  .workspace--decode-id .decode-id-secondary-grid--with-relations .decode-id-info-panel,
-  .workspace--decode-id .decode-id-secondary-grid--with-relations .decode-id-info-panel:not(.decode-id-info-panel--single),
-  .workspace--decode-id .decode-id-secondary-grid--with-relations .decode-id-pn-panel,
-  .workspace--decode-id .decode-id-secondary-grid--with-relations .decode-id-link-panel {
-    grid-column: span 1;
-  }
-}
-
 @media (max-width: 720px) {
+  .auto-flow-grid {
+    grid-auto-rows: auto;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .auto-flow-grid > * {
+    grid-column: 1 !important;
+    grid-row: auto !important;
+  }
+
   :root {
     --mobile-bottom-overlay-offset: calc(8px + var(--app-safe-area-bottom));
   }

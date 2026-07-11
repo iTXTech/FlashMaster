@@ -84,6 +84,7 @@ const panelClasses = computed(() => [
   {
     'detail-panel--wide': props.block.wide,
     [`${props.classPrefix}--card`]: props.block.cardView,
+    [`${props.classPrefix}--compact`]: props.block.cardView && props.block.metrics.length === 1 && !props.block.wide,
     [`${props.classPrefix}--single`]: props.block.cardView && props.block.metrics.length === 1 && !props.block.wide,
     [`${props.classPrefix}--table`]: !props.block.cardView,
     [`${props.classPrefix}--balanced`]: props.block.cardView && props.block.metrics.length === 3

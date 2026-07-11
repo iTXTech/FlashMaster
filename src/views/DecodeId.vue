@@ -41,11 +41,7 @@
       />
     </div>
 
-    <div
-      v-if="result"
-      class="decode-id-secondary-grid"
-      :class="{ 'decode-id-secondary-grid--with-relations': relations.length > 0 }"
-    >
+    <AutoFlowGrid v-if="result" class="decode-id-secondary-grid">
       <section v-if="relations.length > 0" class="panel decode-id-pn-panel">
         <div class="panel-header">
           <div>
@@ -67,18 +63,6 @@
         </div>
       </section>
 
-      <section v-if="externalLinks.length > 0" class="panel external-link-panel decode-id-link-panel">
-        <div class="panel-header">
-          <div>
-            <div class="panel-title">{{ $t('dashboard.externalLinks') }}</div>
-            <div class="panel-meta">{{ $t('dashboard.resultCount', [externalLinks.length]) }}</div>
-          </div>
-        </div>
-        <div class="panel-body external-link-panel-body">
-          <ExternalLinks :links="externalLinks" />
-        </div>
-      </section>
-
       <DecodeDetailBlock
         v-for="block in detailBlockViews"
         :key="block.id"
@@ -89,6 +73,21 @@
         @copy-rows="copyRows"
         @copy-line="copyLine"
       />
+
+    </AutoFlowGrid>
+
+    <div v-if="result && externalLinks.length > 0" class="decode-id-link-row">
+      <section class="panel external-link-panel decode-id-link-panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">{{ $t('dashboard.externalLinks') }}</div>
+            <div class="panel-meta">{{ $t('dashboard.resultCount', [externalLinks.length]) }}</div>
+          </div>
+        </div>
+        <div class="panel-body external-link-panel-body">
+          <ExternalLinks :links="externalLinks" />
+        </div>
+      </section>
     </div>
   </div>
 </template>
@@ -97,6 +96,7 @@
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
+import AutoFlowGrid from '@/components/AutoFlowGrid.vue';
 import DecodeDetailBlock from '@/components/DecodeDetailBlock.vue';
 import DecodeResultPanel from '@/components/DecodeResultPanel.vue';
 import ExternalLinks from '@/components/ExternalLinks.vue';

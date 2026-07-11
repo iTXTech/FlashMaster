@@ -41,10 +41,9 @@
       />
     </div>
 
-    <div
+    <AutoFlowGrid
       v-if="result"
       class="decode-detail-grid"
-      :class="{ 'decode-detail-grid--with-relations': relations.length > 0 }"
     >
       <DecodeDetailBlock
         v-for="block in detailBlockViews"
@@ -57,7 +56,11 @@
         @copy-line="copyLine"
       />
 
-      <section v-if="relations.length > 0" class="panel relation-panel decode-relation-panel">
+      <section
+        v-if="relations.length > 0"
+        class="panel relation-panel decode-relation-panel"
+        :class="{ 'decode-relation-panel--wide': relations.length >= 6 }"
+      >
         <div class="panel-header">
           <div>
             <div class="panel-title">{{ $t('dashboard.relatedData') }}</div>
@@ -93,7 +96,7 @@
           <ExternalLinks :links="externalLinks" />
         </div>
       </section>
-    </div>
+    </AutoFlowGrid>
   </div>
 </template>
 
@@ -101,6 +104,7 @@
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
+import AutoFlowGrid from '@/components/AutoFlowGrid.vue';
 import DecodeDetailBlock from '@/components/DecodeDetailBlock.vue';
 import DecodeResultPanel from '@/components/DecodeResultPanel.vue';
 import ExternalLinks from '@/components/ExternalLinks.vue';
