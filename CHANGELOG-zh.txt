@@ -9,12 +9,15 @@ FlashMaster 更新：
 - 加固内嵌解析器降级流程：Worker 超时或传输失败后立即终止并禁用，当前及后续请求直接降级，避免重复等待 30 秒。
 
 fdnext v3.2.0 highlights：
-- 内嵌解析器同步 fdnext v3.2.0 最新快照（ac4bc37）。
+- 内嵌解析器同步 fdnext v3.2.0 最新快照（e460bb1）。
+- 修正 YMTC Gen5 Flash ID 后处理，使匹配的 identifier 能正确映射到 die profile。
+- 扩展 ISSI、Biwin、Kingston、Longsys、Samsung、SanDisk、Micron 等厂商的 Managed NAND 解码，新增多类 eMMC、eMCP、UFS 与 SSD 料号结构。
+- 扩展 ISSI、ESMT、Nanya、Samsung、Micron 的 DRAM 解码与搜索资源，并去重 Micron PN 资源。
 - 修正 Micron raw NAND DecodePack feature token：`Q` 显示为 Enterprise Q，`QZ` / `ZQ` 显示为 Enterprise Q + Polyimide Process Applied。
 - 收紧 Micron raw NAND optional suffix 在冒号或输入末尾边界处的 feature 与 production-status token 解析。
 - 内嵌运行时改用预构建 catalog、FDB 索引、DecodePack 前缀分发与搜索字段投影，减少初始化和单次查询中的重复工作。
-- 压缩 eager search indexes，在保持精确、前缀和包含搜索行为的同时减少运行时常驻数据。
-- 内嵌搜索在未指定 limit 时返回完整的前缀/包含匹配集，联想查询的显式 top-K 继续走优化路径；HTTP 部署独立限制最大搜索结果数。
+- 压缩预构建搜索索引，在保持精确、前缀和包含搜索行为的同时减少运行时常驻数据。
+- 优化内嵌搜索路径，支持完整的前缀与包含匹配，同时让显式 top-K 联想查询继续使用更快的排序路径。
 - 清理 DRAM 公开输出中的内部 configuration/package code 与缺乏依据的默认 die-count，并统一 SK hynix H27 raw NAND package 标签格式。
 
 ===================================
