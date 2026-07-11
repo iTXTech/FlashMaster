@@ -1,12 +1,20 @@
 FlashMaster by PeratX <peratx@itxtech.org>
 Copyright (c) 2019-2026 iTX Technologies
 ===================================
-Version 2.6.0-dev (Development snapshot date: 2026-07-07)
+Version 2.6.0-dev (Development snapshot date: 2026-07-11)
+
+FlashMaster updates:
+- Reduced the PWA precache by keeping the embedded fdnext worker offline-ready while loading the duplicate main-thread fallback engine only on demand when online.
+- Hardened embedded parser failover: a timed-out or broken worker is now terminated and disabled so the current and subsequent operations fall back without repeated 30-second waits.
 
 fdnext v3.2.0 highlights:
-- Integrated fdnext v3.2.0 (86f3672) in the embedded parser.
+- Integrated the latest fdnext v3.2.0 snapshot (ac4bc37) in the embedded parser.
 - Corrected Micron raw NAND DecodePack feature tokens: `Q` now reports Enterprise Q, and `QZ` / `ZQ` report Enterprise Q + Polyimide Process Applied.
 - Tightened Micron raw NAND optional-suffix parsing around feature and production-status tokens at colon/end-of-input boundaries.
+- Reworked the embedded runtime around prepared catalogs, indexed FDB lookups, prefix-dispatched DecodePack matching, and projected search decoding to reduce repeated initialization and per-query work.
+- Compacted eager search indexes to reduce retained runtime data while preserving exact, prefix, and substring search behavior.
+- Updated embedded searches to return the complete prefix/substring match set when no limit is requested, while keeping explicit top-K suggestion queries on the optimized path; HTTP deployments cap search responses independently.
+- Cleaned public DRAM output by removing internal configuration/package codes and unsupported default die-count assumptions, and normalized SK hynix H27 raw NAND package labels.
 
 ===================================
 Version 2.5.0 (Release date: 2026-07-06)

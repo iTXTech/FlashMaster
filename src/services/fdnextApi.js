@@ -59,6 +59,13 @@ function rejectWorkerRequests(error) {
   }
 }
 
+function disableWorker(error) {
+  workerDisabled = true;
+  rejectWorkerRequests(error);
+  worker?.terminate?.();
+  worker = null;
+}
+
 function handleWorkerMessage(event) {
   const { id, result, error } = event.data || {};
   const request = workerRequests.get(id);
@@ -74,10 +81,7 @@ function handleWorkerMessage(event) {
 
 function handleWorkerFailure(event) {
   const error = workerTransportError(event?.message || 'Embedded fdnext worker failed.');
-  workerDisabled = true;
-  rejectWorkerRequests(error);
-  worker?.terminate?.();
-  worker = null;
+  disableWorker(error);
 }
 
 function getWorker() {
@@ -89,8 +93,7 @@ function getWorker() {
     worker.addEventListener('error', handleWorkerFailure);
     return worker;
   } catch (err) {
-    workerDisabled = true;
-    rejectWorkerRequests(workerTransportError(err?.message || 'Embedded fdnext worker is unavailable.'));
+    disableWorker(workerTransportError(err?.message || 'Embedded fdnext worker is unavailable.'));
     return null;
   }
 }
@@ -101,11 +104,14 @@ function requestWorker(type, payload = {}) {
   const id = ++workerRequestId;
   return new Promise((resolve, reject) => {
     const timeout = setTimeout(() => {
-      workerRequests.delete(id);
-      reject(workerTransportError('Embedded fdnext worker request timed out.'));
+      disableWorker(workerTransportError('Embedded fdnext worker request timed out.'));
     }, WORKER_REQUEST_TIMEOUT_MS);
     workerRequests.set(id, { resolve, reject, timeout });
-    target.postMessage({ id, type, payload });
+    try {
+      target.postMessage({ id, type, payload });
+    } catch (err) {
+      disableWorker(workerTransportError(err?.message || 'Embedded fdnext worker transport failed.'));
+    }
   });
 }
 

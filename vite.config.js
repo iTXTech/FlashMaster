@@ -198,7 +198,7 @@ function pwaPlugin(routerMode) {
     workbox: {
       cleanupOutdatedCaches: true,
       clientsClaim: true,
-      globIgnores: ['**/og/**', 'registerSW.js'],
+      globIgnores: ['**/og/**', 'registerSW.js', '**/fdnextMainEngine-*.js'],
       globPatterns: ['**/*.{html,js,css,svg,png,ico}'],
       maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
       navigateFallback: 'index.html',

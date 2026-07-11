@@ -1,12 +1,20 @@
 FlashMaster by PeratX <peratx@itxtech.org>
 版权所有 (c) 2019-2026 iTX Technologies
 ===================================
-版本 2.6.0-dev（开发快照日期：2026-07-07）
+版本 2.6.0-dev（开发快照日期：2026-07-11）
+
+FlashMaster 更新：
+- 精简 PWA 预缓存：保留可离线使用的 fdnext Worker 引擎，重复的主线程降级引擎仅在联网且 Worker 失效时按需加载。
+- 加固内嵌解析器降级流程：Worker 超时或传输失败后立即终止并禁用，当前及后续请求直接降级，避免重复等待 30 秒。
 
 fdnext v3.2.0 highlights：
-- 内嵌解析器集成 fdnext v3.2.0（86f3672）。
+- 内嵌解析器同步 fdnext v3.2.0 最新快照（ac4bc37）。
 - 修正 Micron raw NAND DecodePack feature token：`Q` 显示为 Enterprise Q，`QZ` / `ZQ` 显示为 Enterprise Q + Polyimide Process Applied。
 - 收紧 Micron raw NAND optional suffix 在冒号或输入末尾边界处的 feature 与 production-status token 解析。
+- 内嵌运行时改用预构建 catalog、FDB 索引、DecodePack 前缀分发与搜索字段投影，减少初始化和单次查询中的重复工作。
+- 压缩 eager search indexes，在保持精确、前缀和包含搜索行为的同时减少运行时常驻数据。
+- 内嵌搜索在未指定 limit 时返回完整的前缀/包含匹配集，联想查询的显式 top-K 继续走优化路径；HTTP 部署独立限制最大搜索结果数。
+- 清理 DRAM 公开输出中的内部 configuration/package code 与缺乏依据的默认 die-count，并统一 SK hynix H27 raw NAND package 标签格式。
 
 ===================================
 版本 2.5.0（发布日期：2026-07-06）

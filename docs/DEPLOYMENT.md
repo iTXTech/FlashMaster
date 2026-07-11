@@ -83,7 +83,7 @@ VITE_FLASHMASTER_LOCKED_SERVER=https://your-fdnext.example pnpm build:singlefile
   - **iOS (Safari):** 分享 -> 添加到主屏幕。
   - **Android (Chrome):** 选项 -> 安装应用 / 添加到主屏幕。
   - **桌面端 (Chrome/Edge):** 地址栏右侧会出现“安装”图标。
-- **离线能力：** PWA 会通过 Service Worker 缓存应用壳层。首次成功访问后，即便断网也能正常启动应用（内嵌解析引擎可完全离线运行）。
+- **离线能力：** PWA 会通过 Service Worker 缓存应用壳层和 Worker 版内嵌解析引擎。首次成功访问后，即便断网也能正常启动并完成内嵌解析。主线程降级引擎不进入预缓存，仅在 Worker 失效且仍在线时按需加载，避免安装阶段重复缓存两份 fdnext 引擎。
 - **更新策略：** 入口 HTML、公开 SPA 路由、`sw.js`、`registerSW.js` 和 manifest 使用 `no-cache` 重新验证；hash 后的静态资源使用长期缓存。页面打开时会检查新的 Service Worker，已有安装检测到新版接管后刷新一次进入新版本，不做后台轮询刷新。
 
 ---
