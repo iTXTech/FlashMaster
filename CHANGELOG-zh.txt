@@ -1,7 +1,7 @@
 FlashMaster by PeratX <peratx@itxtech.org>
 版权所有 (c) 2019-2026 iTX Technologies
 ===================================
-版本 2.6.0-dev（开发快照日期：2026-07-11）
+版本 2.6.0-dev（开发快照日期：2026-07-12）
 
 FlashMaster 更新：
 - 重构料号与 Flash ID 结果布局：宽屏自动补位不同高度的卡片，窄屏稳定回落为单列，动态展开后自动重新计算位置；摘要根据实际字段数量均衡分列，短明细卡保持紧凑，关联数据仅在扩宽确实能提升密度时占两列。Flash ID External Links 固定在全部明细卡之后，且不再为单条链接拉伸整行。
@@ -9,7 +9,10 @@ FlashMaster 更新：
 - 加固内嵌解析器降级流程：Worker 超时或传输失败后立即终止并禁用，当前及后续请求直接降级，避免重复等待 30 秒。
 
 fdnext v3.2.0 highlights：
-- 内嵌解析器同步 fdnext v3.2.0 最新快照（e460bb1）。
+- 内嵌解析器同步 fdnext v3.2.0 最新快照（b6e74a1）。
+- 统一新版 SanDisk iNAND eMMC/UFS token 解码，同时保留旧版料号覆盖。
+- 扩展 Biwin、ESMT、Kingston、KIOXIA、Longsys、Micron、Samsung、SK hynix、SpecTek、Winbond、YMTC 等重点厂商的料号解码，新增和完善 DRAM、HBM、Raw NAND、SPI NAND、eMMC、eMCP、UFS 与 SSD 结构。
+- 扩展 Managed NAND 与 DRAM 搜索资源，并优化多家厂商的 identifier profile，提升查询覆盖。
 - 修正 YMTC Gen5 Flash ID 后处理，使匹配的 identifier 能正确映射到 die profile。
 - 扩展 ISSI、Biwin、Kingston、Longsys、Samsung、SanDisk、Micron 等厂商的 Managed NAND 解码，新增多类 eMMC、eMCP、UFS 与 SSD 料号结构。
 - 扩展 ISSI、ESMT、Nanya、Samsung、Micron 的 DRAM 解码与搜索资源，并去重 Micron PN 资源。
