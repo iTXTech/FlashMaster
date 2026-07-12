@@ -6,7 +6,13 @@
           <div>
             <div class="panel-title">{{ $t('search') }}</div>
           </div>
-          <v-btn icon="mdi-arrow-right" variant="text" @click="search" />
+          <v-btn
+            icon="mdi-arrow-right"
+            variant="text"
+            :disabled="!partNumber"
+            :aria-label="$t('search')"
+            @click="search"
+          />
         </div>
         <div class="panel-body query-stack">
           <v-text-field
@@ -24,7 +30,7 @@
             @blur="onBlur"
           />
           <div class="action-row">
-            <v-btn color="primary" prepend-icon="mdi-magnify" @click="search">{{ $t('search') }}</v-btn>
+            <v-btn color="primary" prepend-icon="mdi-magnify" :disabled="!partNumber" @click="search">{{ $t('search') }}</v-btn>
             <v-btn variant="tonal" prepend-icon="mdi-crosshairs-gps" :disabled="!partNumber" @click="decodeCurrent">{{ $t('query') }}</v-btn>
           </div>
         </div>

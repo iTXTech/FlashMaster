@@ -5,28 +5,19 @@ FlashMaster by PeratX <peratx@itxtech.org>
 
 FlashMaster 更新：
 - 重组 Commercial Banner 能力弹窗，将能力按应用与平台、数据与自动化、系统工程与专项技术分组，并将操作文案调整为低压力的“讨论需求”和更简洁的“查看能力”。
-- 优化高密度工作台的明暗主题：分别建立深色与浅色中性色阶，拉开浅色模式页面、面板和激活导航层级；消除主题切换后进入主界面时 Market Pulse 上方的瞬时浅色条，并让深色输入框与面板层级更协调；平衡设置页侧栏，并将 PN/Flash ID 主输入操作统一为聚焦的“解析 + 搜索”，同时保持既有面板边框和 Market Pulse 紧凑尺寸。
+- 优化高密度工作台的明暗主题：分别建立深色与浅色中性色阶，拉开浅色模式页面、面板和激活导航层级；消除主题切换后进入主界面时 Market Pulse 上方的瞬时浅色条，并让深色输入框与面板层级更协调；平衡设置页侧栏，并将 PN/Flash ID 主输入操作统一为聚焦的“解析 + 搜索”。搜索页查询为空时，搜索、解析及标题栏快捷按钮保持不可点击；既有面板边框和 Market Pulse 紧凑尺寸保持不变。
 - 稳定移动端 Safari 的 Market Pulse：多行情源更新改为合并稳定资产集合并锚定当前可见 ticker，可见槽位复用 DOM；CSS 驱动滚动改为独立周期续播，不再依赖无限动画边界与负延迟恢复，避免整排 ticker 短暂切换和自动滚动卡顿，同时保留横向拖动交互。
-- 重构料号与 Flash ID 结果布局：所有明细卡保持单列占位，长控制器或关联列表只向下增长，不再跨列制造错位和空洞；宽屏自动补位不同高度的卡片，窄屏稳定回落为单列，动态展开后自动重新计算位置。超长控制器列表展开后使用有界多列滚动区，避免内容无限拉长或被底部横幅遮挡。Flash ID External Links 进入同一补位流，直接填充下一个空位，不再留下空列。
+- 重构料号与 Flash ID 结果布局：明细卡保持单列占位，宽屏自动补位不同高度的卡片，窄屏稳定回落为单列，动态展开后自动重新计算位置。长控制器或关联列表只向下增长，超长控制器列表使用有界多列滚动区；Flash ID External Links 进入同一补位流。
 - 精简 PWA 预缓存：保留可离线使用的 fdnext Worker 引擎，重复的主线程降级引擎仅在联网且 Worker 失效时按需加载。
 - 加固内嵌解析器降级流程：Worker 超时或传输失败后立即终止并禁用，当前及后续请求直接降级，避免重复等待 30 秒。
 
 fdnext v3.2.0 更新要点：
 - 内嵌解析器同步 fdnext v3.2.0 最新快照（62a3133）。
-- 扩展 Macronix Parallel NAND、Winbond 与旧版 NAND/MCP 的 Flash ID 覆盖，并新增更多 GDDR7 与 CXMT 解码。
-- 扩展 SK hynix、Micron eMMC、Winbond、Samsung、KIOXIA、YMTC 等 Managed NAND 与 DRAM 系列的料号和目录覆盖。
+- 扩展 Biwin、ESMT、ISSI、Kingston、KIOXIA、Longsys、Micron、Nanya、Samsung、SanDisk、SK hynix、SpecTek、Winbond、YMTC 等重点厂商的料号解码、目录与搜索资源，新增和完善 DRAM、HBM、Raw NAND、SPI NAND、eMMC、eMCP、UFS、SSD、GDDR7 与 CXMT 结构；统一新版 SanDisk iNAND eMMC/UFS token 解码并保留旧版覆盖，同时去重 Micron PN 资源。
+- 扩展 Macronix Parallel NAND、Winbond 与旧版 NAND/MCP 的 Flash ID 覆盖，并修正 YMTC Gen5 identifier 后处理，使匹配结果映射到正确的 die profile。
 - 将 DecodePack 证据元数据与运行时规则分离，增强来源审计能力，同时不改变 FlashMaster 的解析器接口。
-- 统一新版 SanDisk iNAND eMMC/UFS token 解码，同时保留旧版料号覆盖。
-- 扩展 Biwin、ESMT、Kingston、KIOXIA、Longsys、Micron、Samsung、SK hynix、SpecTek、Winbond、YMTC 等重点厂商的料号解码，新增和完善 DRAM、HBM、Raw NAND、SPI NAND、eMMC、eMCP、UFS 与 SSD 结构。
-- 扩展 Managed NAND 与 DRAM 搜索资源，并优化多家厂商的 identifier profile，提升查询覆盖。
-- 修正 YMTC Gen5 Flash ID 后处理，使匹配的 identifier 能正确映射到 die profile。
-- 扩展 ISSI、Biwin、Kingston、Longsys、Samsung、SanDisk、Micron 等厂商的 Managed NAND 解码，新增多类 eMMC、eMCP、UFS 与 SSD 料号结构。
-- 扩展 ISSI、ESMT、Nanya、Samsung、Micron 的 DRAM 解码与搜索资源，并去重 Micron PN 资源。
-- 修正 Micron raw NAND DecodePack feature token：`Q` 显示为 Enterprise Q，`QZ` / `ZQ` 显示为 Enterprise Q + Polyimide Process Applied。
-- 收紧 Micron raw NAND optional suffix 在冒号或输入末尾边界处的 feature 与 production-status token 解析。
-- 内嵌运行时改用预构建 catalog、FDB 索引、DecodePack 前缀分发与搜索字段投影，减少初始化和单次查询中的重复工作。
-- 压缩预构建搜索索引，在保持精确、前缀和包含搜索行为的同时减少运行时常驻数据。
-- 优化内嵌搜索路径，支持完整的前缀与包含匹配，同时让显式 top-K 联想查询继续使用更快的排序路径。
+- 修正 Micron raw NAND DecodePack feature token，并收紧 optional suffix 在冒号或输入末尾边界处的 feature 与 production-status token 解析。
+- 内嵌运行时改用预构建 catalog、压缩 FDB 索引、DecodePack 前缀分发与搜索字段投影，减少重复初始化和常驻数据，同时保持精确、前缀、包含搜索及快速排序的 top-K 联想行为。
 - 清理 DRAM 公开输出中的内部 configuration/package code 与缺乏依据的默认 die-count，并统一 SK hynix H27 raw NAND package 标签格式。
 
 ===================================
