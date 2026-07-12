@@ -6,7 +6,13 @@
           <div>
             <div class="panel-title">{{ $t('dashboard.queryPanel') }}</div>
           </div>
-          <v-btn icon="mdi-book-information-variant" variant="text" :disabled="!flashId" @click="copySummary" />
+          <v-btn
+            icon="mdi-book-information-variant"
+            variant="text"
+            :disabled="!flashId"
+            :aria-label="$t('summary')"
+            @click="copySummary"
+          />
         </div>
         <div class="panel-body query-stack">
           <QuerySuggestionInput
@@ -23,8 +29,8 @@
             @blur="onBlur"
           />
           <div class="action-row">
-            <v-btn color="primary" prepend-icon="mdi-memory" @click="decode">{{ $t('searchIdPage.query') }}</v-btn>
-            <v-btn variant="tonal" prepend-icon="mdi-magnify" @click="goSearchId">{{ $t('searchIdPage.search') }}</v-btn>
+            <v-btn color="primary" prepend-icon="mdi-memory" :disabled="!flashId" @click="decode">{{ $t('searchIdPage.query') }}</v-btn>
+            <v-btn variant="tonal" prepend-icon="mdi-magnify" :disabled="!flashId" @click="goSearchId">{{ $t('searchIdPage.search') }}</v-btn>
           </div>
         </div>
       </section>
@@ -74,10 +80,7 @@
         @copy-line="copyLine"
       />
 
-    </AutoFlowGrid>
-
-    <div v-if="result && externalLinks.length > 0" class="decode-id-link-row">
-      <section class="panel external-link-panel decode-id-link-panel">
+      <section v-if="externalLinks.length > 0" class="panel external-link-panel decode-id-link-panel">
         <div class="panel-header">
           <div>
             <div class="panel-title">{{ $t('dashboard.externalLinks') }}</div>
@@ -88,7 +91,7 @@
           <ExternalLinks :links="externalLinks" />
         </div>
       </section>
-    </div>
+    </AutoFlowGrid>
   </div>
 </template>
 
@@ -147,6 +150,7 @@ const {
 const header = computed(() => resultHeader(result.value));
 const resultPanelMeta = computed(() => {
   if (!result.value) return t('dashboard.empty');
+  if (result.value.status === 'not_found') return t('dashboard.notFound');
   return result.value.status && result.value.status !== 'ok' ? header.value.status : '';
 });
 const mainMetrics = computed(() => primaryMetrics(result.value));

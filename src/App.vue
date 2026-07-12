@@ -244,7 +244,9 @@ const pageDescription = computed(() => {
 });
 
 const applyTheme = () => {
-  vuetifyTheme.change(themeManager.resolveThemeName(store.getTheme()));
+  const themeName = themeManager.resolveThemeName(store.getTheme());
+  themeManager.applyDocumentTheme(themeName);
+  vuetifyTheme.change(themeName);
 };
 
 const syncRouteLocale = () => {

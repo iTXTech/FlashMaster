@@ -1,7 +1,7 @@
 <template>
   <div class="workspace workspace--settings">
     <div class="settings-grid">
-      <section class="panel">
+      <section class="panel settings-panel settings-panel--engine">
         <div class="panel-header">
           <div class="panel-title">{{ $t('settings.engine') }}</div>
         </div>
@@ -42,7 +42,7 @@
         </div>
       </section>
 
-      <section class="panel">
+      <section class="panel settings-panel settings-panel--controllers">
         <div class="panel-header">
           <div class="panel-title">{{ $t('settings.controllerGroups') }}</div>
           <v-btn
@@ -93,7 +93,7 @@
         </div>
       </section>
 
-      <section class="panel">
+      <section class="panel settings-panel settings-panel--customization">
         <div class="panel-header">
           <div class="panel-title">{{ $t('customization.title') }}</div>
         </div>
@@ -138,7 +138,7 @@
         </div>
       </section>
 
-      <section class="panel">
+      <section class="panel settings-panel settings-panel--stats">
         <div class="panel-header">
           <div class="panel-title">{{ $t('statistic.title') }}</div>
         </div>
@@ -165,7 +165,12 @@
       <section class="panel server-info-panel">
         <div class="panel-header">
           <div class="panel-title">{{ infoDialogTitle }}</div>
-          <v-btn icon="mdi-close" variant="text" @click="dialog.show = false" />
+          <v-btn
+            icon="mdi-close"
+            variant="text"
+            :aria-label="$t('close')"
+            @click="dialog.show = false"
+          />
         </div>
         <div class="panel-body server-info-body">
           <CapabilityInfo v-if="dialog.data" :data="dialog.data" />

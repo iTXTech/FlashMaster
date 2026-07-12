@@ -6,7 +6,13 @@
           <div>
             <div class="panel-title">{{ $t('dashboard.queryPanel') }}</div>
           </div>
-          <v-btn icon="mdi-book-information-variant" variant="text" :disabled="!partNumber" @click="copySummary" />
+          <v-btn
+            icon="mdi-book-information-variant"
+            variant="text"
+            :disabled="!partNumber"
+            :aria-label="$t('summary')"
+            @click="copySummary"
+          />
         </div>
         <div class="panel-body query-stack">
           <QuerySuggestionInput
@@ -14,7 +20,7 @@
             v-model="partNumberInput"
             :items="suggestions"
             :loading="loadingSuggestions || loading"
-            :label="$t('partNumberOrFlashId')"
+            :label="$t('partNumber')"
             @search="searchSuggestions"
             @select="selectPartSuggestion"
             @submit="decode"
@@ -22,10 +28,9 @@
             @compositionend="onCompositionEnd"
             @blur="onBlur"
           />
-          <div class="action-row query-action-row">
-            <v-btn color="primary" prepend-icon="mdi-crosshairs-gps" @click="decode">{{ $t('query') }}</v-btn>
-            <v-btn variant="tonal" prepend-icon="mdi-magnify" @click="goSearchPn">{{ $t('search') }}</v-btn>
-            <v-btn variant="tonal" prepend-icon="mdi-flash" @click="goSearchId">{{ $t('searchId') }}</v-btn>
+          <div class="action-row">
+            <v-btn color="primary" prepend-icon="mdi-crosshairs-gps" :disabled="!partNumber" @click="decode">{{ $t('query') }}</v-btn>
+            <v-btn variant="tonal" prepend-icon="mdi-magnify" :disabled="!partNumber" @click="goSearchPn">{{ $t('search') }}</v-btn>
           </div>
         </div>
       </section>
@@ -123,7 +128,7 @@ import {
 } from '@/services/fdnextResultView';
 import { trackCoverageSignal, trackPartNumberLookup } from '@/services/analytics';
 import { useFormattedQueryInput } from '@/composables/useFormattedQueryInput';
-import { idsSearchRoute, localizeRouteLocation, partRoute, partsSearchRoute, routeParamText } from '@/router/locations';
+import { localizeRouteLocation, partRoute, partsSearchRoute, routeParamText } from '@/router/locations';
 import bus from '@/store/bus';
 import store from '@/store';
 
@@ -156,6 +161,7 @@ const {
 const header = computed(() => resultHeader(result.value));
 const resultPanelMeta = computed(() => {
   if (!result.value) return t('dashboard.empty');
+  if (result.value.status === 'not_found') return t('dashboard.notFound');
   return result.value.status && result.value.status !== 'ok' ? header.value.status : '';
 });
 const mainMetrics = computed(() => primaryMetrics(result.value));
@@ -336,12 +342,6 @@ function goSearchPn() {
   const pn = normalizeInput();
   if (!pn) return notify(t('alert.missingPartNumber'));
   router.push(partsSearchRoute(pn, route));
-}
-
-function goSearchId() {
-  const id = normalizeInput();
-  if (!id) return notify(t('alert.missingFlashId'));
-  router.push(idsSearchRoute(id, route));
 }
 
 async function copySummary() {

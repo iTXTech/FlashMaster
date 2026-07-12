@@ -48,6 +48,7 @@ export default {
         searchResults: 'Search Results',
         quickStats: 'Quick Stats',
         empty: 'No data yet',
+        notFound: 'No matching result',
         copiedSummary: 'Summary copied.',
         resultCount: '{0} results',
         page: 'Page {0} / {1}',

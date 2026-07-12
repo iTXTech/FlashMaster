@@ -1,16 +1,24 @@
 <template>
-  <div ref="root" class="expandable-cell-list" :class="{ 'expandable-cell-list--expanded': expanded }">
-    <component
-      :is="clickable ? 'button' : 'div'"
-      v-for="item in visibleItems"
-      :key="item"
-      class="expandable-cell-item"
-      :class="{ 'expandable-cell-item--button': clickable }"
-      type="button"
-      @click="selectItem(item)"
-    >
-      <span>{{ item }}</span>
-    </component>
+  <div
+    class="expandable-cell-list"
+    :class="{
+      'expandable-cell-list--expanded': expanded,
+      'expandable-cell-list--large': hasLongList
+    }"
+  >
+    <div ref="itemsRoot" class="expandable-cell-items">
+      <component
+        :is="clickable ? 'button' : 'div'"
+        v-for="item in visibleItems"
+        :key="item"
+        class="expandable-cell-item"
+        :class="{ 'expandable-cell-item--button': clickable }"
+        type="button"
+        @click="selectItem(item)"
+      >
+        <span>{{ item }}</span>
+      </component>
+    </div>
     <v-btn
       v-if="hasMore"
       class="expandable-cell-toggle"
@@ -18,6 +26,7 @@
       size="x-small"
       variant="text"
       :prepend-icon="expanded ? 'mdi-chevron-up' : 'mdi-chevron-down'"
+      :aria-expanded="expanded"
       @click="expanded = !expanded"
     >
       {{ toggleLabel }}
@@ -58,7 +67,7 @@ const props = defineProps({
 
 const emit = defineEmits(['select']);
 const { t } = useI18n();
-const root = ref(null);
+const itemsRoot = ref(null);
 const rowCapacity = ref(0);
 const expanded = ref(false);
 let resizeObserver;
@@ -73,6 +82,7 @@ const collapsedLimit = computed(() => {
 const visibleItems = computed(() => expanded.value ? normalizedItems.value : normalizedItems.value.slice(0, collapsedLimit.value));
 const hiddenCount = computed(() => Math.max(0, normalizedItems.value.length - collapsedLimit.value));
 const hasMore = computed(() => normalizedItems.value.length > collapsedLimit.value);
+const hasLongList = computed(() => normalizedItems.value.length > 16);
 const toggleLabel = computed(() => expanded.value ? t('collapseItems') : t('showMoreItems', [hiddenCount.value]));
 
 function selectItem(item) {
@@ -80,7 +90,7 @@ function selectItem(item) {
 }
 
 function updateRowCapacity() {
-  const element = root.value;
+  const element = itemsRoot.value;
   if (!element || !props.fillRow) {
     rowCapacity.value = 0;
     return;
@@ -101,7 +111,7 @@ onMounted(() => {
   updateRowCapacity();
   if ('ResizeObserver' in window) {
     resizeObserver = new ResizeObserver(updateRowCapacity);
-    if (root.value) resizeObserver.observe(root.value);
+    if (itemsRoot.value) resizeObserver.observe(itemsRoot.value);
   }
 });
 

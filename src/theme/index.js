@@ -32,9 +32,9 @@ const VUETIFY_THEMES = {
     flashLight: {
         dark: false,
         colors: {
-            background: '#f1f4f6',
+            background: '#edf1f3',
             surface: '#ffffff',
-            'surface-variant': '#e8edf0',
+            'surface-variant': '#dfe7eb',
             'on-background': '#161b1f',
             'on-surface': '#161b1f',
             'on-surface-variant': '#161b1f',
@@ -63,6 +63,19 @@ const resolveThemeName = theme => {
     return THEME_NAMES[theme] || THEME_NAMES[THEME_DARK];
 };
 
+const applyDocumentTheme = themeName => {
+    if (typeof document === 'undefined') return;
+    const activeTheme = VUETIFY_THEMES[themeName] || VUETIFY_THEMES.flashDark;
+    const background = activeTheme.colors.background;
+    const colorScheme = activeTheme.dark ? 'dark' : 'light';
+    const root = document.documentElement;
+
+    root.style.setProperty('--flash-background', background);
+    root.style.backgroundColor = background;
+    root.style.colorScheme = colorScheme;
+    if (document.body) document.body.style.backgroundColor = background;
+};
+
 export default {
     THEME_DARK,
     THEME_LIGHT,
@@ -70,5 +83,6 @@ export default {
     DEFAULT_COLOR,
     VUETIFY_THEMES,
     THEME_NAMES,
-    resolveThemeName
+    resolveThemeName,
+    applyDocumentTheme
 }

@@ -48,6 +48,7 @@ export default {
         searchResults: '搜索结果',
         quickStats: '快速统计',
         empty: '暂无数据',
+        notFound: '未找到匹配结果',
         copiedSummary: '摘要已复制。',
         resultCount: '{0} 条结果',
         page: '第 {0} / {1} 页',
@@ -168,13 +169,13 @@ export default {
         }
     },
     searchIdPage: {
-        query: '查询ID',
+        query: '解析ID',
         search: '搜索ID',
         pns: '料号'
     },
     version: '版本：{0}',
     unknown: '未知',
-    query: '查询料号',
+    query: '解析料号',
     search: '搜索料号',
     searchId: '搜索闪存ID',
     summary: '复制摘要',

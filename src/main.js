@@ -36,6 +36,9 @@ import store from './store';
 import { aliases, mdi } from './theme/icons';
 import theme from './theme';
 
+const initialThemeName = theme.resolveThemeName(store.getTheme());
+theme.applyDocumentTheme(initialThemeName);
+
 const i18n = createI18n({
     legacy: false,
     locale: store.getLang(),
@@ -76,7 +79,7 @@ const vuetify = createVuetify({
         }
     },
     theme: {
-        defaultTheme: theme.resolveThemeName(store.getTheme()),
+        defaultTheme: initialThemeName,
         themes: theme.VUETIFY_THEMES
     },
     defaults: {

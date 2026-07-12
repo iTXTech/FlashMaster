@@ -11,7 +11,7 @@
     class="pn"
     clearable
     hide-details
-    :menu-props="{ contentClass: 'query-suggestion-menu' }"
+    :menu-props="{ contentClass: 'query-suggestion-menu', offset: 44 }"
     no-filter
     :auto-select-first="false"
     :label="label"
