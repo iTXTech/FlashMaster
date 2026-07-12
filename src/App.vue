@@ -35,7 +35,14 @@
         </div>
         <div class="drawer-info-line">{{ $t('productTagline') }}</div>
         <div class="drawer-info-line">{{ $t('version', [projectVersion]) }}</div>
-        <div class="drawer-info-line">{{ $t('group') }}</div>
+        <a
+          class="drawer-info-line drawer-info-link"
+          href="https://qm.qq.com/q/hSvFX1kvcI"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {{ $t('group') }}
+        </a>
       </div>
 
       <v-divider />

@@ -151,21 +151,37 @@ export default {
         ariaLabel: '定制开发服务入口',
         title: '需要把想法或工具做成可交付软件？',
         description: '作者承接全栈定制开发、自动化、数据工具、AI 集成，也接 DIY U 盘、移动固态与 SSD 定制。',
-        contact: '联系作者',
-        scope: '查看能力范围',
+        contact: '讨论需求',
+        scope: '查看能力',
         close: '关闭本次提示',
-        dialogTitle: '可承接方向',
+        closeDialog: '关闭能力弹窗',
+        dialogTitle: '能力与合作方向',
         introHtml: '作者 PeratX，<a class="service-scope-link" href="https://github.com/iTXTech" target="_blank" rel="noopener noreferrer">iTX Technologies</a> 创始人，长期从事全栈工程、开源工具与自动化系统开发，具备从需求梳理、架构设计、前后端实现到部署交付的完整经验。',
         dialogDescription: '面向小团队、工作室和实际业务场景，优先交付能落地、可维护、能继续演进的方案。',
-        scopeItems: {
-            web: 'Web 应用与管理后台',
-            backend: '后端 API 与数据库',
-            automation: '自动化工具与批处理',
-            data: '数据清洗、搜索与报表',
-            ai: 'AI 工作流与知识库',
-            ops: '内网部署、CI/CD 与工程流程',
-            diy: 'DIY U 盘、移动固态与 SSD 定制',
-            web3: 'Web3、金融系统与开源项目定制'
+        scopeGroups: {
+            application: {
+                title: '应用与平台',
+                items: {
+                    web: 'Web 应用与管理后台',
+                    backend: '后端 API 与数据库'
+                }
+            },
+            data: {
+                title: '数据与自动化',
+                items: {
+                    automation: '自动化工具与批处理',
+                    data: '数据清洗、搜索与报表',
+                    ai: 'AI 工作流与知识库'
+                }
+            },
+            systems: {
+                title: '系统工程与专项技术',
+                items: {
+                    ops: '内网部署、CI/CD 与工程流程',
+                    web3: 'Web3、金融系统与开源项目定制',
+                    diy: 'DIY U 盘、移动固态与 SSD 定制'
+                }
+            }
         }
     },
     searchIdPage: {

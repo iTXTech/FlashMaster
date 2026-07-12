@@ -738,6 +738,23 @@ a {
   overflow-wrap: anywhere;
 }
 
+.service-scope-groups {
+  display: grid;
+  gap: 11px;
+}
+
+.service-scope-group {
+  min-width: 0;
+}
+
+.service-scope-group-title {
+  margin-bottom: 5px;
+  color: rgba(var(--v-theme-on-surface), 0.64);
+  font-size: 0.68rem;
+  font-weight: 760;
+  letter-spacing: 0.02em;
+}
+
 .service-scope-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
@@ -852,6 +869,19 @@ a {
   color: rgba(var(--v-theme-on-surface), 0.62);
   font-size: 0.86rem;
   line-height: 1.35;
+}
+
+.drawer-info-link {
+  width: fit-content;
+  color: rgba(var(--v-theme-on-surface), 0.62);
+  text-decoration: none;
+}
+
+.drawer-info-link:hover,
+.drawer-info-link:focus-visible {
+  color: rgb(var(--v-theme-primary));
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 .nav-caption,

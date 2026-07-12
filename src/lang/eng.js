@@ -151,21 +151,37 @@ export default {
         ariaLabel: 'Custom development service entry',
         title: 'Need to turn an idea or tool into deliverable software?',
         description: 'Full-stack development, automation, data tools, AI integration, plus DIY USB drive, portable SSD, and SSD customization.',
-        contact: 'Contact',
-        scope: 'View scope',
+        contact: 'Discuss a project',
+        scope: 'View capabilities',
         close: 'Close this notice',
-        dialogTitle: 'Available scope',
+        closeDialog: 'Close capabilities dialog',
+        dialogTitle: 'Capabilities and collaboration',
         introHtml: 'PeratX is the founder of <a class="service-scope-link" href="https://github.com/iTXTech" target="_blank" rel="noopener noreferrer">iTX Technologies</a>, a full-stack engineer and open-source builder focused on practical tools, automation systems, and deployable software.',
         dialogDescription: 'For small teams, studios, and real business workflows, the priority is maintainable work that can ship and keep evolving.',
-        scopeItems: {
-            web: 'Web apps and admin systems',
-            backend: 'Backend APIs and databases',
-            automation: 'Automation tools and batch jobs',
-            data: 'Data cleanup, search, and reports',
-            ai: 'AI workflows and knowledge bases',
-            ops: 'Internal deployment, CI/CD, and engineering workflows',
-            diy: 'DIY USB drive, portable SSD, and SSD customization',
-            web3: 'Web3, financial systems, and open-source customization'
+        scopeGroups: {
+            application: {
+                title: 'Applications and platforms',
+                items: {
+                    web: 'Web apps and admin systems',
+                    backend: 'Backend APIs and databases'
+                }
+            },
+            data: {
+                title: 'Data and automation',
+                items: {
+                    automation: 'Automation tools and batch jobs',
+                    data: 'Data cleanup, search, and reports',
+                    ai: 'AI workflows and knowledge bases'
+                }
+            },
+            systems: {
+                title: 'Systems and specialized engineering',
+                items: {
+                    ops: 'Internal deployment, CI/CD, and engineering workflows',
+                    web3: 'Web3, financial systems, and open-source customization',
+                    diy: 'DIY USB drive, portable SSD, and SSD customization'
+                }
+            }
         }
     },
     searchIdPage: {

@@ -13,7 +13,7 @@
         color="primary"
         density="comfortable"
         :href="contactUrl"
-        prepend-icon="mdi-email-outline"
+        prepend-icon="mdi-message-outline"
         :rel="contactRel"
         size="small"
         :target="contactTarget"
@@ -47,32 +47,43 @@
 
   <v-dialog
     v-model="scopeDialog"
+    aria-labelledby="service-scope-dialog-title"
     class="service-scope-dialog"
     content-class="service-scope-dialog-content"
     max-width="640"
   >
     <section class="panel service-scope-panel">
       <div class="panel-header">
-        <div class="panel-title service-scope-heading">
+        <div id="service-scope-dialog-title" class="panel-title service-scope-heading">
           <v-icon icon="mdi-briefcase-outline" size="17" />
           <span>{{ $t('serviceBanner.dialogTitle') }}</span>
         </div>
-        <v-btn icon="mdi-close" variant="text" @click="scopeDialog = false" />
+        <v-btn
+          :aria-label="$t('serviceBanner.closeDialog')"
+          icon="mdi-close"
+          variant="text"
+          @click="scopeDialog = false"
+        />
       </div>
       <div class="panel-body service-scope-body">
         <div class="service-scope-intro" v-html="$t('serviceBanner.introHtml')" />
         <p class="service-scope-description">{{ $t('serviceBanner.dialogDescription') }}</p>
-        <div class="service-scope-grid">
-          <div v-for="item in scopeItems" :key="item" class="service-scope-item">
-            <v-icon icon="mdi-check-circle-outline" size="16" />
-            <span>{{ item }}</span>
-          </div>
+        <div class="service-scope-groups">
+          <section v-for="group in scopeGroups" :key="group.title" class="service-scope-group">
+            <div class="service-scope-group-title">{{ group.title }}</div>
+            <div class="service-scope-grid">
+              <div v-for="item in group.items" :key="item" class="service-scope-item">
+                <v-icon icon="mdi-check-circle-outline" size="16" />
+                <span>{{ item }}</span>
+              </div>
+            </div>
+          </section>
         </div>
         <div class="service-scope-actions">
           <v-btn
             color="primary"
             :href="contactUrl"
-            prepend-icon="mdi-email-outline"
+            prepend-icon="mdi-message-outline"
             :rel="contactRel"
             :target="contactTarget"
             variant="flat"
@@ -107,7 +118,10 @@ const bannerRef = ref(null);
 const contactUrl = 'mailto:peratx@itxtech.org?subject=FlashMaster%20custom%20development';
 const contactTarget = computed(() => (/^https?:\/\//i.test(contactUrl) ? '_blank' : undefined));
 const contactRel = computed(() => (contactTarget.value ? 'noopener noreferrer' : undefined));
-const scopeItems = computed(() => Object.values(tm('serviceBanner.scopeItems')).map(item => String(item)));
+const scopeGroups = computed(() => Object.values(tm('serviceBanner.scopeGroups')).map(group => ({
+  title: String(group.title),
+  items: Object.values(group.items).map(item => String(item))
+})));
 
 function track(event, action, label = 'banner') {
   trackServiceEvent({
