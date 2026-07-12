@@ -1,7 +1,7 @@
 FlashMaster by PeratX <peratx@itxtech.org>
 Copyright (c) 2019-2026 iTX Technologies
 ===================================
-Version 2.6.0-dev (Development snapshot date: 2026-07-12)
+Version 2.6.0-dev (Snapshot date: 2026-07-12)
 
 FlashMaster updates:
 - Rebuilt PN and Flash ID result layouts around responsive auto-flow cards: wide screens backfill uneven card heights without blank grid rows, narrow screens collapse cleanly to one column, dynamic expansions remeasure in place, summary columns balance against the actual field count, short detail cards stay compact, and longer relation groups expand only when the added width improves density. Flash ID External Links render after all detail cards without stretching across an empty row.
@@ -9,7 +9,10 @@ FlashMaster updates:
 - Hardened embedded parser failover: a timed-out or broken worker is now terminated and disabled so the current and subsequent operations fall back without repeated 30-second waits.
 
 fdnext v3.2.0 highlights:
-- Integrated the latest fdnext v3.2.0 snapshot (b6e74a1) in the embedded parser.
+- Integrated the latest fdnext v3.2.0 snapshot (62a3133) in the embedded parser.
+- Expanded Flash ID coverage for Macronix parallel NAND, Winbond, and legacy NAND/MCP identifiers, and added broader GDDR7 and CXMT decoding.
+- Expanded PN and catalog coverage for SK hynix, Micron eMMC, Winbond, Samsung, KIOXIA, YMTC, and other managed NAND and DRAM families.
+- Separated DecodePack evidence metadata from runtime rules to keep source references auditable without changing FlashMaster's parser interface.
 - Unified modern SanDisk iNAND eMMC/UFS token decoding while retaining legacy part-number coverage.
 - Expanded PN decoding across Biwin, ESMT, Kingston, KIOXIA, Longsys, Micron, Samsung, SK hynix, SpecTek, Winbond, YMTC, and other priority vendors, including broader DRAM, HBM, Raw NAND, SPI NAND, eMMC, eMCP, UFS, and SSD structures.
 - Expanded managed NAND and DRAM search resources and refined vendor identifier profiles for broader lookup coverage.

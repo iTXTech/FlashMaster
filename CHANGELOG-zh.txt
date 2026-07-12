@@ -1,15 +1,18 @@
 FlashMaster by PeratX <peratx@itxtech.org>
 版权所有 (c) 2019-2026 iTX Technologies
 ===================================
-版本 2.6.0-dev（开发快照日期：2026-07-12）
+版本 2.6.0-dev（快照日期：2026-07-12）
 
 FlashMaster 更新：
 - 重构料号与 Flash ID 结果布局：宽屏自动补位不同高度的卡片，窄屏稳定回落为单列，动态展开后自动重新计算位置；摘要根据实际字段数量均衡分列，短明细卡保持紧凑，关联数据仅在扩宽确实能提升密度时占两列。Flash ID External Links 固定在全部明细卡之后，且不再为单条链接拉伸整行。
 - 精简 PWA 预缓存：保留可离线使用的 fdnext Worker 引擎，重复的主线程降级引擎仅在联网且 Worker 失效时按需加载。
 - 加固内嵌解析器降级流程：Worker 超时或传输失败后立即终止并禁用，当前及后续请求直接降级，避免重复等待 30 秒。
 
-fdnext v3.2.0 highlights：
-- 内嵌解析器同步 fdnext v3.2.0 最新快照（b6e74a1）。
+fdnext v3.2.0 更新要点：
+- 内嵌解析器同步 fdnext v3.2.0 最新快照（62a3133）。
+- 扩展 Macronix Parallel NAND、Winbond 与旧版 NAND/MCP 的 Flash ID 覆盖，并新增更多 GDDR7 与 CXMT 解码。
+- 扩展 SK hynix、Micron eMMC、Winbond、Samsung、KIOXIA、YMTC 等 Managed NAND 与 DRAM 系列的料号和目录覆盖。
+- 将 DecodePack 证据元数据与运行时规则分离，增强来源审计能力，同时不改变 FlashMaster 的解析器接口。
 - 统一新版 SanDisk iNAND eMMC/UFS token 解码，同时保留旧版料号覆盖。
 - 扩展 Biwin、ESMT、Kingston、KIOXIA、Longsys、Micron、Samsung、SK hynix、SpecTek、Winbond、YMTC 等重点厂商的料号解码，新增和完善 DRAM、HBM、Raw NAND、SPI NAND、eMMC、eMCP、UFS 与 SSD 结构。
 - 扩展 Managed NAND 与 DRAM 搜索资源，并优化多家厂商的 identifier profile，提升查询覆盖。
