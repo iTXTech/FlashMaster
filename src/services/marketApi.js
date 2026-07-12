@@ -791,7 +791,8 @@ export function subscribeMarketQuotes({ onUpdate, onError } = {}) {
       const hasLiveSocket = hasLiveSocketMids();
       if (isFallback && hasLiveSocket) return;
 
-      const nextItems = hasLiveSocket ? applyMidsToQuotes(snapshot, latestMids) : snapshot;
+      const stableSnapshot = mergeQuoteUpdates(currentItems, snapshot);
+      const nextItems = hasLiveSocket ? applyMidsToQuotes(stableSnapshot, latestMids) : stableSnapshot;
       emit(nextItems, {
         immediate: !hasLiveSocket,
         forceCache: true
@@ -833,8 +834,7 @@ export function subscribeMarketQuotes({ onUpdate, onError } = {}) {
   const handleLighterStats = data => {
     const items = normalizeLighterPayload(data);
     if (!items.length) return;
-    const isIncrementalUpdate = data?.type === 'update/market_stats';
-    const nextItems = isIncrementalUpdate ? mergeQuoteUpdates(currentItems, items) : items;
+    const nextItems = mergeQuoteUpdates(currentItems, items);
     latestMids = null;
     socketSource = MARKET_SOURCE_LIGHTER;
     lastSocketMidsAt = Date.now();

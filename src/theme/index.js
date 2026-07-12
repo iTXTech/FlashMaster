@@ -3,7 +3,7 @@ const THEME_LIGHT = "1"
 const THEME_SYSTEM = "2"
 
 const DEFAULT_COLOR = {
-    primary: '#00a884',
+    primary: '#20b78e',
     secondary: '#f2b84b',
     accent: '#4c8dff',
     error: '#d64545'
@@ -13,9 +13,9 @@ const VUETIFY_THEMES = {
     flashDark: {
         dark: true,
         colors: {
-            background: '#111316',
-            surface: '#181c20',
-            'surface-variant': '#20262c',
+            background: '#0d1216',
+            surface: '#151c22',
+            'surface-variant': '#1d2830',
             'on-background': '#edf2f5',
             'on-surface': '#edf2f5',
             'on-surface-variant': '#edf2f5',
@@ -32,9 +32,9 @@ const VUETIFY_THEMES = {
     flashLight: {
         dark: false,
         colors: {
-            background: '#f5f7f8',
+            background: '#f1f4f6',
             surface: '#ffffff',
-            'surface-variant': '#edf1f3',
+            'surface-variant': '#e8edf0',
             'on-background': '#161b1f',
             'on-surface': '#161b1f',
             'on-surface-variant': '#161b1f',

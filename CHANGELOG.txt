@@ -4,6 +4,8 @@ Copyright (c) 2019-2026 iTX Technologies
 Version 2.6.0-dev (Snapshot date: 2026-07-12)
 
 FlashMaster updates:
+- Refined the dense workstation themes with separate dark and light neutral ramps, clearer page, panel, and input hierarchy, stronger light-mode secondary-text contrast, and a two-row PN action layout on very narrow screens, while preserving the established panel borders and compact Market Pulse size.
+- Stabilized Market Pulse on mobile Safari: quote sources now merge into a stable asset set while preserving the current visible ticker, visible slots reuse their DOM nodes, and CSS-driven scrolling continues through independent cycles instead of relying on an infinite-animation boundary and negative-delay resume. This prevents brief full-row ticker swaps and auto-scroll stalls while retaining horizontal drag behavior.
 - Rebuilt PN and Flash ID result layouts around responsive auto-flow cards: wide screens backfill uneven card heights without blank grid rows, narrow screens collapse cleanly to one column, dynamic expansions remeasure in place, summary columns balance against the actual field count, short detail cards stay compact, and longer relation groups expand only when the added width improves density. Flash ID External Links render after all detail cards without stretching across an empty row.
 - Reduced the PWA precache by keeping the embedded fdnext worker offline-ready while loading the duplicate main-thread fallback engine only on demand when online.
 - Hardened embedded parser failover: a timed-out or broken worker is now terminated and disabled so the current and subsequent operations fall back without repeated 30-second waits.

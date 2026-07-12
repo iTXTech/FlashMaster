@@ -22,7 +22,7 @@
             @compositionend="onCompositionEnd"
             @blur="onBlur"
           />
-          <div class="action-row">
+          <div class="action-row query-action-row">
             <v-btn color="primary" prepend-icon="mdi-crosshairs-gps" @click="decode">{{ $t('query') }}</v-btn>
             <v-btn variant="tonal" prepend-icon="mdi-magnify" @click="goSearchPn">{{ $t('search') }}</v-btn>
             <v-btn variant="tonal" prepend-icon="mdi-flash" @click="goSearchId">{{ $t('searchId') }}</v-btn>

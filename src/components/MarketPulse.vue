@@ -11,7 +11,8 @@
           :class="[
             'market-pulse-track',
             {
-              'is-scroll-running': shouldAutoScroll && !isManualScroll,
+              'is-scroll-running': isScrollCycleActive,
+              'is-scroll-cycle-alternate': isAlternateScrollCycle,
               'is-manual-scroll': isManualScroll,
               'is-pointer-active': isPointerActive,
               'is-dragging': isDragging
@@ -21,7 +22,9 @@
           @pointerdown="onPointerDown"
           @mouseenter="onMouseEnter"
           @mouseleave="onMouseLeave"
-          @animationiteration="onScrollIteration"
+          @focusin="isFocusWithin = true"
+          @focusout="onFocusOut"
+          @animationend="onScrollCycleEnd"
         >
           <button
             v-for="item in visibleItems"
@@ -86,9 +89,12 @@ const pulseRoot = ref(null);
 const pulseViewport = ref(null);
 const trackRef = ref(null);
 const isHovered = ref(false);
+const isFocusWithin = ref(false);
 const isPointerActive = ref(false);
 const isDragging = ref(false);
 const isManualScroll = ref(false);
+const isScrollCycleActive = ref(false);
+const isAlternateScrollCycle = ref(false);
 const documentVisible = ref(!document.hidden);
 const scrollOffset = ref(0);
 const chartPlacement = ref(null);
@@ -97,6 +103,8 @@ let unsubscribeMarket;
 let resizeObserver;
 let flashTimer;
 let manualResumeTimer;
+let scrollCycleFrame;
+let scrollCycleRequestId = 0;
 let activePointerGesture = null;
 let suppressNextClick = false;
 let lastViewportWidth = 0;
@@ -130,7 +138,7 @@ const visibleItems = computed(() => {
     const marketIndex = (windowStart.value + offset) % items.length;
     const item = items[marketIndex];
     return formatMarketItem(item, {
-      pulseKey: `${windowStart.value}-${offset}-${item.asset}`,
+      pulseKey: `slot-${offset}`,
       visibleIndex: offset + 1,
       marketIndex: marketIndex + 1,
       x: offset * MARKET_PULSE_SLOT_WIDTH
@@ -151,20 +159,25 @@ const pulseTitle = computed(() => error.value ? `${t('market.title')} · ${error
 const shouldAutoScroll = computed(() =>
   documentVisible.value
   && !isHovered.value
+  && !isFocusWithin.value
   && !isPointerActive.value
   && selectedQuote.value === null
   && quotes.value.length > renderedSlotCount.value
 );
 
 const trackStyle = computed(() => {
-  const style = {
+  const offset = Math.min(0, Math.max(-MARKET_PULSE_SLOT_WIDTH, scrollOffset.value));
+  const remainingDistance = Math.max(0, MARKET_PULSE_SLOT_WIDTH + offset);
+  const remainingDuration = Math.max(
+    120,
+    Math.round(MARKET_PULSE_SLOT_DURATION_MS * (remainingDistance / MARKET_PULSE_SLOT_WIDTH))
+  );
+  return {
     '--market-slot-duration': `${MARKET_PULSE_SLOT_DURATION_MS}ms`,
-    '--market-scroll-delay': `${-scrollOffsetToPhase(scrollOffset.value)}ms`
+    '--market-cycle-duration': `${remainingDuration}ms`,
+    '--market-scroll-from': `${offset}px`,
+    transform: `translate3d(${offset}px, 0, 0)`
   };
-  if (isManualScroll.value) {
-    style.transform = `translate3d(${scrollOffset.value}px, 0, 0)`;
-  }
-  return style;
 });
 
 const chartPlacementStyle = computed(() => {
@@ -226,7 +239,7 @@ function getVisibleAssetSet(items = quotes.value) {
 
 function markPriceChanges(nextQuotes) {
   const previousByAsset = new Map(quotes.value.map(item => [item.asset, item.price]));
-  const visibleAssets = getVisibleAssetSet(nextQuotes);
+  const visibleAssets = getVisibleAssetSet(quotes.value);
   const nextFlashes = {};
   nextQuotes.forEach(item => {
     const previous = previousByAsset.get(item.asset);
@@ -250,8 +263,15 @@ function handleMarketUpdate(nextQuotes) {
     error.value = '';
     return;
   }
+  const anchorAsset = quotes.value[windowStart.value]?.asset;
   markPriceChanges(nextQuotes);
   quotes.value = nextQuotes;
+  if (anchorAsset) {
+    const nextAnchorIndex = nextQuotes.findIndex(item => item.asset === anchorAsset);
+    windowStart.value = nextAnchorIndex >= 0 ? nextAnchorIndex : 0;
+  } else if (windowStart.value >= nextQuotes.length) {
+    windowStart.value = 0;
+  }
   lastQuoteSignature = nextSignature;
   loading.value = false;
   error.value = '';
@@ -293,11 +313,6 @@ function applyManualScroll(delta) {
   }
 }
 
-function scrollOffsetToPhase(offset) {
-  const progress = ((-offset / MARKET_PULSE_SLOT_WIDTH) % 1 + 1) % 1;
-  return progress * MARKET_PULSE_SLOT_DURATION_MS;
-}
-
 function readTrackOffset() {
   if (!trackRef.value) return scrollOffset.value;
   const transform = getComputedStyle(trackRef.value).transform;
@@ -306,11 +321,38 @@ function readTrackOffset() {
   return matrix.m41;
 }
 
+function stopScrollCycle() {
+  scrollCycleRequestId += 1;
+  window.cancelAnimationFrame(scrollCycleFrame);
+  scrollCycleFrame = undefined;
+  isScrollCycleActive.value = false;
+}
+
+function startScrollCycle() {
+  stopScrollCycle();
+  const requestId = scrollCycleRequestId;
+  nextTick(() => {
+    if (requestId !== scrollCycleRequestId || !trackRef.value) return;
+    scrollCycleFrame = window.requestAnimationFrame(() => {
+      scrollCycleFrame = undefined;
+      if (
+        requestId === scrollCycleRequestId
+        && shouldAutoScroll.value
+        && !isManualScroll.value
+      ) {
+        isAlternateScrollCycle.value = !isAlternateScrollCycle.value;
+        isScrollCycleActive.value = true;
+      }
+    });
+  });
+}
+
 function freezeScroll() {
   window.clearTimeout(manualResumeTimer);
   if (!isManualScroll.value) {
     scrollOffset.value = readTrackOffset();
   }
+  stopScrollCycle();
   isManualScroll.value = true;
 }
 
@@ -318,6 +360,7 @@ function resumeScroll() {
   window.clearTimeout(manualResumeTimer);
   if (shouldAutoScroll.value) {
     isManualScroll.value = false;
+    startScrollCycle();
   }
 }
 
@@ -326,9 +369,16 @@ function scheduleManualScrollEnd() {
   manualResumeTimer = window.setTimeout(resumeScroll, 180);
 }
 
-function onScrollIteration() {
+function onScrollCycleEnd(event) {
+  if (
+    event.target !== trackRef.value
+    || !['market-pulse-scroll', 'market-pulse-scroll-alternate'].includes(event.animationName)
+  ) return;
   if (!shouldAutoScroll.value || isManualScroll.value || quotes.value.length <= renderedSlotCount.value) return;
+  stopScrollCycle();
   windowStart.value = (windowStart.value + 1) % quotes.value.length;
+  scrollOffset.value = 0;
+  startScrollCycle();
 }
 
 function onMouseEnter() {
@@ -337,6 +387,12 @@ function onMouseEnter() {
 
 function onMouseLeave() {
   isHovered.value = false;
+}
+
+function onFocusOut(event) {
+  if (!event.currentTarget?.contains(event.relatedTarget)) {
+    isFocusWithin.value = false;
+  }
 }
 
 function onPointerDown(e) {
@@ -542,11 +598,13 @@ onMounted(() => {
   startMarketService();
   nextTick(() => {
     updateRenderedSlotCount();
+    resumeScroll();
   });
 });
 
 onUnmounted(() => {
   stopMarketService();
+  stopScrollCycle();
   window.clearTimeout(manualResumeTimer);
   resizeObserver?.disconnect();
   if (pulseViewport.value) {
