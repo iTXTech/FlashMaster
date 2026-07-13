@@ -1,24 +1,25 @@
 FlashMaster by PeratX <peratx@itxtech.org>
 Copyright (c) 2019-2026 iTX Technologies
 ===================================
-Version 2.6.0-dev (Snapshot date: 2026-07-12)
+Version 2.6.0-dev (Snapshot date: 2026-07-13)
 
 FlashMaster updates:
 - Reorganized the Commercial Banner capabilities dialog into application/platform, data/automation, and systems/specialized-engineering groups, with lower-pressure “Discuss a project” and concise “View capabilities” actions.
 - Refined the dense workstation themes with separate dark and light neutral ramps, clearer light-mode page, panel, and active-navigation hierarchy, no transient light strip above Market Pulse after switching themes, better-aligned dark input surfaces, a balanced Settings side rail, and focused PN/Flash ID decode-and-search actions. Search, decode, and header shortcut actions now remain disabled while a search query is empty. The established panel borders and compact Market Pulse size remain unchanged.
 - Stabilized Market Pulse on mobile Safari: quote sources now merge into a stable asset set while preserving the current visible ticker, visible slots reuse their DOM nodes, and CSS-driven scrolling continues through independent cycles instead of relying on an infinite-animation boundary and negative-delay resume. This prevents brief full-row ticker swaps and auto-scroll stalls while retaining horizontal drag behavior.
+- Upgraded Market Pulse candlestick charts with live quote-driven candle updates, visible up/down price flashes, and transparent Lighter/Hyperliquid failover. Source switching remains internal, while the crosshair now snaps to candle prices instead of floating freely; the chart remains fixed to its existing single period.
 - Rebuilt PN and Flash ID result layouts around responsive auto-flow cards: detail cards keep a single-column footprint, wide screens backfill uneven heights, narrow screens collapse cleanly to one column, and dynamic expansions remeasure in place. Long controller and relation lists grow vertically, with very long controller lists using a bounded multi-column scroller. Flash ID External Links now participate in the same flow.
 - Reduced the PWA precache by keeping the embedded fdnext worker offline-ready while loading the duplicate main-thread fallback engine only on demand when online.
 - Hardened embedded parser failover: a timed-out or broken worker is now terminated and disabled so the current and subsequent operations fall back without repeated 30-second waits.
 
 fdnext v3.2.0 highlights:
-- Integrated the latest fdnext v3.2.0 snapshot (62a3133) in the embedded parser.
+- Integrated the latest fdnext v3.2.0 snapshot (7f3319f) in the embedded parser.
 - Expanded PN decoding, catalogs, and search resources across Biwin, ESMT, ISSI, Kingston, KIOXIA, Longsys, Micron, Nanya, Samsung, SanDisk, SK hynix, SpecTek, Winbond, YMTC, and other priority vendors, covering broader DRAM, HBM, Raw NAND, SPI NAND, eMMC, eMCP, UFS, SSD, GDDR7, and CXMT structures. Modern SanDisk iNAND eMMC/UFS token decoding is unified while legacy coverage remains available, and duplicate Micron PN resources were removed.
-- Expanded Flash ID coverage for Macronix parallel NAND, Winbond, and legacy NAND/MCP identifiers, and fixed YMTC Gen5 identifier post-processing so matches resolve to the correct die profiles.
+- Expanded Flash ID coverage for ESMT, ISSI, Macronix, Samsung legacy large-page NAND, Winbond parallel NAND, and other legacy NAND/MCP identifiers; refined KIOXIA plane mapping and SanDisk MCP decoding, and added the YMTC X4-6080 plane count.
 - Separated DecodePack evidence metadata from runtime rules to keep source references auditable without changing FlashMaster's parser interface.
 - Corrected Micron raw NAND DecodePack feature tokens and tightened optional-suffix parsing at colon/end-of-input boundaries for feature and production-status tokens.
 - Reworked the embedded runtime around prepared catalogs, compact indexed FDB lookups, prefix-dispatched DecodePack matching, and projected search decoding. This reduces repeated initialization and retained data while preserving exact, prefix, substring, and fast ranked top-K suggestion behavior.
-- Cleaned public DRAM output by removing internal configuration/package codes and unsupported default die-count assumptions, and normalized SK hynix H27 raw NAND package labels.
+- Cleaned public DRAM output by removing internal configuration/package codes and unsupported default die-count assumptions, normalized SK hynix H27 raw NAND package labels, and standardized generation labels across decoded results.
 
 ===================================
 Version 2.5.0 (Release date: 2026-07-06)

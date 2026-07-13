@@ -513,8 +513,18 @@ a {
 }
 
 .market-chart-price {
+  padding: 1px 4px;
+  border-radius: 4px;
   color: rgba(var(--v-theme-on-surface), 0.84);
   font-size: 0.82rem;
+}
+
+.market-chart-price.is-live-up {
+  animation: market-flash-up 0.9s ease-out;
+}
+
+.market-chart-price.is-live-down {
+  animation: market-flash-down 0.9s ease-out;
 }
 
 .market-chart-change {

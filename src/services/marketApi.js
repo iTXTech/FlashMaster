@@ -954,10 +954,7 @@ export function subscribeMarketQuotes({ onUpdate, onError } = {}) {
       window.clearTimeout(fallbackDelayTimer);
       if (!stopped) {
         startFallback();
-        const nextSource = isLighterSocket || hasReceivedSocketData
-          ? (hasReceivedSocketData ? source : getAlternateMarketSource(source))
-          : MARKET_SOURCE_LIGHTER;
-        scheduleReconnect(nextSource);
+        scheduleReconnect(getAlternateMarketSource(source));
       }
     });
   }

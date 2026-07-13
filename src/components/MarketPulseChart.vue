@@ -5,7 +5,7 @@
         <span class="market-chart-symbol">{{ item.name || item.symbol }}</span>
       </div>
       <div class="market-chart-quote">
-        <span class="market-chart-price">{{ item.priceText }}</span>
+        <span :class="['market-chart-price', livePriceFlash]">{{ item.priceText }}</span>
         <span :class="['market-chart-change', item.trend]">{{ item.changeText }}</span>
       </div>
       <v-btn
@@ -44,6 +44,7 @@ import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import {
   DEFAULT_MARKET_CANDLE_RANGE,
+  MARKET_CANDLE_MAX_POINTS,
   fetchMarketCandles,
   getMarketCandleRange,
   getMarketCandleWindow,
@@ -73,14 +74,16 @@ const candles = ref(loadCachedMarketCandles(
 const activeCandle = ref(candles.value.at(-1) || null);
 const loading = ref(false);
 const error = ref('');
+const livePriceFlash = ref('');
 let chart;
 let candleSeries;
 let volumeSeries;
 let resizeObserver;
-let refreshTimer;
+let livePriceFlashTimer;
 let requestController;
 let requestId = 0;
 let lightweightCharts;
+let hoveredCandleTime = null;
 
 const chartLabel = computed(() => t('market.chartAriaLabel', [props.item.name || props.item.symbol]));
 const activeTimeText = computed(() => formatTime(activeCandle.value?.time));
@@ -137,7 +140,7 @@ async function ensureChart() {
       vertLines: { color: themeColor('--v-theme-on-surface', 0.06) },
       horzLines: { color: themeColor('--v-theme-on-surface', 0.06) }
     },
-    crosshair: { mode: CrosshairMode.Normal },
+    crosshair: { mode: CrosshairMode.Magnet },
     rightPriceScale: {
       borderVisible: false,
       scaleMargins: { top: 0.08, bottom: 0.26 }
@@ -179,11 +182,13 @@ function candleByTime(time) {
 }
 
 function handleCrosshairMove(param) {
-  if (!param?.time) {
+  if (param?.time === undefined) {
+    hoveredCandleTime = null;
     activeCandle.value = candles.value.at(-1) || null;
     return;
   }
-  activeCandle.value = candleByTime(param.time) || candles.value.at(-1) || null;
+  hoveredCandleTime = Number(param.time);
+  activeCandle.value = candleByTime(hoveredCandleTime) || candles.value.at(-1) || null;
 }
 
 function resizeChart() {
@@ -211,13 +216,87 @@ function renderCandles() {
   })));
   activeCandle.value = candles.value.at(-1) || null;
   chart.timeScale().fitContent();
+  updateLivePrice(props.item.price);
 }
 
 function clearCandles() {
   candles.value = [];
   activeCandle.value = null;
+  hoveredCandleTime = null;
   candleSeries?.setData([]);
   volumeSeries?.setData([]);
+}
+
+function intervalSeconds(interval) {
+  const value = Number.parseInt(interval, 10);
+  if (!Number.isFinite(value)) return 3600;
+  if (interval.endsWith('m')) return value * 60;
+  if (interval.endsWith('h')) return value * 3600;
+  if (interval.endsWith('d')) return value * 86_400;
+  if (interval.endsWith('w')) return value * 604_800;
+  return 3600;
+}
+
+function updateLivePrice(value) {
+  const price = Number(value);
+  if (!Number.isFinite(price) || price <= 0 || !candles.value.length) return;
+
+  const bucketSize = intervalSeconds(activeRange.value.interval);
+  const bucket = Math.floor(Date.now() / 1000 / bucketSize) * bucketSize;
+  const last = candles.value.at(-1);
+  const lastTime = Number(last?.time);
+  if (Number.isFinite(lastTime) && lastTime > bucket) return;
+
+  const next = last && lastTime === bucket
+    ? {
+        ...last,
+        high: Math.max(last.high, price),
+        low: Math.min(last.low, price),
+        close: price
+      }
+    : {
+        time: bucket,
+        open: last?.close ?? price,
+        high: price,
+        low: price,
+        close: price,
+        volume: 0
+      };
+
+  if (last && lastTime === bucket) {
+    candles.value[candles.value.length - 1] = next;
+  } else {
+    candles.value = [...candles.value, next].slice(-MARKET_CANDLE_MAX_POINTS);
+  }
+
+  candleSeries?.update({
+    time: next.time,
+    open: next.open,
+    high: next.high,
+    low: next.low,
+    close: next.close
+  });
+  volumeSeries?.update({
+    time: next.time,
+    value: next.volume,
+    color: next.close >= next.open ? 'rgba(0, 179, 134, 0.26)' : 'rgba(255, 91, 107, 0.26)'
+  });
+
+  if (hoveredCandleTime === null || hoveredCandleTime === lastTime || hoveredCandleTime === bucket) {
+    activeCandle.value = next;
+  }
+}
+
+function flashLivePrice(price, previousPrice) {
+  if (!Number.isFinite(price) || !Number.isFinite(previousPrice) || price === previousPrice) return;
+  window.clearTimeout(livePriceFlashTimer);
+  livePriceFlash.value = '';
+  window.requestAnimationFrame(() => {
+    livePriceFlash.value = price > previousPrice ? 'is-live-up' : 'is-live-down';
+    livePriceFlashTimer = window.setTimeout(() => {
+      livePriceFlash.value = '';
+    }, 900);
+  });
 }
 
 async function loadCandles({ silent = false } = {}) {
@@ -271,15 +350,6 @@ async function loadCachedRange() {
   return true;
 }
 
-function startRefresh() {
-  window.clearInterval(refreshTimer);
-  refreshTimer = window.setInterval(() => {
-    if (!document.hidden) {
-      loadCandles({ silent: true });
-    }
-  }, 60_000);
-}
-
 onMounted(async () => {
   await nextTick();
   if (candles.value.length) {
@@ -287,17 +357,22 @@ onMounted(async () => {
     renderCandles();
   }
   loadCandles({ silent: candles.value.length > 0 });
-  startRefresh();
 });
 
 onUnmounted(() => {
   requestController?.abort();
-  window.clearInterval(refreshTimer);
+  window.clearTimeout(livePriceFlashTimer);
   resizeObserver?.disconnect();
   chart?.remove();
 });
 
-watch(() => [props.item.asset, props.item.source], () => {
+watch(() => props.item.price, (price, previousPrice) => {
+  updateLivePrice(price);
+  flashLivePrice(Number(price), Number(previousPrice));
+});
+
+watch(() => props.item.asset, () => {
+  hoveredCandleTime = null;
   loadCachedRange().then(hasCachedRange => {
     loadCandles({ silent: hasCachedRange });
   });
