@@ -35,7 +35,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { onBeforeUnmount, ref, watch } from 'vue';
 
 const props = defineProps({
   modelValue: {
@@ -71,6 +71,7 @@ const menuOpen = ref(false);
 const isComposing = ref(false);
 let submitToken = 0;
 let selectedInCurrentTurn = false;
+let blurTimer;
 
 watch(() => props.items.length, length => {
   menuOpen.value = length > 0;
@@ -148,8 +149,12 @@ function focus() {
 }
 
 function blur() {
-  combo.value?.blur?.();
+  clearTimeout(blurTimer);
+  // Vuetify temporarily preserves focus while a menu pointer selection finishes.
+  blurTimer = setTimeout(() => combo.value?.blur?.(), 16);
 }
+
+onBeforeUnmount(() => clearTimeout(blurTimer));
 
 defineExpose({
   focus,
