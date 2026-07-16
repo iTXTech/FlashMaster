@@ -1,7 +1,7 @@
 FlashMaster by PeratX <peratx@itxtech.org>
 版权所有 (c) 2019-2026 iTX Technologies
 ===================================
-版本 2.6.0-dev（快照日期：2026-07-13）
+版本 2.6.0-dev（快照日期：2026-07-16）
 
 FlashMaster 更新：
 - 重组 Commercial Banner 能力弹窗，将能力按应用与平台、数据与自动化、系统工程与专项技术分组，并将操作文案调整为低压力的“讨论需求”和更简洁的“查看能力”。
@@ -14,7 +14,8 @@ FlashMaster 更新：
 - 加固内嵌解析器降级流程：Worker 超时或传输失败后立即终止并禁用，当前及后续请求直接降级，避免重复等待 30 秒。
 
 fdnext v3.2.0 更新要点：
-- 内嵌解析器同步 fdnext v3.2.0 最新快照（7f3319f）。
+- 内嵌解析器同步 fdnext v3.2.0 最新快照（99bd6b7）。
+- 扩展 Micron DRAM 料号解码覆盖，并将 DRAM 拓扑默认值限制在已识别 token 上，避免未知料号模式被推断出缺乏依据的拓扑信息。
 - 扩展 Biwin、ESMT、ISSI、Kingston、KIOXIA、Longsys、Micron、Nanya、Samsung、SanDisk、SK hynix、SpecTek、Winbond、YMTC 等重点厂商的料号解码、目录与搜索资源，新增和完善 DRAM、HBM、Raw NAND、SPI NAND、eMMC、eMCP、UFS、SSD、GDDR7 与 CXMT 结构；统一新版 SanDisk iNAND eMMC/UFS token 解码并保留旧版覆盖，同时去重 Micron PN 资源。
 - 扩展 ESMT、ISSI、Macronix、Samsung 旧版大页 NAND、Winbond Parallel NAND 及其他旧版 NAND/MCP 的 Flash ID 覆盖；优化 KIOXIA plane 映射与 SanDisk MCP 解码，并补充 YMTC X4-6080 plane 数量。
 - 将 DecodePack 证据元数据与运行时规则分离，增强来源审计能力，同时不改变 FlashMaster 的解析器接口。

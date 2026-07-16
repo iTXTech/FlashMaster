@@ -1,7 +1,7 @@
 FlashMaster by PeratX <peratx@itxtech.org>
 Copyright (c) 2019-2026 iTX Technologies
 ===================================
-Version 2.6.0-dev (Snapshot date: 2026-07-13)
+Version 2.6.0-dev (Snapshot date: 2026-07-16)
 
 FlashMaster updates:
 - Reorganized the Commercial Banner capabilities dialog into application/platform, data/automation, and systems/specialized-engineering groups, with lower-pressure “Discuss a project” and concise “View capabilities” actions.
@@ -14,7 +14,8 @@ FlashMaster updates:
 - Hardened embedded parser failover: a timed-out or broken worker is now terminated and disabled so the current and subsequent operations fall back without repeated 30-second waits.
 
 fdnext v3.2.0 highlights:
-- Integrated the latest fdnext v3.2.0 snapshot (7f3319f) in the embedded parser.
+- Integrated the latest fdnext v3.2.0 snapshot (99bd6b7) in the embedded parser.
+- Expanded Micron DRAM part-number decoding coverage and gated DRAM topology defaults on recognized tokens, preventing unknown patterns from receiving speculative topology values.
 - Expanded PN decoding, catalogs, and search resources across Biwin, ESMT, ISSI, Kingston, KIOXIA, Longsys, Micron, Nanya, Samsung, SanDisk, SK hynix, SpecTek, Winbond, YMTC, and other priority vendors, covering broader DRAM, HBM, Raw NAND, SPI NAND, eMMC, eMCP, UFS, SSD, GDDR7, and CXMT structures. Modern SanDisk iNAND eMMC/UFS token decoding is unified while legacy coverage remains available, and duplicate Micron PN resources were removed.
 - Expanded Flash ID coverage for ESMT, ISSI, Macronix, Samsung legacy large-page NAND, Winbond parallel NAND, and other legacy NAND/MCP identifiers; refined KIOXIA plane mapping and SanDisk MCP decoding, and added the YMTC X4-6080 plane count.
 - Separated DecodePack evidence metadata from runtime rules to keep source references auditable without changing FlashMaster's parser interface.
