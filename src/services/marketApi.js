@@ -22,6 +22,8 @@ export const DEFAULT_MARKET_CANDLE_RANGE = '1d';
 const MARKET_CACHE_INTERVAL_MS = 30_000;
 const MARKET_CANDLE_CACHE_INTERVAL_MS = 2 * 60_000;
 const MARKET_SOCKET_STALE_MS = 15_000;
+const MARKET_SOCKET_WATCHDOG_INTERVAL_MS = 5_000;
+const MARKET_RECONNECT_DELAY_MS = 1_000;
 const MARKET_SOURCE_HYPERLIQUID = 'hyperliquid';
 const MARKET_SOURCE_LIGHTER = 'lighter';
 const MINUTE_MS = 60_000;
@@ -674,6 +676,7 @@ export function subscribeMarketQuotes({ onUpdate, onError } = {}) {
   let fallbackTimer;
   let reconnectTimer;
   let refreshContextTimer;
+  let socketWatchdogTimer;
   let fallbackDelayTimer;
   let heartbeatTimer;
   let fallbackSnapshotController;
@@ -686,7 +689,7 @@ export function subscribeMarketQuotes({ onUpdate, onError } = {}) {
   let lastEmitAt = 0;
   let lastCacheAt = 0;
   let lastSocketProcessAt = 0;
-  let lastSocketMidsAt = 0;
+  let lastSocketMessageAt = 0;
   let socketStreaming = false;
   let socketSource = MARKET_SOURCE_LIGHTER;
 
@@ -694,7 +697,7 @@ export function subscribeMarketQuotes({ onUpdate, onError } = {}) {
     return socketSource === MARKET_SOURCE_HYPERLIQUID
       && socketStreaming
       && latestMids
-      && Date.now() - lastSocketMidsAt <= MARKET_SOCKET_STALE_MS;
+      && Date.now() - lastSocketMessageAt <= MARKET_SOCKET_STALE_MS;
   };
 
   const abortFallbackSnapshot = () => {
@@ -773,6 +776,12 @@ export function subscribeMarketQuotes({ onUpdate, onError } = {}) {
     heartbeatTimer = undefined;
   };
 
+  const clearQueuedSocketData = () => {
+    window.clearTimeout(socketMessageTimer);
+    socketMessageTimer = undefined;
+    queuedSocketData = null;
+  };
+
   const refreshSnapshot = async ({ reason = 'context' } = {}) => {
     const isFallback = reason === 'fallback';
     const controller = new AbortController();
@@ -816,28 +825,37 @@ export function subscribeMarketQuotes({ onUpdate, onError } = {}) {
     fallbackTimer = window.setInterval(() => refreshSnapshot({ reason: 'fallback' }), MARKET_REFRESH_INTERVAL_MS);
   };
 
-  const scheduleReconnect = (source = MARKET_SOURCE_LIGHTER) => {
+  const scheduleReconnect = (source = MARKET_SOURCE_LIGHTER, delay = MARKET_RECONNECT_DELAY_MS) => {
     if (stopped) return;
     window.clearTimeout(reconnectTimer);
-    reconnectTimer = window.setTimeout(() => connectWebSocket(source), 5_000);
+    reconnectTimer = window.setTimeout(() => {
+      reconnectTimer = undefined;
+      connectWebSocket(source);
+    }, delay);
   };
 
   const handleMids = mids => {
     latestMids = mids;
     socketSource = MARKET_SOURCE_HYPERLIQUID;
-    lastSocketMidsAt = Date.now();
+    lastSocketMessageAt = Date.now();
     socketStreaming = true;
     stopFallback();
     emit(applyMidsToQuotes(currentItems, mids));
   };
 
-  const handleLighterStats = data => {
-    const items = normalizeLighterPayload(data);
-    if (!items.length) return;
-    const nextItems = mergeQuoteUpdates(currentItems, items);
+  const handleLighterStats = messages => {
+    let nextItems = currentItems;
+    let hasUpdates = false;
+    messages.forEach(data => {
+      const items = normalizeLighterPayload(data);
+      if (!items.length) return;
+      nextItems = mergeQuoteUpdates(nextItems, items);
+      hasUpdates = true;
+    });
+    if (!hasUpdates) return;
     latestMids = null;
     socketSource = MARKET_SOURCE_LIGHTER;
-    lastSocketMidsAt = Date.now();
+    lastSocketMessageAt = Date.now();
     socketStreaming = true;
     stopFallback();
     emit(nextItems);
@@ -849,23 +867,36 @@ export function subscribeMarketQuotes({ onUpdate, onError } = {}) {
     queuedSocketData = null;
     if (!queued) return;
     lastSocketProcessAt = Date.now();
-    try {
-      const message = JSON.parse(queued.raw);
-      if (queued.source === MARKET_SOURCE_HYPERLIQUID && message.channel === 'allMids') {
+    const messages = [];
+    queued.raws.forEach(raw => {
+      try {
+        messages.push(JSON.parse(raw));
+      } catch (err) {
+        onError?.(err);
+      }
+    });
+    if (queued.source === MARKET_SOURCE_HYPERLIQUID) {
+      const message = messages.at(-1);
+      if (message?.channel === 'allMids') {
         handleMids(message.data?.mids || message.data || {});
       }
-      if (queued.source === MARKET_SOURCE_LIGHTER && String(message.channel || '').startsWith('market_stats')) {
-        handleLighterStats(message);
-      }
-    } catch (err) {
-      onError?.(err);
+    }
+    if (queued.source === MARKET_SOURCE_LIGHTER) {
+      handleLighterStats(messages.filter(message => String(message.channel || '').startsWith('market_stats')));
     }
   };
 
   const queueSocketData = (raw, source) => {
     const marker = source === MARKET_SOURCE_LIGHTER ? '"market_stats"' : '"allMids"';
     if (!String(raw).includes(marker)) return false;
-    queuedSocketData = { raw, source };
+    if (source === MARKET_SOURCE_LIGHTER) {
+      if (!queuedSocketData || queuedSocketData.source !== source) {
+        queuedSocketData = { raws: [], source };
+      }
+      queuedSocketData.raws.push(String(raw));
+    } else {
+      queuedSocketData = { raws: [String(raw)], source };
+    }
     const waitMs = Math.max(0, MARKET_UI_UPDATE_INTERVAL_MS - (Date.now() - lastSocketProcessAt));
     if (waitMs === 0) {
       window.clearTimeout(socketMessageTimer);
@@ -887,6 +918,32 @@ export function subscribeMarketQuotes({ onUpdate, onError } = {}) {
     }
   };
 
+  const restartStaleSocket = () => {
+    const staleSocket = socket;
+    if (
+      !staleSocket
+      || staleSocket.readyState !== WebSocket.OPEN
+      || !lastSocketMessageAt
+      || Date.now() - lastSocketMessageAt <= MARKET_SOCKET_STALE_MS
+    ) return;
+
+    const source = socketSource;
+    socket = undefined;
+    socketStreaming = false;
+    lastSocketMessageAt = 0;
+    stopHeartbeat();
+    clearQueuedSocketData();
+    window.clearTimeout(fallbackDelayTimer);
+    fallbackDelayTimer = undefined;
+    try {
+      staleSocket.close();
+    } catch {
+      // The replacement connection below does not depend on a close event.
+    }
+    startFallback();
+    scheduleReconnect(source);
+  };
+
   function connectWebSocket(source = MARKET_SOURCE_LIGHTER) {
     if (stopped) return;
     if (!('WebSocket' in window)) {
@@ -895,11 +952,17 @@ export function subscribeMarketQuotes({ onUpdate, onError } = {}) {
     }
 
     socketSource = source;
+    socketStreaming = false;
+    lastSocketMessageAt = 0;
+    latestMids = null;
+    clearQueuedSocketData();
     const isLighterSocket = source === MARKET_SOURCE_LIGHTER;
     const socketUrl = isLighterSocket ? MARKET_LIGHTER_WS_ENDPOINT : MARKET_WS_ENDPOINT;
+    let connection;
 
     try {
-      socket = new WebSocket(socketUrl);
+      connection = new WebSocket(socketUrl);
+      socket = connection;
     } catch (err) {
       onError?.(err);
       startFallback();
@@ -908,54 +971,75 @@ export function subscribeMarketQuotes({ onUpdate, onError } = {}) {
     }
 
     let hasReceivedSocketData = false;
+    let failureHandled = false;
 
-    socket.addEventListener('open', () => {
+    const recoverConnection = error => {
+      if (failureHandled || socket !== connection) return;
+      failureHandled = true;
+      socket = undefined;
       socketStreaming = false;
-      stopFallback();
-      if (isLighterSocket) {
-        socket.send(JSON.stringify({
-          type: 'subscribe',
-          channel: 'market_stats/all'
-        }));
-      } else {
-        socket.send(JSON.stringify({
-          method: 'subscribe',
-          subscription: { type: 'allMids', dex: 'xyz' }
-        }));
-        sendHeartbeat();
-        heartbeatTimer = window.setInterval(sendHeartbeat, 25_000);
+      lastSocketMessageAt = 0;
+      stopHeartbeat();
+      clearQueuedSocketData();
+      window.clearTimeout(fallbackDelayTimer);
+      fallbackDelayTimer = undefined;
+      try {
+        connection.close();
+      } catch {
+        // Recovery proceeds through the fallback and reconnect paths.
+      }
+      if (error) {
+        onError?.(error);
+      }
+      if (!stopped) {
+        startFallback();
+        const nextSource = hasReceivedSocketData ? source : getAlternateMarketSource(source);
+        scheduleReconnect(nextSource);
+      }
+    };
+
+    connection.addEventListener('open', () => {
+      if (socket !== connection) return;
+      lastSocketMessageAt = Date.now();
+      try {
+        if (isLighterSocket) {
+          connection.send(JSON.stringify({
+            type: 'subscribe',
+            channel: 'market_stats/all'
+          }));
+        } else {
+          connection.send(JSON.stringify({
+            method: 'subscribe',
+            subscription: { type: 'allMids', dex: 'xyz' }
+          }));
+          sendHeartbeat();
+          heartbeatTimer = window.setInterval(sendHeartbeat, 25_000);
+        }
+      } catch (err) {
+        recoverConnection(err);
+        return;
       }
       fallbackDelayTimer = window.setTimeout(() => {
-        if (!hasReceivedSocketData) {
-          startFallback();
-          socket?.close();
+        if (socket === connection && !hasReceivedSocketData) {
+          recoverConnection();
         }
       }, MARKET_REFRESH_INTERVAL_MS);
     });
 
-    socket.addEventListener('message', event => {
+    connection.addEventListener('message', event => {
+      if (socket !== connection) return;
       if (queueSocketData(event.data, source)) {
         hasReceivedSocketData = true;
+        lastSocketMessageAt = Date.now();
       }
     });
 
-    socket.addEventListener('error', () => {
-      socketStreaming = false;
-      onError?.(new Error(isLighterSocket ? 'Lighter WebSocket error' : 'Hyperliquid WebSocket error'));
+    connection.addEventListener('error', () => {
+      recoverConnection(new Error(isLighterSocket ? 'Lighter WebSocket error' : 'Hyperliquid WebSocket error'));
     });
 
-    socket.addEventListener('close', () => {
-      socketStreaming = false;
-      stopHeartbeat();
-      window.clearTimeout(socketMessageTimer);
-      socketMessageTimer = undefined;
-      queuedSocketData = null;
-      queuedForceCache = false;
-      window.clearTimeout(fallbackDelayTimer);
-      if (!stopped) {
-        startFallback();
-        scheduleReconnect(getAlternateMarketSource(source));
-      }
+    connection.addEventListener('close', () => {
+      recoverConnection();
     });
   }
 
@@ -964,13 +1048,15 @@ export function subscribeMarketQuotes({ onUpdate, onError } = {}) {
   }
   refreshSnapshot({ reason: 'initial' });
   connectWebSocket();
+  socketWatchdogTimer = window.setInterval(restartStaleSocket, MARKET_SOCKET_WATCHDOG_INTERVAL_MS);
   refreshContextTimer = window.setInterval(() => refreshSnapshot({ reason: 'context' }), 5 * 60_000);
 
   return () => {
     stopped = true;
     window.clearInterval(fallbackTimer);
     window.clearTimeout(emitTimer);
-    window.clearTimeout(socketMessageTimer);
+    clearQueuedSocketData();
+    window.clearInterval(socketWatchdogTimer);
     window.clearInterval(refreshContextTimer);
     window.clearTimeout(reconnectTimer);
     window.clearTimeout(fallbackDelayTimer);
