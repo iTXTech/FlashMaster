@@ -106,7 +106,7 @@
 </template>
 
 <script setup>
-import { computed, nextTick, onMounted, ref, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import AutoFlowGrid from '@/components/AutoFlowGrid.vue';
@@ -116,6 +116,7 @@ import ExternalLinks from '@/components/ExternalLinks.vue';
 import QuerySuggestionInput from '@/components/QuerySuggestionInput.vue';
 import { copyText } from '@/services/clipboard';
 import { decodePartNumber, searchPartNumber, summarizePartNumber } from '@/services/flashApi';
+import { isRequestAbortError, isRequestTimeoutError, SUGGESTION_REQUEST_TIMEOUT_MS } from '@/services/requestControl';
 import {
   detailBlocks,
   externalLinkRows,
@@ -145,6 +146,8 @@ const loadingSuggestions = ref(false);
 let suggestionTimer;
 let suggestionRequestId = 0;
 let decodeRequestId = 0;
+let mainRequestController;
+let suggestionRequestController;
 let suppressedSuggestionValue = '';
 const suggestionLimit = 10;
 
@@ -197,8 +200,21 @@ function normalizePartNumberValue(value) {
 function clearSuggestions() {
   suggestionRequestId += 1;
   clearTimeout(suggestionTimer);
+  suggestionRequestController?.abort();
+  suggestionRequestController = undefined;
   suggestions.value = [];
   loadingSuggestions.value = false;
+}
+
+function beginMainRequest() {
+  mainRequestController?.abort();
+  mainRequestController = new AbortController();
+  return mainRequestController;
+}
+
+function cancelMainRequest() {
+  mainRequestController?.abort();
+  mainRequestController = undefined;
 }
 
 function commitPartNumber(value) {
@@ -236,12 +252,14 @@ function decodeResultCount(payload) {
 
 async function decode(syncRoute = true, { recordUsage = true } = {}) {
   const requestId = ++decodeRequestId;
+  cancelMainRequest();
   const pn = normalizeInput();
   if (!pn) {
     loading.value = false;
     notify(t('alert.missingPartNumber'));
     return;
   }
+  const controller = beginMainRequest();
   if (syncRoute && routePartNumber() !== pn) {
     router.push(partRoute(pn, route));
   }
@@ -250,7 +268,7 @@ async function decode(syncRoute = true, { recordUsage = true } = {}) {
   }
   loading.value = true;
   try {
-    const payload = await decodePartNumber(pn);
+    const payload = await decodePartNumber(pn, { signal: controller.signal });
     if (requestId !== decodeRequestId) return;
     result.value = payload;
     if (recordUsage) {
@@ -275,6 +293,7 @@ async function decode(syncRoute = true, { recordUsage = true } = {}) {
     }
   } catch (err) {
     if (requestId !== decodeRequestId) return;
+    if (isRequestAbortError(err)) return;
     result.value = null;
     if (recordUsage) {
       trackPartNumberLookup({
@@ -293,10 +312,13 @@ async function decode(syncRoute = true, { recordUsage = true } = {}) {
         success: false
       });
     }
-    notify(t('alert.fetchFailed', [err.message || err]));
+    notifyRequestError(err);
   } finally {
     if (requestId === decodeRequestId) {
       loading.value = false;
+      if (mainRequestController === controller) {
+        mainRequestController = undefined;
+      }
     }
   }
 }
@@ -308,6 +330,8 @@ async function selectPartSuggestion(item) {
 
 function searchSuggestions(input) {
   clearTimeout(suggestionTimer);
+  suggestionRequestController?.abort();
+  suggestionRequestController = undefined;
   const query = store.partNumberFormat(input || '');
   if (query.length < 3) {
     clearSuggestions();
@@ -322,9 +346,14 @@ function searchSuggestions(input) {
   suggestions.value = [];
   loadingSuggestions.value = true;
   suggestionTimer = setTimeout(async () => {
+    const controller = new AbortController();
+    suggestionRequestController = controller;
     loadingSuggestions.value = true;
     try {
-      const payload = await searchPartNumber(query, suggestionLimit);
+      const payload = await searchPartNumber(query, suggestionLimit, {
+        signal: controller.signal,
+        timeoutMs: SUGGESTION_REQUEST_TIMEOUT_MS
+      });
       if (requestId !== suggestionRequestId) return;
       suggestions.value = partSuggestions(payload);
     } catch {
@@ -333,6 +362,9 @@ function searchSuggestions(input) {
     } finally {
       if (requestId === suggestionRequestId) {
         loadingSuggestions.value = false;
+        if (suggestionRequestController === controller) {
+          suggestionRequestController = undefined;
+        }
       }
     }
   }, 220);
@@ -347,14 +379,23 @@ function goSearchPn() {
 async function copySummary() {
   const pn = normalizeInput();
   if (!pn) return notify(t('alert.missingPartNumber'));
+  const requestId = ++decodeRequestId;
+  const controller = beginMainRequest();
   loading.value = true;
   try {
-    const summary = await summarizePartNumber(pn);
+    const summary = await summarizePartNumber(pn, { signal: controller.signal });
+    if (requestId !== decodeRequestId) return;
     await copyLine(summary, t('dashboard.copiedSummary'));
   } catch (err) {
-    notify(t('alert.fetchFailed', [err.message || err]));
+    if (requestId !== decodeRequestId || isRequestAbortError(err)) return;
+    notifyRequestError(err);
   } finally {
-    loading.value = false;
+    if (requestId === decodeRequestId) {
+      loading.value = false;
+      if (mainRequestController === controller) {
+        mainRequestController = undefined;
+      }
+    }
   }
 }
 
@@ -377,6 +418,12 @@ async function copyLine(text, success = t('copySucc')) {
 
 function notify(text) {
   bus.emit('snackbar', { timeout: 3000, show: true, text });
+}
+
+function notifyRequestError(err) {
+  notify(isRequestTimeoutError(err)
+    ? t('alert.requestTimeout')
+    : t('alert.fetchFailed', [err.message || err]));
 }
 
 function refreshForLanguage() {
@@ -404,6 +451,7 @@ watch(() => route.params.pn, () => {
     decode(false);
   } else if (!next) {
     decodeRequestId += 1;
+    cancelMainRequest();
     loading.value = false;
     partNumber.value = '';
     result.value = null;
@@ -412,4 +460,10 @@ watch(() => route.params.pn, () => {
   }
 });
 watch(locale, refreshForLanguage);
+
+onBeforeUnmount(() => {
+  decodeRequestId += 1;
+  cancelMainRequest();
+  clearSuggestions();
+});
 </script>

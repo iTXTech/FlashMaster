@@ -7,7 +7,8 @@ export default {
     alert: {
         missingPartNumber: '请输入料号',
         fetchFailed: '获取失败：{0}',
-        missingFlashId: '请输入闪存ID'
+        missingFlashId: '请输入闪存ID',
+        requestTimeout: '请求超时，请检查网络或 HTTP 解析服务器后重试。'
     },
     nav: {
         decodePartNumber: '料号',

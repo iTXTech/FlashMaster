@@ -5,8 +5,11 @@
         ref="pulseViewport"
         class="market-pulse-viewport"
       >
+        <div v-if="error" class="market-pulse-placeholder is-error" role="status">
+          {{ $t('market.unavailable') }}
+        </div>
         <div
-          v-if="visibleItems.length"
+          v-else-if="visibleItems.length"
           ref="trackRef"
           :class="[
             'market-pulse-track',
@@ -42,9 +45,6 @@
           </button>
         </div>
         <div v-else-if="loading" class="market-pulse-placeholder">{{ $t('market.loading') }}</div>
-        <div v-else-if="error" class="market-pulse-placeholder is-error" role="status">
-          {{ $t('market.unavailable') }}
-        </div>
       </div>
       <v-btn
         class="market-pulse-close"
@@ -71,7 +71,7 @@ import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 import MarketPulseChart from '@/components/MarketPulseChart.vue';
 import { trackMarketPulseEvent } from '@/services/analytics';
-import { loadCachedMarketQuotes, subscribeMarketQuotes } from '@/services/marketApi';
+import { DEFAULT_MARKET_SOURCE, loadCachedMarketQuotes, subscribeMarketQuotes } from '@/services/marketApi';
 
 const emit = defineEmits(['close']);
 const route = useRoute();
@@ -80,6 +80,7 @@ const { locale, t } = useI18n();
 const quotes = ref(loadCachedMarketQuotes());
 const loading = ref(false);
 const error = ref('');
+const terminalMarketFailure = ref(false);
 const flashingAssets = ref({});
 const renderedSlotCount = ref(4);
 const windowStart = ref(0);
@@ -109,6 +110,11 @@ let activePointerGesture = null;
 let suppressNextClick = false;
 let lastViewportWidth = 0;
 let lastQuoteSignature = createQuoteSignature(quotes.value);
+let marketProviderState = {
+  source: DEFAULT_MARKET_SOURCE,
+  switchUsed: false,
+  reconnectAttempts: 0
+};
 const MARKET_PULSE_RENDER_BUFFER_SLOTS = 2;
 const MARKET_PULSE_SLOT_WIDTH = 200;
 const MARKET_PULSE_SLOT_DURATION_MS = 18_000;
@@ -257,6 +263,7 @@ function markPriceChanges(nextQuotes) {
 }
 
 function handleMarketUpdate(nextQuotes) {
+  if (terminalMarketFailure.value) return;
   const nextSignature = createQuoteSignature(nextQuotes);
   if (nextSignature === lastQuoteSignature) {
     loading.value = false;
@@ -485,13 +492,19 @@ function onWheel(e) {
 }
 
 function startMarketService() {
-  if (unsubscribeMarket || document.hidden) return;
+  if (unsubscribeMarket || document.hidden || terminalMarketFailure.value) return;
   loading.value = quotes.value.length === 0;
   unsubscribeMarket = subscribeMarketQuotes({
+    providerState: marketProviderState,
+    onProviderStateChange: state => {
+      marketProviderState = state;
+    },
     onUpdate: handleMarketUpdate,
     onError: err => {
+      terminalMarketFailure.value = true;
       error.value = err.message || String(err);
       loading.value = false;
+      stopMarketService();
     }
   });
 }

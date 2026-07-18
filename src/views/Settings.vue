@@ -187,6 +187,7 @@ import { useRoute } from 'vue-router';
 import CapabilityInfo from '@/components/CapabilityInfo.vue';
 import { getServerInfo } from '@/services/flashApi';
 import { trackMarketPulseEvent } from '@/services/analytics';
+import { isRequestAbortError, isRequestTimeoutError } from '@/services/requestControl';
 import bus from '@/store/bus';
 import store from '@/store';
 import themeManager from '@/theme';
@@ -416,11 +417,10 @@ function changeMarketPulse(value) {
 }
 
 async function loadControllerGroups({ notifyOnError = false } = {}) {
-  const requestId = ++controllerGroupRequestId;
-  loadingControllerGroups.value = true;
+  const { requestId, controller } = beginCapabilityRequest('groups');
   try {
-    const data = await getServerInfo();
-    if (requestId !== controllerGroupRequestId) return;
+    const data = await getServerInfo({ signal: controller.signal });
+    if (requestId !== capabilityRequestId) return;
     capabilityData.value = data;
     syncControllerGroupsWithCapabilities(data);
     if (dialog.value.show) {
@@ -430,14 +430,17 @@ async function loadControllerGroups({ notifyOnError = false } = {}) {
       };
     }
   } catch (err) {
-    if (requestId !== controllerGroupRequestId) return;
+    if (requestId !== capabilityRequestId || isRequestAbortError(err)) return;
     capabilityData.value = null;
     if (notifyOnError) {
-      notify(t('alert.fetchFailed', [err.message || err]));
+      notifyRequestError(err);
     }
   } finally {
-    if (requestId === controllerGroupRequestId) {
+    if (requestId === capabilityRequestId) {
       loadingControllerGroups.value = false;
+      if (capabilityRequestController === controller) {
+        capabilityRequestController = undefined;
+      }
     }
   }
 }
@@ -446,9 +449,10 @@ async function serverInfo() {
   if (isHttpParser.value) {
     commitServer({ refreshGroups: false });
   }
-  loadingInfo.value = true;
+  const { requestId, controller } = beginCapabilityRequest('info');
   try {
-    const data = await getServerInfo();
+    const data = await getServerInfo({ signal: controller.signal });
+    if (requestId !== capabilityRequestId) return;
     capabilityData.value = data;
     syncControllerGroupsWithCapabilities(data);
     dialog.value = {
@@ -456,9 +460,15 @@ async function serverInfo() {
       data
     };
   } catch (err) {
-    notify(t('alert.fetchFailed', [err.message || err]));
+    if (requestId !== capabilityRequestId || isRequestAbortError(err)) return;
+    notifyRequestError(err);
   } finally {
-    loadingInfo.value = false;
+    if (requestId === capabilityRequestId) {
+      loadingInfo.value = false;
+      if (capabilityRequestController === controller) {
+        capabilityRequestController = undefined;
+      }
+    }
   }
 }
 
@@ -472,8 +482,35 @@ function notify(text) {
   bus.emit('snackbar', { timeout: 3000, show: true, text });
 }
 
+function notifyRequestError(err) {
+  notify(isRequestTimeoutError(err)
+    ? t('alert.requestTimeout')
+    : t('alert.fetchFailed', [err.message || err]));
+}
+
+function beginCapabilityRequest(kind) {
+  capabilityRequestId += 1;
+  capabilityRequestController?.abort();
+  capabilityRequestController = new AbortController();
+  loadingControllerGroups.value = kind === 'groups';
+  loadingInfo.value = kind === 'info';
+  return {
+    requestId: capabilityRequestId,
+    controller: capabilityRequestController
+  };
+}
+
+function cancelCapabilityRequest() {
+  capabilityRequestId += 1;
+  capabilityRequestController?.abort();
+  capabilityRequestController = undefined;
+  loadingControllerGroups.value = false;
+  loadingInfo.value = false;
+}
+
 let offMarketPulse;
-let controllerGroupRequestId = 0;
+let capabilityRequestId = 0;
+let capabilityRequestController;
 
 onMounted(() => {
   loadControllerGroups();
@@ -483,6 +520,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+  cancelCapabilityRequest();
   offMarketPulse?.();
 });
 

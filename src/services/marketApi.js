@@ -1,3 +1,5 @@
+import { isRequestTimeoutError, runWithRequestTimeout } from '@/services/requestControl';
+
 const HYPERLIQUID_INFO_URL = 'https://api.hyperliquid.xyz/info';
 const HYPERLIQUID_WS_URL = 'wss://api.hyperliquid.xyz/ws';
 const LIGHTER_API_URL = 'https://mainnet.zklighter.elliot.ai/api/v1';
@@ -24,8 +26,13 @@ const MARKET_CANDLE_CACHE_INTERVAL_MS = 2 * 60_000;
 const MARKET_SOCKET_STALE_MS = 15_000;
 const MARKET_SOCKET_WATCHDOG_INTERVAL_MS = 5_000;
 const MARKET_RECONNECT_DELAY_MS = 1_000;
-const MARKET_SOURCE_HYPERLIQUID = 'hyperliquid';
-const MARKET_SOURCE_LIGHTER = 'lighter';
+const MARKET_QUOTE_PROVIDER_TIMEOUT_MS = 4_000;
+const MARKET_CANDLE_PROVIDER_TIMEOUT_MS = 8_000;
+const MARKET_CATALOG_TIMEOUT_MS = 5_000;
+const MARKET_WS_MAX_RECONNECTS = 3;
+export const MARKET_SOURCE_HYPERLIQUID = 'hyperliquid';
+export const MARKET_SOURCE_LIGHTER = 'lighter';
+export const DEFAULT_MARKET_SOURCE = MARKET_SOURCE_LIGHTER;
 const MINUTE_MS = 60_000;
 const HOUR_MS = 60 * MINUTE_MS;
 const DAY_MS = 24 * HOUR_MS;
@@ -99,6 +106,7 @@ export const TARGET_ASSETS = [
 const targetByAsset = new Map(TARGET_ASSETS.map(item => [item.asset, item]));
 const targetByLighterSymbol = buildLighterSymbolIndex();
 let lighterMarketCatalogPromise;
+let lighterMarketCatalog;
 
 function toNumber(value) {
   const next = Number.parseFloat(value);
@@ -119,6 +127,7 @@ function isHyperliquidSource(source) {
 
 export function isAbortError(error, seen = new Set()) {
   if (!error) return false;
+  if (isRequestTimeoutError(error)) return false;
   if (seen.has(error)) return false;
   seen.add(error);
   const message = String(error.message || '').toLowerCase();
@@ -450,12 +459,22 @@ export async function fetchMarketQuotes(options = {}) {
   const fetchPrimary = preferLighter ? fetchLighterMarketQuotes : fetchConfiguredMarketQuotes;
   const fetchFallback = preferLighter ? fetchConfiguredMarketQuotes : fetchLighterMarketQuotes;
 
+  const fetchProvider = provider => runWithRequestTimeout(
+    signal => provider({ ...options, signal }),
+    {
+      signal: options.signal,
+      timeoutMs: options.timeoutMs ?? MARKET_QUOTE_PROVIDER_TIMEOUT_MS,
+      timeoutMessage: 'Market quote provider timed out.'
+    }
+  );
+
   try {
-    return await fetchPrimary(options);
+    return await fetchProvider(fetchPrimary);
   } catch (primaryError) {
     if (isAbortError(primaryError)) throw primaryError;
+    if (options.fallback === false) throw primaryError;
     try {
-      return await fetchFallback(options);
+      return await fetchProvider(fetchFallback);
     } catch (fallbackError) {
       if (isAbortError(fallbackError)) throw fallbackError;
       const fallbackName = preferLighter ? 'Hyperliquid fallback' : 'Lighter fallback';
@@ -528,27 +547,37 @@ export async function fetchMarketCandles(asset, options = {}) {
   const fetchPrimary = preferLighter ? fetchLighterMarketCandles : fetchHyperliquidMarketCandles;
   const fetchFallback = preferLighter ? fetchHyperliquidMarketCandles : fetchLighterMarketCandles;
 
+  const fetchProvider = provider => runWithRequestTimeout(
+    signal => provider(asset, { ...options, signal }),
+    {
+      signal: options.signal,
+      timeoutMs: options.timeoutMs ?? MARKET_CANDLE_PROVIDER_TIMEOUT_MS,
+      timeoutMessage: 'Market candle provider timed out.'
+    }
+  );
+
   let items;
   try {
-    items = await fetchPrimary(asset, {
-      ...options,
+    items = await fetchProvider((targetAsset, providerOptions) => fetchPrimary(targetAsset, {
+      ...providerOptions,
       interval,
       rangeKey,
       maxCandles,
       endTime,
       startTime
-    });
+    }));
   } catch (primaryError) {
     if (isAbortError(primaryError)) throw primaryError;
+    if (options.fallback === false) throw primaryError;
     try {
-      items = await fetchFallback(asset, {
-        ...options,
+      items = await fetchProvider((targetAsset, providerOptions) => fetchFallback(targetAsset, {
+        ...providerOptions,
         interval,
         rangeKey,
         maxCandles,
         endTime,
         startTime
-      });
+      }));
     } catch (fallbackError) {
       if (isAbortError(fallbackError)) throw fallbackError;
       const message = [
@@ -596,13 +625,45 @@ async function fetchHyperliquidMarketCandles(asset, options = {}) {
   return items;
 }
 
-async function loadLighterMarketCatalog() {
+function abortError(signal) {
+  if (signal?.reason instanceof Error) return signal.reason;
+  const error = new Error('Request aborted.');
+  error.name = 'AbortError';
+  return error;
+}
+
+function waitForPromise(promise, signal) {
+  if (!signal) return promise;
+  if (signal.aborted) return Promise.reject(abortError(signal));
+  return new Promise((resolve, reject) => {
+    const onAbort = () => {
+      cleanup();
+      reject(abortError(signal));
+    };
+    const cleanup = () => signal.removeEventListener('abort', onAbort);
+    signal.addEventListener('abort', onAbort, { once: true });
+    promise.then(
+      value => {
+        cleanup();
+        resolve(value);
+      },
+      error => {
+        cleanup();
+        reject(error);
+      }
+    );
+  });
+}
+
+async function loadLighterMarketCatalog(options = {}) {
+  if (lighterMarketCatalog) return lighterMarketCatalog;
   if (!lighterMarketCatalogPromise) {
-    lighterMarketCatalogPromise = fetch(MARKET_LIGHTER_ORDER_BOOKS_ENDPOINT, {
-      method: 'GET',
-      headers: { Accept: 'application/json' }
-    })
-      .then(async response => {
+    lighterMarketCatalogPromise = runWithRequestTimeout(async signal => {
+        const response = await fetch(MARKET_LIGHTER_ORDER_BOOKS_ENDPOINT, {
+          method: 'GET',
+          headers: { Accept: 'application/json' },
+          signal
+        });
         if (!response.ok) {
           throw new Error(`${response.status} ${response.statusText}`);
         }
@@ -621,14 +682,17 @@ async function loadLighterMarketCatalog() {
             });
           }
         });
-        return marketByAsset;
+        lighterMarketCatalog = marketByAsset;
+        return lighterMarketCatalog;
+      }, {
+        timeoutMs: MARKET_CATALOG_TIMEOUT_MS,
+        timeoutMessage: 'Lighter market catalog timed out.'
       })
-      .catch(err => {
+      .finally(() => {
         lighterMarketCatalogPromise = undefined;
-        throw err;
       });
   }
-  return lighterMarketCatalogPromise;
+  return waitForPromise(lighterMarketCatalogPromise, options.signal);
 }
 
 async function fetchLighterMarketCandles(asset, options = {}) {
@@ -637,8 +701,13 @@ async function fetchLighterMarketCandles(asset, options = {}) {
     throw new Error('No Lighter market mapping');
   }
 
-  const marketByAsset = await loadLighterMarketCatalog();
-  const market = marketByAsset.get(target.asset);
+  const directMarketId = Number(options.marketId);
+  const marketByAsset = Number.isFinite(directMarketId)
+    ? null
+    : await loadLighterMarketCatalog({ signal: options.signal });
+  const market = Number.isFinite(directMarketId)
+    ? { marketId: directMarketId }
+    : marketByAsset.get(target.asset);
   if (!market || !Number.isFinite(market.marketId)) {
     throw new Error('No Lighter market mapping');
   }
@@ -668,8 +737,14 @@ async function fetchLighterMarketCandles(asset, options = {}) {
   return items;
 }
 
-export function subscribeMarketQuotes({ onUpdate, onError } = {}) {
+export function subscribeMarketQuotes({
+  onUpdate,
+  onError,
+  providerState = {},
+  onProviderStateChange
+} = {}) {
   let stopped = false;
+  let terminalFailure = false;
   let socket;
   let emitTimer;
   let socketMessageTimer;
@@ -691,7 +766,23 @@ export function subscribeMarketQuotes({ onUpdate, onError } = {}) {
   let lastSocketProcessAt = 0;
   let lastSocketMessageAt = 0;
   let socketStreaming = false;
-  let socketSource = MARKET_SOURCE_LIGHTER;
+  let socketSource = isHyperliquidSource(providerState.source)
+    ? MARKET_SOURCE_HYPERLIQUID
+    : MARKET_SOURCE_LIGHTER;
+  let providerSwitchUsed = providerState.switchUsed === true;
+  let socketReconnectAttempts = Math.max(0, Math.min(
+    MARKET_WS_MAX_RECONNECTS,
+    Number(providerState.reconnectAttempts) || 0
+  ));
+  let recoverActiveConnection = () => {};
+
+  const publishProviderState = () => {
+    onProviderStateChange?.({
+      source: socketSource,
+      switchUsed: providerSwitchUsed,
+      reconnectAttempts: socketReconnectAttempts
+    });
+  };
 
   const hasLiveSocketMids = () => {
     return socketSource === MARKET_SOURCE_HYPERLIQUID
@@ -763,14 +854,6 @@ export function subscribeMarketQuotes({ onUpdate, onError } = {}) {
     }
   };
 
-  const stopFallback = () => {
-    window.clearInterval(fallbackTimer);
-    window.clearTimeout(fallbackDelayTimer);
-    fallbackTimer = undefined;
-    fallbackDelayTimer = undefined;
-    abortFallbackSnapshot();
-  };
-
   const stopHeartbeat = () => {
     window.clearInterval(heartbeatTimer);
     heartbeatTimer = undefined;
@@ -782,7 +865,76 @@ export function subscribeMarketQuotes({ onUpdate, onError } = {}) {
     queuedSocketData = null;
   };
 
+  const stopFallback = () => {
+    window.clearInterval(fallbackTimer);
+    window.clearTimeout(fallbackDelayTimer);
+    fallbackTimer = undefined;
+    fallbackDelayTimer = undefined;
+    abortFallbackSnapshot();
+  };
+
+  const closeCurrentSocket = () => {
+    const currentSocket = socket;
+    socket = undefined;
+    recoverActiveConnection = () => {};
+    socketStreaming = false;
+    lastSocketMessageAt = 0;
+    latestMids = null;
+    stopHeartbeat();
+    clearQueuedSocketData();
+    window.clearTimeout(fallbackDelayTimer);
+    fallbackDelayTimer = undefined;
+    try {
+      currentSocket?.close();
+    } catch {
+      // Closing is best-effort while the provider state advances.
+    }
+  };
+
+  const stopAllActivity = () => {
+    window.clearInterval(fallbackTimer);
+    window.clearTimeout(emitTimer);
+    window.clearInterval(socketWatchdogTimer);
+    window.clearInterval(refreshContextTimer);
+    window.clearTimeout(reconnectTimer);
+    window.clearTimeout(fallbackDelayTimer);
+    abortFallbackSnapshot();
+    abortContextSnapshot();
+    closeCurrentSocket();
+  };
+
+  const terminalProviderFailure = error => {
+    if (stopped || terminalFailure) return;
+    terminalFailure = true;
+    stopped = true;
+    publishProviderState();
+    stopAllActivity();
+    const provider = socketSource === MARKET_SOURCE_LIGHTER ? 'Lighter' : 'Hyperliquid';
+    onError?.(new Error(`${provider}: ${error?.message || 'Market provider unavailable.'}`, { cause: error }));
+  };
+
+  const switchProviderOrFail = error => {
+    if (stopped || terminalFailure) return;
+    if (providerSwitchUsed) {
+      terminalProviderFailure(error);
+      return;
+    }
+
+    providerSwitchUsed = true;
+    socketReconnectAttempts = 0;
+    socketSource = getAlternateMarketSource(socketSource);
+    window.clearTimeout(reconnectTimer);
+    reconnectTimer = undefined;
+    stopFallback();
+    abortContextSnapshot();
+    closeCurrentSocket();
+    publishProviderState();
+    refreshSnapshot({ reason: 'switch' });
+    connectWebSocket(socketSource);
+  };
+
   const refreshSnapshot = async ({ reason = 'context' } = {}) => {
+    const source = socketSource;
     const isFallback = reason === 'fallback';
     const controller = new AbortController();
     if (isFallback) {
@@ -794,8 +946,13 @@ export function subscribeMarketQuotes({ onUpdate, onError } = {}) {
     }
 
     try {
-      const snapshot = await fetchMarketQuotes({ cache: false, signal: controller.signal });
-      if (stopped || controller.signal.aborted) return;
+      const snapshot = await fetchMarketQuotes({
+        cache: false,
+        fallback: false,
+        signal: controller.signal,
+        source
+      });
+      if (stopped || controller.signal.aborted || source !== socketSource) return;
 
       const hasLiveSocket = hasLiveSocketMids();
       if (isFallback && hasLiveSocket) return;
@@ -807,8 +964,10 @@ export function subscribeMarketQuotes({ onUpdate, onError } = {}) {
         forceCache: true
       });
     } catch (err) {
-      if (isAbortError(err)) return;
-      onError?.(err);
+      if (isAbortError(err) || stopped || source !== socketSource) return;
+      if (!('WebSocket' in window)) {
+        switchProviderOrFail(err);
+      }
     } finally {
       if (fallbackSnapshotController === controller) {
         fallbackSnapshotController = undefined;
@@ -825,20 +984,41 @@ export function subscribeMarketQuotes({ onUpdate, onError } = {}) {
     fallbackTimer = window.setInterval(() => refreshSnapshot({ reason: 'fallback' }), MARKET_REFRESH_INTERVAL_MS);
   };
 
-  const scheduleReconnect = (source = MARKET_SOURCE_LIGHTER, delay = MARKET_RECONNECT_DELAY_MS) => {
+  const scheduleReconnect = source => {
     if (stopped) return;
     window.clearTimeout(reconnectTimer);
     reconnectTimer = window.setTimeout(() => {
       reconnectTimer = undefined;
-      connectWebSocket(source);
-    }, delay);
+      if (!stopped && source === socketSource) {
+        connectWebSocket(source);
+      }
+    }, MARKET_RECONNECT_DELAY_MS);
+  };
+
+  const handleConnectionFailure = (source, error) => {
+    if (stopped || source !== socketSource) return;
+    startFallback();
+    if (socketReconnectAttempts < MARKET_WS_MAX_RECONNECTS) {
+      socketReconnectAttempts += 1;
+      publishProviderState();
+      scheduleReconnect(source);
+      return;
+    }
+    switchProviderOrFail(error);
+  };
+
+  const markSocketHealthy = () => {
+    if (socketReconnectAttempts !== 0) {
+      socketReconnectAttempts = 0;
+      publishProviderState();
+    }
   };
 
   const handleMids = mids => {
     latestMids = mids;
-    socketSource = MARKET_SOURCE_HYPERLIQUID;
     lastSocketMessageAt = Date.now();
     socketStreaming = true;
+    markSocketHealthy();
     stopFallback();
     emit(applyMidsToQuotes(currentItems, mids));
   };
@@ -854,9 +1034,9 @@ export function subscribeMarketQuotes({ onUpdate, onError } = {}) {
     });
     if (!hasUpdates) return;
     latestMids = null;
-    socketSource = MARKET_SOURCE_LIGHTER;
     lastSocketMessageAt = Date.now();
     socketStreaming = true;
+    markSocketHealthy();
     stopFallback();
     emit(nextItems);
   };
@@ -868,13 +1048,13 @@ export function subscribeMarketQuotes({ onUpdate, onError } = {}) {
     if (!queued) return;
     lastSocketProcessAt = Date.now();
     const messages = [];
-    queued.raws.forEach(raw => {
+    for (const raw of queued.raws) {
       try {
         messages.push(JSON.parse(raw));
-      } catch (err) {
-        onError?.(err);
+      } catch {
+        // Malformed frames do not count as healthy data; the watchdog handles a stalled stream.
       }
-    });
+    }
     if (queued.source === MARKET_SOURCE_HYPERLIQUID) {
       const message = messages.at(-1);
       if (message?.channel === 'allMids') {
@@ -914,47 +1094,30 @@ export function subscribeMarketQuotes({ onUpdate, onError } = {}) {
     try {
       socket.send(JSON.stringify({ method: 'ping' }));
     } catch (err) {
-      onError?.(err);
+      recoverActiveConnection(err);
     }
   };
 
   const restartStaleSocket = () => {
-    const staleSocket = socket;
     if (
-      !staleSocket
-      || staleSocket.readyState !== WebSocket.OPEN
+      !socket
+      || socket.readyState !== WebSocket.OPEN
       || !lastSocketMessageAt
       || Date.now() - lastSocketMessageAt <= MARKET_SOCKET_STALE_MS
     ) return;
-
-    const source = socketSource;
-    socket = undefined;
-    socketStreaming = false;
-    lastSocketMessageAt = 0;
-    stopHeartbeat();
-    clearQueuedSocketData();
-    window.clearTimeout(fallbackDelayTimer);
-    fallbackDelayTimer = undefined;
-    try {
-      staleSocket.close();
-    } catch {
-      // The replacement connection below does not depend on a close event.
-    }
-    startFallback();
-    scheduleReconnect(source);
+    recoverActiveConnection(new Error('Market WebSocket stream timed out.'));
   };
 
-  function connectWebSocket(source = MARKET_SOURCE_LIGHTER) {
-    if (stopped) return;
+  function connectWebSocket(source = socketSource) {
+    if (stopped || source !== socketSource) return;
     if (!('WebSocket' in window)) {
       startFallback();
       return;
     }
 
-    socketSource = source;
+    closeCurrentSocket();
     socketStreaming = false;
     lastSocketMessageAt = 0;
-    latestMids = null;
     clearQueuedSocketData();
     const isLighterSocket = source === MARKET_SOURCE_LIGHTER;
     const socketUrl = isLighterSocket ? MARKET_LIGHTER_WS_ENDPOINT : MARKET_WS_ENDPOINT;
@@ -964,9 +1127,7 @@ export function subscribeMarketQuotes({ onUpdate, onError } = {}) {
       connection = new WebSocket(socketUrl);
       socket = connection;
     } catch (err) {
-      onError?.(err);
-      startFallback();
-      scheduleReconnect(getAlternateMarketSource(source));
+      handleConnectionFailure(source, err);
       return;
     }
 
@@ -974,9 +1135,10 @@ export function subscribeMarketQuotes({ onUpdate, onError } = {}) {
     let failureHandled = false;
 
     const recoverConnection = error => {
-      if (failureHandled || socket !== connection) return;
+      if (failureHandled || socket !== connection || stopped) return;
       failureHandled = true;
       socket = undefined;
+      recoverActiveConnection = () => {};
       socketStreaming = false;
       lastSocketMessageAt = 0;
       stopHeartbeat();
@@ -986,20 +1148,21 @@ export function subscribeMarketQuotes({ onUpdate, onError } = {}) {
       try {
         connection.close();
       } catch {
-        // Recovery proceeds through the fallback and reconnect paths.
+        // Recovery continues through the bounded reconnect state machine.
       }
-      if (error) {
-        onError?.(error);
-      }
-      if (!stopped) {
-        startFallback();
-        const nextSource = hasReceivedSocketData ? source : getAlternateMarketSource(source);
-        scheduleReconnect(nextSource);
-      }
+      handleConnectionFailure(source, error || new Error('Market WebSocket closed.'));
     };
+    recoverActiveConnection = recoverConnection;
+
+    fallbackDelayTimer = window.setTimeout(() => {
+      if (socket === connection && connection.readyState !== WebSocket.OPEN) {
+        recoverConnection(new Error('Market WebSocket connection timed out.'));
+      }
+    }, MARKET_REFRESH_INTERVAL_MS);
 
     connection.addEventListener('open', () => {
       if (socket !== connection) return;
+      window.clearTimeout(fallbackDelayTimer);
       lastSocketMessageAt = Date.now();
       try {
         if (isLighterSocket) {
@@ -1021,7 +1184,7 @@ export function subscribeMarketQuotes({ onUpdate, onError } = {}) {
       }
       fallbackDelayTimer = window.setTimeout(() => {
         if (socket === connection && !hasReceivedSocketData) {
-          recoverConnection();
+          recoverConnection(new Error('Market WebSocket returned no data.'));
         }
       }, MARKET_REFRESH_INTERVAL_MS);
     });
@@ -1030,39 +1193,31 @@ export function subscribeMarketQuotes({ onUpdate, onError } = {}) {
       if (socket !== connection) return;
       if (queueSocketData(event.data, source)) {
         hasReceivedSocketData = true;
-        lastSocketMessageAt = Date.now();
       }
     });
 
     connection.addEventListener('error', () => {
-      recoverConnection(new Error(isLighterSocket ? 'Lighter WebSocket error' : 'Hyperliquid WebSocket error'));
+      recoverConnection(new Error(isLighterSocket ? 'Lighter WebSocket error.' : 'Hyperliquid WebSocket error.'));
     });
 
     connection.addEventListener('close', () => {
-      recoverConnection();
+      recoverConnection(new Error(isLighterSocket ? 'Lighter WebSocket closed.' : 'Hyperliquid WebSocket closed.'));
     });
   }
 
+  publishProviderState();
   if (currentItems.length) {
     emit(currentItems, { immediate: true });
   }
   refreshSnapshot({ reason: 'initial' });
-  connectWebSocket();
+  connectWebSocket(socketSource);
   socketWatchdogTimer = window.setInterval(restartStaleSocket, MARKET_SOCKET_WATCHDOG_INTERVAL_MS);
   refreshContextTimer = window.setInterval(() => refreshSnapshot({ reason: 'context' }), 5 * 60_000);
 
   return () => {
+    if (stopped && terminalFailure) return;
     stopped = true;
-    window.clearInterval(fallbackTimer);
-    window.clearTimeout(emitTimer);
-    clearQueuedSocketData();
-    window.clearInterval(socketWatchdogTimer);
-    window.clearInterval(refreshContextTimer);
-    window.clearTimeout(reconnectTimer);
-    window.clearTimeout(fallbackDelayTimer);
-    abortFallbackSnapshot();
-    abortContextSnapshot();
-    stopHeartbeat();
-    socket?.close();
+    publishProviderState();
+    stopAllActivity();
   };
 }

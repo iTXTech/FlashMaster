@@ -96,7 +96,7 @@
 </template>
 
 <script setup>
-import { computed, nextTick, onMounted, ref, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import AutoFlowGrid from '@/components/AutoFlowGrid.vue';
@@ -106,6 +106,7 @@ import ExternalLinks from '@/components/ExternalLinks.vue';
 import QuerySuggestionInput from '@/components/QuerySuggestionInput.vue';
 import { copyText } from '@/services/clipboard';
 import { decodeFlashId, searchFlashId, summarizeFlashId } from '@/services/flashApi';
+import { isRequestAbortError, isRequestTimeoutError, SUGGESTION_REQUEST_TIMEOUT_MS } from '@/services/requestControl';
 import {
   detailBlocks,
   externalLinkRows,
@@ -135,6 +136,8 @@ const loadingSuggestions = ref(false);
 let suggestionTimer;
 let suggestionRequestId = 0;
 let decodeRequestId = 0;
+let mainRequestController;
+let suggestionRequestController;
 let suppressedSuggestionValue = '';
 
 const {
@@ -178,8 +181,21 @@ function normalizeComboValue(value) {
 function clearSuggestions() {
   suggestionRequestId += 1;
   clearTimeout(suggestionTimer);
+  suggestionRequestController?.abort();
+  suggestionRequestController = undefined;
   suggestions.value = [];
   loadingSuggestions.value = false;
+}
+
+function beginMainRequest() {
+  mainRequestController?.abort();
+  mainRequestController = new AbortController();
+  return mainRequestController;
+}
+
+function cancelMainRequest() {
+  mainRequestController?.abort();
+  mainRequestController = undefined;
 }
 
 function commitFlashId(value) {
@@ -217,12 +233,14 @@ function decodeResultCount(payload) {
 
 async function decode(syncRoute = true, { recordUsage = true } = {}) {
   const requestId = ++decodeRequestId;
+  cancelMainRequest();
   const id = normalizeInput();
   if (!id) {
     loading.value = false;
     notify(t('alert.missingFlashId'));
     return;
   }
+  const controller = beginMainRequest();
   if (syncRoute && routeFlashId() !== id) {
     router.push(idRoute(id, route));
   }
@@ -231,7 +249,7 @@ async function decode(syncRoute = true, { recordUsage = true } = {}) {
   }
   loading.value = true;
   try {
-    const payload = await decodeFlashId(id);
+    const payload = await decodeFlashId(id, { signal: controller.signal });
     if (requestId !== decodeRequestId) return;
     result.value = payload;
     if (recordUsage) {
@@ -256,6 +274,7 @@ async function decode(syncRoute = true, { recordUsage = true } = {}) {
     }
   } catch (err) {
     if (requestId !== decodeRequestId) return;
+    if (isRequestAbortError(err)) return;
     result.value = null;
     if (recordUsage) {
       trackFlashIdLookup({
@@ -274,10 +293,13 @@ async function decode(syncRoute = true, { recordUsage = true } = {}) {
         success: false
       });
     }
-    notify(t('alert.fetchFailed', [err.message || err]));
+    notifyRequestError(err);
   } finally {
     if (requestId === decodeRequestId) {
       loading.value = false;
+      if (mainRequestController === controller) {
+        mainRequestController = undefined;
+      }
     }
   }
 }
@@ -289,6 +311,8 @@ async function selectFlashIdSuggestion(item) {
 
 function searchSuggestions(inputValue) {
   clearTimeout(suggestionTimer);
+  suggestionRequestController?.abort();
+  suggestionRequestController = undefined;
   const query = store.partNumberFormat(inputValue || '');
   if (query.length < 3) {
     clearSuggestions();
@@ -303,9 +327,14 @@ function searchSuggestions(inputValue) {
   suggestions.value = [];
   loadingSuggestions.value = true;
   suggestionTimer = setTimeout(async () => {
+    const controller = new AbortController();
+    suggestionRequestController = controller;
     loadingSuggestions.value = true;
     try {
-      const payload = await searchFlashId(query, 10);
+      const payload = await searchFlashId(query, 10, {
+        signal: controller.signal,
+        timeoutMs: SUGGESTION_REQUEST_TIMEOUT_MS
+      });
       if (requestId !== suggestionRequestId) return;
       suggestions.value = identifierSuggestions(payload);
     } catch {
@@ -314,6 +343,9 @@ function searchSuggestions(inputValue) {
     } finally {
       if (requestId === suggestionRequestId) {
         loadingSuggestions.value = false;
+        if (suggestionRequestController === controller) {
+          suggestionRequestController = undefined;
+        }
       }
     }
   }, 220);
@@ -328,14 +360,23 @@ function goSearchId() {
 async function copySummary() {
   const id = normalizeInput();
   if (!id) return notify(t('alert.missingFlashId'));
+  const requestId = ++decodeRequestId;
+  const controller = beginMainRequest();
   loading.value = true;
   try {
-    const summary = await summarizeFlashId(id);
+    const summary = await summarizeFlashId(id, { signal: controller.signal });
+    if (requestId !== decodeRequestId) return;
     await copyLine(summary, t('dashboard.copiedSummary'));
   } catch (err) {
-    notify(t('alert.fetchFailed', [err.message || err]));
+    if (requestId !== decodeRequestId || isRequestAbortError(err)) return;
+    notifyRequestError(err);
   } finally {
-    loading.value = false;
+    if (requestId === decodeRequestId) {
+      loading.value = false;
+      if (mainRequestController === controller) {
+        mainRequestController = undefined;
+      }
+    }
   }
 }
 
@@ -358,6 +399,12 @@ async function copyLine(text, success = t('copySucc')) {
 
 function notify(text) {
   bus.emit('snackbar', { timeout: 3000, show: true, text });
+}
+
+function notifyRequestError(err) {
+  notify(isRequestTimeoutError(err)
+    ? t('alert.requestTimeout')
+    : t('alert.fetchFailed', [err.message || err]));
 }
 
 function refreshForLanguage() {
@@ -385,6 +432,7 @@ watch(() => route.params.id, () => {
     decode(false);
   } else if (!next) {
     decodeRequestId += 1;
+    cancelMainRequest();
     loading.value = false;
     flashId.value = '';
     result.value = null;
@@ -393,4 +441,10 @@ watch(() => route.params.id, () => {
   }
 });
 watch(locale, refreshForLanguage);
+
+onBeforeUnmount(() => {
+  decodeRequestId += 1;
+  cancelMainRequest();
+  clearSuggestions();
+});
 </script>

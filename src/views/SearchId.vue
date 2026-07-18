@@ -88,13 +88,14 @@
 </template>
 
 <script setup>
-import { computed, nextTick, onMounted, ref, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import ExpandableListCell from '@/components/ExpandableListCell.vue';
 import ExternalLinks from '@/components/ExternalLinks.vue';
 import PagedTable from '@/components/PagedTable.vue';
 import { searchFlashId } from '@/services/flashApi';
+import { isRequestAbortError, isRequestTimeoutError } from '@/services/requestControl';
 import { identifierSearchRows } from '@/services/fdnextResultView';
 import { trackCoverageSignal, trackFlashIdLookup } from '@/services/analytics';
 import { useFormattedQueryInput } from '@/composables/useFormattedQueryInput';
@@ -111,6 +112,7 @@ const flashId = ref('');
 const rows = ref([]);
 const loading = ref(false);
 let searchRequestId = 0;
+let searchRequestController;
 
 const {
   model: flashIdInput,
@@ -152,12 +154,16 @@ function activeSearchQuery() {
 
 async function search(syncRoute = true, { recordUsage = true } = {}) {
   const requestId = ++searchRequestId;
+  searchRequestController?.abort();
+  searchRequestController = undefined;
   const id = normalizeInput();
   if (!id) {
     loading.value = false;
     notify(t('alert.missingFlashId'));
     return;
   }
+  const controller = new AbortController();
+  searchRequestController = controller;
   if (store.isAutoHideSoftKeyboard()) {
     input.value?.blur?.();
   }
@@ -166,7 +172,7 @@ async function search(syncRoute = true, { recordUsage = true } = {}) {
   }
   loading.value = true;
   try {
-    const payload = await searchFlashId(id);
+    const payload = await searchFlashId(id, 0, { signal: controller.signal });
     if (requestId !== searchRequestId) return;
     rows.value = identifierSearchRows(payload);
     if (recordUsage) {
@@ -190,6 +196,7 @@ async function search(syncRoute = true, { recordUsage = true } = {}) {
     }
   } catch (err) {
     if (requestId !== searchRequestId) return;
+    if (isRequestAbortError(err)) return;
     rows.value = [];
     if (recordUsage) {
       trackFlashIdLookup({
@@ -208,10 +215,15 @@ async function search(syncRoute = true, { recordUsage = true } = {}) {
         success: false
       });
     }
-    notify(t('alert.fetchFailed', [err.message || err]));
+    notify(isRequestTimeoutError(err)
+      ? t('alert.requestTimeout')
+      : t('alert.fetchFailed', [err.message || err]));
   } finally {
     if (requestId === searchRequestId) {
       loading.value = false;
+      if (searchRequestController === controller) {
+        searchRequestController = undefined;
+      }
     }
   }
 }
@@ -258,6 +270,8 @@ watch(() => route.params.query, () => {
     search(false);
   } else if (!next) {
     searchRequestId += 1;
+    searchRequestController?.abort();
+    searchRequestController = undefined;
     loading.value = false;
     flashId.value = '';
     rows.value = [];
@@ -265,4 +279,10 @@ watch(() => route.params.query, () => {
   }
 });
 watch(locale, refreshForLanguage);
+
+onBeforeUnmount(() => {
+  searchRequestId += 1;
+  searchRequestController?.abort();
+  searchRequestController = undefined;
+});
 </script>

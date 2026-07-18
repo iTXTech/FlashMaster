@@ -7,7 +7,8 @@ export default {
     alert: {
         missingPartNumber: 'Enter a PN',
         fetchFailed: 'Request failed: {0}',
-        missingFlashId: 'Enter a Flash ID'
+        missingFlashId: 'Enter a Flash ID',
+        requestTimeout: 'Request timed out. Check the network or HTTP parser server and try again.'
     },
     nav: {
         decodePartNumber: 'Parts',

@@ -316,6 +316,8 @@ async function loadCandles({ silent = false } = {}) {
       startTime,
       endTime,
       maxCandles,
+      fallback: false,
+      marketId: props.item.sourceMarketId,
       source: props.item.source,
       signal: requestController.signal
     });
