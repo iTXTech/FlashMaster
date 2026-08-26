@@ -109,8 +109,9 @@ After updating:
   `CHANGELOG-zh.txt`.
 - If the app version is bumped, update `package.json`; the build will append the
   FlashMaster Git short hash automatically.
-- Do not manually edit `__FDNEXT_VERSION__`; it is derived in `vite.config.js` from
-  the fdnext package version and submodule Git short hash.
+- Do not manually edit `__FDNEXT_VERSION__` or `__FDNEXT_COMMIT_HASH__`; they are
+  derived in `vite.config.js` from the fdnext package version and submodule Git
+  short hash.
 - Stage the submodule pointer update itself, plus any app, changelog, or version
   files that intentionally changed.
 
@@ -144,10 +145,11 @@ Manual smoke test:
 ## Versioning And Changelog
 
 - `package.json` contains the base app version.
-- `vite.config.js` exposes `VERSION` as `<package version>-<git short hash>`.
-- `vite.config.js` exposes `__FDNEXT_VERSION__` as `<fdnext package version>-<fdnext
-  git short hash>`.
-- Changelog display uses only the main version without the commit hash.
+- `vite.config.js` exposes `VERSION` as `<package version>+<git short hash>`.
+- `vite.config.js` exposes the fdnext package version and Git short hash through
+  `__FDNEXT_VERSION__` and `__FDNEXT_COMMIT_HASH__`; the UI displays them as
+  `<fdnext package version>+<fdnext git short hash>`.
+- Changelog state uses only the main version without SemVer build metadata.
 - Changelog source files live at the repository root:
   - `CHANGELOG.txt`
   - `CHANGELOG-zh.txt`

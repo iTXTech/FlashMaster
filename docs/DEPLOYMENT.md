@@ -43,21 +43,21 @@ pnpm build
 ```bash
 pnpm build:singlefile
 ```
-*输出：* `dist-singlefile/FlashMaster-<version>-<commitHash>.html`
+*输出：* `dist-singlefile/FlashMaster-<version>+<commitHash>.html`
 *包含：* 完整的解析引擎、UI 图标、厂商 Logo、行情脉搏（联网时可用）及基础统计。
 
 ### 精简单文件 (Nano Flavor)
 ```bash
 pnpm build:singlefile:nano
 ```
-*输出：* `dist-singlefile/FlashMaster-<version>-<commitHash>-nano.html`
+*输出：* `dist-singlefile/FlashMaster-<version>+<commitHash>-nano.html`
 *特点：* 极致精简，无行情功能、无统计代码、不包含 `lightweight-charts` 库，默认关闭 ER 外部报告链接。适合完全物理隔离的环境。
 
 ### HTTP-only 单文件 (Pico Flavor)
 ```bash
 pnpm build:singlefile:pico
 ```
-*输出：* `dist-singlefile/FlashMaster-<version>-<commitHash>-pico.html`
+*输出：* `dist-singlefile/FlashMaster-<version>+<commitHash>-pico.html`
 *特点：* 不内嵌 fdnext 解析引擎，应用始终通过 HTTP API 查询远端 fdnext 服务，并默认关闭 ER 外部报告链接。适合统一维护服务端解析资源、前端只作为轻量入口的部署。
 
 ER 外部报告链接可通过构建变量控制：

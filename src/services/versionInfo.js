@@ -9,7 +9,12 @@ export const getEmbeddedBuildMetadata = () => ({
 export const formatFdnextVersion = (server, fallbackBuild = {}) => {
   const version = String(server?.version || fallbackBuild.version || 'dev').trim() || 'dev';
   const commitHash = String(server?.build?.commitHash || fallbackBuild.commitHash || '').trim();
-  return commitHash && commitHash !== 'dev' ? `${version}-${commitHash}` : version;
+  if (!commitHash || commitHash === 'dev') {
+    return version;
+  }
+  const legacySuffix = `-${commitHash}`;
+  const baseVersion = (version.endsWith(legacySuffix) ? version.slice(0, -legacySuffix.length) : version).split('+')[0];
+  return `${baseVersion}+${commitHash}`;
 };
 
 export const getEmbeddedVersion = () => {

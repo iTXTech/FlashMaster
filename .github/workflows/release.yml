@@ -46,7 +46,7 @@ jobs:
           set -euo pipefail
           version="$(node -p "JSON.parse(require('fs').readFileSync('package.json', 'utf8')).version")"
           commit_hash="$(git rev-parse --short HEAD)"
-          base_name="FlashMaster-${version}-${commit_hash}"
+          base_name="FlashMaster-${version}+${commit_hash}"
           {
             echo "version=${version}"
             echo "commit_hash=${commit_hash}"

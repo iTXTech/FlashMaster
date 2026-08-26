@@ -1,9 +1,10 @@
 FlashMaster by PeratX <peratx@itxtech.org>
 版权所有 (c) 2019-2026 iTX Technologies
 ===================================
-版本 2.6.0-dev（快照日期：2026-07-16）
+版本 2.6.0（发布日期：2026-08-26）
 
 FlashMaster 更新：
+- 将 FlashMaster 与 fdnext 版本显示统一为 SemVer 构建元数据格式（`x.x.x+hash`）；单文件产物名同步使用该格式，更新日志状态仍按基础版本记录。
 - 重组 Commercial Banner 能力弹窗，将能力按应用与平台、数据与自动化、系统工程与专项技术分组，并将操作文案调整为低压力的“讨论需求”和更简洁的“查看能力”。
 - 优化高密度工作台的明暗主题：分别建立深色与浅色中性色阶，拉开浅色模式页面、面板和激活导航层级；消除主题切换后进入主界面时 Market Pulse 上方的瞬时浅色条，并让深色输入框与面板层级更协调；平衡设置页侧栏，并将 PN/Flash ID 主输入操作统一为聚焦的“解析 + 搜索”。搜索页查询为空时，搜索、解析及标题栏快捷按钮保持不可点击；既有面板边框和 Market Pulse 紧凑尺寸保持不变。
 - 稳定移动端 Safari 的 Market Pulse：多行情源更新改为合并稳定资产集合并锚定当前可见 ticker，可见槽位复用 DOM；CSS 驱动滚动改为独立周期续播，不再依赖无限动画边界与负延迟恢复，避免整排 ticker 短暂切换和自动滚动卡顿，同时保留横向拖动交互。
@@ -14,7 +15,8 @@ FlashMaster 更新：
 - 加固内嵌解析器降级流程：Worker 超时或传输失败后立即终止并禁用，当前及后续请求直接降级，避免重复等待 30 秒。
 
 fdnext v3.2.0 更新要点：
-- 内嵌解析器同步 fdnext v3.2.0 最新快照（99bd6b7）。
+- 内嵌解析器同步 fdnext v3.2.0 正式版（5b2e3df）。
+- 更新 FDB V86 关联：当 PN 与 Flash ID 的 NAND die profile 或每 CE die 拓扑明确冲突时裁剪关联；信息缺失或拓扑不完整时继续 fail-open 保留，不把未知信息判为冲突。
 - 扩展 Micron DRAM 料号解码覆盖，并将 DRAM 拓扑默认值限制在已识别 token 上，避免未知料号模式被推断出缺乏依据的拓扑信息。
 - 扩展 Biwin、ESMT、ISSI、Kingston、KIOXIA、Longsys、Micron、Nanya、Samsung、SanDisk、SK hynix、SpecTek、Winbond、YMTC 等重点厂商的料号解码、目录与搜索资源，新增和完善 DRAM、HBM、Raw NAND、SPI NAND、eMMC、eMCP、UFS、SSD、GDDR7 与 CXMT 结构；统一新版 SanDisk iNAND eMMC/UFS token 解码并保留旧版覆盖，同时去重 Micron PN 资源。
 - 扩展 ESMT、ISSI、Macronix、Samsung 旧版大页 NAND、Winbond Parallel NAND 及其他旧版 NAND/MCP 的 Flash ID 覆盖；优化 KIOXIA plane 映射与 SanDisk MCP 解码，并补充 YMTC X4-6080 plane 数量。

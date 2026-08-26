@@ -22,7 +22,7 @@ const commitHash = (() => {
     return 'dev';
   }
 })();
-const appVersion = `${packageJson.version}-${commitHash}`;
+const appVersion = `${packageJson.version}+${commitHash}`;
 const fdnextCommitHash = (() => {
   try {
     return execSync('git -C vendor/fdnext rev-parse --short=7 HEAD', { encoding: 'utf8' }).trim();
