@@ -309,7 +309,8 @@ export default defineConfig(({ mode }) => {
       chunkSizeWarningLimit: 3000
     },
     worker: inlineEmbeddedWorker ? {
-      format: 'es'
+      // Classic inline workers also load from file:// in Chromium-based browsers.
+      format: 'iife'
     } : undefined,
     resolve: {
       alias: aliases
@@ -326,6 +327,7 @@ export default defineConfig(({ mode }) => {
       __FLASHMASTER_COMMERCIAL_BANNER__: JSON.stringify(commercialBannerEnabled),
       __FLASHMASTER_ER_EXTERNAL_LINK__: JSON.stringify(erExternalLinkEnabled),
       __FLASHMASTER_EMBEDDED_PARSER__: JSON.stringify(embeddedParserEnabled),
+      __FLASHMASTER_MAIN_THREAD_FALLBACK__: JSON.stringify(embeddedParserEnabled && !inlineEmbeddedWorker),
       __FLASHMASTER_LOCKED_SERVER__: JSON.stringify(lockedServer),
       __FLASHMASTER_BUILD_FLAVOR__: JSON.stringify(buildFlavor)
     }

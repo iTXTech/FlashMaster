@@ -11,24 +11,25 @@
     "build:singlefile:nano": "vite build --mode singlefile-nano",
     "build:singlefile:pico": "vite build --mode singlefile-pico",
     "preview": "vite preview --host 127.0.0.1",
+    "test": "node --experimental-vm-modules --test tests/*.test.js",
     "lint": "eslint ."
   },
   "dependencies": {
     "@mdi/js": "^7.4.47",
-    "lightweight-charts": "^5.2.0",
-    "vue": "^3.5.39",
-    "vue-i18n": "^11.4.6",
-    "vue-router": "^5.2.0",
-    "vuetify": "^4.1.5"
+    "lightweight-charts": "^5.2.1",
+    "vue": "^3.5.42",
+    "vue-i18n": "^11.4.10",
+    "vue-router": "^5.3.0",
+    "vuetify": "^4.1.12"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@vitejs/plugin-vue": "^6.0.8",
-    "eslint": "^10.7.0",
-    "eslint-plugin-vue": "^10.9.2",
-    "globals": "^17.7.0",
-    "sass": "^1.101.0",
-    "vite": "^8.1.4",
+    "eslint": "^10.9.1",
+    "eslint-plugin-vue": "^10.10.0",
+    "globals": "^17.11.0",
+    "sass": "^1.103.1",
+    "vite": "^8.2.2",
     "vite-plugin-pwa": "^1.3.0",
     "vite-plugin-singlefile": "2.3.3"
   }

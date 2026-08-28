@@ -2,10 +2,13 @@ import { createFdnextWorker } from '@/services/fdnextWorkerFactory';
 import store from '@/store';
 
 const WORKER_REQUEST_TIMEOUT_MS = 30000;
+const MAIN_THREAD_FALLBACK_AVAILABLE = typeof __FLASHMASTER_MAIN_THREAD_FALLBACK__ === 'undefined'
+  || __FLASHMASTER_MAIN_THREAD_FALLBACK__;
 
 let mainEngineApiPromise;
 let worker;
 let workerDisabled = false;
+let workerFailure;
 let workerRequestId = 0;
 const workerRequests = new Map();
 
@@ -34,13 +37,8 @@ function limitValue(limit) {
   return Number.isFinite(value) && value > 0 ? value : undefined;
 }
 
-function embeddedWorkerAvailable() {
-  return typeof Worker !== 'undefined'
-    && !workerDisabled;
-}
-
-function workerTransportError(message) {
-  const err = new Error(message);
+function workerTransportError(message, cause) {
+  const err = new Error(message, { cause });
   err.workerTransportError = true;
   return err;
 }
@@ -60,10 +58,14 @@ function rejectWorkerRequests(error) {
 }
 
 function disableWorker(error) {
+  if (workerDisabled) return;
   workerDisabled = true;
+  workerFailure = error;
   rejectWorkerRequests(error);
   worker?.terminate?.();
   worker = null;
+  // Log once per session, without request payloads or query values.
+  console.warn('[FlashMaster] Embedded fdnext worker disabled.', error);
 }
 
 function handleWorkerMessage(event) {
@@ -80,20 +82,38 @@ function handleWorkerMessage(event) {
 }
 
 function handleWorkerFailure(event) {
-  const error = workerTransportError(event?.message || 'Embedded fdnext worker failed.');
+  const error = workerTransportError(
+    event?.message || event?.error?.message
+      || 'Embedded fdnext worker failed to load or execute (browser provided no error details).',
+    event?.error
+  );
+  if (event?.filename) {
+    error.filename = event.filename;
+    error.lineno = event.lineno;
+    error.colno = event.colno;
+  }
   disableWorker(error);
 }
 
+function handleWorkerMessageError() {
+  disableWorker(workerTransportError('Embedded fdnext worker response could not be deserialized.'));
+}
+
 function getWorker() {
-  if (!embeddedWorkerAvailable()) return null;
+  if (workerDisabled) return null;
+  if (typeof Worker === 'undefined') {
+    disableWorker(workerTransportError('Web Workers are not supported or are disabled in this browser.'));
+    return null;
+  }
   if (worker) return worker;
   try {
     worker = createFdnextWorker();
     worker.addEventListener('message', handleWorkerMessage);
     worker.addEventListener('error', handleWorkerFailure);
+    worker.addEventListener('messageerror', handleWorkerMessageError);
     return worker;
   } catch (err) {
-    disableWorker(workerTransportError(err?.message || 'Embedded fdnext worker is unavailable.'));
+    disableWorker(workerTransportError(err?.message || 'Embedded fdnext worker is unavailable.', err));
     return null;
   }
 }
@@ -110,19 +130,26 @@ function requestWorker(type, payload = {}) {
     try {
       target.postMessage({ id, type, payload });
     } catch (err) {
-      disableWorker(workerTransportError(err?.message || 'Embedded fdnext worker transport failed.'));
+      disableWorker(workerTransportError(err?.message || 'Embedded fdnext worker transport failed.', err));
     }
   });
 }
 
+function runMainThreadFallback(fallback) {
+  // Full/nano single-file builds deliberately omit the duplicate main-thread engine.
+  // Keep the first worker failure visible instead of replacing it with a stub error.
+  if (!MAIN_THREAD_FALLBACK_AVAILABLE) throw workerFailure;
+  return fallback();
+}
+
 async function runEmbeddedOperation(type, payload, fallback) {
   const workerResult = requestWorker(type, payload);
-  if (!workerResult) return fallback();
+  if (!workerResult) return runMainThreadFallback(fallback);
   try {
     return await workerResult;
   } catch (err) {
     if (err?.workerTransportError) {
-      return fallback();
+      return runMainThreadFallback(fallback);
     }
     throw err;
   }

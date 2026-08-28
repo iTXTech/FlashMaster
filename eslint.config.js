@@ -23,6 +23,7 @@ export default [
         __FLASHMASTER_COMMERCIAL_BANNER__: 'readonly',
         __FLASHMASTER_ER_EXTERNAL_LINK__: 'readonly',
         __FLASHMASTER_EMBEDDED_PARSER__: 'readonly',
+        __FLASHMASTER_MAIN_THREAD_FALLBACK__: 'readonly',
         __FLASHMASTER_LOCKED_SERVER__: 'readonly',
         __FLASHMASTER_BUILD_FLAVOR__: 'readonly'
       },

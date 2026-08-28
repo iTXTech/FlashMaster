@@ -149,8 +149,11 @@ function scheduleEmbeddedParserWarmup() {
             if (store.isEmbeddedParser()) {
                 await warmEmbeddedParser();
             }
-        } catch {
-            // Warmup is opportunistic; normal lookup paths will still initialize on demand.
+        } catch (err) {
+            // Transport failures are already retained and logged once by the adapter.
+            if (!err?.workerTransportError) {
+                console.warn('[FlashMaster] Embedded fdnext warmup failed.', err);
+            }
         }
     });
 }

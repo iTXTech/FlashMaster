@@ -3,6 +3,11 @@ FlashMaster by PeratX <peratx@itxtech.org>
 ===================================
 版本 2.7.0-dev（快照日期：2026-08-28）
 
+FlashMaster 更新：
+- 修复查询下拉框遮挡输入框及窗口缩放时的闪烁。
+- full/nano 单文件改用 classic 内联 Worker，改善 Chromium 系浏览器直接打开本地 HTML 文件时的兼容性。
+- 内嵌 Worker 失败后保留原始原因，供后续查询与本地诊断使用，避免被“主线程降级不可用”覆盖；预热失败不再静默丢弃。
+
 fdnext v3.3.0 更新要点：
 - 内嵌解析器更新至 fdnext v3.3.0（489662e）。
 - 扩展 Micron NAND/eMMC/uMCP 与 Micron、Elpida、SpecTek DRAM 料号解码。

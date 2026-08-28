@@ -39,6 +39,8 @@ pnpm build
 
 针对极端的离线环境（如无网络的工作站、内网机房），FlashMaster 支持将整个应用打包为一个独立的 `.html` 文件。
 
+full/nano 使用 IIFE 格式的 classic 内联 Worker，支持通过 `file://` 直接打开，并且不重复打包主线程解析引擎。若 Worker 启动、通信或请求超时失败，当前及后续查询会保留首个失败原因，浏览器控制台记录一次诊断；预热失败也会留下诊断记录。诊断不记录查询载荷，也不会上传到外部服务。普通 Web 构建仍保留按需加载的主线程降级路径，Pico 仍为 HTTP-only。
+
 ### 完整单文件 (Full Flavor)
 ```bash
 pnpm build:singlefile
