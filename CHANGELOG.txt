@@ -1,6 +1,14 @@
 FlashMaster by PeratX <peratx@itxtech.org>
 Copyright (c) 2019-2026 iTX Technologies
 ===================================
+Version 2.7.0-dev (Snapshot date: 2026-08-28)
+
+fdnext v3.3.0 highlights:
+- Updated the embedded parser to fdnext v3.3.0 (489662e).
+- Expanded Micron NAND/eMMC/uMCP and Micron, Elpida, and SpecTek DRAM decoding.
+- Refined package, speed, and suffix parsing; unknown Micron families retain vendor identity without speculative types or fields.
+
+===================================
 Version 2.6.0 (Release date: 2026-08-26)
 
 FlashMaster updates:
