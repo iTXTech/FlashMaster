@@ -1063,6 +1063,25 @@ a.nav-footer-notice:hover {
   font-size: 1.08rem;
 }
 
+.query-suggestion-menu {
+  visibility: hidden;
+  border: 1px solid rgba(var(--v-theme-on-surface), 0.16);
+  box-shadow: none;
+}
+
+.query-suggestion-menu > .v-sheet {
+  min-height: 0;
+  overflow: hidden;
+  box-shadow: none;
+}
+
+.query-suggestion-menu .v-list {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
 .query-suggestion-menu .v-list-item {
   color: rgba(var(--v-theme-on-surface), 0.9) !important;
 }

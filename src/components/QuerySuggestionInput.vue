@@ -11,7 +11,7 @@
     class="pn"
     clearable
     hide-details
-    :menu-props="{ contentClass: 'query-suggestion-menu' }"
+    :menu-props="menuProps"
     no-filter
     :auto-select-first="false"
     :label="label"
@@ -35,7 +35,8 @@
 </template>
 
 <script setup>
-import { onBeforeUnmount, ref, watch } from 'vue';
+import { onBeforeUnmount, ref } from 'vue';
+import { useQuerySuggestionMenu } from '@/composables/useQuerySuggestionMenu';
 
 const props = defineProps({
   modelValue: {
@@ -67,15 +68,11 @@ const emit = defineEmits([
 ]);
 
 const combo = ref(null);
-const menuOpen = ref(false);
+const { menuOpen, menuProps } = useQuerySuggestionMenu(combo, () => props.items);
 const isComposing = ref(false);
 let submitToken = 0;
 let selectedInCurrentTurn = false;
 let blurTimer;
-
-watch(() => props.items.length, length => {
-  menuOpen.value = length > 0;
-});
 
 function textValue(value) {
   if (value && typeof value === 'object') {
