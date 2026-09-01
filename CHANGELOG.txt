@@ -1,7 +1,7 @@
 FlashMaster by PeratX <peratx@itxtech.org>
 Copyright (c) 2019-2026 iTX Technologies
 ===================================
-Version 2.7.0-dev (Snapshot date: 2026-08-28)
+Version 2.7.0-dev (Snapshot date: 2026-09-01)
 
 FlashMaster updates:
 - Fixed query suggestion dropdowns overlapping inputs and flickering during window resizing.
@@ -9,8 +9,8 @@ FlashMaster updates:
 - Preserve the original embedded worker failure for subsequent lookups and local diagnostics instead of reporting an unavailable main-thread fallback; warmup failures are no longer silently discarded.
 
 fdnext v3.3.0 highlights:
-- Updated the embedded parser to fdnext v3.3.0 (489662e).
-- Expanded Micron NAND/eMMC/uMCP and Micron, Elpida, and SpecTek DRAM decoding.
+- Updated the embedded parser to fdnext v3.3.0 (4fe03b3).
+- Expanded Micron NAND/eMMC/uMCP and Micron, Elpida, and SpecTek DRAM decoding, including legacy Micron `AMD...` DDR3 aliases.
 - Refined package, speed, and suffix parsing; unknown Micron families retain vendor identity without speculative types or fields.
 
 ===================================
