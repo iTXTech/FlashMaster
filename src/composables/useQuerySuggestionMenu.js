@@ -10,6 +10,7 @@ function verticalChrome(element) {
 export function useQuerySuggestionMenu(combo, items) {
   const requested = ref(false);
   const minimumHeight = ref(0);
+  const contentWidth = ref(0);
   const layout = shallowRef(null);
   let frame = 0;
   let content;
@@ -46,7 +47,7 @@ export function useQuerySuggestionMenu(combo, items) {
       right: left + (viewport?.width ?? document.documentElement.clientWidth),
       bottom: Math.min(top + (viewport?.height ?? window.innerHeight), main?.bottom ?? Infinity)
     };
-    layout.value = querySuggestionLayout(rect, bounds, minimumHeight.value);
+    layout.value = querySuggestionLayout(rect, bounds, minimumHeight.value, contentWidth.value);
     positionContent?.();
   }
 
@@ -67,6 +68,7 @@ export function useQuerySuggestionMenu(combo, items) {
       // here would repeatedly reopen a menu that has insufficient space.
       if (width !== fieldWidth) {
         minimumHeight.value = 0;
+        contentWidth.value = 0;
         fieldWidth = width;
       }
       updateLayout();
@@ -91,6 +93,7 @@ export function useQuerySuggestionMenu(combo, items) {
 
   watch(items, value => {
     minimumHeight.value = 0;
+    contentWidth.value = 0;
     if (!value.length) menuOpen.value = false;
     else if (combo.value?.isFocused) menuOpen.value = true;
     scheduleUpdate();
@@ -128,7 +131,8 @@ export function useQuerySuggestionMenu(combo, items) {
       };
       nextTick(() => {
         if (disposed || token !== revision || !menuOpen.value) return;
-        const option = element.querySelector('.query-suggestion-option');
+        const options = [...element.querySelectorAll('.query-suggestion-option')];
+        const option = options[0];
         if (!option) return;
         if (observedOption !== option) {
           if (observedOption) observer.unobserve(observedOption);
@@ -141,6 +145,21 @@ export function useQuerySuggestionMenu(combo, items) {
           if (parent === element) break;
         }
         minimumHeight.value = height;
+        const elementWidth = element.getBoundingClientRect().width;
+        const measuredContentWidth = options.reduce((maximum, candidate) => {
+          const candidateWidth = candidate.getBoundingClientRect().width;
+          const candidateContent = candidate.querySelector('.v-list-item__content');
+          const contentClientWidth = candidateContent?.clientWidth || candidateWidth;
+          const lineWidth = [...candidate.querySelectorAll('.v-list-item-title, .v-list-item-subtitle')]
+            .reduce((lineMaximum, line) => Math.max(lineMaximum, line.scrollWidth), contentClientWidth);
+          return Math.max(maximum, lineWidth + candidateWidth - contentClientWidth);
+        }, 0);
+        const measuredWidth = Math.ceil(measuredContentWidth + Math.max(0, elementWidth - option.getBoundingClientRect().width));
+        if (measuredWidth !== contentWidth.value) {
+          contentWidth.value = measuredWidth;
+          updateLayout();
+          return;
+        }
         // Re-evaluate the gate without reopening the overlay or losing focus.
         layout.value = { ...current, fits: current.fits && current.maxHeight >= height };
         if (layout.value.fits) {

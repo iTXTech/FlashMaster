@@ -17,6 +17,55 @@ test('anchors below the whole field with a 2px gap and a scrollable height cap',
   assert.equal(layout.fits, true);
 });
 
+test('widens a narrow desktop field to the measured longest candidate', () => {
+  const layout = querySuggestionLayout(
+    { top: 170, bottom: 210, left: 40, width: 320 },
+    { top: 0, bottom: 900, left: 0, right: 1440 },
+    candidateHeight,
+    438
+  );
+  assert.equal(layout.left, 40);
+  assert.equal(layout.width, 438);
+  assert.equal(layout.fits, true);
+});
+
+test('caps a long candidate and shifts the menu left before crossing the viewport edge', () => {
+  const layout = querySuggestionLayout(
+    { top: 170, bottom: 210, left: 700, width: 320 },
+    { top: 0, bottom: 900, left: 0, right: 1024 },
+    candidateHeight,
+    720
+  );
+  assert.equal(layout.left, 452);
+  assert.equal(layout.width, 560);
+  assert.equal(layout.fits, true);
+});
+
+test('keeps the field width when every candidate already fits', () => {
+  const layout = querySuggestionLayout(field, viewport, candidateHeight, 320);
+  assert.equal(layout.left, field.left);
+  assert.equal(layout.width, field.width);
+});
+
+test('uses the viewport margin as the final limit on a narrow screen', () => {
+  const layout = querySuggestionLayout(field, viewport, candidateHeight, 438);
+  assert.equal(layout.left, 12);
+  assert.equal(layout.width, 366);
+  assert.equal(layout.fits, true);
+});
+
+test('does not shrink an input that is already wider than the expansion target', () => {
+  const wideField = { top: 170, bottom: 210, left: 24, width: 740 };
+  const layout = querySuggestionLayout(
+    wideField,
+    { top: 0, bottom: 900, left: 0, right: 800 },
+    candidateHeight
+  );
+  assert.equal(layout.left, wideField.left);
+  assert.equal(layout.width, wideField.width);
+  assert.equal(layout.fits, true);
+});
+
 test('shows exactly one complete candidate, but hides with even slightly less space', () => {
   for (const remaining of [81.9, 82, 82.1]) {
     const layout = querySuggestionLayout(field, { ...viewport, bottom: 212 + remaining }, candidateHeight);
@@ -68,14 +117,22 @@ test('continuous height changes preserve visibility and never reset the one-row 
   const main = { getBoundingClientRect: () => ({ top: 0, bottom: visualViewport.height }) };
   const fieldNode = { getBoundingClientRect: () => field, closest: () => main };
   const origin = { getBoundingClientRect: () => ({ top: 0, left: 0 }) };
+  const title = { clientWidth: 324, scrollWidth: 438 };
+  const optionContent = { clientWidth: 324 };
   const content = {
     offsetParent: origin,
     chrome: { borderTopWidth: '1px', borderBottomWidth: '1px' },
     contains: () => false,
-    querySelector: () => option
+    getBoundingClientRect: () => ({ width: 358 }),
+    querySelectorAll: () => [option]
   };
   const list = { parentElement: content, chrome: { paddingTop: '8px', paddingBottom: '8px' } };
-  const option = { parentElement: list, getBoundingClientRect: () => ({ height: 48 }) };
+  const option = {
+    parentElement: list,
+    getBoundingClientRect: () => ({ height: 48, width: 356 }),
+    querySelector: selector => selector === '.v-list-item__content' ? optionContent : null,
+    querySelectorAll: () => [title]
+  };
   const observers = [];
   const frames = new Map();
   let frameId = 0;
@@ -116,6 +173,7 @@ test('continuous height changes preserve visibility and never reset the one-row 
     overlayScope.run(() => menu.menuProps.locationStrategy({ contentEl: shallowRef(content) }, {}, styles));
     await flush();
     assert.equal(styles.value.visibility, 'visible');
+    assert.equal(styles.value.width, '366px', 'measured candidate width is limited by viewport margins');
 
     for (const height of [700, 510, 350, 278, 277, 260, 277, 278, 350, 510]) {
       visualViewport.height = height;
