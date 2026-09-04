@@ -88,7 +88,7 @@
 </template>
 
 <script setup>
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import ExpandableListCell from '@/components/ExpandableListCell.vue';
@@ -99,6 +99,7 @@ import { isRequestAbortError, isRequestTimeoutError } from '@/services/requestCo
 import { identifierSearchRows } from '@/services/fdnextResultView';
 import { trackCoverageSignal, trackFlashIdLookup } from '@/services/analytics';
 import { useFormattedQueryInput } from '@/composables/useFormattedQueryInput';
+import { useRouteLookup } from '@/composables/useRouteLookup';
 import { idRoute, idsSearchRoute, partRoute, routeParamText } from '@/router/locations';
 import bus from '@/store/bus';
 import store from '@/store';
@@ -145,30 +146,25 @@ function normalizeInput() {
 }
 
 function routeSearchQuery() {
-  return store.queryInputFormat(routeParamText(route, 'query'));
+  return store.partNumberFormat(routeParamText(route, 'query'));
 }
 
-function activeSearchQuery() {
-  return routeSearchQuery() || (loading.value || rows.value.length > 0 ? store.partNumberFormat(flashId.value) : '');
-}
-
-async function search(syncRoute = true, { recordUsage = true } = {}) {
-  const requestId = ++searchRequestId;
-  searchRequestController?.abort();
-  searchRequestController = undefined;
+function search() {
   const id = normalizeInput();
   if (!id) {
-    loading.value = false;
+    resetLookup('');
     notify(t('alert.missingFlashId'));
     return;
   }
+  return routeLookup.submit(id);
+}
+
+async function runLookup(id, { recordUsage = true } = {}) {
+  const requestId = ++searchRequestId;
   const controller = new AbortController();
   searchRequestController = controller;
   if (store.isAutoHideSoftKeyboard()) {
     input.value?.blur?.();
-  }
-  if (syncRoute && routeSearchQuery() !== id) {
-    router.push(idsSearchRoute(id, route));
   }
   loading.value = true;
   try {
@@ -246,39 +242,25 @@ function notify(text) {
   bus.emit('snackbar', { timeout: 3000, show: true, text });
 }
 
-function refreshForLanguage() {
-  const query = activeSearchQuery();
-  if (!query) return;
+function resetLookup(query) {
+  searchRequestId += 1;
+  searchRequestController?.abort();
+  searchRequestController = undefined;
+  loading.value = false;
   flashId.value = query;
-  search(false, { recordUsage: false });
+  rows.value = [];
+  if (!query) {
+    nextTick(() => input.value?.focus?.());
+  }
 }
 
-onMounted(() => {
-  const query = routeSearchQuery();
-  if (query) {
-    flashId.value = query;
-    search(false);
-  } else {
-    nextTick(() => input.value?.focus?.());
-  }
+const routeLookup = useRouteLookup({
+  query: routeSearchQuery,
+  locale,
+  navigate: query => router.push(idsSearchRoute(query, route)),
+  reset: resetLookup,
+  run: runLookup
 });
-
-watch(() => route.params.query, () => {
-  const next = routeSearchQuery();
-  if (next && next !== flashId.value) {
-    flashId.value = next;
-    search(false);
-  } else if (!next) {
-    searchRequestId += 1;
-    searchRequestController?.abort();
-    searchRequestController = undefined;
-    loading.value = false;
-    flashId.value = '';
-    rows.value = [];
-    nextTick(() => input.value?.focus?.());
-  }
-});
-watch(locale, refreshForLanguage);
 
 onBeforeUnmount(() => {
   searchRequestId += 1;

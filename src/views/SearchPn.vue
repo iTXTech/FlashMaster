@@ -85,7 +85,7 @@
 </template>
 
 <script setup>
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import ExpandableListCell from '@/components/ExpandableListCell.vue';
@@ -96,6 +96,7 @@ import { isRequestAbortError, isRequestTimeoutError } from '@/services/requestCo
 import { partSearchRows } from '@/services/fdnextResultView';
 import { trackCoverageSignal, trackPartNumberLookup } from '@/services/analytics';
 import { useFormattedQueryInput } from '@/composables/useFormattedQueryInput';
+import { useRouteLookup } from '@/composables/useRouteLookup';
 import { partRoute, partsSearchRoute, routeParamText } from '@/router/locations';
 import bus from '@/store/bus';
 import store from '@/store';
@@ -143,30 +144,25 @@ function normalizeInput() {
 }
 
 function routeSearchQuery() {
-  return store.queryInputFormat(routeParamText(route, 'query'));
+  return store.partNumberFormat(routeParamText(route, 'query'));
 }
 
-function activeSearchQuery() {
-  return routeSearchQuery() || (loading.value || rows.value.length > 0 ? store.partNumberFormat(partNumber.value) : '');
-}
-
-async function search(syncRoute = true, { recordUsage = true } = {}) {
-  const requestId = ++searchRequestId;
-  searchRequestController?.abort();
-  searchRequestController = undefined;
+function search() {
   const pn = normalizeInput();
   if (!pn) {
-    loading.value = false;
+    resetLookup('');
     notify(t('alert.missingPartNumber'));
     return;
   }
+  return routeLookup.submit(pn);
+}
+
+async function runLookup(pn, { recordUsage = true } = {}) {
+  const requestId = ++searchRequestId;
   const controller = new AbortController();
   searchRequestController = controller;
   if (store.isAutoHideSoftKeyboard()) {
     input.value?.blur?.();
-  }
-  if (syncRoute && routeSearchQuery() !== pn) {
-    router.push(partsSearchRoute(pn, route));
   }
   loading.value = true;
   try {
@@ -240,39 +236,25 @@ function notify(text) {
   bus.emit('snackbar', { timeout: 3000, show: true, text });
 }
 
-function refreshForLanguage() {
-  const query = activeSearchQuery();
-  if (!query) return;
+function resetLookup(query) {
+  searchRequestId += 1;
+  searchRequestController?.abort();
+  searchRequestController = undefined;
+  loading.value = false;
   partNumber.value = query;
-  search(false, { recordUsage: false });
+  rows.value = [];
+  if (!query) {
+    nextTick(() => input.value?.focus?.());
+  }
 }
 
-onMounted(() => {
-  const query = routeSearchQuery();
-  if (query) {
-    partNumber.value = query;
-    search(false);
-  } else {
-    nextTick(() => input.value?.focus?.());
-  }
+const routeLookup = useRouteLookup({
+  query: routeSearchQuery,
+  locale,
+  navigate: query => router.push(partsSearchRoute(query, route)),
+  reset: resetLookup,
+  run: runLookup
 });
-
-watch(() => route.params.query, () => {
-  const next = routeSearchQuery();
-  if (next && next !== partNumber.value) {
-    partNumber.value = next;
-    search(false);
-  } else if (!next) {
-    searchRequestId += 1;
-    searchRequestController?.abort();
-    searchRequestController = undefined;
-    loading.value = false;
-    partNumber.value = '';
-    rows.value = [];
-    nextTick(() => input.value?.focus?.());
-  }
-});
-watch(locale, refreshForLanguage);
 
 onBeforeUnmount(() => {
   searchRequestId += 1;

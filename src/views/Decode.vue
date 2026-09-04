@@ -106,7 +106,7 @@
 </template>
 
 <script setup>
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import AutoFlowGrid from '@/components/AutoFlowGrid.vue';
@@ -129,6 +129,7 @@ import {
 } from '@/services/fdnextResultView';
 import { trackCoverageSignal, trackPartNumberLookup } from '@/services/analytics';
 import { useFormattedQueryInput } from '@/composables/useFormattedQueryInput';
+import { useRouteLookup } from '@/composables/useRouteLookup';
 import { localizeRouteLocation, partRoute, partsSearchRoute, routeParamText } from '@/router/locations';
 import bus from '@/store/bus';
 import store from '@/store';
@@ -234,11 +235,7 @@ function focusInput() {
 }
 
 function routePartNumber() {
-  return store.queryInputFormat(routeParamText(route, 'pn'));
-}
-
-function activePartNumber() {
-  return routePartNumber() || (loading.value || result.value ? store.partNumberFormat(partNumber.value) : '');
+  return store.partNumberFormat(routeParamText(route, 'pn'));
 }
 
 function localizedRoute(location) {
@@ -250,19 +247,19 @@ function decodeResultCount(payload) {
   return Array.isArray(payload?.candidates) ? payload.candidates.length : 0;
 }
 
-async function decode(syncRoute = true, { recordUsage = true } = {}) {
-  const requestId = ++decodeRequestId;
-  cancelMainRequest();
+function decode() {
   const pn = normalizeInput();
   if (!pn) {
-    loading.value = false;
+    resetLookup('');
     notify(t('alert.missingPartNumber'));
     return;
   }
+  return routeLookup.submit(pn);
+}
+
+async function runLookup(pn, { recordUsage = true } = {}) {
+  const requestId = ++decodeRequestId;
   const controller = beginMainRequest();
-  if (syncRoute && routePartNumber() !== pn) {
-    router.push(partRoute(pn, route));
-  }
   if (store.isAutoHideSoftKeyboard()) {
     input.value?.blur?.();
   }
@@ -426,40 +423,26 @@ function notifyRequestError(err) {
     : t('alert.fetchFailed', [err.message || err]));
 }
 
-function refreshForLanguage() {
-  const pn = activePartNumber();
-  if (!pn) return;
-  partNumber.value = pn;
+function resetLookup(query) {
+  decodeRequestId += 1;
+  cancelMainRequest();
+  loading.value = false;
+  suppressedSuggestionValue = query;
+  partNumber.value = query;
+  result.value = null;
   clearSuggestions();
-  decode(false, { recordUsage: false });
+  if (!query) {
+    focusInput();
+  }
 }
 
-onMounted(() => {
-  const pn = routePartNumber();
-  if (pn) {
-    partNumber.value = pn;
-    decode(false);
-  } else {
-    focusInput();
-  }
+const routeLookup = useRouteLookup({
+  query: routePartNumber,
+  locale,
+  navigate: query => router.push(partRoute(query, route)),
+  reset: resetLookup,
+  run: runLookup
 });
-
-watch(() => route.params.pn, () => {
-  const next = routePartNumber();
-  if (next && next !== partNumber.value) {
-    partNumber.value = next;
-    decode(false);
-  } else if (!next) {
-    decodeRequestId += 1;
-    cancelMainRequest();
-    loading.value = false;
-    partNumber.value = '';
-    result.value = null;
-    clearSuggestions();
-    focusInput();
-  }
-});
-watch(locale, refreshForLanguage);
 
 onBeforeUnmount(() => {
   decodeRequestId += 1;
