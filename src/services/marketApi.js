@@ -14,8 +14,8 @@ const MARKET_LIGHTER_ENDPOINT = import.meta.env.VITE_FLASHMASTER_LIGHTER_ENDPOIN
 const MARKET_LIGHTER_WS_ENDPOINT = import.meta.env.VITE_FLASHMASTER_LIGHTER_WS_ENDPOINT || LIGHTER_WS_URL;
 const MARKET_LIGHTER_ORDER_BOOKS_ENDPOINT = import.meta.env.VITE_FLASHMASTER_LIGHTER_ORDER_BOOKS_ENDPOINT || LIGHTER_ORDER_BOOKS_URL;
 const MARKET_LIGHTER_CANDLE_ENDPOINT = import.meta.env.VITE_FLASHMASTER_LIGHTER_CANDLE_ENDPOINT || LIGHTER_CANDLES_URL;
-const CACHE_KEY = 'flashmaster.marketQuotes.v1';
-const CANDLE_CACHE_KEY_PREFIX = 'flashmaster.marketCandles.v1';
+const CACHE_KEY = 'flashmaster.marketQuotes.v2';
+const CANDLE_CACHE_KEY_PREFIX = 'flashmaster.marketCandles.v2';
 
 export const MARKET_REFRESH_INTERVAL_MS = 10_000;
 export const MARKET_UI_UPDATE_INTERVAL_MS = 2_000;
@@ -30,9 +30,9 @@ const MARKET_QUOTE_PROVIDER_TIMEOUT_MS = 4_000;
 const MARKET_CANDLE_PROVIDER_TIMEOUT_MS = 8_000;
 const MARKET_CATALOG_TIMEOUT_MS = 5_000;
 const MARKET_WS_MAX_RECONNECTS = 3;
-export const MARKET_SOURCE_HYPERLIQUID = 'hyperliquid';
-export const MARKET_SOURCE_LIGHTER = 'lighter';
-export const DEFAULT_MARKET_SOURCE = MARKET_SOURCE_LIGHTER;
+export const MARKET_PROVIDER_HYPERLIQUID = 'hyperliquid';
+export const MARKET_PROVIDER_LIGHTER = 'lighter';
+export const DEFAULT_MARKET_PROVIDER = MARKET_PROVIDER_LIGHTER;
 const MINUTE_MS = 60_000;
 const HOUR_MS = 60 * MINUTE_MS;
 const DAY_MS = 24 * HOUR_MS;
@@ -117,12 +117,61 @@ function readPrice(ctx = {}) {
   return toNumber(ctx.markPx) ?? toNumber(ctx.midPx) ?? toNumber(ctx.oraclePx);
 }
 
-function isLighterSource(source) {
-  return source === MARKET_SOURCE_LIGHTER || source === 'Lighter';
+function isLighterProvider(provider) {
+  return provider === MARKET_PROVIDER_LIGHTER;
 }
 
-function isHyperliquidSource(source) {
-  return source === MARKET_SOURCE_HYPERLIQUID || source === 'HL';
+function isHyperliquidProvider(provider) {
+  return provider === MARKET_PROVIDER_HYPERLIQUID;
+}
+
+function normalizeMarketId(value) {
+  if (value === null || value === undefined || value === '') return null;
+  const marketId = Number(value);
+  return Number.isSafeInteger(marketId) && marketId >= 0 ? marketId : null;
+}
+
+function createHyperliquidMarket(target) {
+  return {
+    key: `${MARKET_PROVIDER_HYPERLIQUID}:${target.asset}`,
+    provider: MARKET_PROVIDER_HYPERLIQUID,
+    instrument: target.asset,
+    asset: target.asset,
+    symbol: target.symbol
+  };
+}
+
+function createLighterMarket(target, marketId, symbol = target.symbol) {
+  const normalizedMarketId = normalizeMarketId(marketId);
+  if (normalizedMarketId === null) return null;
+  return {
+    key: `${MARKET_PROVIDER_LIGHTER}:${normalizedMarketId}`,
+    provider: MARKET_PROVIDER_LIGHTER,
+    instrument: String(normalizedMarketId),
+    asset: target.asset,
+    symbol: String(symbol || target.symbol)
+  };
+}
+
+function isMarketIdentity(market) {
+  if (!market || !targetByAsset.has(market.asset)) return false;
+  if (market.provider === MARKET_PROVIDER_HYPERLIQUID) {
+    return market.instrument === market.asset
+      && market.key === `${MARKET_PROVIDER_HYPERLIQUID}:${market.asset}`;
+  }
+  if (market.provider === MARKET_PROVIDER_LIGHTER) {
+    const marketId = normalizeMarketId(market.instrument);
+    return marketId !== null
+      && market.key === `${MARKET_PROVIDER_LIGHTER}:${marketId}`;
+  }
+  return false;
+}
+
+function requireMarketIdentity(market) {
+  if (!isMarketIdentity(market)) {
+    throw new Error('Invalid market identity');
+  }
+  return market;
 }
 
 export function isAbortError(error, seen = new Set()) {
@@ -139,10 +188,10 @@ export function isAbortError(error, seen = new Set()) {
     || isAbortError(error.cause, seen);
 }
 
-function getAlternateMarketSource(source) {
-  return source === MARKET_SOURCE_LIGHTER
-    ? MARKET_SOURCE_HYPERLIQUID
-    : MARKET_SOURCE_LIGHTER;
+function getAlternateMarketProvider(provider) {
+  return provider === MARKET_PROVIDER_LIGHTER
+    ? MARKET_PROVIDER_HYPERLIQUID
+    : MARKET_PROVIDER_LIGHTER;
 }
 
 function getTargetAssetSymbol(target) {
@@ -188,7 +237,7 @@ function normalizeQuote(target, ctx = {}) {
     previous,
     change,
     changePercent: (change / previous) * 100,
-    source: 'HL',
+    market: createHyperliquidMarket(target),
     updatedAt: Date.now()
   };
 }
@@ -210,7 +259,7 @@ function normalizeWorkerPayload(data) {
         previous: toNumber(item.previous) ?? (changePercent !== 0 ? price / (1 + changePercent / 100) : price),
         change: toNumber(item.change) ?? 0,
         changePercent,
-        source: item.source || 'HL',
+        market: createHyperliquidMarket(target),
         updatedAt: Date.parse(item.updatedAt || item.asOf || '') || Date.now()
       };
     })
@@ -241,10 +290,12 @@ function readLighterPrice(ctx = {}) {
     ?? toNumber(ctx.index_price);
 }
 
-function normalizeLighterQuote(target, ctx = {}) {
+function normalizeLighterQuote(target, ctx = {}, catalogMarket = null) {
   const price = readLighterPrice(ctx);
   const changePercent = toNumber(ctx.daily_price_change);
-  if (price === null || price === 0 || changePercent === null || changePercent === -100) return null;
+  const directMarket = createLighterMarket(target, ctx.market_id, ctx.symbol);
+  const market = directMarket || catalogMarket;
+  if (!market || price === null || price === 0 || changePercent === null || changePercent === -100) return null;
 
   const previous = price / (1 + changePercent / 100);
   if (!Number.isFinite(previous) || previous === 0) return null;
@@ -257,9 +308,7 @@ function normalizeLighterQuote(target, ctx = {}) {
     previous,
     change: price - previous,
     changePercent,
-    source: 'Lighter',
-    sourceSymbol: ctx.symbol,
-    sourceMarketId: Number.isFinite(Number(ctx.market_id)) ? Number(ctx.market_id) : null,
+    market,
     updatedAt: Number.isFinite(Number(ctx.timestamp)) ? Number(ctx.timestamp) : Date.now()
   };
 }
@@ -270,7 +319,7 @@ function lighterQuoteScore(ctx = {}, priority = 0) {
   return (price ? 1_000_000_000 : 0) + (100 - priority) * 1_000_000 + volume;
 }
 
-function normalizeLighterPayload(data) {
+function normalizeLighterPayload(data, marketByAsset = lighterMarketCatalog) {
   const stats = Array.isArray(data?.order_book_stats)
     ? data.order_book_stats
     : Object.values(data?.market_stats || {});
@@ -281,7 +330,7 @@ function normalizeLighterPayload(data) {
     const entry = targetByLighterSymbol.get(String(ctx?.symbol || '').toUpperCase());
     if (!entry) return;
 
-    const quote = normalizeLighterQuote(entry.target, ctx);
+    const quote = normalizeLighterQuote(entry.target, ctx, marketByAsset?.get(entry.target.asset));
     if (!quote) return;
 
     const score = lighterQuoteScore(ctx, entry.priority);
@@ -389,7 +438,7 @@ function applyMidsToQuotes(currentItems, mids) {
         previous,
         change,
         changePercent: previous ? (change / previous) * 100 : 0,
-        source: 'HL',
+        market: createHyperliquidMarket(target),
         updatedAt: Date.now()
       };
     })
@@ -418,17 +467,16 @@ function cacheQuotes(items) {
   }
 }
 
-function sourceCacheKey(source) {
-  return String(source || 'default').toLowerCase();
+function candleCacheKey(market, interval, rangeKey) {
+  return `${CANDLE_CACHE_KEY_PREFIX}:${market.key}:${rangeKey || interval}:${interval}`;
 }
 
-function candleCacheKey(asset, interval, rangeKey, source) {
-  return `${CANDLE_CACHE_KEY_PREFIX}:${sourceCacheKey(source)}:${asset}:${rangeKey || interval}:${interval}`;
-}
-
-function cacheCandles(asset, interval, rangeKey, items, source) {
+function cacheCandleSnapshot(snapshot, interval, rangeKey) {
   try {
-    localStorage.setItem(candleCacheKey(asset, interval, rangeKey, source), JSON.stringify({ items, cachedAt: Date.now() }));
+    localStorage.setItem(
+      candleCacheKey(snapshot.market, interval, rangeKey),
+      JSON.stringify({ ...snapshot, cachedAt: Date.now() })
+    );
   } catch {
     // Non-critical: expanded market charts can fetch fresh candles later.
   }
@@ -438,24 +486,39 @@ export function loadCachedMarketQuotes(maxAgeMs = 5 * 60_000) {
   try {
     const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
     if (!cached || Date.now() - Number(cached.cachedAt || 0) > maxAgeMs) return [];
-    return Array.isArray(cached.items) ? cached.items : [];
+    return Array.isArray(cached.items)
+      ? cached.items.filter(item => isMarketIdentity(item?.market))
+      : [];
   } catch {
     return [];
   }
 }
 
-export function loadCachedMarketCandles(asset, interval, rangeKey, source, maxAgeMs = MARKET_CANDLE_CACHE_INTERVAL_MS) {
+export function loadCachedMarketCandles(market, interval, rangeKey, maxAgeMs = MARKET_CANDLE_CACHE_INTERVAL_MS) {
+  if (!isMarketIdentity(market)) return null;
   try {
-    const cached = JSON.parse(localStorage.getItem(candleCacheKey(asset, interval, rangeKey, source)) || 'null');
-    if (!cached || Date.now() - Number(cached.cachedAt || 0) > maxAgeMs) return [];
-    return Array.isArray(cached.items) ? cached.items : [];
+    const cached = JSON.parse(localStorage.getItem(candleCacheKey(market, interval, rangeKey)) || 'null');
+    if (
+      !cached
+      || cached.marketKey !== market.key
+      || Date.now() - Number(cached.cachedAt || 0) > maxAgeMs
+      || !Array.isArray(cached.items)
+    ) return null;
+    return {
+      market,
+      marketKey: market.key,
+      items: cached.items
+    };
   } catch {
-    return [];
+    return null;
   }
 }
 
 export async function fetchMarketQuotes(options = {}) {
-  const preferLighter = isLighterSource(options.source) || !isHyperliquidSource(options.source);
+  const provider = isHyperliquidProvider(options.provider)
+    ? MARKET_PROVIDER_HYPERLIQUID
+    : DEFAULT_MARKET_PROVIDER;
+  const preferLighter = isLighterProvider(provider);
   const fetchPrimary = preferLighter ? fetchLighterMarketQuotes : fetchConfiguredMarketQuotes;
   const fetchFallback = preferLighter ? fetchConfiguredMarketQuotes : fetchLighterMarketQuotes;
 
@@ -511,17 +574,20 @@ async function fetchConfiguredMarketQuotes(options = {}) {
 }
 
 async function fetchLighterMarketQuotes(options = {}) {
-  const response = await fetch(MARKET_LIGHTER_ENDPOINT, {
-    method: 'GET',
-    headers: { Accept: 'application/json' },
-    signal: options.signal
-  });
+  const [response, marketByAsset] = await Promise.all([
+    fetch(MARKET_LIGHTER_ENDPOINT, {
+      method: 'GET',
+      headers: { Accept: 'application/json' },
+      signal: options.signal
+    }),
+    loadLighterMarketCatalog({ signal: options.signal })
+  ]);
 
   if (!response.ok) {
     throw new Error(`${response.status} ${response.statusText}`);
   }
 
-  const items = normalizeLighterPayload(await response.json());
+  const items = normalizeLighterPayload(await response.json(), marketByAsset);
   if (!items.length) {
     throw new Error('No Lighter market data');
   }
@@ -531,7 +597,8 @@ async function fetchLighterMarketQuotes(options = {}) {
   return items;
 }
 
-export async function fetchMarketCandles(asset, options = {}) {
+export async function fetchMarketCandles(marketInput, options = {}) {
+  const market = requireMarketIdentity(marketInput);
   const interval = options.interval;
   if (!interval) {
     throw new Error('Missing candle interval');
@@ -540,15 +607,24 @@ export async function fetchMarketCandles(asset, options = {}) {
   const maxCandles = options.maxCandles || MARKET_CANDLE_MAX_POINTS;
   const endTime = options.endTime || Date.now();
   const startTime = options.startTime || getMarketCandleWindow(rangeKey, endTime).startTime;
-  const cached = options.cache === false ? [] : loadCachedMarketCandles(asset, interval, rangeKey, options.source, options.maxAgeMs);
-  if (cached.length) return cached;
+  const cached = options.cache === false
+    ? null
+    : loadCachedMarketCandles(market, interval, rangeKey, options.maxAgeMs);
+  if (cached) return cached;
 
-  const preferLighter = isLighterSource(options.source) || !isHyperliquidSource(options.source);
-  const fetchPrimary = preferLighter ? fetchLighterMarketCandles : fetchHyperliquidMarketCandles;
-  const fetchFallback = preferLighter ? fetchHyperliquidMarketCandles : fetchLighterMarketCandles;
-
-  const fetchProvider = provider => runWithRequestTimeout(
-    signal => provider(asset, { ...options, signal }),
+  const fetchProvider = isLighterProvider(market.provider)
+    ? fetchLighterMarketCandles
+    : fetchHyperliquidMarketCandles;
+  const items = await runWithRequestTimeout(
+    signal => fetchProvider(market, {
+      ...options,
+      signal,
+      interval,
+      rangeKey,
+      maxCandles,
+      endTime,
+      startTime
+    }),
     {
       signal: options.signal,
       timeoutMs: options.timeoutMs ?? MARKET_CANDLE_PROVIDER_TIMEOUT_MS,
@@ -556,45 +632,63 @@ export async function fetchMarketCandles(asset, options = {}) {
     }
   );
 
-  let items;
-  try {
-    items = await fetchProvider((targetAsset, providerOptions) => fetchPrimary(targetAsset, {
-      ...providerOptions,
-      interval,
-      rangeKey,
-      maxCandles,
-      endTime,
-      startTime
-    }));
-  } catch (primaryError) {
-    if (isAbortError(primaryError)) throw primaryError;
-    if (options.fallback === false) throw primaryError;
-    try {
-      items = await fetchProvider((targetAsset, providerOptions) => fetchFallback(targetAsset, {
-        ...providerOptions,
-        interval,
-        rangeKey,
-        maxCandles,
-        endTime,
-        startTime
-      }));
-    } catch (fallbackError) {
-      if (isAbortError(fallbackError)) throw fallbackError;
-      const message = [
-        primaryError?.message || String(primaryError),
-        `Fallback candles: ${fallbackError?.message || String(fallbackError)}`
-      ].join('; ');
-      throw new Error(message, { cause: fallbackError });
-    }
-  }
+  const snapshot = {
+    market,
+    marketKey: market.key,
+    items
+  };
 
   if (options.cache !== false) {
-    cacheCandles(asset, interval, rangeKey, items, options.source);
+    cacheCandleSnapshot(snapshot, interval, rangeKey);
   }
-  return items;
+  return snapshot;
 }
 
-async function fetchHyperliquidMarketCandles(asset, options = {}) {
+export function mergeMarketQuoteIntoCandleSnapshot(snapshot, quote, interval, now = Date.now()) {
+  if (
+    !snapshot
+    || !Array.isArray(snapshot.items)
+    || !isMarketIdentity(snapshot.market)
+    || !isMarketIdentity(quote?.market)
+    || snapshot.market.key !== snapshot.marketKey
+    || snapshot.marketKey !== quote.market.key
+  ) return snapshot;
+
+  const price = Number(quote.price);
+  if (!Number.isFinite(price) || price <= 0 || !snapshot.items.length) return snapshot;
+
+  const bucketSize = intervalToMs(interval) / 1000;
+  const bucket = Math.floor(now / 1000 / bucketSize) * bucketSize;
+  const last = snapshot.items.at(-1);
+  const lastTime = Number(last?.time);
+  if (Number.isFinite(lastTime) && lastTime > bucket) return snapshot;
+
+  const next = last && lastTime === bucket
+    ? {
+        ...last,
+        high: Math.max(last.high, price),
+        low: Math.min(last.low, price),
+        close: price
+      }
+    : {
+        time: bucket,
+        open: last?.close ?? price,
+        high: price,
+        low: price,
+        close: price,
+        volume: 0
+      };
+  const items = last && lastTime === bucket
+    ? [...snapshot.items.slice(0, -1), next]
+    : [...snapshot.items, next].slice(-MARKET_CANDLE_MAX_POINTS);
+
+  return {
+    ...snapshot,
+    items
+  };
+}
+
+async function fetchHyperliquidMarketCandles(market, options = {}) {
   const interval = options.interval;
   const maxCandles = options.maxCandles || MARKET_CANDLE_MAX_POINTS;
   const endTime = options.endTime || Date.now();
@@ -605,7 +699,7 @@ async function fetchHyperliquidMarketCandles(asset, options = {}) {
     body: JSON.stringify({
       type: 'candleSnapshot',
       req: {
-        coin: asset,
+        coin: market.instrument,
         interval,
         startTime,
         endTime
@@ -676,10 +770,8 @@ async function loadLighterMarketCatalog(options = {}) {
             .map(symbol => bookBySymbol.get(symbol))
             .find(item => item && item.status !== 'inactive');
           if (book) {
-            marketByAsset.set(target.asset, {
-              marketId: Number(book.market_id),
-              symbol: book.symbol
-            });
+            const market = createLighterMarket(target, book.market_id, book.symbol);
+            if (market) marketByAsset.set(target.asset, market);
           }
         });
         lighterMarketCatalog = marketByAsset;
@@ -695,26 +787,10 @@ async function loadLighterMarketCatalog(options = {}) {
   return waitForPromise(lighterMarketCatalogPromise, options.signal);
 }
 
-async function fetchLighterMarketCandles(asset, options = {}) {
-  const target = targetByAsset.get(asset);
-  if (!target) {
-    throw new Error('No Lighter market mapping');
-  }
-
-  const directMarketId = Number(options.marketId);
-  const marketByAsset = Number.isFinite(directMarketId)
-    ? null
-    : await loadLighterMarketCatalog({ signal: options.signal });
-  const market = Number.isFinite(directMarketId)
-    ? { marketId: directMarketId }
-    : marketByAsset.get(target.asset);
-  if (!market || !Number.isFinite(market.marketId)) {
-    throw new Error('No Lighter market mapping');
-  }
-
+async function fetchLighterMarketCandles(market, options = {}) {
   const maxCandles = Math.min(options.maxCandles || MARKET_CANDLE_MAX_POINTS, 500);
   const params = new URLSearchParams({
-    market_id: String(market.marketId),
+    market_id: market.instrument,
     resolution: options.interval,
     start_timestamp: String(Math.floor(options.startTime / 1000)),
     end_timestamp: String(Math.floor(options.endTime / 1000)),
@@ -766,9 +842,9 @@ export function subscribeMarketQuotes({
   let lastSocketProcessAt = 0;
   let lastSocketMessageAt = 0;
   let socketStreaming = false;
-  let socketSource = isHyperliquidSource(providerState.source)
-    ? MARKET_SOURCE_HYPERLIQUID
-    : MARKET_SOURCE_LIGHTER;
+  let socketProvider = isHyperliquidProvider(providerState.provider)
+    ? MARKET_PROVIDER_HYPERLIQUID
+    : DEFAULT_MARKET_PROVIDER;
   let providerSwitchUsed = providerState.switchUsed === true;
   let socketReconnectAttempts = Math.max(0, Math.min(
     MARKET_WS_MAX_RECONNECTS,
@@ -778,14 +854,14 @@ export function subscribeMarketQuotes({
 
   const publishProviderState = () => {
     onProviderStateChange?.({
-      source: socketSource,
+      provider: socketProvider,
       switchUsed: providerSwitchUsed,
       reconnectAttempts: socketReconnectAttempts
     });
   };
 
   const hasLiveSocketMids = () => {
-    return socketSource === MARKET_SOURCE_HYPERLIQUID
+    return socketProvider === MARKET_PROVIDER_HYPERLIQUID
       && socketStreaming
       && latestMids
       && Date.now() - lastSocketMessageAt <= MARKET_SOCKET_STALE_MS;
@@ -909,7 +985,7 @@ export function subscribeMarketQuotes({
     stopped = true;
     publishProviderState();
     stopAllActivity();
-    const provider = socketSource === MARKET_SOURCE_LIGHTER ? 'Lighter' : 'Hyperliquid';
+    const provider = socketProvider === MARKET_PROVIDER_LIGHTER ? 'Lighter' : 'Hyperliquid';
     onError?.(new Error(`${provider}: ${error?.message || 'Market provider unavailable.'}`, { cause: error }));
   };
 
@@ -922,7 +998,7 @@ export function subscribeMarketQuotes({
 
     providerSwitchUsed = true;
     socketReconnectAttempts = 0;
-    socketSource = getAlternateMarketSource(socketSource);
+    socketProvider = getAlternateMarketProvider(socketProvider);
     window.clearTimeout(reconnectTimer);
     reconnectTimer = undefined;
     stopFallback();
@@ -930,11 +1006,11 @@ export function subscribeMarketQuotes({
     closeCurrentSocket();
     publishProviderState();
     refreshSnapshot({ reason: 'switch' });
-    connectWebSocket(socketSource);
+    connectWebSocket(socketProvider);
   };
 
   const refreshSnapshot = async ({ reason = 'context' } = {}) => {
-    const source = socketSource;
+    const provider = socketProvider;
     const isFallback = reason === 'fallback';
     const controller = new AbortController();
     if (isFallback) {
@@ -950,9 +1026,9 @@ export function subscribeMarketQuotes({
         cache: false,
         fallback: false,
         signal: controller.signal,
-        source
+        provider
       });
-      if (stopped || controller.signal.aborted || source !== socketSource) return;
+      if (stopped || controller.signal.aborted || provider !== socketProvider) return;
 
       const hasLiveSocket = hasLiveSocketMids();
       if (isFallback && hasLiveSocket) return;
@@ -964,7 +1040,7 @@ export function subscribeMarketQuotes({
         forceCache: true
       });
     } catch (err) {
-      if (isAbortError(err) || stopped || source !== socketSource) return;
+      if (isAbortError(err) || stopped || provider !== socketProvider) return;
       if (!('WebSocket' in window)) {
         switchProviderOrFail(err);
       }
@@ -984,24 +1060,24 @@ export function subscribeMarketQuotes({
     fallbackTimer = window.setInterval(() => refreshSnapshot({ reason: 'fallback' }), MARKET_REFRESH_INTERVAL_MS);
   };
 
-  const scheduleReconnect = source => {
+  const scheduleReconnect = provider => {
     if (stopped) return;
     window.clearTimeout(reconnectTimer);
     reconnectTimer = window.setTimeout(() => {
       reconnectTimer = undefined;
-      if (!stopped && source === socketSource) {
-        connectWebSocket(source);
+      if (!stopped && provider === socketProvider) {
+        connectWebSocket(provider);
       }
     }, MARKET_RECONNECT_DELAY_MS);
   };
 
-  const handleConnectionFailure = (source, error) => {
-    if (stopped || source !== socketSource) return;
+  const handleConnectionFailure = (provider, error) => {
+    if (stopped || provider !== socketProvider) return;
     startFallback();
     if (socketReconnectAttempts < MARKET_WS_MAX_RECONNECTS) {
       socketReconnectAttempts += 1;
       publishProviderState();
-      scheduleReconnect(source);
+      scheduleReconnect(provider);
       return;
     }
     switchProviderOrFail(error);
@@ -1055,27 +1131,27 @@ export function subscribeMarketQuotes({
         // Malformed frames do not count as healthy data; the watchdog handles a stalled stream.
       }
     }
-    if (queued.source === MARKET_SOURCE_HYPERLIQUID) {
+    if (queued.provider === MARKET_PROVIDER_HYPERLIQUID) {
       const message = messages.at(-1);
       if (message?.channel === 'allMids') {
         handleMids(message.data?.mids || message.data || {});
       }
     }
-    if (queued.source === MARKET_SOURCE_LIGHTER) {
+    if (queued.provider === MARKET_PROVIDER_LIGHTER) {
       handleLighterStats(messages.filter(message => String(message.channel || '').startsWith('market_stats')));
     }
   };
 
-  const queueSocketData = (raw, source) => {
-    const marker = source === MARKET_SOURCE_LIGHTER ? '"market_stats"' : '"allMids"';
+  const queueSocketData = (raw, provider) => {
+    const marker = provider === MARKET_PROVIDER_LIGHTER ? '"market_stats"' : '"allMids"';
     if (!String(raw).includes(marker)) return false;
-    if (source === MARKET_SOURCE_LIGHTER) {
-      if (!queuedSocketData || queuedSocketData.source !== source) {
-        queuedSocketData = { raws: [], source };
+    if (provider === MARKET_PROVIDER_LIGHTER) {
+      if (!queuedSocketData || queuedSocketData.provider !== provider) {
+        queuedSocketData = { raws: [], provider };
       }
       queuedSocketData.raws.push(String(raw));
     } else {
-      queuedSocketData = { raws: [String(raw)], source };
+      queuedSocketData = { raws: [String(raw)], provider };
     }
     const waitMs = Math.max(0, MARKET_UI_UPDATE_INTERVAL_MS - (Date.now() - lastSocketProcessAt));
     if (waitMs === 0) {
@@ -1108,8 +1184,8 @@ export function subscribeMarketQuotes({
     recoverActiveConnection(new Error('Market WebSocket stream timed out.'));
   };
 
-  function connectWebSocket(source = socketSource) {
-    if (stopped || source !== socketSource) return;
+  function connectWebSocket(provider = socketProvider) {
+    if (stopped || provider !== socketProvider) return;
     if (!('WebSocket' in window)) {
       startFallback();
       return;
@@ -1119,7 +1195,7 @@ export function subscribeMarketQuotes({
     socketStreaming = false;
     lastSocketMessageAt = 0;
     clearQueuedSocketData();
-    const isLighterSocket = source === MARKET_SOURCE_LIGHTER;
+    const isLighterSocket = provider === MARKET_PROVIDER_LIGHTER;
     const socketUrl = isLighterSocket ? MARKET_LIGHTER_WS_ENDPOINT : MARKET_WS_ENDPOINT;
     let connection;
 
@@ -1127,7 +1203,7 @@ export function subscribeMarketQuotes({
       connection = new WebSocket(socketUrl);
       socket = connection;
     } catch (err) {
-      handleConnectionFailure(source, err);
+      handleConnectionFailure(provider, err);
       return;
     }
 
@@ -1150,7 +1226,7 @@ export function subscribeMarketQuotes({
       } catch {
         // Recovery continues through the bounded reconnect state machine.
       }
-      handleConnectionFailure(source, error || new Error('Market WebSocket closed.'));
+      handleConnectionFailure(provider, error || new Error('Market WebSocket closed.'));
     };
     recoverActiveConnection = recoverConnection;
 
@@ -1191,7 +1267,7 @@ export function subscribeMarketQuotes({
 
     connection.addEventListener('message', event => {
       if (socket !== connection) return;
-      if (queueSocketData(event.data, source)) {
+      if (queueSocketData(event.data, provider)) {
         hasReceivedSocketData = true;
       }
     });
@@ -1210,7 +1286,7 @@ export function subscribeMarketQuotes({
     emit(currentItems, { immediate: true });
   }
   refreshSnapshot({ reason: 'initial' });
-  connectWebSocket(socketSource);
+  connectWebSocket(socketProvider);
   socketWatchdogTimer = window.setInterval(restartStaleSocket, MARKET_SOCKET_WATCHDOG_INTERVAL_MS);
   refreshContextTimer = window.setInterval(() => refreshSnapshot({ reason: 'context' }), 5 * 60_000);
 

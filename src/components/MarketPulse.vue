@@ -71,7 +71,7 @@ import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 import MarketPulseChart from '@/components/MarketPulseChart.vue';
 import { trackMarketPulseEvent } from '@/services/analytics';
-import { DEFAULT_MARKET_SOURCE, loadCachedMarketQuotes, subscribeMarketQuotes } from '@/services/marketApi';
+import { DEFAULT_MARKET_PROVIDER, loadCachedMarketQuotes, subscribeMarketQuotes } from '@/services/marketApi';
 
 const emit = defineEmits(['close']);
 const route = useRoute();
@@ -111,7 +111,7 @@ let suppressNextClick = false;
 let lastViewportWidth = 0;
 let lastQuoteSignature = createQuoteSignature(quotes.value);
 let marketProviderState = {
-  source: DEFAULT_MARKET_SOURCE,
+  provider: DEFAULT_MARKET_PROVIDER,
   switchUsed: false,
   reconnectAttempts: 0
 };

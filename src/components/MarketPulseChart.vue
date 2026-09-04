@@ -44,12 +44,12 @@ import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import {
   DEFAULT_MARKET_CANDLE_RANGE,
-  MARKET_CANDLE_MAX_POINTS,
   fetchMarketCandles,
   getMarketCandleRange,
   getMarketCandleWindow,
   isAbortError,
-  loadCachedMarketCandles
+  loadCachedMarketCandles,
+  mergeMarketQuoteIntoCandleSnapshot
 } from '@/services/marketApi';
 
 const props = defineProps({
@@ -65,12 +65,13 @@ const { locale, t } = useI18n();
 const chartRoot = ref(null);
 const activeRangeKey = ref(DEFAULT_MARKET_CANDLE_RANGE);
 const activeRange = computed(() => getMarketCandleRange(activeRangeKey.value));
-const candles = ref(loadCachedMarketCandles(
-  props.item.asset,
+const initialCandleSnapshot = loadCachedMarketCandles(
+  props.item.market,
   activeRange.value.interval,
-  activeRange.value.key,
-  props.item.source
-));
+  activeRange.value.key
+);
+const candles = ref(initialCandleSnapshot?.items || []);
+const candleMarketKey = ref(initialCandleSnapshot?.marketKey || '');
 const activeCandle = ref(candles.value.at(-1) || null);
 const loading = ref(false);
 const error = ref('');
@@ -216,58 +217,34 @@ function renderCandles() {
   })));
   activeCandle.value = candles.value.at(-1) || null;
   chart.timeScale().fitContent();
-  updateLivePrice(props.item.price);
+  updateLivePrice(props.item);
 }
 
 function clearCandles() {
   candles.value = [];
+  candleMarketKey.value = '';
   activeCandle.value = null;
   hoveredCandleTime = null;
   candleSeries?.setData([]);
   volumeSeries?.setData([]);
 }
 
-function intervalSeconds(interval) {
-  const value = Number.parseInt(interval, 10);
-  if (!Number.isFinite(value)) return 3600;
-  if (interval.endsWith('m')) return value * 60;
-  if (interval.endsWith('h')) return value * 3600;
-  if (interval.endsWith('d')) return value * 86_400;
-  if (interval.endsWith('w')) return value * 604_800;
-  return 3600;
-}
+function updateLivePrice(item) {
+  const currentSnapshot = {
+    market: item.market,
+    marketKey: candleMarketKey.value,
+    items: candles.value
+  };
+  const nextSnapshot = mergeMarketQuoteIntoCandleSnapshot(
+    currentSnapshot,
+    item,
+    activeRange.value.interval
+  );
+  if (nextSnapshot === currentSnapshot) return;
 
-function updateLivePrice(value) {
-  const price = Number(value);
-  if (!Number.isFinite(price) || price <= 0 || !candles.value.length) return;
-
-  const bucketSize = intervalSeconds(activeRange.value.interval);
-  const bucket = Math.floor(Date.now() / 1000 / bucketSize) * bucketSize;
-  const last = candles.value.at(-1);
-  const lastTime = Number(last?.time);
-  if (Number.isFinite(lastTime) && lastTime > bucket) return;
-
-  const next = last && lastTime === bucket
-    ? {
-        ...last,
-        high: Math.max(last.high, price),
-        low: Math.min(last.low, price),
-        close: price
-      }
-    : {
-        time: bucket,
-        open: last?.close ?? price,
-        high: price,
-        low: price,
-        close: price,
-        volume: 0
-      };
-
-  if (last && lastTime === bucket) {
-    candles.value[candles.value.length - 1] = next;
-  } else {
-    candles.value = [...candles.value, next].slice(-MARKET_CANDLE_MAX_POINTS);
-  }
+  candles.value = nextSnapshot.items;
+  candleMarketKey.value = nextSnapshot.marketKey;
+  const next = candles.value.at(-1);
 
   candleSeries?.update({
     time: next.time,
@@ -282,7 +259,7 @@ function updateLivePrice(value) {
     color: next.close >= next.open ? 'rgba(0, 179, 134, 0.26)' : 'rgba(255, 91, 107, 0.26)'
   });
 
-  if (hoveredCandleTime === null || hoveredCandleTime === lastTime || hoveredCandleTime === bucket) {
+  if (hoveredCandleTime === null || hoveredCandleTime === next.time) {
     activeCandle.value = next;
   }
 }
@@ -310,19 +287,17 @@ async function loadCandles({ silent = false } = {}) {
 
   try {
     const { range, startTime, endTime, maxCandles } = getMarketCandleWindow(activeRangeKey.value);
-    const items = await fetchMarketCandles(props.item.asset, {
+    const snapshot = await fetchMarketCandles(props.item.market, {
       interval: range.interval,
       rangeKey: range.key,
       startTime,
       endTime,
       maxCandles,
-      fallback: false,
-      marketId: props.item.sourceMarketId,
-      source: props.item.source,
       signal: requestController.signal
     });
     if (currentRequestId !== requestId) return;
-    candles.value = items;
+    candles.value = snapshot.items;
+    candleMarketKey.value = snapshot.marketKey;
     await nextTick();
     await ensureChart();
     renderCandles();
@@ -339,13 +314,14 @@ async function loadCandles({ silent = false } = {}) {
 
 async function loadCachedRange() {
   const range = activeRange.value;
-  const cached = loadCachedMarketCandles(props.item.asset, range.interval, range.key, props.item.source);
-  if (!cached.length) {
+  const cached = loadCachedMarketCandles(props.item.market, range.interval, range.key);
+  if (!cached) {
     clearCandles();
     return false;
   }
-  candles.value = cached;
-  activeCandle.value = cached.at(-1) || null;
+  candles.value = cached.items;
+  candleMarketKey.value = cached.marketKey;
+  activeCandle.value = cached.items.at(-1) || null;
   await nextTick();
   await ensureChart();
   renderCandles();
@@ -369,11 +345,11 @@ onUnmounted(() => {
 });
 
 watch(() => props.item.price, (price, previousPrice) => {
-  updateLivePrice(price);
+  updateLivePrice(props.item);
   flashLivePrice(Number(price), Number(previousPrice));
 });
 
-watch(() => props.item.asset, () => {
+watch(() => props.item.market?.key, () => {
   hoveredCandleTime = null;
   loadCachedRange().then(hasCachedRange => {
     loadCandles({ silent: hasCachedRange });
