@@ -91,8 +91,6 @@ export default {
             defaultControllerGroups: '默认控制器分组',
             partNumberDecoders: '料号解码器',
             identifierDecoders: 'ID 解码器',
-            more: '展开 {0} 项',
-            collapse: '收起',
             partDecode: '料号解析',
             partSearch: '料号搜索',
             flashIdDecode: 'Flash ID 解析',

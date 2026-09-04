@@ -91,8 +91,6 @@ export default {
             defaultControllerGroups: 'Default Controller Groups',
             partNumberDecoders: 'PN Decoders',
             identifierDecoders: 'ID Decoders',
-            more: 'Show {0} more',
-            collapse: 'Collapse',
             partDecode: 'Part Decode',
             partSearch: 'Part Search',
             flashIdDecode: 'Flash ID Decode',

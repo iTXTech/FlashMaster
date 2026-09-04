@@ -51,14 +51,12 @@
               <span v-for="item in visibleControllerItems(group)" :key="item" class="capability-controller-chip">{{ item }}</span>
               <span v-if="!controllerItemsFor(group).length" class="capability-controller-chip">-</span>
             </div>
-            <button
+            <ExpandCollapseButton
               v-if="canExpandControllerGroup(group)"
-              class="capability-list-more"
-              type="button"
-              @click="toggleExpansion(controllerExpansionKey(group))"
-            >
-              {{ expansionLabel(controllerExpansionKey(group), controllerHiddenCount(group)) }}
-            </button>
+              :expanded="isExpanded(controllerExpansionKey(group))"
+              :hidden-count="controllerHiddenCount(group)"
+              @toggle="toggleExpansion(controllerExpansionKey(group))"
+            />
           </div>
         </div>
 
@@ -75,14 +73,12 @@
               <div v-for="item in visibleFlatControllerItems" :key="item" class="capability-list-item">
                 <span>{{ item }}</span>
               </div>
-              <button
+              <ExpandCollapseButton
                 v-if="controllerItems.length > flatControllerLimit"
-                class="capability-list-more"
-                type="button"
-                @click="toggleExpansion('controller:all')"
-              >
-                {{ expansionLabel('controller:all', hiddenItemCount(controllerItems, 'controller:all', flatControllerLimit)) }}
-              </button>
+                :expanded="isExpanded('controller:all')"
+                :hidden-count="hiddenItemCount(controllerItems, 'controller:all', flatControllerLimit)"
+                @toggle="toggleExpansion('controller:all')"
+              />
             </div>
           </div>
         </div>
@@ -128,14 +124,12 @@
                 <em v-if="decoderMeta(item)">{{ decoderMeta(item) }}</em>
               </div>
               <div v-if="!group.items.length">-</div>
-              <button
+              <ExpandCollapseButton
                 v-if="group.items.length > decoderLimit"
-                class="capability-list-more"
-                type="button"
-                @click="toggleExpansion(group.key)"
-              >
-                {{ expansionLabel(group.key, hiddenItemCount(group.items, group.key, decoderLimit)) }}
-              </button>
+                :expanded="isExpanded(group.key)"
+                :hidden-count="hiddenItemCount(group.items, group.key, decoderLimit)"
+                @toggle="toggleExpansion(group.key)"
+              />
             </div>
           </div>
         </div>
@@ -149,6 +143,7 @@
 <script setup>
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import ExpandCollapseButton from '@/components/ExpandCollapseButton.vue';
 import { chipLabel } from '@/services/fdnextResultView';
 
 const props = defineProps({
@@ -252,12 +247,6 @@ function visibleItems(items, key, limit) {
 
 function hiddenItemCount(items, key, limit, count = items.length) {
   return Math.max(0, count - visibleItems(items, key, limit).length);
-}
-
-function expansionLabel(key, hiddenCount) {
-  return isExpanded(key)
-    ? t('settings.capabilityInfo.collapse')
-    : t('settings.capabilityInfo.more', [formatCount(hiddenCount)]);
 }
 
 function controllerGroupTitle(group) {

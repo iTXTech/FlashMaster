@@ -19,24 +19,18 @@
         <span>{{ item }}</span>
       </component>
     </div>
-    <v-btn
+    <ExpandCollapseButton
       v-if="hasMore"
-      class="expandable-cell-toggle"
-      density="compact"
-      size="x-small"
-      variant="text"
-      :prepend-icon="expanded ? 'mdi-chevron-up' : 'mdi-chevron-down'"
-      :aria-expanded="expanded"
-      @click="expanded = !expanded"
-    >
-      {{ toggleLabel }}
-    </v-btn>
+      :expanded="expanded"
+      :hidden-count="hiddenCount"
+      @toggle="expanded = !expanded"
+    />
   </div>
 </template>
 
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
-import { useI18n } from 'vue-i18n';
+import ExpandCollapseButton from '@/components/ExpandCollapseButton.vue';
 
 const props = defineProps({
   items: {
@@ -66,7 +60,6 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['select']);
-const { t } = useI18n();
 const itemsRoot = ref(null);
 const rowCapacity = ref(0);
 const expanded = ref(false);
@@ -83,7 +76,6 @@ const visibleItems = computed(() => expanded.value ? normalizedItems.value : nor
 const hiddenCount = computed(() => Math.max(0, normalizedItems.value.length - collapsedLimit.value));
 const hasMore = computed(() => normalizedItems.value.length > collapsedLimit.value);
 const hasLongList = computed(() => normalizedItems.value.length > 16);
-const toggleLabel = computed(() => expanded.value ? t('collapseItems') : t('showMoreItems', [hiddenCount.value]));
 
 function selectItem(item) {
   if (props.clickable) emit('select', item);
