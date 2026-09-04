@@ -1,7 +1,7 @@
 <template>
-  <div class="metric-grid" :style="gridStyle">
-    <div v-for="item in normalizedItems" :key="item.label" class="metric">
-      <div class="metric-label">{{ item.label }}</div>
+  <div class="metric-grid" :class="{ 'metric-grid--stacked': normalizedItems.length <= 3 && normalizedItems.some(item => item.long) }">
+    <div v-for="item in normalizedItems" :key="item.key || item.label" class="metric" :class="{ 'metric--long': item.long }">
+      <div v-if="!(hideSingleLabel && normalizedItems.length === 1)" class="metric-label">{{ item.label }}</div>
       <div class="metric-value">
         <ExpandableListCell
           v-if="item.items.length > 0"
@@ -28,6 +28,10 @@ const props = defineProps({
     type: Array,
     default: () => []
   },
+  hideSingleLabel: {
+    type: Boolean,
+    default: false
+  },
   emptyValue: {
     type: String,
     default: '-'
@@ -51,22 +55,10 @@ const props = defineProps({
 });
 
 const normalizedItems = computed(() => props.items.map(item => ({
+  key: item.key,
   label: item.label,
   value: displayValue(item.value, props.emptyValue),
-  items: Array.isArray(item.items) ? item.items : []
+  items: Array.isArray(item.items) ? item.items : [],
+  long: /voltage|package/.test(item.key || '') || String(item.value ?? '').length > 32
 })));
-
-function wideColumnCount(count) {
-  return count <= 10 ? count : Math.ceil(count / 2);
-}
-
-function balancedColumnCount(count) {
-  return count <= 6 ? count : Math.ceil(count / 2);
-}
-
-const gridStyle = computed(() => ({
-  '--metric-column-count': String(Math.max(1, wideColumnCount(normalizedItems.value.length))),
-  '--metric-balanced-column-count': String(Math.max(1, balancedColumnCount(normalizedItems.value.length))),
-  '--metric-compact-column-count': String(Math.max(1, Math.min(normalizedItems.value.length, 4)))
-}));
 </script>

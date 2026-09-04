@@ -5,7 +5,7 @@
         <div>
           <div class="panel-title">{{ $t('changelog.title') }}</div>
         </div>
-        <v-btn icon="mdi-close" variant="text" @click="close" />
+        <v-btn icon="mdi-close" :aria-label="$t('close')" variant="text" @click="close" />
       </div>
 
       <div class="panel-body changelog-body">

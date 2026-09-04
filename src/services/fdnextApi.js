@@ -11,6 +11,7 @@ let workerDisabled = false;
 let workerFailure;
 let workerRequestId = 0;
 const workerRequests = new Map();
+let activeWorkerRequestId;
 
 async function getMainEngineApi() {
   if (!mainEngineApiPromise) {
@@ -22,6 +23,10 @@ async function getMainEngineApi() {
 async function runMainEngineOperation(operation, payload) {
   const api = await getMainEngineApi();
   return api[operation](payload);
+}
+
+function abortError(signal) {
+  return signal?.reason || Object.assign(new Error('Request aborted.'), { name: 'AbortError' });
 }
 
 function currentLang() {
@@ -52,9 +57,11 @@ function workerOperationError(error) {
 function rejectWorkerRequests(error) {
   for (const [id, request] of workerRequests.entries()) {
     clearTimeout(request.timeout);
+    request.cleanup();
     request.reject(error);
     workerRequests.delete(id);
   }
+  activeWorkerRequestId = undefined;
 }
 
 function disableWorker(error) {
@@ -73,12 +80,15 @@ function handleWorkerMessage(event) {
   const request = workerRequests.get(id);
   if (!request) return;
   clearTimeout(request.timeout);
+  request.cleanup();
   workerRequests.delete(id);
+  activeWorkerRequestId = undefined;
   if (error) {
     request.reject(workerOperationError(error));
-    return;
+  } else {
+    request.resolve(result);
   }
-  request.resolve(result);
+  dispatchNextWorkerRequest();
 }
 
 function handleWorkerFailure(event) {
@@ -118,20 +128,41 @@ function getWorker() {
   }
 }
 
-function requestWorker(type, payload = {}) {
+function dispatchNextWorkerRequest() {
+  if (activeWorkerRequestId !== undefined || workerDisabled) return;
+  const pending = [...workerRequests.entries()];
+  // User actions take precedence over suggestions that have not started yet.
+  const next = pending.find(([, request]) => !request.automatic) || pending[0];
+  if (!next) return;
+  const [id, request] = next;
+  activeWorkerRequestId = id;
+  request.timeout = setTimeout(() => {
+    disableWorker(workerTransportError('Embedded fdnext worker request timed out.'));
+  }, WORKER_REQUEST_TIMEOUT_MS);
+  try {
+    worker.postMessage({ id, type: request.type, payload: request.payload });
+  } catch (err) {
+    disableWorker(workerTransportError(err?.message || 'Embedded fdnext worker transport failed.', err));
+  }
+}
+
+function requestWorker(type, payload = {}, { signal, automatic = false } = {}) {
+  if (signal?.aborted) return Promise.reject(abortError(signal));
   const target = getWorker();
   if (!target) return null;
   const id = ++workerRequestId;
   return new Promise((resolve, reject) => {
-    const timeout = setTimeout(() => {
-      disableWorker(workerTransportError('Embedded fdnext worker request timed out.'));
-    }, WORKER_REQUEST_TIMEOUT_MS);
-    workerRequests.set(id, { resolve, reject, timeout });
-    try {
-      target.postMessage({ id, type, payload });
-    } catch (err) {
-      disableWorker(workerTransportError(err?.message || 'Embedded fdnext worker transport failed.', err));
-    }
+    const cleanup = () => signal?.removeEventListener('abort', abort);
+    const abort = () => {
+      cleanup();
+      reject(abortError(signal));
+      // Synchronous work already running inside the worker cannot be stopped.
+      // Keep its transport slot until the reply, but discard queued stale work.
+      if (activeWorkerRequestId !== id) workerRequests.delete(id);
+    };
+    workerRequests.set(id, { type, payload, automatic, resolve, reject, cleanup });
+    signal?.addEventListener('abort', abort, { once: true });
+    dispatchNextWorkerRequest();
   });
 }
 
@@ -142,14 +173,20 @@ function runMainThreadFallback(fallback) {
   return fallback();
 }
 
-async function runEmbeddedOperation(type, payload, fallback) {
-  const workerResult = requestWorker(type, payload);
-  if (!workerResult) return runMainThreadFallback(fallback);
+async function runEmbeddedOperation(type, payload, fallback, options = {}) {
+  const checkedFallback = async () => {
+    if (options.signal?.aborted) throw abortError(options.signal);
+    const result = await fallback();
+    if (options.signal?.aborted) throw abortError(options.signal);
+    return result;
+  };
+  const workerResult = requestWorker(type, payload, options);
+  if (!workerResult) return runMainThreadFallback(checkedFallback);
   try {
     return await workerResult;
   } catch (err) {
     if (err?.workerTransportError) {
-      return runMainThreadFallback(fallback);
+      return runMainThreadFallback(checkedFallback);
     }
     throw err;
   }
@@ -159,45 +196,45 @@ export const warmEmbeddedParser = () => runEmbeddedOperation('warm', {}, async (
   return runMainEngineOperation('warmMainEmbeddedParser');
 });
 
-export const getEmbeddedInfo = () => {
+export const getEmbeddedInfo = (options = {}) => {
   const payload = { lang: currentLang() };
-  return runEmbeddedOperation('info', payload, () => runMainEngineOperation('getMainEmbeddedInfo', payload));
+  return runEmbeddedOperation('info', payload, () => runMainEngineOperation('getMainEmbeddedInfo', payload), options);
 };
 
-export const decodeEmbeddedPartNumber = pn => {
+export const decodeEmbeddedPartNumber = (pn, options = {}) => {
   const payload = {
     query: pn,
     lang: currentLang(),
     controllerGroup: currentControllerGroup()
   };
-  return runEmbeddedOperation('decodePart', payload, () => runMainEngineOperation('decodeMainEmbeddedPartNumber', payload));
+  return runEmbeddedOperation('decodePart', payload, () => runMainEngineOperation('decodeMainEmbeddedPartNumber', payload), options);
 };
 
-export const searchEmbeddedPartNumber = (pn, limit = 0) => {
+export const searchEmbeddedPartNumber = (pn, limit = 0, options = {}) => {
   const payload = {
     query: pn,
     lang: currentLang(),
     limit: limitValue(limit)
   };
-  return runEmbeddedOperation('searchParts', payload, () => runMainEngineOperation('searchMainEmbeddedPartNumber', payload));
+  return runEmbeddedOperation('searchParts', payload, () => runMainEngineOperation('searchMainEmbeddedPartNumber', payload), options);
 };
 
-export const decodeEmbeddedFlashId = id => {
+export const decodeEmbeddedFlashId = (id, options = {}) => {
   const payload = {
     query: id,
     lang: currentLang(),
     idScheme: 'nand.flash_id',
     controllerGroup: currentControllerGroup()
   };
-  return runEmbeddedOperation('decodeIdentifier', payload, () => runMainEngineOperation('decodeMainEmbeddedFlashId', payload));
+  return runEmbeddedOperation('decodeIdentifier', payload, () => runMainEngineOperation('decodeMainEmbeddedFlashId', payload), options);
 };
 
-export const searchEmbeddedFlashId = (id, limit = 0) => {
+export const searchEmbeddedFlashId = (id, limit = 0, options = {}) => {
   const payload = {
     query: id,
     lang: currentLang(),
     idScheme: 'nand.flash_id',
     limit: limitValue(limit)
   };
-  return runEmbeddedOperation('searchIdentifiers', payload, () => runMainEngineOperation('searchMainEmbeddedFlashId', payload));
+  return runEmbeddedOperation('searchIdentifiers', payload, () => runMainEngineOperation('searchMainEmbeddedFlashId', payload), options);
 };

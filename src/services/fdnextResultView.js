@@ -357,65 +357,69 @@ function displayBadges(badges, vendor) {
 }
 
 export function partSearchRows(result) {
-  return asArray(result?.items).map((item, index) => {
-    const device = item.device || {};
-    const partNumber = device.partNumber || item.label;
-    const markingCode = device.markingCode || '';
-    const vendor = deviceVendor(device);
-    const badges = asArray(item.badges).length
-      ? asArray(item.badges)
-      : [device.chipKind, device.productType].filter(Boolean).map(chipLabel);
-    const route = partNumber ? partRoute(partNumber) : null;
-    const rows = fieldRows(item.fields);
-    const fieldSummary = compactFieldSummary(rows);
-    return {
-      key: `${partNumber || item.label}-${index}`,
-      vendor,
-      pn: partNumber,
-      label: item.label || partNumber,
-      markingCode,
-      badges: displayBadges(badges, vendor),
-      fields: rows,
-      fieldSummary,
-      links: externalLinkRows(item.links, vendor),
-      route,
-      chipKind: chipLabel(device.chipKind),
-      productType: chipLabel(device.productType)
-    };
-  });
+  return asArray(result?.items).map(partSearchRow);
+}
+
+export function partSearchRow(item, index = 0) {
+  const device = item.device || {};
+  const partNumber = device.partNumber || item.label;
+  const markingCode = device.markingCode || '';
+  const vendor = deviceVendor(device);
+  const badges = asArray(item.badges).length
+    ? asArray(item.badges)
+    : [device.chipKind, device.productType].filter(Boolean).map(chipLabel);
+  const route = partNumber ? partRoute(partNumber) : null;
+  const rows = fieldRows(item.fields);
+  const fieldSummary = compactFieldSummary(rows);
+  return {
+    key: `${partNumber || item.label}-${index}`,
+    vendor,
+    pn: partNumber,
+    label: item.label || partNumber,
+    markingCode,
+    badges: displayBadges(badges, vendor),
+    fields: rows,
+    fieldSummary,
+    links: externalLinkRows(item.links, vendor),
+    route,
+    chipKind: chipLabel(device.chipKind),
+    productType: chipLabel(device.productType)
+  };
 }
 
 export function identifierSearchRows(result) {
-  return asArray(result?.items).map((item, index) => {
-    const device = item.device || {};
-    const id = device.identifier || item.label;
-    const fields = asArray(item.fields);
-    const controllers = splitListField(findField(fields, 'controller'));
-    const partNumberList = relationParts(item.relations);
-    const vendor = deviceVendor(device);
-    const rows = fieldRows(fields);
-    return {
-      key: `${id}-${index}`,
-      id,
-      vendor,
-      label: item.label || id,
-      badges: [device.chipKind, device.idScheme].filter(Boolean).map(chipLabel),
-      pageSize: fieldText(fields, 'page_size'),
-      blockSize: fieldText(fields, 'block_size'),
-      geometry: [
-        fieldText(fields, 'page_size') !== EMPTY ? `Page ${fieldText(fields, 'page_size')}` : '',
-        fieldText(fields, 'block_size') !== EMPTY ? `Block ${fieldText(fields, 'block_size')}` : ''
-      ].filter(Boolean).join(' · '),
-      fields: defaultSearchRows(rows),
-      fieldSummary: compactFieldSummary(rows),
-      partNumberList,
-      partNumbers: partNumberList.join(', '),
-      controllerList: controllers,
-      controllers: controllers.join(', '),
-      links: externalLinkRows(item.links, vendor),
-      route: id ? idRoute(id) : null
-    };
-  });
+  return asArray(result?.items).map(identifierSearchRow);
+}
+
+export function identifierSearchRow(item, index = 0) {
+  const device = item.device || {};
+  const id = device.identifier || item.label;
+  const fields = asArray(item.fields);
+  const controllers = splitListField(findField(fields, 'controller'));
+  const partNumberList = relationParts(item.relations);
+  const vendor = deviceVendor(device);
+  const rows = fieldRows(fields);
+  return {
+    key: `${id}-${index}`,
+    id,
+    vendor,
+    label: item.label || id,
+    badges: [device.chipKind, device.idScheme].filter(Boolean).map(chipLabel),
+    pageSize: fieldText(fields, 'page_size'),
+    blockSize: fieldText(fields, 'block_size'),
+    geometry: [
+      fieldText(fields, 'page_size') !== EMPTY ? `Page ${fieldText(fields, 'page_size')}` : '',
+      fieldText(fields, 'block_size') !== EMPTY ? `Block ${fieldText(fields, 'block_size')}` : ''
+    ].filter(Boolean).join(' · '),
+    fields: defaultSearchRows(rows),
+    fieldSummary: compactFieldSummary(rows),
+    partNumberList,
+    partNumbers: partNumberList.join(', '),
+    controllerList: controllers,
+    controllers: controllers.join(', '),
+    links: externalLinkRows(item.links, vendor),
+    route: id ? idRoute(id) : null
+  };
 }
 
 export function partSuggestions(result) {

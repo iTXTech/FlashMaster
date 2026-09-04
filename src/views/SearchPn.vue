@@ -4,7 +4,7 @@
       <section class="panel">
         <div class="panel-header">
           <div>
-            <div class="panel-title">{{ $t('search') }}</div>
+            <h2 class="panel-title">{{ $t('search') }}</h2>
           </div>
           <v-btn
             icon="mdi-arrow-right"
@@ -39,11 +39,11 @@
       <section class="panel search-results-panel search-pn-results-panel">
         <div class="panel-header">
           <div>
-            <div class="panel-title">{{ $t('dashboard.searchResults') }}</div>
+            <h2 class="panel-title">{{ $t('dashboard.searchResults') }}</h2>
             <div class="panel-meta">{{ $t('dashboard.resultCount', [rows.length]) }}</div>
           </div>
         </div>
-        <PagedTable :headers="headers" :items="rows" :per-page-options="[10, 15, 30, 50]" :show-footer-count="false">
+        <PagedTable display="cards" :project-item="partSearchRow" :items="rows" :per-page-options="[10, 15, 30, 50]" :show-footer-count="false">
           <template #card="{ item }">
             <div class="search-card-header">
               <div class="search-pn-card-content">
@@ -67,17 +67,6 @@
               </div>
             </div>
           </template>
-          <template #pn="{ item }">
-            <ExpandableListCell :items="[item.pn]" :limit="1" clickable @select="decodePartNumber" />
-          </template>
-          <template #badges="{ item }">
-            <div class="search-badge-row">
-              <v-chip v-for="badge in item.badges" :key="badge" size="x-small" variant="tonal">{{ badge }}</v-chip>
-            </div>
-          </template>
-          <template #summary="{ item }">
-            <div class="table-kv-stack">{{ item.fieldSummary || '-' }}</div>
-          </template>
         </PagedTable>
       </section>
     </div>
@@ -85,15 +74,14 @@
 </template>
 
 <script setup>
-import { computed, nextTick, onBeforeUnmount, ref } from 'vue';
+import { nextTick, onBeforeUnmount, ref, shallowRef } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
-import ExpandableListCell from '@/components/ExpandableListCell.vue';
 import ExternalLinks from '@/components/ExternalLinks.vue';
 import PagedTable from '@/components/PagedTable.vue';
 import { searchPartNumber } from '@/services/flashApi';
 import { isRequestAbortError, isRequestTimeoutError } from '@/services/requestControl';
-import { partSearchRows } from '@/services/fdnextResultView';
+import { partSearchRow } from '@/services/fdnextResultView';
 import { trackCoverageSignal, trackPartNumberLookup } from '@/services/analytics';
 import { useFormattedQueryInput } from '@/composables/useFormattedQueryInput';
 import { useRouteLookup } from '@/composables/useRouteLookup';
@@ -107,7 +95,7 @@ const router = useRouter();
 const input = ref(null);
 
 const partNumber = ref('');
-const rows = ref([]);
+const rows = shallowRef([]);
 const loading = ref(false);
 let searchRequestId = 0;
 let searchRequestController;
@@ -121,14 +109,6 @@ const {
 } = useFormattedQueryInput(partNumber, {
   format: store.queryInputFormat
 });
-
-const headers = computed(() => [
-  { title: t('vendor'), key: 'vendor', class: 'search-vendor-col' },
-  { title: t('partNumber'), key: 'pn', class: 'search-list-col' },
-  { title: t('type'), key: 'badges', class: 'search-badge-col' },
-  { title: t('value'), key: 'summary' },
-  { title: t('action'), key: 'action' }
-]);
 
 function onEnter(event) {
   if (shouldSkipEnter(event)) {
@@ -168,7 +148,7 @@ async function runLookup(pn, { recordUsage = true } = {}) {
   try {
     const payload = await searchPartNumber(pn, 0, { signal: controller.signal });
     if (requestId !== searchRequestId) return;
-    rows.value = partSearchRows(payload);
+    rows.value = Array.isArray(payload.items) ? payload.items : [];
     if (recordUsage) {
       store.statSearchPnInc();
       trackPartNumberLookup({

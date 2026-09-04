@@ -2,10 +2,10 @@
   <section class="panel decode-result-panel">
     <div class="panel-header">
       <div>
-        <div class="panel-title">{{ t('dashboard.decodeResult') }}</div>
+        <h2 class="panel-title">{{ t('dashboard.decodeResult') }}</h2>
         <div v-if="meta" class="panel-meta">{{ meta }}</div>
       </div>
-      <v-btn icon="mdi-content-copy" variant="text" :disabled="!result" @click="emit('copy-overview')" />
+      <v-btn icon="mdi-content-copy" :aria-label="t('dashboard.copySection', [t('dashboard.decodeResult')])" variant="text" :disabled="!result" @click="emit('copy-overview')" />
     </div>
     <div class="panel-body">
       <div v-if="result" class="result-stack">

@@ -1,8 +1,8 @@
 <template>
   <v-app class="app-shell">
     <v-app-bar density="compact" flat border class="compact-app-bar">
-      <v-app-bar-nav-icon @click="drawer = !drawer" />
-      <v-toolbar-title class="app-title font-weight-bold">{{ pageTitle }}</v-toolbar-title>
+      <v-app-bar-nav-icon :aria-label="$t('dashboard.toggleNavigation')" @click="drawer = !drawer" />
+      <v-toolbar-title tag="h1" class="app-title font-weight-bold">{{ pageTitle }}</v-toolbar-title>
       <v-spacer />
 
       <v-menu>

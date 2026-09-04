@@ -216,3 +216,41 @@ test('healthy operations reuse one worker and preserve payloads/results', async 
   assert.equal(h.timers.size, 0);
   assert.equal(h.warnings.length, 0);
 });
+
+test('queued stale suggestions are dropped and explicit lookups have priority', async () => {
+  const h = await createHarness();
+  const busy = h.api.warmEmbeddedParser();
+  const obsolete = new AbortController();
+  const stale = h.api.searchEmbeddedPartNumber('OLD', 10, { automatic: true, signal: obsolete.signal });
+  const latest = h.api.searchEmbeddedPartNumber('NEW', 10, { automatic: true });
+  const lookup = h.api.decodeEmbeddedFlashId('2CDA');
+  obsolete.abort();
+  await assert.rejects(stale, { name: 'AbortError' });
+  assert.equal(h.posts.length, 1);
+  h.emit('message', { data: { id: h.posts[0].id, result: 'warm' } });
+  assert.equal(await busy, 'warm');
+  assert.equal(h.posts[1].type, 'decodeIdentifier');
+  h.emit('message', { data: { id: h.posts[1].id, result: 'decode' } });
+  assert.equal(await lookup, 'decode');
+  assert.equal(h.posts[2].payload.query, 'NEW');
+  h.emit('message', { data: { id: h.posts[2].id, result: 'suggest' } });
+  assert.equal(await latest, 'suggest');
+  assert.equal(h.posts.length, 3);
+  assert.equal(h.timers.size, 0);
+});
+
+test('cancelling running work discards its result without disabling or replacing the engine', async () => {
+  const h = await createHarness();
+  const controller = new AbortController();
+  const stale = h.api.searchEmbeddedPartNumber('OLD', 10, { automatic: true, signal: controller.signal });
+  controller.abort();
+  await assert.rejects(stale, { name: 'AbortError' });
+  const next = h.api.decodeEmbeddedPartNumber('NEW');
+  assert.equal(h.posts.length, 1);
+  h.emit('message', { data: { id: h.posts[0].id, result: 'stale' } });
+  assert.equal(h.posts[1].payload.query, 'NEW');
+  h.emit('message', { data: { id: h.posts[1].id, result: 'fresh' } });
+  assert.equal(await next, 'fresh');
+  assert.deepEqual(h.counts(), { constructions: 1, terminations: 0, mainImports: 0 });
+  assert.equal(h.timers.size, 0);
+});

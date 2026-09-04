@@ -64,6 +64,7 @@ const itemsRoot = ref(null);
 const rowCapacity = ref(0);
 const expanded = ref(false);
 let resizeObserver;
+let frame = 0;
 
 const normalizedItems = computed(() => props.items.map(item => String(item || '').trim()).filter(Boolean));
 const collapsedLimit = computed(() => {
@@ -97,17 +98,31 @@ watch(normalizedItems, () => {
   expanded.value = false;
 });
 
-watch(() => [props.fillRow, props.minColumnWidth, props.previewRows], updateRowCapacity);
+function scheduleRowCapacity() {
+  if (!frame) frame = requestAnimationFrame(() => {
+    frame = 0;
+    updateRowCapacity();
+  });
+}
+
+function observeRowCapacity() {
+  resizeObserver?.disconnect();
+  if (props.fillRow && itemsRoot.value) resizeObserver?.observe(itemsRoot.value);
+  scheduleRowCapacity();
+}
+
+watch(() => [props.fillRow, props.minColumnWidth, props.previewRows], observeRowCapacity);
 
 onMounted(() => {
   updateRowCapacity();
   if ('ResizeObserver' in window) {
-    resizeObserver = new ResizeObserver(updateRowCapacity);
-    if (itemsRoot.value) resizeObserver.observe(itemsRoot.value);
+    resizeObserver = new ResizeObserver(scheduleRowCapacity);
+    observeRowCapacity();
   }
 });
 
 onBeforeUnmount(() => {
+  if (frame) cancelAnimationFrame(frame);
   resizeObserver?.disconnect();
 });
 </script>

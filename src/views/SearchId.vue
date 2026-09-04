@@ -4,7 +4,7 @@
       <section class="panel">
         <div class="panel-header">
           <div>
-            <div class="panel-title">{{ $t('searchId') }}</div>
+            <h2 class="panel-title">{{ $t('searchId') }}</h2>
           </div>
           <v-btn
             icon="mdi-arrow-right"
@@ -39,11 +39,11 @@
       <section class="panel search-results-panel search-id-results-panel">
         <div class="panel-header">
           <div>
-            <div class="panel-title">{{ $t('dashboard.searchResults') }}</div>
+            <h2 class="panel-title">{{ $t('dashboard.searchResults') }}</h2>
             <div class="panel-meta">{{ $t('dashboard.resultCount', [rows.length]) }}</div>
           </div>
         </div>
-        <PagedTable :headers="headers" :items="rows" :per-page-options="[10, 15, 30, 50]" :show-footer-count="false">
+        <PagedTable display="cards" :project-item="identifierSearchRow" :items="rows" :per-page-options="[10, 15, 30, 50]" :show-footer-count="false">
           <template #card="{ item }">
             <div class="search-id-card-layout">
               <div class="search-id-card-summary">
@@ -72,15 +72,6 @@
               <ExternalLinks v-if="item.links.length > 0" class="search-card-links" :links="item.links" compact />
             </div>
           </template>
-          <template #id="{ item }">
-            <ExpandableListCell :items="[item.id]" :limit="1" clickable @select="decodeIdentifier" />
-          </template>
-          <template #geometry="{ item }">
-            <div class="table-kv-stack">{{ item.geometry || item.fieldSummary || '-' }}</div>
-          </template>
-          <template #partNumbers="{ item }">
-            <ExpandableListCell :items="item.partNumberList" :limit="2" clickable @select="decodePartNumber" />
-          </template>
         </PagedTable>
       </section>
     </div>
@@ -88,7 +79,7 @@
 </template>
 
 <script setup>
-import { computed, nextTick, onBeforeUnmount, ref } from 'vue';
+import { nextTick, onBeforeUnmount, ref, shallowRef } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import ExpandableListCell from '@/components/ExpandableListCell.vue';
@@ -96,7 +87,7 @@ import ExternalLinks from '@/components/ExternalLinks.vue';
 import PagedTable from '@/components/PagedTable.vue';
 import { searchFlashId } from '@/services/flashApi';
 import { isRequestAbortError, isRequestTimeoutError } from '@/services/requestControl';
-import { identifierSearchRows } from '@/services/fdnextResultView';
+import { identifierSearchRow } from '@/services/fdnextResultView';
 import { trackCoverageSignal, trackFlashIdLookup } from '@/services/analytics';
 import { useFormattedQueryInput } from '@/composables/useFormattedQueryInput';
 import { useRouteLookup } from '@/composables/useRouteLookup';
@@ -110,7 +101,7 @@ const router = useRouter();
 const input = ref(null);
 
 const flashId = ref('');
-const rows = ref([]);
+const rows = shallowRef([]);
 const loading = ref(false);
 let searchRequestId = 0;
 let searchRequestController;
@@ -124,13 +115,6 @@ const {
 } = useFormattedQueryInput(flashId, {
   format: store.queryInputFormat
 });
-
-const headers = computed(() => [
-  { title: t('flashId'), key: 'id', class: 'search-id-col' },
-  { title: t('dashboard.geometry'), key: 'geometry', class: 'search-geometry-col' },
-  { title: t('partNumber'), key: 'partNumbers', class: 'search-list-col' },
-  { title: t('action'), key: 'action' }
-]);
 
 function onEnter(event) {
   if (shouldSkipEnter(event)) {
@@ -170,7 +154,7 @@ async function runLookup(id, { recordUsage = true } = {}) {
   try {
     const payload = await searchFlashId(id, 0, { signal: controller.signal });
     if (requestId !== searchRequestId) return;
-    rows.value = identifierSearchRows(payload);
+    rows.value = Array.isArray(payload.items) ? payload.items : [];
     if (recordUsage) {
       store.statSearchIdInc();
       trackFlashIdLookup({

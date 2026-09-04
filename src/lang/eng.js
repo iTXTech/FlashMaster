@@ -53,6 +53,10 @@ export default {
         copiedSummary: 'Summary copied.',
         resultCount: '{0} results',
         page: 'Page {0} / {1}',
+        previousPage: 'Previous page',
+        nextPage: 'Next page',
+        toggleNavigation: 'Toggle navigation',
+        copySection: 'Copy {0}',
         perPage: 'Per page'
     },
     settings: {

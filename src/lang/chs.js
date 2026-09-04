@@ -53,6 +53,10 @@ export default {
         copiedSummary: '摘要已复制。',
         resultCount: '{0} 条结果',
         page: '第 {0} / {1} 页',
+        previousPage: '上一页',
+        nextPage: '下一页',
+        toggleNavigation: '切换导航',
+        copySection: '复制{0}',
         perPage: '每页'
     },
     settings: {

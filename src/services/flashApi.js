@@ -9,6 +9,7 @@ import {
 } from '@/services/fdnextApi';
 import { FDNEXT_CAPABILITIES_SCHEMA_VERSIONS, summaryText } from '@/services/fdnextResultView';
 import { DEFAULT_HTTP_REQUEST_TIMEOUT_MS, runWithRequestTimeout } from '@/services/requestControl';
+import { automaticRequest } from '@/services/automaticRequests';
 
 const makeUrl = (endpoint, params = {}) => {
     const base = store.getServerAddress().replace(/\/+$/, '');
@@ -61,6 +62,21 @@ const request = async (endpoint, params = {}, schemaVersion = 'fdnext.result.v1'
 
 const useEmbeddedParser = () => store.isEmbeddedParser();
 
+// Also used to decide whether a displayed result still matches a copy request.
+export const lookupContextKey = (operation, query, limit = 0, timeoutMs = null) => JSON.stringify([
+    operation, query, store.getLang(), useEmbeddedParser() ? 'embedded' : store.getServerAddress().replace(/\/+$/, ''),
+    store.getControllerGroupParam(), limit, timeoutMs
+]);
+
+const searchRequest = (operation, query, limit, options, task) => {
+    const execute = requestOptions => useEmbeddedParser() && requestOptions.timeoutMs
+        ? runWithRequestTimeout(signal => task({ ...requestOptions, signal }), requestOptions)
+        : task(requestOptions);
+    return options.automatic
+        ? automaticRequest(lookupContextKey(operation, query, limit, options.timeoutMs), signal => execute({ ...options, signal }), options.signal)
+        : execute(options);
+};
+
 const langParams = () => ({
     lang: store.getLang()
 });
@@ -75,7 +91,7 @@ const controllerGroupParams = () => ({
 });
 
 export const getServerInfo = async (options = {}) => useEmbeddedParser()
-    ? getEmbeddedInfo()
+    ? getEmbeddedInfo(options)
     : request('capabilities', langParams(), FDNEXT_CAPABILITIES_SCHEMA_VERSIONS, options);
 
 export const warmEmbeddedParser = () => {
@@ -84,7 +100,7 @@ export const warmEmbeddedParser = () => {
 };
 
 export const decodePartNumber = async (pn, options = {}) => {
-    return useEmbeddedParser() ? decodeEmbeddedPartNumber(pn) : request('parts/decode', {
+    return useEmbeddedParser() ? decodeEmbeddedPartNumber(pn, options) : request('parts/decode', {
         ...langParams(),
         ...controllerGroupParams(),
         query: pn
@@ -92,18 +108,18 @@ export const decodePartNumber = async (pn, options = {}) => {
 };
 
 export const searchPartNumber = async (pn, limit = 0, options = {}) => {
-    return useEmbeddedParser() ? searchEmbeddedPartNumber(pn, limit) : request('parts/search', {
+    return searchRequest('parts/search', pn, limit, options, requestOptions => useEmbeddedParser() ? searchEmbeddedPartNumber(pn, limit, requestOptions) : request('parts/search', {
         ...langParams(),
         query: pn,
         ...limitParams(limit)
-    }, 'fdnext.result.v1', options);
+    }, 'fdnext.result.v1', requestOptions));
 };
 
 export const summarizePartNumber = async (pn, options = {}) => summaryText(await decodePartNumber(pn, options));
 
 export const decodeFlashId = async (id, options = {}) => {
     const input = { idScheme: 'nand.flash_id' };
-    return useEmbeddedParser() ? decodeEmbeddedFlashId(id) : request('identifiers/decode', {
+    return useEmbeddedParser() ? decodeEmbeddedFlashId(id, options) : request('identifiers/decode', {
         ...langParams(),
         query: id,
         ...input,
@@ -113,12 +129,12 @@ export const decodeFlashId = async (id, options = {}) => {
 
 export const searchFlashId = async (id, limit = 0, options = {}) => {
     const input = { idScheme: 'nand.flash_id' };
-    return useEmbeddedParser() ? searchEmbeddedFlashId(id, limit) : request('identifiers/search', {
+    return searchRequest('identifiers/search', id, limit, options, requestOptions => useEmbeddedParser() ? searchEmbeddedFlashId(id, limit, requestOptions) : request('identifiers/search', {
         ...langParams(),
         query: id,
         ...input,
         ...limitParams(limit)
-    }, 'fdnext.result.v1', options);
+    }, 'fdnext.result.v1', requestOptions));
 };
 
 export const summarizeFlashId = async (id, options = {}) => summaryText(await decodeFlashId(id, options));

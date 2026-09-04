@@ -4,7 +4,7 @@
       <section class="panel">
         <div class="panel-header">
           <div>
-            <div class="panel-title">{{ $t('dashboard.queryPanel') }}</div>
+            <h2 class="panel-title">{{ $t('dashboard.queryPanel') }}</h2>
           </div>
           <v-btn
             icon="mdi-book-information-variant"
@@ -51,7 +51,7 @@
       <section v-if="relations.length > 0" class="panel decode-id-pn-panel">
         <div class="panel-header">
           <div>
-            <div class="panel-title">{{ $t('searchIdPage.pns') }}</div>
+            <h2 class="panel-title">{{ $t('searchIdPage.pns') }}</h2>
             <div class="panel-meta">{{ $t('dashboard.resultCount', [relations.length]) }}</div>
           </div>
         </div>
@@ -83,7 +83,7 @@
       <section v-if="externalLinks.length > 0" class="panel external-link-panel decode-id-link-panel">
         <div class="panel-header">
           <div>
-            <div class="panel-title">{{ $t('dashboard.externalLinks') }}</div>
+            <h2 class="panel-title">{{ $t('dashboard.externalLinks') }}</h2>
             <div class="panel-meta">{{ $t('dashboard.resultCount', [externalLinks.length]) }}</div>
           </div>
         </div>
@@ -96,7 +96,7 @@
 </template>
 
 <script setup>
-import { computed, nextTick, onBeforeUnmount, ref } from 'vue';
+import { computed, nextTick, onBeforeUnmount, ref, shallowRef } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import AutoFlowGrid from '@/components/AutoFlowGrid.vue';
@@ -105,7 +105,7 @@ import DecodeResultPanel from '@/components/DecodeResultPanel.vue';
 import ExternalLinks from '@/components/ExternalLinks.vue';
 import QuerySuggestionInput from '@/components/QuerySuggestionInput.vue';
 import { copyText } from '@/services/clipboard';
-import { decodeFlashId, searchFlashId, summarizeFlashId } from '@/services/flashApi';
+import { lookupContextKey, decodeFlashId, searchFlashId, summarizeFlashId } from '@/services/flashApi';
 import { isRequestAbortError, isRequestTimeoutError, SUGGESTION_REQUEST_TIMEOUT_MS } from '@/services/requestControl';
 import {
   detailBlocks,
@@ -131,7 +131,8 @@ const input = ref(null);
 
 const flashId = ref('');
 const suggestions = ref([]);
-const result = ref(null);
+const result = shallowRef(null);
+let resultContextKey = '';
 const loading = ref(false);
 const loadingSuggestions = ref(false);
 let suggestionTimer;
@@ -239,6 +240,7 @@ function decode() {
 }
 
 async function runLookup(id, { recordUsage = true } = {}) {
+  const contextKey = lookupContextKey('identifiers/decode', id);
   const requestId = ++decodeRequestId;
   const controller = beginMainRequest();
   if (store.isAutoHideSoftKeyboard()) {
@@ -249,6 +251,7 @@ async function runLookup(id, { recordUsage = true } = {}) {
     const payload = await decodeFlashId(id, { signal: controller.signal });
     if (requestId !== decodeRequestId) return;
     result.value = payload;
+    resultContextKey = contextKey;
     if (recordUsage) {
       const resultCount = decodeResultCount(payload);
       store.statDecodeFidInc();
@@ -330,6 +333,7 @@ function searchSuggestions(inputValue) {
     try {
       const payload = await searchFlashId(query, 10, {
         signal: controller.signal,
+        automatic: true,
         timeoutMs: SUGGESTION_REQUEST_TIMEOUT_MS
       });
       if (requestId !== suggestionRequestId) return;
@@ -357,6 +361,9 @@ function goSearchId() {
 async function copySummary() {
   const id = normalizeInput();
   if (!id) return notify(t('alert.missingFlashId'));
+  if (result.value && resultContextKey === lookupContextKey('identifiers/decode', id)) {
+    return copyLine(summaryText(result.value), t('dashboard.copiedSummary'));
+  }
   const requestId = ++decodeRequestId;
   const controller = beginMainRequest();
   loading.value = true;

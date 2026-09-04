@@ -5,36 +5,48 @@
 </template>
 
 <script setup>
-import { nextTick, onBeforeUnmount, onMounted, onUpdated, ref } from 'vue';
+import { onBeforeUnmount, onMounted, ref } from 'vue';
 
 const grid = ref(null);
 const observedChildren = new Set();
 let frame = 0;
+let measureChildren = false;
 
 const resizeObserver = typeof ResizeObserver === 'undefined'
   ? null
   : new ResizeObserver(() => scheduleLayout());
+const mutationObserver = typeof MutationObserver === 'undefined'
+  ? null
+  : new MutationObserver(syncObservedChildren);
 
 function layoutItems() {
   frame = 0;
   const target = grid.value;
-  if (!target || window.matchMedia('(max-width: 720px)').matches) return;
+  if (!target) return;
 
   const styles = window.getComputedStyle(target);
-  const rowHeight = Number.parseFloat(styles.gridAutoRows) || 4;
+  const rowHeight = Number.parseFloat(styles.gridAutoRows);
   const rowGap = Number.parseFloat(styles.rowGap) || 0;
-
-  for (const item of target.children) {
-    const height = item.getBoundingClientRect().height;
-    const span = Math.max(1, Math.ceil((height + rowGap) / (rowHeight + rowGap)));
-    const next = `span ${span}`;
+  if (measureChildren !== (rowHeight > 0)) {
+    measureChildren = rowHeight > 0;
+    syncObservedChildren();
+  }
+  // Read every height before changing any span. Native single-column flow
+  // needs no child measurements, including after a responsive transition.
+  const measurements = [...target.children].map(item => ({
+    item,
+    height: rowHeight > 0 ? item.getBoundingClientRect().height : 0
+  }));
+  for (const { item, height } of measurements) {
+    const next = rowHeight > 0
+      ? `span ${Math.max(1, Math.ceil((height + rowGap) / (rowHeight + rowGap)))}`
+      : '';
     if (item.style.gridRowEnd !== next) item.style.gridRowEnd = next;
   }
 }
 
 function scheduleLayout() {
-  if (frame) cancelAnimationFrame(frame);
-  frame = requestAnimationFrame(layoutItems);
+  if (!frame) frame = requestAnimationFrame(layoutItems);
 }
 
 function syncObservedChildren() {
@@ -44,7 +56,7 @@ function syncObservedChildren() {
     return;
   }
 
-  const children = new Set(target.children);
+  const children = new Set(measureChildren ? target.children : []);
   for (const item of observedChildren) {
     if (!children.has(item)) {
       resizeObserver.unobserve(item);
@@ -62,14 +74,14 @@ function syncObservedChildren() {
 
 onMounted(() => {
   resizeObserver?.observe(grid.value);
-  nextTick(syncObservedChildren);
+  mutationObserver?.observe(grid.value, { childList: true });
+  syncObservedChildren();
 });
-
-onUpdated(() => nextTick(syncObservedChildren));
 
 onBeforeUnmount(() => {
   if (frame) cancelAnimationFrame(frame);
   resizeObserver?.disconnect();
+  mutationObserver?.disconnect();
   observedChildren.clear();
 });
 </script>

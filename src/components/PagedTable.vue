@@ -1,6 +1,6 @@
 <template>
-  <div class="paged-table" :class="{ 'paged-table--cards': $slots.card }">
-    <div class="table-scroll">
+  <div class="paged-table" :class="{ 'paged-table--cards': display === 'cards' }">
+    <div v-if="display === 'table'" class="table-scroll">
       <table class="dense-table">
         <thead>
           <tr>
@@ -8,7 +8,7 @@
           </tr>
         </thead>
         <tbody v-if="pagedItems.length > 0">
-          <tr v-for="(item, index) in pagedItems" :key="item.id || item.pn || item.key || index">
+          <tr v-for="(item, index) in pagedItems" :key="item.key || item.id || item.pn || index">
             <td v-for="header in headers" :key="header.key" :class="columnClass(header)">
               <slot :name="header.key" :item="item" :value="item[header.key]">
                 {{ displayValue(item[header.key]) }}
@@ -19,8 +19,8 @@
       </table>
     </div>
 
-    <div v-if="$slots.card" class="table-card-list">
-      <div v-for="(item, index) in pagedItems" :key="item.id || item.pn || item.key || index" class="table-result-card">
+    <div v-else class="table-card-list">
+      <div v-for="(item, index) in pagedItems" :key="item.key || item.id || item.pn || index" class="table-result-card">
         <slot name="card" :item="item" :index="index" />
       </div>
     </div>
@@ -38,28 +38,37 @@
           density="compact"
           hide-details
           variant="plain"
-          @update:model-value="page = 1"
+          :aria-label="$t('dashboard.perPage')"
         />
-        <v-btn icon="mdi-chevron-left" variant="text" :disabled="page <= 1" @click="page -= 1" />
+        <v-btn icon="mdi-chevron-left" :aria-label="$t('dashboard.previousPage')" variant="text" :disabled="page <= 1" @click="page -= 1" />
         <span class="panel-meta">{{ $t('dashboard.page', [page, pageCount]) }}</span>
-        <v-btn icon="mdi-chevron-right" variant="text" :disabled="page >= pageCount" @click="page += 1" />
+        <v-btn icon="mdi-chevron-right" :aria-label="$t('dashboard.nextPage')" variant="text" :disabled="page >= pageCount" @click="page += 1" />
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue';
+import { usePagedItems } from '@/composables/usePagedItems';
 import { displayValue } from '@/services/display';
 
 const props = defineProps({
   headers: {
     type: Array,
-    required: true
+    default: () => []
   },
   items: {
     type: Array,
     default: () => []
+  },
+  display: {
+    type: String,
+    default: 'table',
+    validator: value => ['table', 'cards'].includes(value)
+  },
+  projectItem: {
+    type: Function,
+    default: item => item
   },
   noDataText: {
     type: String,
@@ -75,24 +84,11 @@ const props = defineProps({
   }
 });
 
-const page = ref(1);
-const perPage = ref(props.perPageOptions[0] || 15);
-
-const pageCount = computed(() => Math.max(1, Math.ceil(props.items.length / perPage.value)));
-const pagedItems = computed(() => {
-  const start = (page.value - 1) * perPage.value;
-  return props.items.slice(start, start + perPage.value);
-});
-
-watch(() => props.items, () => {
-  page.value = 1;
-});
-
-watch(pageCount, count => {
-  if (page.value > count) {
-    page.value = count;
-  }
-});
+const { page, perPage, pageCount, pagedItems } = usePagedItems(
+  () => props.items,
+  props.perPageOptions[0] || 15,
+  () => props.projectItem
+);
 
 function columnClass(header) {
   return [`col-${header.key}`, header.class].filter(Boolean);
