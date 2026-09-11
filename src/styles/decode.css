@@ -74,6 +74,13 @@ a.decode-related-record:hover strong { text-decoration: underline; }
   .spec-field--list { grid-column: 1 / -1; }
 }
 
+/* Fit wide-screen fields to their rendered text; keep the compact mobile rules. */
+@container decode-result (min-width: 600px) {
+  .spec-field { grid-column: span var(--spec-field-span, 1); }
+  .spec-field--long { grid-column: span var(--spec-field-span, 2); }
+  .spec-field--list { grid-column: 1 / -1; }
+}
+
 @container decode-result (max-width: 599px) {
   .decode-identity { gap: 4px 8px; padding: 6px 8px; }
   .decode-title { font-size: 0.9375rem; }

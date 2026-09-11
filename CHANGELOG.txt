@@ -4,6 +4,7 @@ Copyright (c) 2019-2026 iTX Technologies
 Version 2.7.0-dev (Snapshot date: 2026-09-12)
 
 FlashMaster updates:
+- Let wide-screen specification fields span as many columns as their text needs, reducing wrapping in speed, package and NAND details while preserving the compact mobile layout.
 - Rebuilt PN/Flash ID results as compact grouped specifications, preserving all parameters with clearer Chinese/English wrapping and alignment. Controller lists expand in place, and related part numbers and IDs align in columns with direct navigation.
 - Simplified result headers with responsive type, marking, and “Summary” actions. The main button copies the full summary; the menu offers a brief summary, and each specification group can be copied separately. Copies exclude external links and ads. Technical-source copy is temporarily hidden, and clipped copy icons are fixed.
 - Standardized decode/search inputs and action buttons. Suggestions stay below the input and adapt their width to the content and viewport, fixing overlap and flicker during resizing.
