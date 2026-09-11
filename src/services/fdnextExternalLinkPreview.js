@@ -2,7 +2,7 @@ const previewEnv = import.meta.env.VITE_FLASHMASTER_EXTERNAL_LINK_PREVIEW;
 const previewEnabled = previewEnv === '1';
 
 function isFdnextResult(result) {
-  return result?.schemaVersion === 'fdnext.result.v1';
+  return result?.schemaVersion === 'fdnext.result.v2';
 }
 
 function deviceFrom(result, item) {
@@ -34,7 +34,7 @@ function previewLinks(context, result, item) {
       id: `preview.vendor.${vendor || 'unknown'}`,
       label: vendor ? `${vendor} vendor` : 'Vendor reference',
       url: 'https://github.com/iTXTech/fdnext',
-      category: 'vendor',
+      category: 'vnd',
       image: 'logo',
       hint: 'ExternalLink preview provider',
       priority: 30
@@ -43,7 +43,7 @@ function previewLinks(context, result, item) {
       id: `preview.datasheet.${encodedQuery}`,
       label: 'Datasheet lookup',
       url: `https://www.google.com/search?q=${encodedQuery}+datasheet`,
-      category: 'datasheet',
+      category: 'tl',
       hint: query,
       fieldKey: 'part_number',
       priority: 20
@@ -52,7 +52,7 @@ function previewLinks(context, result, item) {
       id: `preview.market.${encodedQuery}`,
       label: 'Marketplace search',
       url: `https://www.google.com/search?q=${encodedQuery}+buy`,
-      category: 'marketplace',
+      category: 'mkt',
       hint: 'Preview only',
       priority: 10
     }

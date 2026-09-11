@@ -7,7 +7,7 @@ import {
     searchEmbeddedPartNumber,
     warmEmbeddedParser as warmEmbeddedFdnextParser
 } from '@/services/fdnextApi';
-import { FDNEXT_CAPABILITIES_SCHEMA_VERSIONS, summaryText } from '@/services/fdnextResultView';
+import { FDNEXT_CAPABILITIES_SCHEMA_VERSION, FDNEXT_RESULT_SCHEMA_VERSION, summaryText } from '@/services/fdnextResultView';
 import { DEFAULT_HTTP_REQUEST_TIMEOUT_MS, runWithRequestTimeout } from '@/services/requestControl';
 import { automaticRequest } from '@/services/automaticRequests';
 
@@ -23,9 +23,12 @@ const makeUrl = (endpoint, params = {}) => {
 };
 
 const assertFdnextPayload = (payload, schemaVersion, endpoint) => {
-    const schemaVersions = Array.isArray(schemaVersion) ? schemaVersion : [schemaVersion];
-    if (!payload || !schemaVersions.includes(payload.schemaVersion)) {
+    if (!payload || payload.schemaVersion !== schemaVersion) {
         throw new Error(`Unsupported fdnext response from ${endpoint}`);
+    }
+    if (payload.status === 'ok' && ['part.decode', 'identifier.decode'].includes(payload.operation)
+        && (!Array.isArray(payload.summary?.brief) || !Array.isArray(payload.summary?.full))) {
+        throw new Error(`Missing fdnext summary from ${endpoint}`);
     }
     return payload;
 };
@@ -40,7 +43,7 @@ const parseResponsePayload = async response => {
     }
 };
 
-const request = async (endpoint, params = {}, schemaVersion = 'fdnext.result.v1', options = {}) => {
+const request = async (endpoint, params = {}, schemaVersion = FDNEXT_RESULT_SCHEMA_VERSION, options = {}) => {
     return runWithRequestTimeout(async signal => {
         const response = await fetch(makeUrl(endpoint, params), { signal });
         const payload = await parseResponsePayload(response);
@@ -92,7 +95,7 @@ const controllerGroupParams = () => ({
 
 export const getServerInfo = async (options = {}) => useEmbeddedParser()
     ? getEmbeddedInfo(options)
-    : request('capabilities', langParams(), FDNEXT_CAPABILITIES_SCHEMA_VERSIONS, options);
+    : request('capabilities', langParams(), FDNEXT_CAPABILITIES_SCHEMA_VERSION, options);
 
 export const warmEmbeddedParser = () => {
     if (!useEmbeddedParser()) return Promise.resolve();
@@ -104,7 +107,7 @@ export const decodePartNumber = async (pn, options = {}) => {
         ...langParams(),
         ...controllerGroupParams(),
         query: pn
-    }, 'fdnext.result.v1', options);
+    }, FDNEXT_RESULT_SCHEMA_VERSION, options);
 };
 
 export const searchPartNumber = async (pn, limit = 0, options = {}) => {
@@ -112,10 +115,10 @@ export const searchPartNumber = async (pn, limit = 0, options = {}) => {
         ...langParams(),
         query: pn,
         ...limitParams(limit)
-    }, 'fdnext.result.v1', requestOptions));
+    }, FDNEXT_RESULT_SCHEMA_VERSION, requestOptions));
 };
 
-export const summarizePartNumber = async (pn, options = {}) => summaryText(await decodePartNumber(pn, options));
+export const summarizePartNumber = async (pn, { mode = 'brief', ...options } = {}) => summaryText(await decodePartNumber(pn, options), mode);
 
 export const decodeFlashId = async (id, options = {}) => {
     const input = { idScheme: 'nand.flash_id' };
@@ -124,7 +127,7 @@ export const decodeFlashId = async (id, options = {}) => {
         query: id,
         ...input,
         ...controllerGroupParams()
-    }, 'fdnext.result.v1', options);
+    }, FDNEXT_RESULT_SCHEMA_VERSION, options);
 };
 
 export const searchFlashId = async (id, limit = 0, options = {}) => {
@@ -134,7 +137,7 @@ export const searchFlashId = async (id, limit = 0, options = {}) => {
         query: id,
         ...input,
         ...limitParams(limit)
-    }, 'fdnext.result.v1', requestOptions));
+    }, FDNEXT_RESULT_SCHEMA_VERSION, requestOptions));
 };
 
-export const summarizeFlashId = async (id, options = {}) => summaryText(await decodeFlashId(id, options));
+export const summarizeFlashId = async (id, { mode = 'brief', ...options } = {}) => summaryText(await decodeFlashId(id, options), mode);

@@ -1,5 +1,10 @@
 # Design QA: adaptive query suggestions
 
+This is a historical QA record from 2026-09-03 for the query-suggestion change.
+The local screenshot paths and pass result describe that session, not the current
+checkout. For new UI work, use the affected-flow checks in
+[development guidance](docs/DEVELOPMENT.md#验证选择).
+
 ## Evidence
 
 - Source visual truth: `/var/folders/0b/5xbmymnd2490z3bbnlwqldgh0000gn/T/codex-clipboard-09f19ebb-f1ab-43ef-b8a2-c58d6f5a5577.png`

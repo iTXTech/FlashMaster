@@ -1,5 +1,6 @@
 import './styles/vuetify.scss';
 import './styles/app.css';
+import './styles/decode.css';
 
 import { createApp } from 'vue';
 import { createI18n } from 'vue-i18n';

@@ -1,27 +1,14 @@
 <template>
   <div class="workspace workspace--search workspace--search-pn">
     <div class="workspace-grid">
-      <section class="panel">
-        <div class="panel-header">
-          <div>
-            <h2 class="panel-title">{{ $t('search') }}</h2>
-          </div>
-          <v-btn
-            icon="mdi-arrow-right"
-            variant="text"
-            :disabled="!partNumber"
-            :aria-label="$t('search')"
-            @click="search"
-          />
-        </div>
-        <div class="panel-body query-stack">
+      <section class="panel lookup-query-panel">
+        <div class="lookup-query-bar">
           <v-text-field
             ref="input"
             v-model="partNumberInput"
             class="pn"
             clearable
             hide-details
-            prepend-inner-icon="mdi-magnify"
             :loading="loading"
             :label="$t('partNumber')"
             @keydown.enter="onEnter"
@@ -29,7 +16,7 @@
             @compositionend="onCompositionEnd"
             @blur="onBlur"
           />
-          <div class="action-row">
+          <div class="lookup-query-actions">
             <v-btn color="primary" prepend-icon="mdi-magnify" :disabled="!partNumber" @click="search">{{ $t('search') }}</v-btn>
             <v-btn variant="tonal" prepend-icon="mdi-crosshairs-gps" :disabled="!partNumber" @click="decodeCurrent">{{ $t('query') }}</v-btn>
           </div>

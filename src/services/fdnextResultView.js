@@ -2,12 +2,8 @@ import { displayValue } from '@/services/display';
 import { idRoute, idsSearchRoute, partRoute, partsSearchRoute } from '@/router/locations';
 import getVendorLogo, { isVendorLogoDark } from '@/services/vendorLogos';
 
-export const FDNEXT_RESULT_SCHEMA_VERSION = 'fdnext.result.v1';
+export const FDNEXT_RESULT_SCHEMA_VERSION = 'fdnext.result.v2';
 export const FDNEXT_CAPABILITIES_SCHEMA_VERSION = 'fdnext.capabilities.v2';
-export const FDNEXT_CAPABILITIES_SCHEMA_VERSIONS = Object.freeze([
-  'fdnext.capabilities.v1',
-  FDNEXT_CAPABILITIES_SCHEMA_VERSION
-]);
 
 const EMPTY = '-';
 
@@ -16,7 +12,7 @@ export function isFdnextResult(value) {
 }
 
 export function isFdnextCapabilities(value) {
-  return !!value && FDNEXT_CAPABILITIES_SCHEMA_VERSIONS.includes(value.schemaVersion);
+  return !!value && value.schemaVersion === FDNEXT_CAPABILITIES_SCHEMA_VERSION;
 }
 
 export function asArray(value) {
@@ -71,24 +67,14 @@ function splitListField(field) {
   return [...new Set(source.map(item => String(item || '').trim()).filter(item => item && item !== EMPTY))];
 }
 
-export function fieldMetric(field) {
-  const items = splitListField(field);
-  return {
-    key: field.key,
-    label: field.label || field.key,
-    value: formatField(field),
-    items,
-    importance: field.importance
-  };
-}
-
 const LINK_CATEGORY_ICONS = {
-  vendor: 'mdi-domain',
-  datasheet: 'mdi-file-document-outline',
-  marketplace: 'mdi-cart-outline',
-  reference: 'mdi-book-open-page-variant-outline',
-  tool: 'mdi-tools',
-  community: 'mdi-account-group-outline'
+  vnd: 'mdi-domain',
+  ds: 'mdi-file-document-outline',
+  mkt: 'mdi-cart-outline',
+  ref: 'mdi-book-open-page-variant-outline',
+  tl: 'mdi-tools',
+  com: 'mdi-account-group-outline',
+  ads: 'mdi-information-outline'
 };
 
 function isExternalUrl(value) {
@@ -143,7 +129,8 @@ export function externalLinkRows(links = [], vendor = '') {
         label,
         url,
         category,
-        categoryLabel: category ? chipLabel(category) : '',
+        isAdvertisement: category === 'ads',
+        isTechnical: ['ds', 'ref'].includes(category),
         icon: String(link.icon || '').trim() || LINK_CATEGORY_ICONS[category] || 'mdi-open-in-new',
         hint: String(link.hint || '').trim(),
         fieldKey: link.fieldKey || '',
@@ -170,29 +157,12 @@ export function fieldRows(fields = []) {
 }
 
 export function resultBlocks(result) {
-  return asArray(result?.blocks).map(block => ({
+  return asArray(result?.summary?.full).map(block => ({
     id: block.id,
     label: block.label || block.id,
     importance: block.importance || 'detail',
-    fields: asArray(block.fields),
-    metrics: asArray(block.fields).map(fieldMetric),
     rows: fieldRows(block.fields)
   })).filter(block => block.rows.length > 0);
-}
-
-export function primaryBlocks(result) {
-  const blocks = resultBlocks(result);
-  const primary = blocks.filter(block => block.importance === 'primary');
-  return primary.length > 0 ? primary : blocks.slice(0, 1);
-}
-
-export function detailBlocks(result) {
-  const primaryIds = new Set(primaryBlocks(result).map(block => block.id));
-  return resultBlocks(result).filter(block => !primaryIds.has(block.id));
-}
-
-export function primaryMetrics(result) {
-  return primaryBlocks(result).flatMap(block => block.metrics);
 }
 
 export function deviceVendor(device) {
@@ -221,6 +191,7 @@ const CHIP_LABELS = {
   ufs: 'UFS',
   inand: 'iNAND',
   issd: 'iSSD',
+  nvme: 'NVMe',
   e2nand: 'E2NAND',
   lpddr4: 'LPDDR4',
   lpddr4x: 'LPDDR4X',
@@ -252,7 +223,10 @@ export function resultHeader(result) {
     title: deviceTitle(device) || result?.input?.normalized || result?.input?.query || '',
     subtitle: result?.subtitle || '',
     status: result?.status || '',
-    device
+    device,
+    marking: device.markingCode || '',
+    input: result?.input?.query || '',
+    kind: chipLabel(device.productType || device.chipKind)
   };
 }
 
@@ -300,6 +274,8 @@ function relationDisplayLabel(relation, action, kindLabel) {
 }
 
 export function relationRows(result) {
+  const defaultOperation = result?.operation === 'part.decode' ? 'identifier.decode'
+    : result?.operation === 'identifier.decode' ? 'part.decode' : '';
   return asArray(result?.relations).map((relation, index) => {
     const action = relation.action;
     const target = relation.target || {};
@@ -309,6 +285,7 @@ export function relationRows(result) {
     const kindLabel = relationKindLabel(relation.kind);
     return {
       key: `${relation.kind}-${targetText}-${index}`,
+      isDefaultNavigation: !!defaultOperation && relation.kind === 'identifier_for' && action?.operation === defaultOperation,
       kind: kindLabel,
       label: relationDisplayLabel(relation, action, kindLabel),
       source: sourceText,
@@ -440,34 +417,68 @@ export function identifierSuggestions(result) {
   }));
 }
 
-export function summaryText(result) {
+export function summaryText(result, mode = 'brief') {
   if (!result) return '';
+  const labels = result.input?.lang === 'chs'
+    ? { input: '输入', marking: '丝印', status: '状态', relations: '关联数据', warnings: '提示', candidates: '候选料号', controllers: '数据库控制器记录', count: '项' }
+    : { input: 'Input', marking: 'Marking', status: 'Status', relations: 'Related data', warnings: 'Warnings', candidates: 'Candidate parts', controllers: 'Database controller records', count: 'items' };
   const header = resultHeader(result);
-  const lines = [
-    [header.vendor, header.title].filter(Boolean).join(' · '),
-    header.subtitle
-  ].filter(Boolean);
-  for (const block of resultBlocks(result)) {
-    if (block.rows.length) {
-      lines.push(`[${block.label}]`);
-      for (const row of block.rows) {
-        lines.push(`${row.name}: ${row.value}`);
-      }
+  const lines = [[header.vendor, header.title, header.kind].filter(Boolean).join(' · ')];
+  if (header.marking && header.marking !== header.title) lines.push(`${labels.marking}: ${header.marking}`);
+  if (header.input && ![header.title, header.marking].includes(header.input)) lines.push(`${labels.input}: ${header.input}`);
+  if (header.status && header.status !== 'ok') lines.push(`${labels.status}: ${header.status}`);
+  if (mode === 'full') {
+    for (const block of resultBlocks(result)) {
+      lines.push(`[${block.label}]`, ...block.rows.map(row => `${row.name}: ${row.value}`));
     }
+  } else {
+    const rows = fieldRows(result.summary?.brief);
+    for (let index = 0; index < rows.length; index += 3) {
+      lines.push(rows.slice(index, index + 3).map(row => `${row.name}: ${row.value}`).join(' | '));
+    }
+    const controllers = resultBlocks(result).flatMap(block => block.rows).filter(row => isControllerFieldKey(row.key));
+    const count = new Set(controllers.flatMap(row => row.items.length ? row.items : [row.value])).size;
+    if (count) lines.push(`${labels.controllers}: ${count} ${labels.count}`);
   }
   const relations = relationRows(result);
   if (relations.length) {
-    lines.push('[Relations]');
-    for (const relation of relations) {
+    lines.push(`[${labels.relations}]`);
+    for (const relation of mode === 'full' ? relations : relations.slice(0, 3)) {
       lines.push([relation.label, relation.value].filter(Boolean).join(': '));
+      if (mode === 'full') lines.push(...relation.fields.map(row => `${row.name}: ${row.value}`));
     }
+    if (mode !== 'full' && relations.length > 3) lines.push(`${labels.relations}: ${relations.length} ${labels.count}`);
   }
-  const links = externalLinkRows(result.links, header.vendor);
-  if (links.length) {
-    lines.push('[Links]');
-    for (const link of links) {
-      lines.push(`${link.label}: ${link.url}`);
-    }
+  for (const candidate of asArray(result.candidates)) {
+    lines.push(`${labels.candidates}: ${deviceTitle(candidate.device)}`);
+    if (mode === 'full') lines.push(...fieldRows(candidate.fields).map(row => `${row.name}: ${row.value}`));
+    for (const warning of asArray(candidate.warnings)) lines.push(`${labels.warnings}: ${warning.message || warning.code}`);
   }
-  return lines.join('\n');
+  for (const warning of warnings(result)) lines.push(`${labels.warnings}: ${warning.message}`);
+  return lines.filter(Boolean).join('\n');
+}
+
+export function technicalLinksText(result) {
+  return externalLinkRows(result?.links, deviceVendor(result?.device))
+    .filter(link => link.isTechnical && !link.isAdvertisement)
+    .map(link => {
+      const url = new URL(link.url);
+      for (const key of [...url.searchParams.keys()]) {
+        if (/^utm_/i.test(key)) url.searchParams.delete(key);
+      }
+      return `${link.label}: ${url.toString()}`;
+    }).join('\n');
+}
+
+export function specificationRows(rows = [], { compactLabels = false } = {}) {
+  return rows.map(row => {
+    const label = compactLabels ? row.name.replace(/^DRAM\s*/i, '') : row.name;
+    const width = [...String(row.value)].reduce((sum, char) => sum + (char.codePointAt(0) > 0x7f ? 2 : 1), 0);
+    return {
+      ...row,
+      label,
+      mobileLong: width > 12,
+      long: width > 24 || String(row.value).includes('\n') || row.items?.length > 0
+    };
+  });
 }

@@ -15,7 +15,7 @@
 FlashMaster is a workstation-grade static Vue application. Unlike marketing-heavy landing pages, it provides a "dense" surface optimized for engineers and technicians dealing with NAND Flash, DRAM, and managed storage (eMMC, UFS, SSD).
 
 ### Core Workflows
-- **Workstation UI:** Dense, responsive auto-flow layouts with native i18n and theme switching.
+- **Workstation UI:** Centered, compact key-value specifications with expandable controller lists, brief/full copy, native i18n, and theme switching.
 - **Part Number Decoding:** Instant decoding of complex part numbers for Micron, Samsung, SK Hynix, Kioxia, and more.
 - **Flash ID Decoding:** Detailed NAND Flash ID inspection with process, die-profile, and vendor-specific attributes.
 - **Smart Search:** Cross-database search for PN, FBGA codes, package markings, and Flash IDs.
@@ -31,7 +31,7 @@ FlashMaster is designed with a "Thin UI, Thick Engine" philosophy.
 - **Engine ([fdnext](https://github.com/iTXTech/fdnext)):** The core logic is powered by the `fdnext` engine, bundled as a Git submodule. It handles all parsing, rule matching, and database queries.
 - **Dual Backends:**
   - **Embedded:** The engine runs asynchronously via Web Workers in the browser. Zero server dependency.
-  - **HTTP API:** Can be configured to talk to a remote [fdnext server](https://github.com/iTXTech/fdnext) for centralized updates or heavy workloads.
+  - **HTTP API:** Can be configured to talk to a remote [fdnext server](https://github.com/iTXTech/fdnext) using `fdnext.result.v2` for centralized updates or heavy workloads.
 
 Key components:
 - [`src/services/flashApi.js`](src/services/flashApi.js): Backend selector and abstraction layer.
@@ -46,7 +46,7 @@ FlashMaster uses the modern [pnpm](https://pnpm.io/) toolchain.
 
 ### Prerequisites
 - Node.js 24+
-- pnpm 10+
+- pnpm version declared in `package.json` (`packageManager`)
 
 ### Quick Start
 ```bash
@@ -70,6 +70,7 @@ pnpm dev
 | `pnpm build:singlefile:nano` | Ultra-light offline build (No charts/analytics) |
 | `pnpm build:singlefile:pico` | HTTP-only offline build (No embedded engine) |
 | `pnpm lint` | Run ESLint |
+| `pnpm test` | Run local unit tests |
 | `pnpm preview` | Preview local production build |
 
 ---
@@ -85,6 +86,8 @@ FlashMaster is highly portable and customizable via build variables. Detailed gu
 
 ## 📖 Documentation
 
+- [Development Contracts and Verification (Chinese)](docs/DEVELOPMENT.md)
+- [Agent Guide](AGENTS.md)
 - [Deployment, PWA, and Offline](docs/DEPLOYMENT.md)
 - [Changelog](CHANGELOG.txt)
 - [iTXTech fdnext](https://github.com/iTXTech/fdnext)

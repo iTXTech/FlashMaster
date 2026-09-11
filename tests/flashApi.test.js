@@ -12,7 +12,7 @@ async function harness() {
   const embeddedCalls = [];
   const context = createContext({ URL, fetch: (url, { signal }) => new Promise((resolve, reject) => {
     signal.addEventListener('abort', () => reject(signal.reason), { once: true });
-    calls.push({ url: new URL(url), signal, complete: () => resolve({ ok: true, text: async () => JSON.stringify({ schemaVersion: 'fdnext.result.v1', items: [] }) }) });
+    calls.push({ url: new URL(url), signal, complete: (payload = { schemaVersion: 'fdnext.result.v2', items: [] }) => resolve({ ok: true, text: async () => JSON.stringify(payload) }) });
   }) });
   const synthetic = values => new SyntheticModule(Object.keys(values), function () {
     for (const [key, value] of Object.entries(values)) this.setExport(key, value);
@@ -27,8 +27,11 @@ async function harness() {
     '@/services/fdnextApi': synthetic(Object.fromEntries([
       'decodeEmbeddedFlashId', 'decodeEmbeddedPartNumber', 'getEmbeddedInfo',
       'searchEmbeddedFlashId', 'searchEmbeddedPartNumber', 'warmEmbeddedParser'
-    ].map(name => [name, (...args) => { embeddedCalls.push({ name, args }); return { schemaVersion: 'fdnext.result.v1', items: [] }; }]))),
-    '@/services/fdnextResultView': synthetic({ FDNEXT_CAPABILITIES_SCHEMA_VERSIONS: ['fdnext.capabilities.v1'], summaryText: () => 'summary' }),
+    ].map(name => [name, (...args) => { embeddedCalls.push({ name, args }); return { schemaVersion: 'fdnext.result.v2', items: [] }; }]))),
+    '@/services/fdnextResultView': synthetic({
+      FDNEXT_CAPABILITIES_SCHEMA_VERSION: 'fdnext.capabilities.v2', FDNEXT_RESULT_SCHEMA_VERSION: 'fdnext.result.v2',
+      summaryText: (_result, mode) => mode === 'full' ? 'full summary' : 'brief summary'
+    }),
     '@/services/requestControl': synthetic({ DEFAULT_HTTP_REQUEST_TIMEOUT_MS, runWithRequestTimeout }),
     '@/services/automaticRequests': synthetic({ automaticRequest })
   };
@@ -77,4 +80,18 @@ test('context keys invalidate displayed summaries and automatic reads across par
   await h.api.searchFlashId('2CD', 10, { signal: controller.signal, automatic: true });
   assert.equal(h.embeddedCalls[1].args[1], 10);
   assert.equal(h.embeddedCalls[1].args[2].automatic, true);
+});
+
+test('HTTP requires v2 and both summary variants on successful decodes', async () => {
+  const h = await harness();
+  const old = h.api.decodePartNumber('JZ215');
+  h.calls.at(-1).complete({ schemaVersion: 'fdnext.result.v1', status: 'ok', operation: 'part.decode' });
+  await assert.rejects(old, /Unsupported fdnext response/);
+  const incomplete = h.api.decodeFlashId('2CDC90A65400');
+  h.calls.at(-1).complete({ schemaVersion: 'fdnext.result.v2', status: 'ok', operation: 'identifier.decode', summary: { brief: [] } });
+  await assert.rejects(incomplete, /Missing fdnext summary/);
+  const summary = h.api.summarizePartNumber('JZ215', { mode: 'full' });
+  h.calls.at(-1).complete({ schemaVersion: 'fdnext.result.v2', status: 'ok', operation: 'part.decode', summary: { brief: [], full: [] } });
+  assert.equal(await summary, 'full summary');
+  assert.equal(h.calls.at(-1).url.searchParams.has('mode'), false);
 });

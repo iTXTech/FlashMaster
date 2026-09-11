@@ -21,7 +21,7 @@ pnpm build
   ```bash
   VITE_FLASHMASTER_ROUTER_MODE=hash pnpm build
   ```
-  *特点：* 兼容性最强。无需服务器特殊配置，支持直接双击打开、静态托管及 WebView。
+  *特点：* 无需服务端 SPA 重写规则，适合静态托管及 WebView。标准 Web 产物仍需 HTTP(S) 服务；直接双击打开使用下文的单文件构建。
 
 - **History 模式:**
   ```bash

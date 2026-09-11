@@ -1,27 +1,14 @@
 <template>
   <div class="workspace workspace--search workspace--search-id">
     <div class="workspace-grid">
-      <section class="panel">
-        <div class="panel-header">
-          <div>
-            <h2 class="panel-title">{{ $t('searchId') }}</h2>
-          </div>
-          <v-btn
-            icon="mdi-arrow-right"
-            variant="text"
-            :disabled="!flashId"
-            :aria-label="$t('searchId')"
-            @click="search"
-          />
-        </div>
-        <div class="panel-body query-stack">
+      <section class="panel lookup-query-panel">
+        <div class="lookup-query-bar">
           <v-text-field
             ref="input"
             v-model="flashIdInput"
             class="pn"
             clearable
             hide-details
-            prepend-inner-icon="mdi-magnify"
             :loading="loading"
             :label="$t('flashId')"
             @keydown.enter="onEnter"
@@ -29,7 +16,7 @@
             @compositionend="onCompositionEnd"
             @blur="onBlur"
           />
-          <div class="action-row">
+          <div class="lookup-query-actions">
             <v-btn color="primary" prepend-icon="mdi-magnify" :disabled="!flashId" @click="search">{{ $t('searchId') }}</v-btn>
             <v-btn variant="tonal" prepend-icon="mdi-memory" :disabled="!flashId" @click="decodeCurrent">{{ $t('searchIdPage.query') }}</v-btn>
           </div>

@@ -15,7 +15,7 @@
 FlashMaster 是一个工作站级别的静态 Vue 应用。与偏向营销的落地页不同，它为工程师和技术人员提供了一个“高密度”的界面，优化了对 NAND Flash、DRAM 以及托管存储（eMMC、UFS、SSD）的处理效率。
 
 ### 核心工作流
-- **工作站 UI:** 紧凑的响应式流式布局，原生提供多语言与深色主题支持。
+- **工作站 UI:** 居中的紧凑 key-value 规格表与可展开控制器列表，支持简略/完整复制、多语言与主题切换。
 - **料号解析:** 快速解析 美光、三星、SK海力士、铠侠 等主流厂商的复杂料号。
 - **Flash ID 解析:** 详细的 NAND Flash ID 检查，包含制程、Die 和厂商特定属性。
 - **智能搜索:** 跨数据库搜索料号、FBGA 代码、封装标记和 Flash ID。
@@ -31,7 +31,7 @@ FlashMaster 采用“轻 UI，重引擎”的设计哲学。
 - **引擎 ([fdnext](https://github.com/iTXTech/fdnext)):** 核心逻辑由作为 Git 子模块引入的 `fdnext` 引擎驱动。它处理所有的解析、规则匹配和数据库查询。
 - **双后端模式:**
   - **内嵌模式:** 引擎通过 Web Worker 在浏览器中异步运行。完全零服务器依赖。
-  - **HTTP API:** 可配置连接到远程 [fdnext 服务器](https://github.com/iTXTech/fdnext)，适用于集中更新或重度负载。
+  - **HTTP API:** 可配置连接到采用 `fdnext.result.v2` 的远程 [fdnext 服务器](https://github.com/iTXTech/fdnext)，适用于集中更新或重度负载。
 
 关键组件:
 - [`src/services/flashApi.js`](src/services/flashApi.js): 后端选择器与抽象层。
@@ -46,7 +46,7 @@ FlashMaster 使用现代化的 [pnpm](https://pnpm.io/) 工具链。
 
 ### 前置条件
 - Node.js 24+
-- pnpm 10+
+- 使用 `package.json` 中 `packageManager` 指定的 pnpm 版本
 
 ### 快速开始
 ```bash
@@ -70,6 +70,7 @@ pnpm dev
 | `pnpm build:singlefile:nano` | 极简离线构建 (无图表/统计) |
 | `pnpm build:singlefile:pico` | HTTP-only 单文件构建 (无内嵌引擎) |
 | `pnpm lint` | 运行 ESLint |
+| `pnpm test` | 运行本地单元测试 |
 | `pnpm preview` | 预览本地生产环境构建 |
 
 ---
@@ -85,6 +86,8 @@ FlashMaster 具有极高的便携性，并支持通过构建变量进行定制�
 
 ## 📖 文档
 
+- [开发契约与验证](docs/DEVELOPMENT.md)
+- [Agent 协作指南](AGENTS.md)
 - [部署、PWA 与离线分发](docs/DEPLOYMENT.md)
 - [更新日志](CHANGELOG-zh.txt)
 - [iTXTech fdnext](https://github.com/iTXTech/fdnext)

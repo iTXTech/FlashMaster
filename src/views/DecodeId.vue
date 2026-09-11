@@ -1,97 +1,27 @@
 <template>
   <div class="workspace workspace--decode-id">
-    <div class="workspace-grid">
-      <section class="panel">
-        <div class="panel-header">
-          <div>
-            <h2 class="panel-title">{{ $t('dashboard.queryPanel') }}</h2>
-          </div>
-          <v-btn
-            icon="mdi-book-information-variant"
-            variant="text"
-            :disabled="!flashId"
-            :aria-label="$t('summary')"
-            @click="copySummary"
-          />
+    <section class="panel lookup-query-panel">
+      <div class="lookup-query-bar">
+        <QuerySuggestionInput
+          ref="input"
+          v-model="flashIdInput"
+          :items="suggestions"
+          :loading="loadingSuggestions || loading"
+          :label="$t('flashId')"
+          @search="searchSuggestions"
+          @select="selectFlashIdSuggestion"
+          @submit="decode"
+          @compositionstart="onCompositionStart"
+          @compositionend="onCompositionEnd"
+          @blur="onBlur"
+        />
+        <div class="lookup-query-actions">
+          <v-btn color="primary" prepend-icon="mdi-memory" :disabled="!flashId" @click="decode">{{ $t('searchIdPage.query') }}</v-btn>
+          <v-btn variant="tonal" prepend-icon="mdi-magnify" :disabled="!flashId" @click="goSearchId">{{ $t('searchIdPage.search') }}</v-btn>
         </div>
-        <div class="panel-body query-stack">
-          <QuerySuggestionInput
-            ref="input"
-            v-model="flashIdInput"
-            :items="suggestions"
-            :loading="loadingSuggestions || loading"
-            :label="$t('flashId')"
-            @search="searchSuggestions"
-            @select="selectFlashIdSuggestion"
-            @submit="decode"
-            @compositionstart="onCompositionStart"
-            @compositionend="onCompositionEnd"
-            @blur="onBlur"
-          />
-          <div class="action-row">
-            <v-btn color="primary" prepend-icon="mdi-memory" :disabled="!flashId" @click="decode">{{ $t('searchIdPage.query') }}</v-btn>
-            <v-btn variant="tonal" prepend-icon="mdi-magnify" :disabled="!flashId" @click="goSearchId">{{ $t('searchIdPage.search') }}</v-btn>
-          </div>
-        </div>
-      </section>
-
-      <DecodeResultPanel
-        :result="result"
-        :header="header"
-        :meta="resultPanelMeta"
-        :metrics="mainMetrics"
-        :warnings="warningRows"
-        vendor-metric-class="decode-id-vendor-metric"
-        metrics-class="decode-id-detail-grid"
-        @copy-overview="copyOverview"
-      />
-    </div>
-
-    <AutoFlowGrid v-if="result" class="decode-id-secondary-grid">
-      <section v-if="relations.length > 0" class="panel decode-id-pn-panel">
-        <div class="panel-header">
-          <div>
-            <h2 class="panel-title">{{ $t('searchIdPage.pns') }}</h2>
-            <div class="panel-meta">{{ $t('dashboard.resultCount', [relations.length]) }}</div>
-          </div>
-        </div>
-        <div class="decode-id-pn-grid">
-          <button
-            v-for="item in relations"
-            :key="item.key"
-            class="decode-id-pn-card"
-            type="button"
-            @click="item.route && router.push(localizedRoute(item.route))"
-          >
-            <div class="search-card-label">{{ item.actionLabel || item.kind }}</div>
-            <span class="search-card-title">{{ item.target || item.value }}</span>
-          </button>
-        </div>
-      </section>
-
-      <DecodeDetailBlock
-        v-for="block in detailBlockViews"
-        :key="block.id"
-        :block="block"
-        :headers="fieldHeaders"
-        panel-class="decode-id-info-panel"
-        class-prefix="decode-id-info-panel"
-        @copy-rows="copyRows"
-        @copy-line="copyLine"
-      />
-
-      <section v-if="externalLinks.length > 0" class="panel external-link-panel decode-id-link-panel">
-        <div class="panel-header">
-          <div>
-            <h2 class="panel-title">{{ $t('dashboard.externalLinks') }}</h2>
-            <div class="panel-meta">{{ $t('dashboard.resultCount', [externalLinks.length]) }}</div>
-          </div>
-        </div>
-        <div class="panel-body external-link-panel-body">
-          <ExternalLinks :links="externalLinks" />
-        </div>
-      </section>
-    </AutoFlowGrid>
+      </div>
+    </section>
+    <DecodeResultPanel :result="result" :meta="resultPanelMeta" @copy-overview="copyOverview" @copy-block="copyBlock" @copy-resources="copyLine" />
   </div>
 </template>
 
@@ -99,28 +29,20 @@
 import { computed, nextTick, onBeforeUnmount, ref, shallowRef } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
-import AutoFlowGrid from '@/components/AutoFlowGrid.vue';
-import DecodeDetailBlock from '@/components/DecodeDetailBlock.vue';
 import DecodeResultPanel from '@/components/DecodeResultPanel.vue';
-import ExternalLinks from '@/components/ExternalLinks.vue';
 import QuerySuggestionInput from '@/components/QuerySuggestionInput.vue';
 import { copyText } from '@/services/clipboard';
-import { lookupContextKey, decodeFlashId, searchFlashId, summarizeFlashId } from '@/services/flashApi';
+import { decodeFlashId, searchFlashId } from '@/services/flashApi';
 import { isRequestAbortError, isRequestTimeoutError, SUGGESTION_REQUEST_TIMEOUT_MS } from '@/services/requestControl';
 import {
-  detailBlocks,
-  externalLinkRows,
   identifierSuggestions,
-  primaryMetrics,
-  relationRows,
   resultHeader,
   summaryText,
-  warnings
 } from '@/services/fdnextResultView';
 import { trackCoverageSignal, trackFlashIdLookup } from '@/services/analytics';
 import { useFormattedQueryInput } from '@/composables/useFormattedQueryInput';
 import { useRouteLookup } from '@/composables/useRouteLookup';
-import { idRoute, idsSearchRoute, localizeRouteLocation, routeParamText } from '@/router/locations';
+import { idRoute, idsSearchRoute, routeParamText } from '@/router/locations';
 import bus from '@/store/bus';
 import store from '@/store';
 
@@ -132,7 +54,6 @@ const input = ref(null);
 const flashId = ref('');
 const suggestions = ref([]);
 const result = shallowRef(null);
-let resultContextKey = '';
 const loading = ref(false);
 const loadingSuggestions = ref(false);
 let suggestionTimer;
@@ -158,21 +79,6 @@ const resultPanelMeta = computed(() => {
   if (result.value.status === 'not_found') return t('dashboard.notFound');
   return result.value.status && result.value.status !== 'ok' ? header.value.status : '';
 });
-const mainMetrics = computed(() => primaryMetrics(result.value));
-const detailBlockViews = computed(() => detailBlocks(result.value).map(block => ({
-  ...block,
-  wide: block.rows.some(row => row.items?.length),
-  cardView: block.rows.length <= 6
-})));
-const relations = computed(() => relationRows(result.value));
-const warningRows = computed(() => warnings(result.value));
-const externalLinks = computed(() => externalLinkRows(result.value?.links, header.value.vendor));
-const fieldHeaders = computed(() => [
-  { title: t('name'), key: 'name' },
-  { title: t('value'), key: 'value' },
-  { title: t('action'), key: 'action' }
-]);
-
 function normalizeComboValue(value) {
   if (value && typeof value === 'object') {
     return value.value || value.title || '';
@@ -220,10 +126,6 @@ function routeFlashId() {
   return store.partNumberFormat(routeParamText(route, 'id'));
 }
 
-function localizedRoute(location) {
-  return localizeRouteLocation(location, route);
-}
-
 function decodeResultCount(payload) {
   if (payload?.status === 'ok') return 1;
   return Array.isArray(payload?.candidates) ? payload.candidates.length : 0;
@@ -240,7 +142,6 @@ function decode() {
 }
 
 async function runLookup(id, { recordUsage = true } = {}) {
-  const contextKey = lookupContextKey('identifiers/decode', id);
   const requestId = ++decodeRequestId;
   const controller = beginMainRequest();
   if (store.isAutoHideSoftKeyboard()) {
@@ -251,7 +152,6 @@ async function runLookup(id, { recordUsage = true } = {}) {
     const payload = await decodeFlashId(id, { signal: controller.signal });
     if (requestId !== decodeRequestId) return;
     result.value = payload;
-    resultContextKey = contextKey;
     if (recordUsage) {
       const resultCount = decodeResultCount(payload);
       store.statDecodeFidInc();
@@ -358,38 +258,12 @@ function goSearchId() {
   router.push(idsSearchRoute(id, route));
 }
 
-async function copySummary() {
-  const id = normalizeInput();
-  if (!id) return notify(t('alert.missingFlashId'));
-  if (result.value && resultContextKey === lookupContextKey('identifiers/decode', id)) {
-    return copyLine(summaryText(result.value), t('dashboard.copiedSummary'));
-  }
-  const requestId = ++decodeRequestId;
-  const controller = beginMainRequest();
-  loading.value = true;
-  try {
-    const summary = await summarizeFlashId(id, { signal: controller.signal });
-    if (requestId !== decodeRequestId) return;
-    await copyLine(summary, t('dashboard.copiedSummary'));
-  } catch (err) {
-    if (requestId !== decodeRequestId || isRequestAbortError(err)) return;
-    notifyRequestError(err);
-  } finally {
-    if (requestId === decodeRequestId) {
-      loading.value = false;
-      if (mainRequestController === controller) {
-        mainRequestController = undefined;
-      }
-    }
-  }
+function copyOverview(mode = 'brief') {
+  copyLine(summaryText(result.value, mode));
 }
 
-function copyOverview() {
-  copyLine(summaryText(result.value));
-}
-
-function copyRows(rows) {
-  copyLine(rows.map(item => `${item.name}: ${item.value}`).join('\n'));
+function copyBlock(block) {
+  copyLine([`[${block.label}]`, ...block.rows.map(item => `${item.name}: ${item.value}`)].join('\n'));
 }
 
 async function copyLine(text, success = t('copySucc')) {

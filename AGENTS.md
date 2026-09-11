@@ -1,265 +1,99 @@
-# FlashMaster Repository Notes
+# FlashMaster Agent Guide
 
-## Current Scope
+FlashMaster is a dense memory-chip lookup workstation built with Vite, Vue 3,
+Vuetify, Vue Router, and Vue I18n. Keep the first screen directly usable for PN
+and NAND Flash ID decoding/search; do not add a marketing landing page.
 
-FlashMaster is now a Vite + Vue 3 + Vuetify dense Memory Chip Intelligence
-Platform for memory-chip part-number lookup, NAND Flash ID lookup, database
-search, and result inspection. It is no longer in the Step 1 migration phase.
+## Task scope and completion
 
-Keep the app focused as a practical tool surface. Do not add a landing page or
-marketing-style first screen.
+- Carry an implementation request through the local change, relevant checks,
+  and fixes for failures it causes. Routine reversible work within that scope
+  does not need another approval. Ask only when missing information materially
+  changes the result or an action needs authorization not already given.
+- An audit-only or proposal-only request stays read-only. Preserve unrelated
+  work in the checkout; do not reset it to simplify the task.
+- `commit` means a scoped local commit. `commit all` includes the worktree after
+  reviewing its contents for unintended files and secrets. Neither implies
+  push, deployment, or release; follow explicit authorization already given.
+- Read the source and documentation relevant to the change. The links below
+  are task-specific references, not a required reading sequence.
+- Explicit user instructions override workflow defaults in this guide and
+  project skills. If a rule blocks the requested work, cite its file and wording
+  and explain the specific decision needed; do not invent an approval gate.
 
 ## Toolchain
 
-- Use `pnpm` as the package manager.
-- The main commands are:
-  - `pnpm install`
-  - `pnpm dev`
-  - `pnpm lint`
-  - `pnpm build`
-  - `pnpm build:singlefile`
-  - `pnpm build:singlefile:nano`
-  - `pnpm build:singlefile:pico`
-  - `pnpm preview`
-- The app is built with Vite, Vue 3, Vue Router, Vue I18n, Vuetify, and
-  Material Design Icons.
-- Keep frontend/runtime tooling dependencies on the latest compatible versions
-  by default. When dependency major versions move, update `package.json` and
-  `pnpm-lock.yaml` together and run `pnpm lint` plus `pnpm build`.
-- Do not pin repository notes or docs to old major dependency versions unless a
+- Use `pnpm`; `package.json` defines the package-manager version and scripts.
+  Development starts with `pnpm dev`; preview uses `pnpm preview`.
+- When updating dependencies, prefer the latest compatible versions and keep
+  `package.json` and `pnpm-lock.yaml` together. Do not upgrade unrelated
+  dependencies as part of another task. Document an older major only when a
   known compatibility constraint requires it.
-- Keep Vuetify components manually registered on demand in `src/main.js`.
-  Do not use `import * as components from 'vuetify/components'` or
-  `import * as directives from 'vuetify/directives'`; when adding Vuetify UI,
-  import and register only the components that are actually used.
-- Do not add `vite-plugin-vuetify` just to replace the manual on-demand
-  registration unless the user explicitly asks for that plugin path.
-- Do not reintroduce Vue CLI, webpack, Yarn, or Vue 2 dependencies.
+- Register only used Vuetify components/directives manually in `src/main.js`.
+  Do not use wildcard registrations or add `vite-plugin-vuetify` unless asked.
+  Keep the current Vite/Vue stack; do not reintroduce Vue CLI, webpack, Yarn,
+  or Vue 2.
 
-## Public Routes
+## Product and integration boundaries
 
-Keep one public route set available in both hash and history router modes:
+- UI queries go through `src/services/flashApi.js`. Preserve embedded fdnext
+  and the configured HTTP backend, including decode, search, info, and summary
+  behavior. Pico builds remain HTTP-only.
+- `vendor/fdnext` is an upstream Git submodule. Do not edit it without an
+  explicit upstream patch request, copy its source/resources into the app, or
+  replace it with `../fdnext`. Preserve the `@itxtech/fdnext-core` and
+  `@itxtech/fdnext-decodepack` aliases unless upstream changes its layout.
+- Preserve public routes in hash/history modes and `/en`/`/zh` URL prefixes.
+  Keep settings persistence compatible through `src/store/index.js`.
+- Preserve the compact navigation, title/language area, settings, result
+  panels, paged tables, and copy actions. Theme choices are dark, light, and
+  system in Settings. Footer: `© 2019-2026 iTX Technologies`.
+- Market Pulse stays optional, quiet, and easy to disable. Keep visible-slot
+  rendering, CSS-driven scrolling, and suspension while the document is hidden.
+- Query analytics involve user input. Any expansion must be transparent, offer
+  a Settings control, and prefer aggregated or normalized data. Do not silently
+  introduce an external analytics provider or endpoint.
 
-- `/parts`
-- `/parts/:pn`
-- `/parts/search/:query`
-- `/ids`
-- `/ids/:id`
-- `/ids/search/:query`
-- `/settings`
-- `/about`
+## Verification
 
-Each route may be prefixed with `/en` or `/zh` for URL-level language selection.
-The default `VITE_FLASHMASTER_ROUTER_MODE` is `hash`; `history` requires SPA
-rewrite rules such as Cloudflare Pages `/* /index.html 200`.
+- Documentation/instruction-only changes need diff, link, and factual checks;
+  validate skill metadata when changed. They do not require app builds or UI
+  smoke tests unless they also change runtime behavior.
+- For application code, dependencies, build configuration, or an fdnext pointer
+  update, run `pnpm lint` and `pnpm build`, plus affected existing tests where
+  applicable. Add regression tests for meaningful behavior, not wording or
+  trivial changes that only mirror the implementation.
+- UI changes also need a browser check of the affected flow and relevant
+  viewport/settings states. Use the [verification matrix](docs/DEVELOPMENT.md#验证选择)
+  to select tests and build variants; a small UI edit does not require every
+  unrelated feature to be exercised.
+- Once relevant checks pass, repeat or broaden them only for new changes,
+  failures, or unresolved risks. Respect an explicit request to skip tests and
+  report what was not verified. An unavailable HTTP server is a verification
+  gap; mocked requests or a successful build do not prove live compatibility.
+- Do not commit generated `dist` or `dist-singlefile` output unless requested.
 
-## Parser Architecture
+## Documentation and versions
 
-The UI talks through `src/services/flashApi.js`. That service selects the active
-backend based on Settings:
+- Keep `README.md` and `README-zh.md` content synchronized as concise overviews.
+  Detailed docs belong in `docs/`, in Chinese unless English is requested.
+- Add user-visible release changes at the top of both `CHANGELOG.txt` and
+  `CHANGELOG-zh.txt`; preserve older entries. Agent-guidance-only edits do not
+  need an application version bump or product changelog entry.
+- The base app version lives in `package.json`; `vite.config.js` derives app
+  and fdnext version/hash displays. Do not hand-edit injected version constants.
+  Changelog seen-state uses the base version without build metadata.
 
-- Embedded parser: `src/services/fdnextApi.js` adapts the bundled iTXTech
-  `fdnext` engine and resources from the `vendor/fdnext` Git submodule.
-- HTTP parser: the legacy FlashDetector HTTP API remains available for
-  compatibility and uses the configured server address.
-- Pico single-file builds are HTTP-only: they replace the embedded adapter at
-  build time, force HTTP parser mode, and may lock the server address with
-  `VITE_FLASHMASTER_LOCKED_SERVER`.
+## Task-specific references
 
-Preserve behavior for these logical endpoints:
+- Updating the bundled parser: use
+  [flashmaster-fdnext-update](.agents/skills/flashmaster-fdnext-update/SKILL.md).
+  Ordinary UI/parser-adapter work does not itself call for a submodule refresh.
+- Changing routes, parser contracts, UI/state, or Market Pulse: read the relevant
+  section of [development contracts](docs/DEVELOPMENT.md).
+- Changing single-file, PWA, hosting, or release behavior: use
+  [deployment guidance](docs/DEPLOYMENT.md) and the current `vite.config.js` or
+  `.github/workflows/release.yml` for the affected mode.
 
-- `info`
-- `decode`
-- `decodeId`
-- `searchPn`
-- `searchId`
-- `summary`
-- `summaryId`
-
-Update the embedded parser with:
-
-```bash
-git submodule update --remote vendor/fdnext
-```
-
-When the submodule changes, verify both embedded parsing and HTTP mode still
-work.
-
-## fdnext Update Rules
-
-Treat `vendor/fdnext` as an upstream Git submodule, not as local application
-source.
-
-Standard update flow:
-
-```bash
-git submodule update --init --recursive
-git -C vendor/fdnext status --short
-git -C vendor/fdnext log --oneline --max-count=8
-git submodule update --remote vendor/fdnext
-git diff --submodule=log vendor/fdnext
-```
-
-After updating:
-
-- Review the fdnext commit log between the old and new submodule commits.
-- Summarize user-visible parser, database, rule, or resource changes in the
-  FlashMaster changelog when they affect decoding/search behavior.
-- Keep new changelog entries at the top of both `CHANGELOG.txt` and
-  `CHANGELOG-zh.txt`.
-- If the app version is bumped, update `package.json`; the build will append the
-  FlashMaster Git short hash automatically.
-- Do not manually edit `__FDNEXT_VERSION__` or `__FDNEXT_COMMIT_HASH__`; they are
-  derived in `vite.config.js` from the fdnext package version and submodule Git
-  short hash.
-- Stage the submodule pointer update itself, plus any app, changelog, or version
-  files that intentionally changed.
-
-Guardrails:
-
-- Do not copy fdnext source or resource files out of `vendor/fdnext`.
-- Do not replace the submodule with a direct `../fdnext` dependency.
-- Do not make local edits inside `vendor/fdnext` unless the user explicitly asks
-  for an upstream patch workflow.
-- If `vendor/fdnext` is dirty before an update, inspect the changes first and
-  avoid resetting them without explicit approval.
-- Preserve the Vite aliases for `@itxtech/fdnext-core` and
-  `@itxtech/fdnext-decodepack` unless fdnext changes its package layout.
-
-Minimum verification after an fdnext update:
-
-```bash
-pnpm lint
-pnpm build
-```
-
-Manual smoke test:
-
-- Embedded PN decode.
-- Embedded Flash ID decode.
-- Embedded PN search.
-- Embedded Flash ID search.
-- Settings parser version display.
-- HTTP parser mode still loads and calls the configured FlashDetector server.
-
-## Versioning And Changelog
-
-- `package.json` contains the base app version.
-- `vite.config.js` exposes `VERSION` as `<package version>+<git short hash>`.
-- `vite.config.js` exposes the fdnext package version and Git short hash through
-  `__FDNEXT_VERSION__` and `__FDNEXT_COMMIT_HASH__`; the UI displays them as
-  `<fdnext package version>+<fdnext git short hash>`.
-- Changelog state uses only the main version without SemVer build metadata.
-- Changelog source files live at the repository root:
-  - `CHANGELOG.txt`
-  - `CHANGELOG-zh.txt`
-- New changelog entries go at the top. Do not delete older version entries.
-- Changelog files are displayed by `src/components/ChangelogDialog.vue` as
-  scrollable text.
-
-## Documentation Language Rules
-
-- `README.md` is the primary English overview.
-- Keep `README-zh.md` as the Chinese companion. Any content update to
-  `README.md` must be reflected in `README-zh.md` in the same change set.
-- Keep detailed documentation under `docs/` in Chinese by default. Only create
-  English sub-documents when the user explicitly asks for them.
-- Keep feature details, deployment procedures, and operational guidance in
-  `docs/`; keep the root README files as overview and entrypoint documents.
-
-## UI Rules
-
-- Keep the UI high-density and workstation-like.
-- The first screen should be directly usable.
-- Preserve the compact left navigation, top title/language area, settings page,
-  result panels, paged tables, and copy actions.
-- Theme selection lives in Settings and supports only dark, light, and system.
-- Keep footer copyright as `© 2019-2026 iTX Technologies`.
-- In result data, prefer meaningful fields over repeated raw query echoes. Avoid
-  showing duplicate PN/Flash ID values unless they add useful context.
-- Vendor logos are rendered through `src/services/vendorLogos.js`; if a link row
-  uses `img: "logo"`, show the vendor logo.
-
-## Market Pulse
-
-The optional Market Pulse bar is implemented by:
-
-- `src/components/MarketPulse.vue`
-- `src/services/marketApi.js`
-- the `marketPulse` localStorage setting in `src/store/index.js`
-
-It uses Hyperliquid `xyz` market data, preferring WebSocket updates and falling
-back to HTTP snapshots. The default endpoints can be overridden with:
-
-- `VITE_FLASHMASTER_MARKET_ENDPOINT`
-- `VITE_FLASHMASTER_MARKET_WS_ENDPOINT`
-
-Keep Market Pulse optional, quiet, and easy to disable. It should not distract
-from FlashMaster's primary NAND tools.
-
-Performance expectations:
-
-- Render only the visible Market Pulse slots plus a small buffer.
-- Use fixed Market Pulse slots to avoid wide-screen jumpiness.
-- Keep the scrolling animation CSS-driven.
-- Stop the market service while the document is hidden.
-- Avoid excessive localStorage writes and UI updates.
-
-## Analytics
-
-`src/services/analytics.js` currently tracks lookup events only when
-`window.gtag` exists. Query analytics are privacy-sensitive because part numbers
-and Flash IDs are user input.
-
-If analytics are expanded:
-
-- Make the behavior transparent in the UI.
-- Prefer aggregated or normalized query data where possible.
-- Keep a Settings control for user choice.
-- Do not silently add new externally visible analytics providers or endpoints.
-
-## State And Persistence
-
-Runtime settings are stored in `localStorage` through `src/store/index.js`.
-Important persisted settings include:
-
-- parser mode
-- HTTP server address
-- language
-- theme
-- capacity unit
-- soft keyboard behavior
-- local usage statistics
-- changelog seen version
-- Market Pulse visibility
-
-## Test Plan
-
-Before handing off meaningful changes, run:
-
-```bash
-pnpm lint
-pnpm build
-```
-
-For UI changes, also run `pnpm dev` and manually verify in the browser:
-
-- PN decode and PN search
-- Flash ID decode and Flash ID search
-- embedded fdnext mode
-- FlashDetector HTTP mode when a server is available
-- settings persistence
-- language switching
-- theme switching
-- changelog dialog behavior
-- copy buttons
-- Market Pulse enable/disable behavior
-
-## Guardrails
-
-- Keep changes scoped to the requested behavior.
-- Do not remove the HTTP API compatibility path.
-- Do not remove the embedded fdnext parser path.
-- Do not add direct dependencies on `../fdnext`; use the `vendor/fdnext`
-  submodule.
-- Do not commit generated `dist` output unless explicitly requested.
+Report the result concisely in the user's language: what changed, what was
+actually verified, and any remaining limitation or required decision.

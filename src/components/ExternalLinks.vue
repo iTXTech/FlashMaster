@@ -4,7 +4,7 @@
       v-for="link in links"
       :key="link.key"
       class="external-link-card"
-      :class="{ 'external-link-card--image': link.image }"
+      :class="{ 'external-link-card--image': link.image, 'external-link-card--ad': link.isAdvertisement }"
       :href="link.url"
       target="_blank"
       rel="noopener noreferrer"
@@ -21,10 +21,11 @@
         <v-icon v-else :icon="link.icon" size="16" />
       </span>
       <span class="external-link-copy">
-        <span class="external-link-label">{{ link.label }}</span>
-        <span v-if="link.hint || link.categoryLabel" class="external-link-hint">
-          {{ link.hint || link.categoryLabel }}
+        <span class="external-link-title">
+          <span class="external-link-category" :class="{ 'external-link-category--ad': link.isAdvertisement }">{{ categoryLabel(link.category) }}</span>
+          <span class="external-link-label">{{ link.label }}</span>
         </span>
+        <span v-if="link.hint" class="external-link-hint">{{ link.hint }}</span>
       </span>
       <v-icon class="external-link-open" icon="mdi-open-in-new" size="14" />
     </a>
@@ -32,6 +33,11 @@
 </template>
 
 <script setup>
+import { useI18n } from 'vue-i18n';
+
+const { t, te } = useI18n();
+const categoryLabel = category => te(`linkCategory.${category}`) ? t(`linkCategory.${category}`) : t('linkCategory.unknown');
+
 defineProps({
   links: {
     type: Array,
