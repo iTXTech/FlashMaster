@@ -21,7 +21,7 @@
         </div>
       </div>
     </section>
-    <DecodeResultPanel :result="result" :meta="resultPanelMeta" @copy-overview="copyOverview" @copy-block="copyBlock" @copy-resources="copyLine" />
+    <DecodeResultPanel :result="result" :meta="resultPanelMeta" @copy-overview="copyOverview" @copy-block="copyBlock" />
   </div>
 </template>
 
@@ -267,7 +267,7 @@ function goSearchPn() {
   router.push(partsSearchRoute(pn, route));
 }
 
-function copyOverview(mode = 'brief') {
+function copyOverview(mode = 'full') {
   copyLine(summaryText(result.value, mode));
 }
 

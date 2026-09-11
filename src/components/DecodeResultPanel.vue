@@ -10,25 +10,26 @@
         <div v-if="result" class="decode-title-line">
           <span class="decode-identity-label">{{ header.device.identifier ? t('flashId') : t('partNumber') }}:</span>
           <h3 class="decode-title">{{ header.title }}</h3>
-          <span v-if="header.kind" class="decode-kind" :aria-label="`${t('dashboard.chipType')}: ${header.kind}`">{{ header.kind }}</span>
         </div>
         <div v-if="meta" class="panel-meta">{{ meta }}</div>
-        <div v-if="header.marking || originalInput" class="decode-input-identity">
-          <span v-if="header.marking">{{ t('dashboard.marking') }}: <strong>{{ header.marking }}</strong></span>
-          <span v-if="originalInput">{{ t('dashboard.originalInput') }}: {{ originalInput }}</span>
+        <div class="decode-identity-details">
+          <div class="decode-identity-fields">
+            <span v-if="header.kind" class="decode-kind" :aria-label="`${t('dashboard.chipType')}: ${header.kind}`">{{ header.kind }}</span>
+            <span v-if="header.marking" class="decode-marking">{{ t('dashboard.marking') }}: <strong>{{ header.marking }}</strong></span>
+          </div>
+          <div class="decode-copy-actions">
+            <v-btn prepend-icon="mdi-content-copy" variant="text" :disabled="!result" :aria-label="t('dashboard.copyFull')" :title="t('dashboard.copyFull')" @click="emit('copy-overview', 'full')">{{ t('dashboard.copySummaryLabel') }}</v-btn>
+            <v-menu>
+              <template #activator="{ props: menuProps }">
+                <v-btn v-bind="menuProps" icon="mdi-chevron-down" variant="text" :disabled="!result" :aria-label="t('dashboard.copyOptions')" />
+              </template>
+              <v-list density="compact">
+                <v-list-item :title="t('dashboard.copyBrief')" @click="emit('copy-overview', 'brief')" />
+              </v-list>
+            </v-menu>
+          </div>
         </div>
-      </div>
-      <div class="decode-copy-actions">
-        <v-btn prepend-icon="mdi-content-copy" variant="text" :disabled="!result" :aria-label="t('dashboard.copyBrief')" :title="t('dashboard.copyBrief')" @click="emit('copy-overview', 'brief')">{{ t('dashboard.copyBriefLabel') }}</v-btn>
-        <v-menu>
-          <template #activator="{ props: menuProps }">
-            <v-btn v-bind="menuProps" icon="mdi-chevron-down" variant="text" :disabled="!result" :aria-label="t('dashboard.copyOptions')" />
-          </template>
-          <v-list density="compact">
-            <v-list-item :title="t('dashboard.copyFull')" @click="emit('copy-overview', 'full')" />
-            <v-list-item :title="t('dashboard.copyTechnicalLinks')" :disabled="!technicalText" @click="emit('copy-resources', technicalText)" />
-          </v-list>
-        </v-menu>
+        <div v-if="originalInput" class="decode-input-identity">{{ t('dashboard.originalInput') }}: {{ originalInput }}</div>
       </div>
     </div>
     <template v-if="result">
@@ -56,10 +57,7 @@
         </div>
       </section>
       <section v-if="externalLinks.length" class="decode-resource-section decode-external-resources">
-        <div class="spec-group-header">
-          <h3>{{ t('dashboard.externalLinks') }}</h3>
-          <v-btn v-if="technicalText" size="small" variant="text" @click="emit('copy-resources', technicalText)">{{ t('dashboard.copyTechnicalLinks') }}</v-btn>
-        </div>
+        <h3>{{ t('dashboard.externalLinks') }}</h3>
         <ExternalLinks v-if="resourceLinks.length" :links="resourceLinks" compact />
         <ExternalLinks v-if="advertisements.length" :links="advertisements" compact />
       </section>
@@ -75,14 +73,14 @@ import { useRoute } from 'vue-router';
 import DecodeSpecificationSheet from '@/components/DecodeSpecificationSheet.vue';
 import ExternalLinks from '@/components/ExternalLinks.vue';
 import VendorLogo from '@/components/VendorLogo.vue';
-import { deviceTitle, externalLinkRows, fieldRows, relationRows, resultBlocks, resultHeader, technicalLinksText, warnings } from '@/services/fdnextResultView';
+import { deviceTitle, externalLinkRows, fieldRows, relationRows, resultBlocks, resultHeader, warnings } from '@/services/fdnextResultView';
 import { localizeRouteLocation } from '@/router/locations';
 
 const props = defineProps({
   result: { type: Object, default: null },
   meta: { type: String, default: '' }
 });
-const emit = defineEmits(['copy-overview', 'copy-block', 'copy-resources']);
+const emit = defineEmits(['copy-overview', 'copy-block']);
 const { t, locale } = useI18n();
 const route = useRoute();
 const header = computed(() => resultHeader(props.result));
@@ -97,5 +95,4 @@ const relationsHeading = computed(() => relations.value.every(item => item.isDef
 const externalLinks = computed(() => externalLinkRows(props.result?.links, header.value.vendor));
 const resourceLinks = computed(() => externalLinks.value.filter(link => !link.isAdvertisement));
 const advertisements = computed(() => externalLinks.value.filter(link => link.isAdvertisement));
-const technicalText = computed(() => technicalLinksText(props.result));
 </script>

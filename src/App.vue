@@ -99,6 +99,7 @@
 
     <v-snackbar
       v-model="snackbar.show"
+      class="app-snackbar"
       :timeout="snackbar.timeout"
       color="surface-variant"
       :style="snackbarStyle"

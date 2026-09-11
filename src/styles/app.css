@@ -129,6 +129,20 @@ body {
   text-transform: none;
 }
 
+.app-snackbar .v-snackbar__wrapper {
+  min-width: min(344px, 100%);
+  max-width: min(672px, 100%);
+}
+
+.app-snackbar .v-snackbar__content {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.app-snackbar .v-snackbar__actions {
+  flex-shrink: 0;
+}
+
 .v-btn.bg-primary {
   color: rgb(var(--v-theme-on-primary)) !important;
 }

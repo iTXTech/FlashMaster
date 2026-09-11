@@ -3,7 +3,9 @@
     <section v-for="block in blocks" :key="block.id" class="spec-group">
       <div class="spec-group-header">
         <h3>{{ block.label }}</h3>
-        <v-btn icon="mdi-content-copy" size="x-small" variant="text" :aria-label="t('dashboard.copySection', [block.label])" @click="emit('copy-block', block)" />
+        <v-btn icon size="small" density="comfortable" variant="text" :aria-label="t('dashboard.copySection', [block.label])" @click="emit('copy-block', block)">
+          <v-icon icon="mdi-content-copy" size="18" />
+        </v-btn>
       </div>
       <ExpandableListCell
         v-if="block.rows.length === 1 && block.rows[0].items.length && block.rows[0].name === block.label"

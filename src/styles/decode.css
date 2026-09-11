@@ -7,23 +7,29 @@
   align-content: start;
 }
 
-.decode-copy-actions { display: flex; align-items: center; gap: 4px; }
+.decode-copy-actions { display: flex; align-items: center; flex: 0 0 auto; margin-inline-start: auto; }
 .decode-copy-actions .v-btn { font-size: 0.8125rem; }
+.decode-copy-actions .v-btn:not(.v-btn--icon) { min-width: 0; padding-inline: 6px; }
+.decode-copy-actions .v-btn__prepend { margin-inline: 0 5px; }
+.decode-copy-actions .v-icon { font-size: 18px; }
 
 .decode-result-panel { --spec-label-width: 84px; container: decode-result / inline-size; min-width: 0; }
 
-.decode-identity { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; padding: 6px 12px; }
-.decode-identity-copy { min-width: 0; flex: 1 1 220px; }
-.decode-copy-actions { flex: 0 0 auto; margin-inline-start: auto; }
+.decode-identity { display: flex; align-items: center; gap: 6px 12px; padding: 6px 12px; }
+.decode-identity-copy { min-width: 0; flex: 1; }
 .decode-identity .vendor-logo-wrap { flex: 0 0 76px; min-height: 30px; margin: 0; padding: 3px 5px; }
 .decode-identity .vendor-logo { width: auto; max-width: 66px; height: auto; max-height: 28px; }
 .decode-vendor-name { font-size: 0.875rem; }
 .decode-vendor { flex: 0 0 76px; }
 .decode-identity-label { color: rgba(var(--v-theme-on-surface), 0.66); font-size: 0.8125rem; }
-.decode-title-line { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
-.decode-title { margin: 0; font: 600 1rem/1.45 ui-monospace, SFMono-Regular, Consolas, monospace; overflow-wrap: anywhere; }
-.decode-kind { color: rgba(var(--v-theme-on-surface), 0.66); font-size: 0.8125rem; white-space: nowrap; }
-.decode-input-identity { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 0.8125rem; opacity: 0.8; overflow-wrap: anywhere; }
+.decode-title-line { line-height: 1.45; }
+.decode-title-line > .decode-identity-label { margin-inline-end: 8px; }
+.decode-title { display: inline; margin: 0; font: 600 1rem/1.45 ui-monospace, SFMono-Regular, Consolas, monospace; overflow-wrap: anywhere; }
+.decode-identity-details { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 10px; margin-top: 2px; font-size: 0.8125rem; }
+.decode-identity-fields { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 10px; min-width: 0; overflow-wrap: anywhere; }
+.decode-kind { color: rgba(var(--v-theme-on-surface), 0.66); }
+.decode-marking { color: rgba(var(--v-theme-on-surface), 0.8); overflow-wrap: anywhere; }
+.decode-input-identity { font-size: 0.8125rem; opacity: 0.8; overflow-wrap: anywhere; }
 .decode-warnings { margin: 0 12px 8px; }
 
 .decode-specification { padding: 0 12px; }
@@ -70,13 +76,22 @@ a.decode-related-record:hover strong { text-decoration: underline; }
 
 @container decode-result (max-width: 599px) {
   .decode-identity { gap: 4px 8px; padding: 6px 8px; }
-  .decode-identity-copy { flex-basis: min(220px, calc(100% - 84px)); }
   .decode-title { font-size: 0.9375rem; }
   .decode-specification { --spec-label-width: 76px; padding: 0 8px; }
   .spec-fields { column-gap: 12px; }
   .spec-field--long,
   .spec-field--mobile-long { grid-column: 1 / -1; }
   .decode-resource-section { padding: 8px; }
+}
+
+/* Give marking and summary their full row before the vendor column squeezes them. */
+@container decode-result (max-width: 339px) {
+  .decode-identity:has(.decode-marking) { display: grid; grid-template-columns: 76px minmax(0, 1fr); }
+  .decode-identity:has(.decode-marking) .decode-identity-copy { display: contents; }
+  .decode-identity:has(.decode-marking) .decode-title-line,
+  .decode-identity:has(.decode-marking) .panel-meta { grid-column: 2; }
+  .decode-identity:has(.decode-marking) .decode-identity-details,
+  .decode-identity:has(.decode-marking) .decode-input-identity { grid-column: 1 / -1; }
 }
 
 /* English labels need the cell width to wrap at spaces, not inside words. */
