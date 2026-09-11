@@ -48,9 +48,9 @@
         <h3>{{ relationsHeading }} <span class="result-count">{{ relations.length }}</span></h3>
         <div class="decode-related-list">
           <component :is="item.route ? 'router-link' : 'div'" v-for="item in relations" :key="item.key" :to="item.route ? localizeRouteLocation(item.route, route) : undefined" :aria-label="item.route ? [item.actionLabel || item.label, item.target || item.value].filter(Boolean).join(' ') : undefined" class="decode-related-record">
-            <span v-if="!item.isDefaultNavigation">{{ item.label || item.kind }}</span>
+            <span v-if="!item.isDecodeNavigation">{{ item.label || item.kind }}</span>
             <strong>{{ item.target || item.value }}</strong>
-            <v-icon v-if="item.route && !item.isDefaultNavigation" icon="mdi-arrow-right" size="14" />
+            <v-icon v-if="item.route && !item.isDecodeNavigation" icon="mdi-arrow-right" size="14" />
             <span v-for="field in item.fields" :key="field.key">{{ field.name }}: {{ field.value }}</span>
           </component>
         </div>

@@ -283,9 +283,11 @@ export function relationRows(result) {
     const targetText = endpointLabel(target);
     const sourceText = endpointLabel(source);
     const kindLabel = relationKindLabel(relation.kind);
+    const route = actionRoute(action);
     return {
       key: `${relation.kind}-${targetText}-${index}`,
-      isDefaultNavigation: !!defaultOperation && relation.kind === 'identifier_for' && action?.operation === defaultOperation,
+      isDefaultNavigation: !!route && !!defaultOperation && relation.kind === 'identifier_for' && action?.operation === defaultOperation,
+      isDecodeNavigation: !!route && ['part.decode', 'identifier.decode'].includes(action.operation),
       kind: kindLabel,
       label: relationDisplayLabel(relation, action, kindLabel),
       source: sourceText,
@@ -293,7 +295,7 @@ export function relationRows(result) {
       value: [sourceText, targetText].filter(Boolean).join(' -> ') || targetText || sourceText,
       fields: fieldRows(relation.fields),
       actionLabel: action?.label || '',
-      route: actionRoute(action),
+      route,
       operation: action?.operation || ''
     };
   });

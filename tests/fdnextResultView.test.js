@@ -93,7 +93,28 @@ test('zero, false, long values and scoped labels remain available without infere
   assert.equal(specs[3].value, 'DDR4-2666 CL18');
 });
 
-test('default PN and ID associations remain reciprocal while special relations keep their labels', () => {
+test('numeric capacities preserve device, DRAM and alternative component displays', () => {
+  const result = {
+    schemaVersion: 'fdnext.result.v2', operation: 'part.decode', status: 'ok',
+    input: { query: 'MCP', lang: 'eng' }, device: { partNumber: 'MCP' },
+    summary: { brief: [], full: [
+      { id: 'storage', label: 'Storage', fields: [{ key: 'storage_density', label: 'Storage Density', value: 524288, unit: 'Mbit', display: '64GB' }] },
+      { id: 'dram', label: 'DRAM', fields: [{ key: 'dram_density', label: 'DRAM Density', value: 32768, unit: 'Mbit', display: '32Gb' }] },
+      { id: 'components', label: 'Components', fields: [{ key: 'component_density_options', label: 'Component Density Options', value: [262144, 524288], unit: 'Mbit', display: '32GB / 64GB' }] }
+    ] }
+  };
+  const blocks = resultBlocks(result);
+  assert.deepEqual(Array.from(blocks, block => [block.id, block.rows[0].value]), [
+    ['storage', '64GB'], ['dram', '32Gb'], ['components', '32GB / 64GB']
+  ]);
+  const text = summaryText(result, 'full');
+  assert.match(text, /Storage Density: 64GB/);
+  assert.match(text, /DRAM Density: 32Gb/);
+  assert.match(text, /Component Density Options: 32GB \/ 64GB/);
+  assert.doesNotMatch(text, /524288|262144|32768|Mbit/);
+});
+
+test('decode links use compact navigation while preserving relation labels and metadata', () => {
   for (const [operation, nextOperation, routeName] of [
     ['part.decode', 'identifier.decode', 'idRoute'],
     ['identifier.decode', 'part.decode', 'partRoute']
@@ -110,16 +131,39 @@ test('default PN and ID associations remain reciprocal while special relations k
       { ...relation, action: undefined }
     ] });
     assert.equal(standard.isDefaultNavigation, true);
+    assert.equal(standard.isDecodeNavigation, true);
     assert.equal(standard.route.name, routeName);
     assert.equal(standard.route.query, 'TARGET');
     assert.equal(standard.fields[0].value, 'Retain association metadata');
     assert.equal(standard.label, 'Decode target');
     assert.equal(special.isDefaultNavigation, false);
+    assert.equal(special.isDecodeNavigation, true);
     assert.equal(special.label, 'Alternative package');
     assert.equal(search.isDefaultNavigation, false);
+    assert.equal(search.isDecodeNavigation, false);
     assert.equal(search.route.name, 'partsSearchRoute');
     assert.equal(search.label, 'Search parts');
     assert.equal(unavailable.isDefaultNavigation, false);
+    assert.equal(unavailable.isDecodeNavigation, false);
     assert.equal(unavailable.route, null);
   }
+});
+
+test('mixed PN-to-ID and PN-to-PN decode links keep their distinct destinations', () => {
+  const result = { operation: 'part.decode', relations: [
+    { kind: 'identifier_for', target: { identifier: '983AA8927650' }, action: { operation: 'identifier.decode', input: { query: '983AA8927650' } } },
+    { kind: 'alternate_part', target: { partNumber: 'TC58NVG5DCJTA00' }, action: { operation: 'part.decode', label: 'Decode part', input: { query: 'TC58NVG5DCJTA00' } } },
+    { kind: 'alternate_part', target: { partNumber: 'Unresolved' }, action: { operation: 'part.decode' } }
+  ] };
+  const [id, pn, unresolved] = relationRows(result);
+  assert.equal(id.isDecodeNavigation, true);
+  assert.equal(id.route.name, 'idRoute');
+  assert.equal(id.route.query, '983AA8927650');
+  assert.equal(pn.isDecodeNavigation, true);
+  assert.equal(pn.isDefaultNavigation, false);
+  assert.equal(pn.route.name, 'partRoute');
+  assert.equal(pn.route.query, 'TC58NVG5DCJTA00');
+  assert.equal(pn.label, 'Decode part');
+  assert.equal(unresolved.isDecodeNavigation, false);
+  assert.equal(unresolved.route, null);
 });

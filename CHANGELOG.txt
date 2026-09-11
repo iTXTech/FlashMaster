@@ -1,17 +1,18 @@
 FlashMaster by PeratX <peratx@itxtech.org>
 Copyright (c) 2019-2026 iTX Technologies
 ===================================
-Version 2.7.0-dev (Snapshot date: 2026-09-11)
+Version 2.7.0-dev (Snapshot date: 2026-09-12)
 
 FlashMaster updates:
-- Refined PN/ID decode and search UI with consistent inputs and equal-width buttons, compact specifications, localized typography, dense relations and expandable controller lists, group and brief/full summary copy without ads, and fixes for suggestion overlap and navigation scrims.
+- Refined PN/ID decode and search UI with consistent inputs and equal-width buttons, compact specifications, localized typography, aligned relation links without repeated action labels, expandable controller lists, group and brief/full summary copy without ads, and fixes for suggestion overlap and navigation scrims.
 - Search results now project and mount only the current frontend page, avoiding duplicate hidden tables while preserving the complete response and frontend pagination.
 - Reduced redundant suggestions and summary requests: cancel queued stale suggestions, prioritize manual queries, and reuse matching displayed results when copying summaries.
 - Improved full/nano single-file compatibility when opening local HTML files in Chromium-based browsers by using classic inline workers.
 - Preserve the original embedded worker failure for subsequent lookups and local diagnostics instead of reporting an unavailable main-thread fallback; warmup failures are no longer silently discarded.
 
 fdnext v3.3.0 highlights:
-- Updated the embedded parser to fdnext v3.3.0 (ce35a3a), with typed brief/full summaries, DRAM speed/voltage and managed-storage component details.
+- Updated the embedded parser to fdnext v3.3.0 (9924471), with typed brief/full summaries, DRAM speed/voltage and managed-storage component details.
+- Unified field grouping and numeric capacities with explicit Mbit units, preserving formatted GB/Gb values and alternative component capacities; refined DRAM topology, NAND interface and marking groups.
 - Migrated directly to fdnext.result.v2 and abbreviated link categories (vnd/ds/mkt/ref/tl/com/ads); configured HTTP servers must use the new contract.
 - Corrected catalog-based canonical part-number resolution and preserved ambiguous candidates when using prepared catalogs.
 - Expanded Micron NAND/eMMC/uMCP and Micron, Elpida, and SpecTek DRAM decoding, including legacy Micron `AMD...` DDR3 aliases.
