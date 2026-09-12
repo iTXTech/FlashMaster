@@ -98,7 +98,6 @@ export default {
         examples: '示例',
         fillExample: '填入示例 {0}',
         search: '搜索相关记录',
-        edit: '修改输入',
         retry: '重试',
         serverSettings: '服务器设置'
     },

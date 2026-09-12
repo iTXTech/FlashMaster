@@ -98,7 +98,6 @@ export default {
         examples: 'Examples',
         fillExample: 'Fill in example {0}',
         search: 'Search related records',
-        edit: 'Edit input',
         retry: 'Retry',
         serverSettings: 'Server settings'
     },

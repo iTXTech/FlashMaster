@@ -25,7 +25,6 @@
       v-model="drawer"
       :permanent="!mobile && drawer"
       :temporary="mobile || !drawer"
-      :scrim="false"
       width="256"
       class="side-nav"
     >

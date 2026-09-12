@@ -13,10 +13,9 @@
         <span>{{ t('decodeState.examples') }}</span>
         <button v-for="example in examples" :key="example" type="button" class="decode-example data-identifier" :aria-label="t('decodeState.fillExample', [example])" @click="emit('example', example)">{{ example }}</button>
       </div>
-      <div v-else class="decode-state-actions">
+      <div v-else-if="error || (['not_found', 'unsupported'].includes(status) && query)" class="decode-state-actions">
         <v-btn v-if="error" color="primary" variant="tonal" @click="emit('retry', query)">{{ t('decodeState.retry') }}</v-btn>
         <v-btn v-else-if="['not_found', 'unsupported'].includes(status) && query" color="primary" variant="tonal" prepend-icon="mdi-magnify" @click="emit('search', query)">{{ t('decodeState.search') }}</v-btn>
-        <v-btn variant="text" @click="emit('edit')">{{ t('decodeState.edit') }}</v-btn>
         <v-btn v-if="error?.http" variant="text" :to="settingsRoute(route)">{{ t('decodeState.serverSettings') }}</v-btn>
       </div>
     </div>
@@ -98,7 +97,7 @@ const props = defineProps({
   loading: { type: Boolean, default: false },
   error: { type: Object, default: null }
 });
-const emit = defineEmits(['copy-overview', 'copy-block', 'example', 'retry', 'search', 'edit']);
+const emit = defineEmits(['copy-overview', 'copy-block', 'example', 'retry', 'search']);
 const { t, locale } = useI18n();
 const route = useRoute();
 const header = computed(() => resultHeader(props.result));

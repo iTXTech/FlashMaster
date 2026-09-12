@@ -32,7 +32,6 @@
       @copy-overview="copyOverview"
       @copy-block="copyBlock"
       @example="fillExample"
-      @edit="focusInput"
       @search="searchRelated"
       @retry="retryLookup"
     />
