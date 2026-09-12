@@ -59,6 +59,9 @@ hash 与 history 模式保持相同的公开入口，并支持可选的 `/en` �
 
 ## UI、持久化与统计
 
+- 界面使用 `--app-font-family` 系统字体栈，PN、Flash ID、丝印和控制器标识值使用
+  `--app-font-mono` 等宽字体栈；不打包或远程加载字体。只对标识值应用等宽字体，
+  标签、厂商名、参数说明与展开操作保留界面字体；新增规格字段按字段语义明确分类。
 - 结果优先展示有意义的字段，避免重复回显 PN/Flash ID。链接行使用 `img: "logo"`
   时，经 `src/services/vendorLogos.js` 显示厂商标识。
 - PN/FID 共用 `DecodeResultPanel.vue` 与分组规格表。结果区约 800px 居中，宽屏每行最多

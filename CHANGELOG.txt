@@ -4,6 +4,7 @@ Copyright (c) 2019-2026 iTX Technologies
 Version 2.7.0-dev (Snapshot date: 2026-09-12)
 
 FlashMaster updates:
+- Use native system fonts for the interface and consistent monospace fonts for PN, Flash ID, marking and controller values across inputs, suggestions, results and related links, without bundling font files.
 - Let wide-screen specification fields span as many columns as their text needs, reducing wrapping in speed, package and NAND details while preserving the compact mobile layout.
 - Rebuilt PN/Flash ID results as compact grouped specifications, preserving all parameters with clearer Chinese/English wrapping and alignment. Controller lists expand in place, and related part numbers and IDs align in columns with direct navigation.
 - Simplified result headers with responsive type, marking, and “Summary” actions. The main button copies the full summary; the menu offers a brief summary, and each specification group can be copied separately. Copies exclude external links and ads. Technical-source copy is temporarily hidden, and clipped copy icons are fixed.
@@ -13,7 +14,7 @@ FlashMaster updates:
 - Improved narrow-screen interaction: removed the mobile navigation scrim, and kept snackbar messages and their close button within the viewport, including long unbroken error text.
 - Fixed Market Pulse quote/chart mismatches by binding live quotes, historical candles, and caches to the actual market, preventing data from different markets or providers from being mixed.
 - Improved full/nano single-file compatibility when opening local HTML files in Chromium-based browsers. Embedded parser warmup and runtime failures retain their original diagnostics instead of being hidden or replaced by an unavailable-fallback error.
-- Updated frontend framework, component-library, and build-tool dependencies.
+- Updated frontend framework, component-library, and build-tool dependencies; pinned the project package manager to pnpm 12.4.1.
 
 fdnext v3.3.0 highlights:
 - Updated the embedded parser to fdnext v3.3.0 (9924471), with typed brief/full summaries, DRAM speed/voltage and managed-storage component details.

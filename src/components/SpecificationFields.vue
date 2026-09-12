@@ -2,7 +2,7 @@
   <dl ref="fields" class="spec-fields">
     <div v-for="row in displayRows" :key="row.key" class="spec-field" :class="{ 'spec-field--long': row.long, 'spec-field--mobile-long': row.mobileLong, 'spec-field--list': row.items?.length }">
       <dt :title="row.name">{{ row.label }}</dt>
-      <dd>
+      <dd :class="{ 'data-identifier': row.isIdentifier && !row.items?.length }">
         <ExpandableListCell v-if="row.items?.length" class="metric-expandable-list spec-controller-list" :items="row.items" fill-row :preview-rows="2" />
         <span v-else>{{ row.value }}</span>
       </dd>

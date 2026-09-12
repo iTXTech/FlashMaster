@@ -19,6 +19,41 @@ await module.evaluate();
 const { resultBlocks, summaryText, technicalLinksText, fieldRows, specificationRows, isFdnextResult, externalLinkRows, relationRows } = module.namespace;
 const fixtures = ['raw-nand', 'dram', 'emcp', 'emmc', 'ufs'];
 
+test('identifier typography follows field semantics without changing display values or labels', () => {
+  const fields = [
+    { key: 'part_number', label: '料号', value: 'MT29F4G08ABAEA' },
+    { key: 'marking_code', label: '丝印', value: 'JZ215' },
+    { key: 'identifier', label: 'Flash ID', value: '2CDC90A65400' },
+    { key: 'micron_part_number', label: 'Micron Part Number', value: 'MT29F4G08ABAEA' },
+    { key: 'controller_code', label: 'Controller Code', value: 'SM2258' },
+    { key: 'controller_revision', label: 'Controller Revision', value: 'A1' },
+    { key: 'controller', label: '控制器', value: ['SM3257ENAA_8CE', 'SM3257ENLT'] },
+    { key: 'vendor', label: 'Vendor', value: 'Micron' },
+    { key: 'density', label: 'Capacity', value: 4096, unit: 'Mbit', display: '512MB' },
+    { key: 'note', label: 'Note', value: 'MT29F4G08ABAEA is an example' }
+  ];
+  const rows = fieldRows(fields);
+  assert.deepEqual(Array.from(rows, row => row.isIdentifier), [true, true, true, true, true, true, true, false, false, false]);
+  assert.deepEqual(Array.from(rows, row => row.name), fields.map(field => field.label));
+  assert.equal(rows[6].value, 'SM3257ENAA_8CE, SM3257ENLT');
+  assert.deepEqual(Array.from(rows[6].items), fields[6].value);
+  assert.equal(rows[8].value, '512MB');
+  assert.equal(specificationRows(rows)[0].isIdentifier, true);
+});
+
+test('related identifiers use the same typography even without navigation while descriptive relations stay prose', () => {
+  const rows = relationRows({ relations: [
+    { target: { label: 'MT29F4G08ABAEA' }, action: { operation: 'part.decode', input: { query: 'MT29F4G08ABAEA' } } },
+    { target: { identifier: '2CDC90A65400' } },
+    { source: { device: { partNumber: 'MT29F4G08ABAEA' } } },
+    { target: { label: 'Related manufacturer' } },
+    { source: { partNumber: 'MT29F4G08ABAEA' }, target: { label: 'Micron' } }
+  ] });
+  assert.deepEqual(Array.from(rows, row => row.isIdentifier), [true, true, true, false, false]);
+  assert.equal(rows[1].target, '2CDC90A65400');
+  assert.equal(rows[3].target, 'Related manufacturer');
+});
+
 for (const family of fixtures) {
   test(`${family}: page exposes every full field, including fields outside the brief summary`, async () => {
     const result = JSON.parse(await readFile(new URL(`../vendor/fdnext/packages/core/test/fixtures/fdnext-result/${family}.part.decode.json`, import.meta.url), 'utf8'));

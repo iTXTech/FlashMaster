@@ -29,7 +29,12 @@
         class="query-suggestion-option"
         :title="item.title || item.value"
         :subtitle="item.subtitle"
-      />
+      >
+        <template #title>
+          <template v-if="item.raw?.vendor">{{ item.raw.vendor }} / </template>
+          <span class="data-identifier">{{ [item.raw?.markingCode, item.raw?.pn || item.raw?.id].filter(Boolean).join(' / ') || item.title || item.value }}</span>
+        </template>
+      </v-list-item>
     </template>
   </v-combobox>
 </template>

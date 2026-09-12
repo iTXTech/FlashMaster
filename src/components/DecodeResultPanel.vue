@@ -15,7 +15,7 @@
         <div class="decode-identity-details">
           <div class="decode-identity-fields">
             <span v-if="header.kind" class="decode-kind" :aria-label="`${t('dashboard.chipType')}: ${header.kind}`">{{ header.kind }}</span>
-            <span v-if="header.marking" class="decode-marking">{{ t('dashboard.marking') }}: <strong>{{ header.marking }}</strong></span>
+            <span v-if="header.marking" class="decode-marking">{{ t('dashboard.marking') }}: <strong class="data-identifier">{{ header.marking }}</strong></span>
           </div>
           <div class="decode-copy-actions">
             <v-btn prepend-icon="mdi-content-copy" variant="text" :disabled="!result" :aria-label="t('dashboard.copyFull')" :title="t('dashboard.copyFull')" @click="emit('copy-overview', 'full')">{{ t('dashboard.copySummaryLabel') }}</v-btn>
@@ -29,7 +29,7 @@
             </v-menu>
           </div>
         </div>
-        <div v-if="originalInput" class="decode-input-identity">{{ t('dashboard.originalInput') }}: {{ originalInput }}</div>
+        <div v-if="originalInput" class="decode-input-identity">{{ t('dashboard.originalInput') }}: <span class="data-identifier">{{ originalInput }}</span></div>
       </div>
     </div>
     <template v-if="result">
@@ -40,8 +40,8 @@
       <section v-if="candidates.length" class="decode-resource-section">
         <h3>{{ t('dashboard.candidates') }} <span class="result-count">{{ candidates.length }}</span></h3>
         <div v-for="(candidate, index) in candidates" :key="index" class="decode-candidate">
-          <strong>{{ deviceTitle(candidate.device) }}</strong>
-          <span v-for="field in fieldRows(candidate.fields)" :key="field.key">{{ field.name }}: {{ field.value }}</span>
+          <strong class="data-identifier">{{ deviceTitle(candidate.device) }}</strong>
+          <span v-for="field in fieldRows(candidate.fields)" :key="field.key">{{ field.name }}: <span :class="{ 'data-identifier': field.isIdentifier }">{{ field.value }}</span></span>
           <span v-for="(warning, warningIndex) in candidate.warnings" :key="warningIndex" class="warning-item">{{ warning.message || warning.code }}</span>
         </div>
       </section>
@@ -50,9 +50,9 @@
         <div class="decode-related-list">
           <component :is="item.route ? 'router-link' : 'div'" v-for="item in relations" :key="item.key" :to="item.route ? localizeRouteLocation(item.route, route) : undefined" :aria-label="item.route ? [item.actionLabel || item.label, item.target || item.value].filter(Boolean).join(' ') : undefined" class="decode-related-record">
             <span v-if="!item.isDecodeNavigation">{{ item.label || item.kind }}</span>
-            <strong>{{ item.target || item.value }}</strong>
+            <strong :class="{ 'data-identifier': item.isIdentifier }">{{ item.target || item.value }}</strong>
             <v-icon v-if="item.route && !item.isDecodeNavigation" icon="mdi-arrow-right" size="14" />
-            <span v-for="field in item.fields" :key="field.key">{{ field.name }}: {{ field.value }}</span>
+            <span v-for="field in item.fields" :key="field.key">{{ field.name }}: <span :class="{ 'data-identifier': field.isIdentifier }">{{ field.value }}</span></span>
           </component>
         </div>
       </section>

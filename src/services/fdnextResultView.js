@@ -6,6 +6,10 @@ export const FDNEXT_RESULT_SCHEMA_VERSION = 'fdnext.result.v2';
 export const FDNEXT_CAPABILITIES_SCHEMA_VERSION = 'fdnext.capabilities.v2';
 
 const EMPTY = '-';
+const IDENTIFIER_FIELD_KEYS = new Set([
+  'part_number', 'micron_part_number', 'identifier', 'marking_code',
+  'controller', 'controllers', 'controller_code', 'controller_revision'
+]);
 
 export function isFdnextResult(value) {
   return !!value && value.schemaVersion === FDNEXT_RESULT_SCHEMA_VERSION;
@@ -151,6 +155,7 @@ export function fieldRows(fields = []) {
       name: field.label || field.key,
       value: formatField(field),
       items,
+      isIdentifier: IDENTIFIER_FIELD_KEYS.has(field.key),
       importance: field.importance
     };
   });
@@ -284,10 +289,12 @@ export function relationRows(result) {
     const sourceText = endpointLabel(source);
     const kindLabel = relationKindLabel(relation.kind);
     const route = actionRoute(action);
+    const displayedEndpoint = targetText ? target : source;
     return {
       key: `${relation.kind}-${targetText}-${index}`,
       isDefaultNavigation: !!route && !!defaultOperation && relation.kind === 'identifier_for' && action?.operation === defaultOperation,
       isDecodeNavigation: !!route && ['part.decode', 'identifier.decode'].includes(action.operation),
+      isIdentifier: Boolean(route || deviceTitle(displayedEndpoint) || deviceTitle(displayedEndpoint.device)),
       kind: kindLabel,
       label: relationDisplayLabel(relation, action, kindLabel),
       source: sourceText,

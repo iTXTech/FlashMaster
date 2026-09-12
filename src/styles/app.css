@@ -25,7 +25,8 @@ html {
 }
 
 :root {
-  --app-font-family: Inter, Roboto, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --app-font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --app-font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --app-safe-area-top: env(safe-area-inset-top, 0px);
   --app-safe-area-right: env(safe-area-inset-right, 0px);
   --app-safe-area-bottom: env(safe-area-inset-bottom, 0px);
@@ -1685,7 +1686,7 @@ a.nav-footer-notice:hover {
   color: rgb(var(--v-theme-on-surface));
   font: inherit;
   font-size: 0.86rem;
-  font-weight: 750;
+  font-weight: 600;
   line-height: 1.35;
   overflow-wrap: anywhere;
   text-align: left;
@@ -1845,7 +1846,7 @@ a.nav-footer-notice:hover {
   color: rgb(var(--v-theme-primary));
   font: inherit;
   font-size: 0.76rem;
-  font-weight: 750;
+  font-weight: 500;
   line-height: 1.25;
   overflow: hidden;
   text-align: left;
@@ -1965,8 +1966,9 @@ a.nav-footer-notice:hover {
 .search-controller-list .expandable-cell-item span,
 .search-part-number-list .expandable-cell-item span {
   overflow: visible;
+  overflow-wrap: anywhere;
   text-overflow: clip;
-  white-space: nowrap;
+  white-space: normal;
 }
 
 .decode-id-link-panel .panel-header {
@@ -2247,6 +2249,17 @@ a.nav-footer-notice:hover {
 
 .pn input {
   text-transform: uppercase;
+}
+
+/* Apply monospace only to identifiers; labels, descriptions and actions keep the UI font. */
+.data-identifier,
+.pn input,
+.pn .v-combobox__selection-text,
+.search-card-title,
+.search-card-code,
+.search-part-number-list .expandable-cell-item,
+.spec-controller-list .expandable-cell-item {
+  font-family: var(--app-font-mono);
 }
 
 .settings-grid {
