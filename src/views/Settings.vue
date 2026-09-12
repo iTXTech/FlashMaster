@@ -23,6 +23,8 @@
             item-title="value"
             item-value="value"
             :return-object="false"
+            class="identifier-input"
+            :menu-props="{ contentClass: 'suggestion-menu' }"
             hide-details
             :clearable="!serverLocked"
             :disabled="serverLocked"
@@ -33,7 +35,11 @@
             @blur="commitServer()"
           >
             <template #item="{ props, item }">
-              <v-list-item v-bind="props" :title="item.title" :subtitle="item.value" />
+              <v-list-item v-bind="props" :title="item.title" :subtitle="item.value">
+                <template #subtitle>
+                  <span class="suggestion-value data-identifier">{{ item.value }}</span>
+                </template>
+              </v-list-item>
             </template>
           </v-combobox>
           <div class="action-row">

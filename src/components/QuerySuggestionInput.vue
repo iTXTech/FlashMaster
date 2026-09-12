@@ -29,10 +29,15 @@
         class="query-suggestion-option"
         :title="item.title || item.value"
         :subtitle="item.subtitle"
+        :aria-label="[item.title || item.value, item.subtitle].filter(Boolean).join(', ')"
       >
         <template #title>
-          <template v-if="item.raw?.vendor">{{ item.raw.vendor }} / </template>
-          <span class="data-identifier">{{ [item.raw?.markingCode, item.raw?.pn || item.raw?.id].filter(Boolean).join(' / ') || item.title || item.value }}</span>
+          <span class="suggestion-title">
+            <span v-for="(field, index) in suggestionFields(item)" :key="index" class="suggestion-segment">
+              <span v-if="index" class="suggestion-divider" aria-hidden="true" />
+              <span class="suggestion-value" :class="{ 'data-identifier': field.isIdentifier }">{{ field.value }}</span>
+            </span>
+          </span>
         </template>
       </v-list-item>
     </template>
@@ -78,6 +83,15 @@ const isComposing = ref(false);
 let submitToken = 0;
 let selectedInCurrentTurn = false;
 let blurTimer;
+
+function suggestionFields(item) {
+  const fields = [
+    { value: item.raw?.vendor, isIdentifier: false },
+    { value: item.raw?.markingCode, isIdentifier: true },
+    { value: item.raw?.pn || item.raw?.id, isIdentifier: true }
+  ].filter(field => field.value);
+  return fields.length ? fields : [{ value: item.title || item.value, isIdentifier: true }];
+}
 
 function textValue(value) {
   if (value && typeof value === 'object') {

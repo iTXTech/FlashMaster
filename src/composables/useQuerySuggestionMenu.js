@@ -7,6 +7,16 @@ function verticalChrome(element) {
     .reduce((height, property) => height + (parseFloat(style[property]) || 0), 0);
 }
 
+function naturalLineWidth(line) {
+  // Measure before wrapping so a narrow input can still expand its menu.
+  // Restore synchronously; the intrinsic width is never painted.
+  const width = line.style.width;
+  line.style.width = 'max-content';
+  const measured = line.scrollWidth;
+  line.style.width = width;
+  return measured;
+}
+
 export function useQuerySuggestionMenu(combo, items) {
   const requested = ref(false);
   const minimumHeight = ref(0);
@@ -151,7 +161,7 @@ export function useQuerySuggestionMenu(combo, items) {
           const candidateContent = candidate.querySelector('.v-list-item__content');
           const contentClientWidth = candidateContent?.clientWidth || candidateWidth;
           const lineWidth = [...candidate.querySelectorAll('.v-list-item-title, .v-list-item-subtitle')]
-            .reduce((lineMaximum, line) => Math.max(lineMaximum, line.scrollWidth), contentClientWidth);
+            .reduce((lineMaximum, line) => Math.max(lineMaximum, naturalLineWidth(line)), contentClientWidth);
           return Math.max(maximum, lineWidth + candidateWidth - contentClientWidth);
         }, 0);
         const measuredWidth = Math.ceil(measuredContentWidth + Math.max(0, elementWidth - option.getBoundingClientRect().width));
@@ -189,7 +199,7 @@ export function useQuerySuggestionMenu(combo, items) {
   return {
     menuOpen,
     menuProps: {
-      contentClass: 'query-suggestion-menu',
+      contentClass: 'query-suggestion-menu suggestion-menu',
       locationStrategy,
       scrollStrategy: 'none',
       transition: false

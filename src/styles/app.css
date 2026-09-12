@@ -1154,6 +1154,42 @@ a.nav-footer-notice:hover {
   color: rgba(var(--v-theme-on-surface), 0.64) !important;
 }
 
+.suggestion-menu .v-list-item-title,
+.suggestion-menu .v-list-item-subtitle {
+  letter-spacing: 0;
+}
+
+.suggestion-menu .v-list-item-title {
+  white-space: normal;
+}
+
+.suggestion-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 6px;
+}
+
+.suggestion-segment {
+  display: inline-flex;
+  align-items: baseline;
+  column-gap: 6px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.suggestion-divider {
+  flex: 0 0 1px;
+  height: 0.85em;
+  border-inline-start: 1px solid rgba(var(--v-theme-on-surface), 0.3);
+}
+
+.suggestion-value {
+  min-width: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
 .metric-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(136px, 1fr));
@@ -2255,11 +2291,22 @@ a.nav-footer-notice:hover {
 .data-identifier,
 .pn input,
 .pn .v-combobox__selection-text,
+.identifier-input input,
+.identifier-input .v-combobox__selection-text,
 .search-card-title,
 .search-card-code,
 .search-part-number-list .expandable-cell-item,
 .spec-controller-list .expandable-cell-item {
   font-family: var(--app-font-mono);
+}
+
+.pn input,
+.pn .v-combobox__selection-text,
+.identifier-input input,
+.identifier-input .v-combobox__selection-text,
+.suggestion-menu .data-identifier {
+  letter-spacing: 0;
+  word-spacing: normal;
 }
 
 .settings-grid {

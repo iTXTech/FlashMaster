@@ -117,7 +117,11 @@ test('continuous height changes preserve visibility and never reset the one-row 
   const main = { getBoundingClientRect: () => ({ top: 0, bottom: visualViewport.height }) };
   const fieldNode = { getBoundingClientRect: () => field, closest: () => main };
   const origin = { getBoundingClientRect: () => ({ top: 0, left: 0 }) };
-  const title = { clientWidth: 324, scrollWidth: 438 };
+  const title = {
+    style: { width: '' },
+    clientWidth: 324,
+    get scrollWidth() { return this.style.width === 'max-content' ? 438 : 324; }
+  };
   const optionContent = { clientWidth: 324 };
   const content = {
     offsetParent: origin,
@@ -174,6 +178,7 @@ test('continuous height changes preserve visibility and never reset the one-row 
     await flush();
     assert.equal(styles.value.visibility, 'visible');
     assert.equal(styles.value.width, '366px', 'measured candidate width is limited by viewport margins');
+    assert.equal(title.style.width, '', 'intrinsic measurement restores wrapping before paint');
 
     for (const height of [700, 510, 350, 278, 277, 260, 277, 278, 350, 510]) {
       visualViewport.height = height;

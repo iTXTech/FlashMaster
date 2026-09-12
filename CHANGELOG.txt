@@ -4,6 +4,7 @@ Copyright (c) 2019-2026 iTX Technologies
 Version 2.7.0-dev (Snapshot date: 2026-09-12)
 
 FlashMaster updates:
+- Separate PN/Flash ID suggestion fields with subtle dividers and fixed spacing, preserve spaces and slashes inside identifiers, and align suggestion typography including server address presets.
 - Use native system fonts for the interface and consistent monospace fonts for PN, Flash ID, marking and controller values across inputs, suggestions, results and related links, without bundling font files.
 - Let wide-screen specification fields span as many columns as their text needs, reducing wrapping in speed, package and NAND details while preserving the compact mobile layout.
 - Rebuilt PN/Flash ID results as compact grouped specifications, preserving all parameters with clearer Chinese/English wrapping and alignment. Controller lists expand in place, and related part numbers and IDs align in columns with direct navigation.
