@@ -7,7 +7,7 @@ export const FDNEXT_CAPABILITIES_SCHEMA_VERSION = 'fdnext.capabilities.v2';
 
 const EMPTY = '-';
 const IDENTIFIER_FIELD_KEYS = new Set([
-  'part_number', 'micron_part_number', 'identifier', 'marking_code',
+  'part_number', 'identifier', 'marking_code',
   'controller', 'controllers', 'controller_code', 'controller_revision'
 ]);
 
@@ -223,14 +223,20 @@ export function chipLabel(value) {
 
 export function resultHeader(result) {
   const device = result?.device || {};
+  const marking = device.markingCode || '';
+  const normalized = result?.input?.normalized || '';
+  const completeMarking = device.vendor?.id === 'micron'
+    && marking.length === 5
+    && /^[A-Z0-9]{10}$/.test(normalized)
+    && normalized.endsWith(marking)
+    && normalized !== device.partNumber;
   return {
     vendor: deviceVendor(device),
     title: deviceTitle(device) || result?.input?.normalized || result?.input?.query || '',
     subtitle: result?.subtitle || '',
     status: result?.status || '',
     device,
-    marking: device.markingCode || '',
-    input: result?.input?.query || '',
+    marking: completeMarking ? normalized : marking,
     kind: chipLabel(device.productType || device.chipKind)
   };
 }
@@ -429,12 +435,11 @@ export function identifierSuggestions(result) {
 export function summaryText(result, mode = 'brief') {
   if (!result) return '';
   const labels = result.input?.lang === 'chs'
-    ? { input: '输入', marking: '丝印', status: '状态', relations: '关联数据', warnings: '提示', candidates: '候选料号', controllers: '数据库控制器记录', count: '项' }
-    : { input: 'Input', marking: 'Marking', status: 'Status', relations: 'Related data', warnings: 'Warnings', candidates: 'Candidate parts', controllers: 'Database controller records', count: 'items' };
+    ? { marking: '丝印', status: '状态', relations: '关联数据', warnings: '提示', candidates: '候选料号', controllers: '数据库控制器记录', count: '项' }
+    : { marking: 'Marking', status: 'Status', relations: 'Related data', warnings: 'Warnings', candidates: 'Candidate parts', controllers: 'Database controller records', count: 'items' };
   const header = resultHeader(result);
   const lines = [[header.vendor, header.title, header.kind].filter(Boolean).join(' · ')];
   if (header.marking && header.marking !== header.title) lines.push(`${labels.marking}: ${header.marking}`);
-  if (header.input && ![header.title, header.marking].includes(header.input)) lines.push(`${labels.input}: ${header.input}`);
   if (header.status && header.status !== 'ok') lines.push(`${labels.status}: ${header.status}`);
   if (mode === 'full') {
     for (const block of resultBlocks(result)) {

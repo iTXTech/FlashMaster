@@ -59,7 +59,7 @@ export default {
         copyOptions: 'More copy options',
         copyTechnicalLinks: 'Copy technical sources',
         marking: 'Marking',
-        originalInput: 'Input',
+        markingYearHelp: 'Last digit of the year',
         candidates: 'Candidate parts',
         chipType: 'Type',
         resultCount: '{0} results',

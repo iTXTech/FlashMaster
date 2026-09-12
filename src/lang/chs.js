@@ -59,7 +59,7 @@ export default {
         copyOptions: '更多复制选项',
         copyTechnicalLinks: '复制技术资料',
         marking: '丝印',
-        originalInput: '输入',
+        markingYearHelp: '年份末位',
         candidates: '候选料号',
         chipType: '类型',
         resultCount: '{0} 条结果',

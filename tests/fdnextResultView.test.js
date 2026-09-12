@@ -16,7 +16,7 @@ const dependencies = {
 const module = new SourceTextModule(await readFile(new URL('../src/services/fdnextResultView.js', import.meta.url), 'utf8'), { context });
 await module.link(name => dependencies[name]);
 await module.evaluate();
-const { resultBlocks, summaryText, technicalLinksText, fieldRows, specificationRows, isFdnextResult, externalLinkRows, relationRows } = module.namespace;
+const { resultBlocks, resultHeader, summaryText, technicalLinksText, fieldRows, specificationRows, isFdnextResult, externalLinkRows, relationRows } = module.namespace;
 const fixtures = ['raw-nand', 'dram', 'emcp', 'emmc', 'ufs'];
 
 test('identifier typography follows field semantics without changing display values or labels', () => {
@@ -24,7 +24,6 @@ test('identifier typography follows field semantics without changing display val
     { key: 'part_number', label: '料号', value: 'MT29F4G08ABAEA' },
     { key: 'marking_code', label: '丝印', value: 'JZ215' },
     { key: 'identifier', label: 'Flash ID', value: '2CDC90A65400' },
-    { key: 'micron_part_number', label: 'Micron Part Number', value: 'MT29F4G08ABAEA' },
     { key: 'controller_code', label: 'Controller Code', value: 'SM2258' },
     { key: 'controller_revision', label: 'Controller Revision', value: 'A1' },
     { key: 'controller', label: '控制器', value: ['SM3257ENAA_8CE', 'SM3257ENLT'] },
@@ -33,11 +32,11 @@ test('identifier typography follows field semantics without changing display val
     { key: 'note', label: 'Note', value: 'MT29F4G08ABAEA is an example' }
   ];
   const rows = fieldRows(fields);
-  assert.deepEqual(Array.from(rows, row => row.isIdentifier), [true, true, true, true, true, true, true, false, false, false]);
+  assert.deepEqual(Array.from(rows, row => row.isIdentifier), [true, true, true, true, true, true, false, false, false]);
   assert.deepEqual(Array.from(rows, row => row.name), fields.map(field => field.label));
-  assert.equal(rows[6].value, 'SM3257ENAA_8CE, SM3257ENLT');
-  assert.deepEqual(Array.from(rows[6].items), fields[6].value);
-  assert.equal(rows[8].value, '512MB');
+  assert.equal(rows[5].value, 'SM3257ENAA_8CE, SM3257ENLT');
+  assert.deepEqual(Array.from(rows[5].items), fields[5].value);
+  assert.equal(rows[7].value, '512MB');
   assert.equal(specificationRows(rows)[0].isIdentifier, true);
 });
 
@@ -92,6 +91,66 @@ test('brief and full copies retain identity, scope and warnings and exclude all 
   assert.match(summaryText(result, 'full'), /CTRL-11/);
   assert.match(summaryText(result, 'full'), /NAND component voltage: 3.3V/);
   assert.match(summaryText(result, 'full'), /Sector size: 512B/);
+});
+
+test('complete markings retain canonical identity in both copies and expose tracing only in the full view', () => {
+  const result = {
+    schemaVersion: 'fdnext.result.v2', status: 'ok', input: { query: '1CB2DJZ215', normalized: '1CB2DJZ215', lang: 'chs' },
+    device: { partNumber: 'MTFDHBL256TDQ-1AT12ATYY', markingCode: 'JZ215', vendor: { id: 'micron', name: '美光' }, productType: 'nvme' },
+    summary: { brief: [{ key: 'density', label: '容量', value: 2097152, unit: 'Mbit', display: '256GB' }], full: [{
+      id: 'marking', label: '丝印信息', fields: [
+        { key: 'marking_year_digit', label: '年码', value: '1' },
+        { key: 'marking_week', label: '周次', value: 6, display: '06' },
+        { key: 'marking_die_revision', label: 'Die版本', value: 'B' },
+        { key: 'diffusion_loc', label: '晶圆产地', value: 'cty_sg', display: '新加坡' },
+        { key: 'encapsulation_loc', label: '封装地', value: 'cty_my', display: '马来西亚' }
+      ]
+    }] }
+  };
+  const blocks = resultBlocks(result);
+  assert.equal(blocks.length, 1);
+  assert.deepEqual(Array.from(blocks[0].rows, row => row.value), ['1', '06', 'B', '新加坡', '马来西亚']);
+  for (const mode of ['brief', 'full']) {
+    const text = summaryText(result, mode);
+    assert.ok(text.startsWith('美光 · MTFDHBL256TDQ-1AT12ATYY · NVMe'));
+    assert.match(text, /丝印: 1CB2DJZ215/);
+    assert.equal(text.split('1CB2DJZ215').length - 1, 1);
+    assert.doesNotMatch(text, /输入:|丝印: JZ215/);
+    assert.doesNotMatch(text, /日期码|生产日期|美光料号|106/);
+  }
+  assert.match(summaryText(result, 'full'), /\[丝印信息\]\n年码: 1\n周次: 06\nDie版本: B\n晶圆产地: 新加坡\n封装地: 马来西亚/);
+  assert.doesNotMatch(summaryText(result, 'brief'), /年码|周次|Die版本/);
+});
+
+test('headers and both copies share queried markings without treating PN or ID input as a marking', () => {
+  const partNumber = 'MTFDHBL256TDQ-1AT12ATYY';
+  const device = { partNumber, markingCode: 'JZ215', vendor: { id: 'micron', name: 'Micron' } };
+  const cases = [
+    { query: 'JZ215', normalized: 'JZ215', device, marking: 'JZ215', title: partNumber },
+    { query: ' jz215 ', normalized: 'JZ215', device, marking: 'JZ215', title: partNumber },
+    { query: '1CB2DJZ215', normalized: '1CB2DJZ215', device, marking: '1CB2DJZ215', title: partNumber },
+    { query: ' 1cb2d\njz215 ', normalized: '1CB2DJZ215', device, marking: '1CB2DJZ215', title: partNumber },
+    { query: partNumber.toLowerCase(), normalized: partNumber, device, marking: 'JZ215', title: partNumber },
+    { query: '12345JZ215', normalized: '12345JZ215', device: { ...device, partNumber: '12345JZ215' }, marking: 'JZ215', title: '12345JZ215' },
+    { query: '2c dc 90 a6 54 00', normalized: '2CDC90A65400', device: { identifier: '2CDC90A65400', vendor: device.vendor }, marking: '', title: '2CDC90A65400' }
+  ];
+  for (const lang of ['chs', 'eng']) {
+    for (const item of cases) {
+      const result = { input: { query: item.query, normalized: item.normalized, lang }, device: item.device };
+      const header = resultHeader(result);
+      assert.equal(header.title, item.title);
+      assert.equal(header.marking, item.marking);
+      for (const mode of ['brief', 'full']) {
+        const text = summaryText(result, mode);
+        assert.ok(text.includes(item.title));
+        assert.doesNotMatch(text, /^(输入|Input):/m);
+        if (item.marking) assert.ok(text.includes(`${lang === 'chs' ? '丝印' : 'Marking'}: ${item.marking}`));
+        else assert.doesNotMatch(text, /^(丝印|Marking):/m);
+      }
+      assert.equal(result.input.query, item.query);
+      assert.equal(result.device.markingCode, item.device.markingCode);
+    }
+  }
 });
 
 test('technical source copy uses explicit categories and keeps functional URL parameters', () => {

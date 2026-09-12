@@ -29,7 +29,6 @@
             </v-menu>
           </div>
         </div>
-        <div v-if="originalInput" class="decode-input-identity">{{ t('dashboard.originalInput') }}: <span class="data-identifier">{{ originalInput }}</span></div>
       </div>
     </div>
     <template v-if="result">
@@ -84,7 +83,6 @@ const emit = defineEmits(['copy-overview', 'copy-block']);
 const { t, locale } = useI18n();
 const route = useRoute();
 const header = computed(() => resultHeader(props.result));
-const originalInput = computed(() => ![header.value.title, header.value.marking].includes(header.value.input) ? header.value.input : '');
 const blocks = computed(() => resultBlocks(props.result));
 const warningRows = computed(() => warnings(props.result));
 const candidates = computed(() => props.result?.candidates || []);

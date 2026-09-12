@@ -4,6 +4,7 @@ Copyright (c) 2019-2026 iTX Technologies
 Version 2.7.0-dev (Snapshot date: 2026-09-12)
 
 FlashMaster updates:
+- Align Micron short and complete marking results on the same actual part number and specifications. Show the full queried marking in the page and both summaries without a separate Input row. Complete markings add compact year, week, die revision and origin fields; the year label explains its last-digit meaning on hover, focus or tap.
 - Separate PN/Flash ID suggestion fields with subtle dividers and fixed spacing, preserve spaces and slashes inside identifiers, and align suggestion typography including server address presets.
 - Use native system fonts for the interface and consistent monospace fonts for PN, Flash ID, marking and controller values across inputs, suggestions, results and related links, without bundling font files.
 - Let wide-screen specification fields span as many columns as their text needs, reducing wrapping in speed, package and NAND details while preserving the compact mobile layout.
@@ -18,7 +19,8 @@ FlashMaster updates:
 - Updated frontend framework, component-library, and build-tool dependencies; pinned the project package manager to pnpm 12.4.1.
 
 fdnext v3.3.0 highlights:
-- Updated the embedded parser to fdnext v3.3.0 (9924471), with typed brief/full summaries, DRAM speed/voltage and managed-storage component details.
+- Updated the embedded parser to fdnext v3.3.0 (aed5ecf), with typed brief/full summaries, DRAM speed/voltage and managed-storage component details.
+- Unified five- and ten-character Micron marking lookup, including JZ215/1CB2DJZ215; preserve actual part numbers in search and summaries, remove duplicate marking records, and validate tracing fields without inferring complete years.
 - Unified field grouping and numeric capacities with explicit Mbit units, preserving formatted GB/Gb values and alternative component capacities; refined DRAM topology, NAND interface and marking groups.
 - Migrated directly to fdnext.result.v2 and abbreviated link categories (vnd/ds/mkt/ref/tl/com/ads); configured HTTP servers must use the new contract.
 - Corrected catalog-based canonical part-number resolution and preserved ambiguous candidates when using prepared catalogs.

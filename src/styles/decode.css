@@ -30,7 +30,6 @@
 .decode-kind { color: rgba(var(--v-theme-on-surface), 0.66); }
 .decode-marking { color: rgba(var(--v-theme-on-surface), 0.8); overflow-wrap: anywhere; }
 .decode-marking strong { font-weight: 500; }
-.decode-input-identity { font-size: 0.8125rem; opacity: 0.8; overflow-wrap: anywhere; }
 .decode-warnings { margin: 0 12px 8px; }
 
 .decode-specification { padding: 0 12px; }
@@ -42,6 +41,9 @@
 .spec-fields { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0 12px; margin: 0; }
 .spec-field { display: grid; grid-template-columns: var(--spec-label-width) minmax(0, 1fr); align-items: center; gap: 4px; min-width: 0; min-height: 28px; padding: 2px 0; font-size: 0.875rem; line-height: 1.45; }
 .spec-field dt { min-width: 0; color: rgba(var(--v-theme-on-surface), 0.66); overflow-wrap: anywhere; }
+.spec-field-help { padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: inherit; text-decoration: underline dotted; text-underline-offset: 3px; cursor: help; }
+.spec-field-help:focus-visible { outline: 2px solid rgb(var(--v-theme-primary)); outline-offset: 3px; border-radius: 2px; }
+.spec-field-help-content { padding: 6px 10px; border: 1px solid rgba(var(--v-theme-on-surface), 0.16); border-radius: 4px; background: rgb(var(--v-theme-surface)); color: rgb(var(--v-theme-on-surface)); font-size: 0.8125rem; box-shadow: 0 2px 8px #0002; }
 .spec-field dd { min-width: 0; margin: 0; overflow-wrap: anywhere; white-space: pre-wrap; }
 .spec-field--list { grid-column: 1 / -1; align-items: start; }
 .spec-field--list dt { padding-top: 3px; }
@@ -98,8 +100,7 @@ a.decode-related-record:hover strong { text-decoration: underline; }
   .decode-identity:has(.decode-marking) .decode-identity-copy { display: contents; }
   .decode-identity:has(.decode-marking) .decode-title-line,
   .decode-identity:has(.decode-marking) .panel-meta { grid-column: 2; }
-  .decode-identity:has(.decode-marking) .decode-identity-details,
-  .decode-identity:has(.decode-marking) .decode-input-identity { grid-column: 1 / -1; }
+  .decode-identity:has(.decode-marking) .decode-identity-details { grid-column: 1 / -1; }
 }
 
 /* English labels need the cell width to wrap at spaces, not inside words. */
