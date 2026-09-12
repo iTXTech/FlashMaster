@@ -15,6 +15,24 @@
 
 .decode-result-panel { --spec-label-width: 84px; container: decode-result / inline-size; min-width: 0; }
 
+.decode-state { padding: 14px 12px 12px; }
+.decode-state-title { margin: 0; font-size: 0.9375rem; font-weight: 600; line-height: 1.5; }
+.decode-state-query { display: flex; align-items: baseline; flex-wrap: wrap; gap: 2px 8px; margin-top: 5px; font-size: 0.8125rem; }
+.decode-state-query > span { color: rgba(var(--v-theme-on-surface), 0.66); }
+.decode-state-query strong { min-width: 0; font-weight: 500; overflow-wrap: anywhere; }
+.decode-state-description,
+.decode-state-detail { margin: 4px 0 0; color: rgba(var(--v-theme-on-surface), 0.72); font-size: 0.8125rem; line-height: 1.6; overflow-wrap: anywhere; }
+.decode-state--error .decode-state-title { color: rgb(var(--v-theme-error)); }
+.decode-state-detail { color: rgba(var(--v-theme-on-surface), 0.66); }
+.decode-state-examples { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 12px; margin-top: 8px; font-size: 0.8125rem; }
+.decode-state-examples > span { color: rgba(var(--v-theme-on-surface), 0.66); }
+.decode-example { min-height: 28px; padding: 2px 0; border: 0; background: none; color: rgb(var(--v-theme-primary)); font-size: inherit; text-align: start; overflow-wrap: anywhere; cursor: pointer; }
+.decode-example:hover { text-decoration: underline; text-underline-offset: 3px; }
+.decode-example:focus-visible { outline: 2px solid rgb(var(--v-theme-primary)); outline-offset: 3px; border-radius: 2px; }
+.decode-state-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 10px; }
+.decode-state-actions .v-btn { min-height: 30px; height: auto; padding: 5px 10px; font-size: 0.8125rem; }
+.decode-state-actions .v-btn__content { white-space: normal; }
+
 .decode-identity { display: flex; align-items: center; gap: 6px 12px; padding: 6px 12px; }
 .decode-identity-copy { min-width: 0; flex: 1; }
 .decode-identity .vendor-logo-wrap { flex: 0 0 76px; min-height: 30px; margin: 0; padding: 3px 5px; }
@@ -85,6 +103,7 @@ a.decode-related-record:hover strong { text-decoration: underline; }
 }
 
 @container decode-result (max-width: 599px) {
+  .decode-state { padding: 12px 8px; }
   .decode-identity { gap: 4px 8px; padding: 6px 8px; }
   .decode-title { font-size: 0.9375rem; }
   .decode-specification { --spec-label-width: 76px; padding: 0 8px; }

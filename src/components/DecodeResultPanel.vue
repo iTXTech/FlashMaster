@@ -1,17 +1,35 @@
 <template>
-  <section class="panel decode-result-panel" :lang="locale === 'eng' ? 'en' : 'zh-CN'">
-    <div class="decode-identity">
-      <div v-if="result" class="decode-vendor">
+  <section v-if="!loading" class="panel decode-result-panel" :lang="locale === 'eng' ? 'en' : 'zh-CN'">
+    <div v-if="status !== 'ok'" class="decode-state" :class="{ 'decode-state--error': error || status === 'invalid_input' }">
+      <div role="status" aria-live="polite" aria-atomic="true">
+        <h2 class="decode-state-title">{{ stateTitle }}</h2>
+        <div v-if="query && !hasContent" class="decode-state-query">
+          <span>{{ queryLabel }}:</span> <strong class="data-identifier">{{ query }}</strong>
+        </div>
+        <p id="decode-state-description" class="decode-state-description">{{ stateDescription }}</p>
+        <p v-if="error?.message" class="decode-state-detail">{{ error.message }}</p>
+      </div>
+      <div v-if="status === 'idle'" class="decode-state-examples">
+        <span>{{ t('decodeState.examples') }}</span>
+        <button v-for="example in examples" :key="example" type="button" class="decode-example data-identifier" :aria-label="t('decodeState.fillExample', [example])" @click="emit('example', example)">{{ example }}</button>
+      </div>
+      <div v-else class="decode-state-actions">
+        <v-btn v-if="error" color="primary" variant="tonal" @click="emit('retry', query)">{{ t('decodeState.retry') }}</v-btn>
+        <v-btn v-else-if="['not_found', 'unsupported'].includes(status) && query" color="primary" variant="tonal" prepend-icon="mdi-magnify" @click="emit('search', query)">{{ t('decodeState.search') }}</v-btn>
+        <v-btn variant="text" @click="emit('edit')">{{ t('decodeState.edit') }}</v-btn>
+        <v-btn v-if="error?.http" variant="text" :to="settingsRoute(route)">{{ t('decodeState.serverSettings') }}</v-btn>
+      </div>
+    </div>
+    <div v-if="hasContent" class="decode-identity">
+      <div v-if="header.vendor" class="decode-vendor">
         <span class="decode-identity-label">{{ t('vendor') }}</span>
         <VendorLogo :vendor="header.vendor"><span class="decode-vendor-name">{{ header.vendor }}</span></VendorLogo>
       </div>
       <div class="decode-identity-copy">
-        <h2 v-if="!result" class="panel-title">{{ t('dashboard.decodeResult') }}</h2>
-        <div v-if="result" class="decode-title-line">
-          <span class="decode-identity-label">{{ header.device.identifier ? t('flashId') : t('partNumber') }}:</span>
+        <div class="decode-title-line">
+          <span class="decode-identity-label">{{ queryLabel }}:</span>
           <h3 class="decode-title">{{ header.title }}</h3>
         </div>
-        <div v-if="meta" class="panel-meta">{{ meta }}</div>
         <div class="decode-identity-details">
           <div class="decode-identity-fields">
             <span v-if="header.kind" class="decode-kind" :aria-label="`${t('dashboard.chipType')}: ${header.kind}`">{{ header.kind }}</span>
@@ -32,7 +50,7 @@
       </div>
     </div>
     <template v-if="result">
-      <div v-if="warningRows.length" class="warning-list decode-warnings" role="status">
+      <div v-if="warningRows.length" id="decode-warnings" class="warning-list decode-warnings" role="status">
         <div v-for="(item, index) in warningRows" :key="item.code + '-' + index" class="warning-item">{{ item.message }}</div>
       </div>
       <DecodeSpecificationSheet :blocks="blocks" :chip-kind="header.device.chipKind" @copy-block="emit('copy-block', $event)" />
@@ -61,7 +79,6 @@
         <ExternalLinks v-if="advertisements.length" :links="advertisements" compact />
       </section>
     </template>
-    <div v-else class="empty-state">{{ t('dashboard.empty') }}</div>
   </section>
 </template>
 
@@ -72,17 +89,29 @@ import { useRoute } from 'vue-router';
 import DecodeSpecificationSheet from '@/components/DecodeSpecificationSheet.vue';
 import ExternalLinks from '@/components/ExternalLinks.vue';
 import VendorLogo from '@/components/VendorLogo.vue';
-import { deviceTitle, externalLinkRows, fieldRows, relationRows, resultBlocks, resultHeader, warnings } from '@/services/fdnextResultView';
-import { localizeRouteLocation } from '@/router/locations';
+import { decodeResultHasContent, deviceTitle, externalLinkRows, fieldRows, relationRows, resultBlocks, resultHeader, warnings } from '@/services/fdnextResultView';
+import { localizeRouteLocation, settingsRoute } from '@/router/locations';
 
 const props = defineProps({
   result: { type: Object, default: null },
-  meta: { type: String, default: '' }
+  kind: { type: String, required: true },
+  loading: { type: Boolean, default: false },
+  error: { type: Object, default: null }
 });
-const emit = defineEmits(['copy-overview', 'copy-block']);
+const emit = defineEmits(['copy-overview', 'copy-block', 'example', 'retry', 'search', 'edit']);
 const { t, locale } = useI18n();
 const route = useRoute();
 const header = computed(() => resultHeader(props.result));
+const hasContent = computed(() => decodeResultHasContent(props.result));
+const status = computed(() => props.error?.kind || props.result?.status || 'idle');
+const query = computed(() => props.error?.query || props.result?.input?.normalized || props.result?.input?.query || '');
+const queryLabel = computed(() => t(props.kind === 'fid' ? 'flashId' : 'partNumber'));
+const examples = computed(() => props.kind === 'fid' ? ['2C644432A500'] : ['K9OKGY8S7C-CCK0', '1TA22JZ215', '9SA47D9SWC']);
+const stateKey = computed(() => ['idle', 'not_found'].includes(status.value)
+  ? `${props.kind}.${status.value}`
+  : ['invalid_input', 'unsupported', 'ambiguous', 'request_failed', 'timeout'].includes(status.value) ? status.value : 'unavailable');
+const stateTitle = computed(() => t(`decodeState.${stateKey.value}Title`));
+const stateDescription = computed(() => t(`decodeState.${stateKey.value}Description`));
 const blocks = computed(() => resultBlocks(props.result));
 const warningRows = computed(() => warnings(props.result));
 const candidates = computed(() => props.result?.candidates || []);

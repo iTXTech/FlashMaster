@@ -170,6 +170,18 @@ export function resultBlocks(result) {
   })).filter(block => block.rows.length > 0);
 }
 
+// Input echoes and external links alone do not constitute a decoded result.
+// Keep partial identity and candidates available even without specs.
+export function decodeResultHasContent(result) {
+  const device = result?.device || {};
+  return Boolean(deviceVendor(device)
+    || (device.chipKind && device.chipKind !== 'unknown')
+    || device.productType
+    || resultBlocks(result).length
+    || asArray(result?.candidates).length
+    || asArray(result?.relations).length);
+}
+
 export function deviceVendor(device) {
   return device?.vendor?.name || device?.vendor?.id || '';
 }

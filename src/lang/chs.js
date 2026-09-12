@@ -70,6 +70,38 @@ export default {
         copySection: '复制{0}',
         perPage: '每页'
     },
+    decodeState: {
+        pn: {
+            idleTitle: '输入料号开始解析',
+            idleDescription: '支持完整料号及部分丝印码，按 Enter 解析。',
+            not_foundTitle: '未找到匹配的料号',
+            not_foundDescription: '当前解析器未识别此输入，可核对料号或丝印，也可搜索相关记录。'
+        },
+        fid: {
+            idleTitle: '输入 NAND Flash ID 开始解析',
+            idleDescription: '查看识别结果、参数与关联料号，按 Enter 解析。',
+            not_foundTitle: '未找到匹配的 Flash ID',
+            not_foundDescription: '当前解析器未识别此 ID，可核对读取的十六进制内容，也可搜索相关记录。'
+        },
+        invalid_inputTitle: '输入格式有误',
+        invalid_inputDescription: '请检查输入内容，并根据下方提示修改后重新解析。',
+        unsupportedTitle: '暂不支持此输入的解析',
+        unsupportedDescription: '可修改输入，或搜索数据库中的相关记录。',
+        ambiguousTitle: '找到多个候选结果',
+        ambiguousDescription: '请结合芯片丝印与规格核对下方候选。',
+        request_failedTitle: '解析未完成',
+        request_failedDescription: '本次请求失败，请重试。',
+        timeoutTitle: '解析请求超时',
+        timeoutDescription: '未能在限定时间内取得结果，请重试。',
+        unavailableTitle: '暂时无法显示解析结果',
+        unavailableDescription: '请检查输入内容及下方提示。',
+        examples: '示例',
+        fillExample: '填入示例 {0}',
+        search: '搜索相关记录',
+        edit: '修改输入',
+        retry: '重试',
+        serverSettings: '服务器设置'
+    },
     linkCategory: {
         vnd: '厂商', ds: '数据手册', mkt: '采购', ref: '参考资料',
         tl: '工具', com: '社区', ads: '广告', unknown: '外部资源'

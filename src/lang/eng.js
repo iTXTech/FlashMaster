@@ -70,6 +70,38 @@ export default {
         copySection: 'Copy {0}',
         perPage: 'Per page'
     },
+    decodeState: {
+        pn: {
+            idleTitle: 'Enter a part number to decode',
+            idleDescription: 'Use a complete part number or a supported marking code, then press Enter.',
+            not_foundTitle: 'No matching part number',
+            not_foundDescription: 'The current parser did not recognize this input. Check the part number or marking, or search for related records.'
+        },
+        fid: {
+            idleTitle: 'Enter a NAND Flash ID to decode',
+            idleDescription: 'View identification, specifications and related parts. Press Enter to decode.',
+            not_foundTitle: 'No matching Flash ID',
+            not_foundDescription: 'The current parser did not recognize this ID. Check the hexadecimal bytes you read, or search for related records.'
+        },
+        invalid_inputTitle: 'Invalid input format',
+        invalid_inputDescription: 'Check the input and any details below, then try again.',
+        unsupportedTitle: 'Decoding is not supported for this input',
+        unsupportedDescription: 'Edit the input or search the database for related records.',
+        ambiguousTitle: 'Multiple candidates found',
+        ambiguousDescription: 'Compare the candidates below with the chip marking and specifications.',
+        request_failedTitle: 'Decoding could not complete',
+        request_failedDescription: 'The request failed. Please try again.',
+        timeoutTitle: 'The decode request timed out',
+        timeoutDescription: 'No result arrived within the time limit. Please try again.',
+        unavailableTitle: 'The decode result is unavailable',
+        unavailableDescription: 'Check the input and any details below.',
+        examples: 'Examples',
+        fillExample: 'Fill in example {0}',
+        search: 'Search related records',
+        edit: 'Edit input',
+        retry: 'Retry',
+        serverSettings: 'Server settings'
+    },
     linkCategory: {
         vnd: 'Vendor', ds: 'Datasheet', mkt: 'Marketplace', ref: 'Reference',
         tl: 'Tool', com: 'Community', ads: 'Ad', unknown: 'External resource'

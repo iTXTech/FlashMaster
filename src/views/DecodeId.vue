@@ -7,6 +7,9 @@
           v-model="flashIdInput"
           :items="suggestions"
           :loading="loadingSuggestions || loading"
+          :error="result?.status === 'invalid_input'"
+          :aria-invalid="result?.status === 'invalid_input' || undefined"
+          :aria-describedby="result?.status === 'invalid_input' ? 'decode-state-description decode-warnings' : undefined"
           :label="$t('flashId')"
           @search="searchSuggestions"
           @select="selectFlashIdSuggestion"
@@ -21,12 +24,23 @@
         </div>
       </div>
     </section>
-    <DecodeResultPanel :result="result" :meta="resultPanelMeta" @copy-overview="copyOverview" @copy-block="copyBlock" />
+    <DecodeResultPanel
+      kind="fid"
+      :result="result"
+      :loading="loading"
+      :error="requestFailure"
+      @copy-overview="copyOverview"
+      @copy-block="copyBlock"
+      @example="fillExample"
+      @edit="focusInput"
+      @search="searchRelated"
+      @retry="retryLookup"
+    />
   </div>
 </template>
 
 <script setup>
-import { computed, nextTick, onBeforeUnmount, ref, shallowRef } from 'vue';
+import { nextTick, onBeforeUnmount, ref, shallowRef } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import DecodeResultPanel from '@/components/DecodeResultPanel.vue';
@@ -36,7 +50,6 @@ import { decodeFlashId, searchFlashId } from '@/services/flashApi';
 import { isRequestAbortError, isRequestTimeoutError, SUGGESTION_REQUEST_TIMEOUT_MS } from '@/services/requestControl';
 import {
   identifierSuggestions,
-  resultHeader,
   summaryText,
 } from '@/services/fdnextResultView';
 import { trackCoverageSignal, trackFlashIdLookup } from '@/services/analytics';
@@ -54,6 +67,7 @@ const input = ref(null);
 const flashId = ref('');
 const suggestions = ref([]);
 const result = shallowRef(null);
+const requestFailure = shallowRef(null);
 const loading = ref(false);
 const loadingSuggestions = ref(false);
 let suggestionTimer;
@@ -73,12 +87,6 @@ const {
   normalize: normalizeComboValue
 });
 
-const header = computed(() => resultHeader(result.value));
-const resultPanelMeta = computed(() => {
-  if (!result.value) return t('dashboard.empty');
-  if (result.value.status === 'not_found') return t('dashboard.notFound');
-  return result.value.status && result.value.status !== 'ok' ? header.value.status : '';
-});
 function normalizeComboValue(value) {
   if (value && typeof value === 'object') {
     return value.value || value.title || '';
@@ -193,7 +201,12 @@ async function runLookup(id, { recordUsage = true } = {}) {
         success: false
       });
     }
-    notifyRequestError(err);
+    requestFailure.value = {
+      kind: isRequestTimeoutError(err) ? 'timeout' : 'request_failed',
+      message: isRequestTimeoutError(err) ? '' : String(err.message || err),
+      query: id,
+      http: !store.isEmbeddedParser()
+    };
   } finally {
     if (requestId === decodeRequestId) {
       loading.value = false;
@@ -258,6 +271,19 @@ function goSearchId() {
   router.push(idsSearchRoute(id, route));
 }
 
+function fillExample(query) {
+  commitFlashId(query);
+  focusInput();
+}
+
+function searchRelated(query) {
+  router.push(idsSearchRoute(query, route));
+}
+
+function retryLookup(query) {
+  return routeLookup.submit(commitFlashId(query));
+}
+
 function copyOverview(mode = 'full') {
   copyLine(summaryText(result.value, mode));
 }
@@ -279,12 +305,6 @@ function notify(text) {
   bus.emit('snackbar', { timeout: 3000, show: true, text });
 }
 
-function notifyRequestError(err) {
-  notify(isRequestTimeoutError(err)
-    ? t('alert.requestTimeout')
-    : t('alert.fetchFailed', [err.message || err]));
-}
-
 function resetLookup(query) {
   decodeRequestId += 1;
   cancelMainRequest();
@@ -292,6 +312,7 @@ function resetLookup(query) {
   suppressedSuggestionValue = query;
   flashId.value = query;
   result.value = null;
+  requestFailure.value = null;
   clearSuggestions();
   if (!query) {
     focusInput();

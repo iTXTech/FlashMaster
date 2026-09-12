@@ -4,6 +4,7 @@ Copyright (c) 2019-2026 iTX Technologies
 Version 2.7.0-dev (Snapshot date: 2026-09-12)
 
 FlashMaster updates:
+- Improved PN/Flash ID empty states with concise guidance and fillable examples, distinct no-match, invalid-input and persistent request-error messages, and actions to search related records, edit or retry. Corrected the label for unmatched IDs and removed empty vendor/summary controls while retaining partial results, candidates, warnings and external links. Queries continue to use only the input progress bar.
 - Align Micron short and complete marking results on the same actual part number and specifications. Show the full queried marking in the page and both summaries without a separate Input row. Complete markings add compact year, week, die revision and origin fields; the year label explains its last-digit meaning on hover, focus or tap.
 - Separate PN/Flash ID suggestion fields with subtle dividers and fixed spacing, preserve spaces and slashes inside identifiers, and align suggestion typography including server address presets.
 - Use native system fonts for the interface and consistent monospace fonts for PN, Flash ID, marking and controller values across inputs, suggestions, results and related links, without bundling font files.
