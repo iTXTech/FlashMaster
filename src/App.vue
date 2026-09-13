@@ -48,16 +48,25 @@
       <v-divider />
 
       <v-list density="compact" nav>
-        <v-list-item
-          v-for="item in navItems"
-          :key="item.key"
-          :prepend-icon="item.icon"
-          :title="$t(item.title)"
-          :to="item.to"
-          :active="item.active"
-          rounded="sm"
-          @click="mobile && (drawer = false)"
-        />
+        <template v-for="item in navItems" :key="item.key">
+          <v-list-item
+            v-if="item.key === 'settings' && installAvailable"
+            prepend-icon="mdi-download"
+            :title="installTitle"
+            :subtitle="installNativeOnly && !installActionAvailable ? $t(installState.failed ? 'install.nativeFailed' : 'install.nativeUnavailable') : undefined"
+            :disabled="installState.busy || !installActionAvailable"
+            rounded="sm"
+            @click="openInstall"
+          />
+          <v-list-item
+            :prepend-icon="item.icon"
+            :title="$t(item.title)"
+            :to="item.to"
+            :active="item.active"
+            rounded="sm"
+            @click="mobile && (drawer = false)"
+          />
+        </template>
       </v-list>
 
       <template #append>
@@ -110,6 +119,7 @@
     </v-snackbar>
 
     <ChangelogDialog v-model="changelogDialog" :app-version="projectVersion" />
+    <PwaInstallDialog v-if="installState.enabled" />
   </v-app>
 </template>
 
@@ -119,6 +129,8 @@ import { useDisplay, useTheme } from 'vuetify';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import ChangelogDialog from '@/components/ChangelogDialog.vue';
+import PwaInstallDialog from '@/components/PwaInstallDialog.vue';
+import { usePwaInstall } from '@/composables/usePwaInstall';
 import logo from '@/assets/app-icon.svg';
 import {
   aboutRoute,
@@ -141,6 +153,15 @@ const router = useRouter();
 const vuetifyTheme = useTheme();
 const { mobile } = useDisplay();
 const { locale, messages, t } = useI18n();
+const {
+  state: installState, available: installAvailable, nativeOnly: installNativeOnly,
+  actionAvailable: installActionAvailable, title: installTitle, install
+} = usePwaInstall();
+
+function openInstall() {
+  if (mobile.value) drawer.value = false;
+  install();
+}
 
 const drawer = ref(!mobile.value);
 const snackbar = ref({

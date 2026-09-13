@@ -19,6 +19,23 @@ const PARSER_HTTP = "http";
 const CONTROLLER_GROUP_ALL = "all";
 const MARKET_PULSE_STORAGE_KEY = "marketPulse";
 
+// Installation preferences are local and independent of release/changelog versions.
+const isPwaInstallHintEnabled = () => {
+    try { return localStorage.getItem("pwaInstallHint") !== "0"; } catch { return true; }
+};
+const setPwaInstallHintEnabled = value => {
+    try { localStorage.setItem("pwaInstallHint", value ? "1" : "0"); } catch { /* In-memory fallback in the installer. */ }
+};
+const getPwaInstallDismissedAt = () => {
+    try {
+        const value = Number(localStorage.getItem("pwaInstallDismissedAt"));
+        return Number.isFinite(value) && value > 0 ? value : 0;
+    } catch { return 0; }
+};
+const setPwaInstallDismissedAt = value => {
+    try { localStorage.setItem("pwaInstallDismissedAt", String(value)); } catch { /* In-memory fallback in the installer. */ }
+};
+
 const getDefaultServerAddress = () => DEFAULT_SERVER_ADDRESS;
 
 const isServerLocked = () => Boolean(LOCKED_SERVER_ADDRESS);
@@ -314,6 +331,10 @@ export default {
     shouldShowChangelog,
     setServiceBannerDismissed,
     shouldShowServiceBanner,
+    isPwaInstallHintEnabled,
+    setPwaInstallHintEnabled,
+    getPwaInstallDismissedAt,
+    setPwaInstallDismissedAt,
     getLang,
     setLang,
     setAutoHideSoftKeyboard,

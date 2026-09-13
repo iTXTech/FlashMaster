@@ -4,6 +4,26 @@ export default {
     lang: '简体中文',
     group: 'QQ群：1139052001',
     productTagline: '存储芯片智能解析平台',
+    install: {
+        homeScreen: '添加到主屏幕',
+        desktop: '安装 FlashMaster',
+        benefit: '下次直接点 FlashMaster 图标打开，查询更方便。',
+        viewSteps: '查看添加方法',
+        later: '稍后',
+        showHints: '显示安装提示',
+        failed: '暂时无法打开安装确认，请按下面的方法添加。',
+        offline: '资源缓存完成后，内嵌解析可离线使用；HTTP 查询和行情需要联网。',
+        nativeUnavailable: '浏览器暂未提供安装选项',
+        nativeFailed: '安装确认未能打开，请稍后重试',
+        iosMissing: '如果没有“添加到主屏幕”，可在共享菜单底部的“编辑操作”中添加。',
+        browserHelp: '查看浏览器安装说明',
+        steps: {
+            ios: ['在 Safari 浏览器中打开 FlashMaster，轻点“共享”（某些布局需先点“更多”）。', '选择“添加到主屏幕”。', '如有“作为网页 App 打开”，保持开启，然后轻点“添加”。'],
+            macos: ['在 Safari 浏览器中打开 FlashMaster。', '在“共享”菜单或“文件”菜单中选择“添加到程序坞”。', '确认名称为 FlashMaster，点按“添加”。'],
+            browser: ['打开浏览器菜单，查找“安装应用”或“添加到主屏幕”；电脑也可查看地址栏中的安装图标。', '如果找到安装入口，按浏览器提示确认。', '如果没有入口，可尝试最新版 Chrome、Edge，或在 Apple 设备上使用 Safari；已安装时可直接从设备上的图标打开。'],
+            external: ['打开当前页面的菜单，选择“在浏览器中打开”；如果没有此选项，可复制网址到系统浏览器。', '在系统浏览器中打开 FlashMaster，再点击侧栏中的安装入口查看添加方法。']
+        }
+    },
     alert: {
         missingPartNumber: '请输入料号',
         fetchFailed: '获取失败：{0}',

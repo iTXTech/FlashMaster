@@ -4,6 +4,26 @@ export default {
     lang: 'English',
     group: 'QQ Group: 1139052001',
     productTagline: 'Memory Chip Intelligence Platform',
+    install: {
+        homeScreen: 'Add to Home Screen',
+        desktop: 'Install FlashMaster',
+        benefit: 'Open FlashMaster from its icon next time for quicker access.',
+        viewSteps: 'View install steps',
+        later: 'Later',
+        showHints: 'Show installation tips',
+        failed: 'The install prompt could not open. Try the steps below.',
+        offline: 'Once resources are cached, embedded decoding works offline. HTTP queries and market data need a connection.',
+        nativeUnavailable: 'Installation is not currently available',
+        nativeFailed: 'The install prompt could not open. Try again later.',
+        iosMissing: 'If Add to Home Screen is missing, add it using Edit Actions at the bottom of the share menu.',
+        browserHelp: 'Browser installation help',
+        steps: {
+            ios: ['Open FlashMaster in Safari and tap Share (some layouts require tapping More first).', 'Choose Add to Home Screen.', 'If Open as Web App is shown, leave it on, then tap Add.'],
+            macos: ['Open FlashMaster in Safari.', 'Choose Add to Dock from the Share or File menu.', 'Confirm the name is FlashMaster and click Add.'],
+            browser: ['Look for Install app or Add to Home Screen in the browser menu. On a computer, also check for an install icon in the address bar.', 'If an install option is available, follow the browser prompts to confirm.', 'If no option appears, try an up-to-date Chrome or Edge, or Safari on Apple devices. If already installed, open FlashMaster from its icon.'],
+            external: ['Open this page’s menu and choose Open in browser. If unavailable, copy the URL into your system browser.', 'Open FlashMaster in that browser and select the installation entry in the sidebar for instructions.']
+        }
+    },
     alert: {
         missingPartNumber: 'Enter a PN',
         fetchFailed: 'Request failed: {0}',

@@ -35,6 +35,7 @@
       @search="searchRelated"
       @retry="retryLookup"
     />
+    <PwaInstallPrompt v-if="!singleFile" :successful="result?.status === 'ok' && !loading" />
   </div>
 </template>
 
@@ -43,6 +44,7 @@ import { nextTick, onBeforeUnmount, ref, shallowRef } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import DecodeResultPanel from '@/components/DecodeResultPanel.vue';
+import PwaInstallPrompt from '@/components/PwaInstallPrompt.vue';
 import QuerySuggestionInput from '@/components/QuerySuggestionInput.vue';
 import { copyText } from '@/services/clipboard';
 import { decodeFlashId, searchFlashId } from '@/services/flashApi';
@@ -62,6 +64,7 @@ const { locale, t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const input = ref(null);
+const singleFile = __FLASHMASTER_SINGLEFILE__;
 
 const flashId = ref('');
 const suggestions = ref([]);

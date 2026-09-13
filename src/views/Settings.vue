@@ -114,6 +114,19 @@
             @update:model-value="changeTheme"
           />
           <div class="settings-switch-list">
+            <div v-if="installState.enabled" class="settings-switch-row">
+              <span class="settings-switch-label">{{ $t('install.showHints') }}</span>
+              <v-switch
+                :model-value="installState.hintsEnabled"
+                class="settings-switch-control"
+                base-color="surface-variant"
+                color="primary"
+                density="compact"
+                hide-details
+                :aria-label="$t('install.showHints')"
+                @update:model-value="setInstallHintsEnabled"
+              />
+            </div>
             <div class="settings-switch-row">
               <span class="settings-switch-label">{{ $t('customization.autoHideSoftKeyboard') }}</span>
               <v-switch
@@ -196,9 +209,11 @@ import { trackMarketPulseEvent } from '@/services/analytics';
 import { isRequestAbortError, isRequestTimeoutError } from '@/services/requestControl';
 import bus from '@/store/bus';
 import store from '@/store';
+import { usePwaInstall } from '@/composables/usePwaInstall';
 import themeManager from '@/theme';
 
 const { locale, t } = useI18n();
+const { state: installState, setHintsEnabled: setInstallHintsEnabled } = usePwaInstall();
 const route = useRoute();
 
 const server = ref(store.getServerAddress());
