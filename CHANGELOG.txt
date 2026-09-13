@@ -4,6 +4,7 @@ Copyright (c) 2019-2026 iTX Technologies
 Version 2.7.0-dev (Snapshot date: 2026-09-13)
 
 FlashMaster updates:
+- Simplified the About copy, grouped parser build information in the footer, and identified browser versus standalone PWA runtime.
 - Fixed the missing installation entry on LAN HTTP pages while retaining Safari home screen/Dock instructions. Chrome/Edge use only native installation; the entry remains visible but disabled until the browser provides an install event, without showing instructions.
 - Added a sidebar installation entry, browser-specific home screen/Dock instructions, and a quiet tip after successful PN/Flash ID decoding. Tips appear once per tab session, pause for 30 days after dismissal, and can be disabled in Settings without losing manual installation. Standalone windows and single-file builds hide installation promotion.
 - Removed the Edit input buttons from PN/Flash ID states and restored the mobile sidebar scrim; tapping the scrim closes navigation.

@@ -55,7 +55,7 @@ export default {
         idDescription: 'Decode NAND Flash ID {0} with FlashMaster and inspect geometry, timing, controllers, and related part numbers.',
         idsSearchDescription: 'Search the NAND Flash ID database for matching IDs, geometry, related part numbers, and external links.',
         settingsDescription: 'Configure FlashMaster parser mode, fdnext HTTP API address, controller groups, theme, Market Pulse, and local statistics.',
-        aboutDescription: 'Learn about FlashMaster, parser mode, license, version metadata, and author contact information.',
+        aboutDescription: 'Learn about FlashMaster, the fdnext parsing engine, the open-source license, and author contact details.',
         notFoundDescription: 'The current URL does not match a public FlashMaster workspace route.'
     },
     dashboard: {
@@ -309,5 +309,9 @@ export default {
     open: 'Open',
     yes: 'Yes',
     no: 'No',
-    about: '<div class="about-section"><div class="about-heading">FlashMaster</div><div><a href="https://github.com/iTXTech/FlashMaster" target="_blank" rel="noopener noreferrer">iTXTech FlashMaster</a> is a workstation-grade intelligence platform for engineers, featuring a high-density, interactive interface for memory-chip part-number lookup, NAND Flash ID decoding, database search, and result inspection.</div></div><div class="about-section"><div class="about-heading">Architecture</div><div>The current version is built with Vite, Vue 3, Vuetify, and pnpm. It can run with embedded fdnext in browser builds, or call a configured fdnext HTTP API.</div></div><div class="about-section"><div class="about-heading">fdnext</div><div><a href="https://github.com/iTXTech/fdnext" target="_blank" rel="noopener noreferrer">iTXTech fdnext</a> is the parsing and data engine behind FlashMaster, providing shared rules, resources, search, and canonical result models for memory-chip PN and NAND Flash ID intelligence. Parser build: <strong>{1}</strong>.</div></div><div class="about-section"><div class="about-heading">License</div><div>FlashMaster is distributed under the GNU Affero General Public License v3.0 (AGPL 3.0).</div></div><div class="about-section about-contact"><div class="about-heading">Contact</div><a class="about-contact-link" href="mailto:peratx&#64;itxtech.org">PeratX &lt;peratx&#64;itxtech.org&gt;</a></div><div class="about-section about-meta">Client: {0}<br/>Copyright © 2019-2026 <a href="https://itxtech.org" target="_blank" rel="noopener noreferrer">iTX Technologies</a></div>'
+    aboutRuntime: {
+        browser: 'Browser (not PWA)',
+        pwa: 'PWA (standalone)'
+    },
+    about: '<div class="about-section"><div class="about-heading">FlashMaster</div><div><a href="https://github.com/iTXTech/FlashMaster" target="_blank" rel="noopener noreferrer">FlashMaster</a> is a free, open-source tool for memory-chip lookup and decoding. Decode part numbers and NAND Flash IDs, search chip databases, and explore specifications, related parts, and reference material.</div></div><div class="about-section"><div class="about-heading">Parsing engine</div><div>FlashMaster is powered by <a href="https://github.com/iTXTech/fdnext" target="_blank" rel="noopener noreferrer">iTXTech fdnext</a>, which provides memory-chip decoding rules and database queries.</div></div><div class="about-section"><div class="about-heading">Open-source license</div><div>FlashMaster is released under the GNU Affero General Public License v3.0 (AGPLv3).</div></div><div class="about-section about-contact"><div class="about-heading">Contact</div><a class="about-contact-link" href="mailto:peratx&#64;itxtech.org">PeratX · peratx&#64;itxtech.org</a></div><div class="about-section about-meta">Parser build: {1}<br/>Runtime: {0}<br/>© 2019-2026 <a href="https://itxtech.org" target="_blank" rel="noopener noreferrer">iTX Technologies</a></div>'
 }

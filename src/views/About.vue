@@ -9,7 +9,7 @@
           <v-btn variant="tonal" prepend-icon="mdi-history" @click="openChangelog">{{ $t('changelog.title') }}</v-btn>
         </div>
         <div class="panel-body">
-          <div class="about-copy text-body-2" v-html="$t('about', [client, fdnextVersion])" />
+          <div class="about-copy text-body-2" v-html="$t('about', [runtimeEnvironment, fdnextVersion])" />
         </div>
       </section>
 
@@ -19,9 +19,13 @@
 
 <script setup>
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { usePwaInstall } from '@/composables/usePwaInstall';
 import { getParserBuildLabel } from '@/services/versionInfo';
 import bus from '@/store/bus';
 
+const { t } = useI18n();
+const { state: installState } = usePwaInstall();
 const fdnextVersion = getParserBuildLabel();
 
 const client = computed(() => {
@@ -44,6 +48,11 @@ const client = computed(() => {
     match.splice(1, 1, temp[1]);
   }
   return `${match[0]} ${match[1]}`;
+});
+
+const runtimeEnvironment = computed(() => {
+  const mode = t(installState.standalone ? 'aboutRuntime.pwa' : 'aboutRuntime.browser');
+  return `${client.value} · ${mode}`;
 });
 
 function openChangelog() {

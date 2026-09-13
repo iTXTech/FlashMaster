@@ -55,7 +55,7 @@ export default {
         idDescription: '使用 FlashMaster 解析 NAND Flash ID {0}，查看几何结构、时序、控制器和相关料号。',
         idsSearchDescription: '搜索 NAND Flash ID 数据库，查看匹配 ID、几何结构、相关料号和外部链接。',
         settingsDescription: '配置 FlashMaster 的解析模式、fdnext HTTP API 地址、控制器分组、主题、Market Pulse 和本地统计。',
-        aboutDescription: '了解 FlashMaster、解析器形态、许可证、版本信息和作者联系方式。',
+        aboutDescription: '了解 FlashMaster、fdnext 解析引擎、开源许可与作者联系方式。',
         notFoundDescription: '当前 URL 不匹配 FlashMaster 的公开工作台路由。'
     },
     dashboard: {
@@ -309,5 +309,9 @@ export default {
     open: '打开',
     yes: '是',
     no: '否',
-    about: '<div class="about-section"><div class="about-heading">FlashMaster</div><div><a href="https://github.com/iTXTech/FlashMaster" target="_blank" rel="noopener noreferrer">iTXTech FlashMaster</a> 是一个专为工程师打造的工作站级智能平台，提供高密度的交互界面，用于存储芯片料号查询、NAND Flash ID 解码、数据库搜索以及结果分析。</div></div><div class="about-section"><div class="about-heading">架构</div><div>当前版本基于 Vite、Vue 3、Vuetify 和 pnpm 构建，可在浏览器构建中内嵌 fdnext，也可调用配置的 fdnext HTTP API。</div></div><div class="about-section"><div class="about-heading">fdnext</div><div><a href="https://github.com/iTXTech/fdnext" target="_blank" rel="noopener noreferrer">iTXTech fdnext</a> 是 FlashMaster 的解析与数据引擎，提供统一规则、资源、搜索与标准结果模型，用于存储芯片料号和 NAND Flash ID 智能分析。解析器形态：<strong>{1}</strong>。</div></div><div class="about-section"><div class="about-heading">许可证</div><div>FlashMaster 基于 GNU Affero General Public License v3.0（AGPL 3.0）发布。</div></div><div class="about-section about-contact"><div class="about-heading">联系作者</div><a class="about-contact-link" href="mailto:peratx&#64;itxtech.org">PeratX &lt;peratx&#64;itxtech.org&gt;</a></div><div class="about-section about-meta">客户端：{0}<br/>Copyright © 2019-2026 <a href="https://itxtech.org" target="_blank" rel="noopener noreferrer">iTX Technologies</a></div>'
+    aboutRuntime: {
+        browser: '浏览器（非 PWA）',
+        pwa: 'PWA（独立窗口）'
+    },
+    about: '<div class="about-section"><div class="about-heading">FlashMaster</div><div><a href="https://github.com/iTXTech/FlashMaster" target="_blank" rel="noopener noreferrer">FlashMaster</a> 是一款免费开源的存储芯片查询与解析工具，支持料号解析、NAND Flash ID 解码和数据库搜索，帮助你查看芯片规格、关联型号与参考资料。</div></div><div class="about-section"><div class="about-heading">解析引擎</div><div>FlashMaster 由 <a href="https://github.com/iTXTech/fdnext" target="_blank" rel="noopener noreferrer">iTXTech fdnext</a> 驱动，提供存储芯片的解析规则与数据库查询能力。</div></div><div class="about-section"><div class="about-heading">开源许可</div><div>FlashMaster 基于 GNU Affero General Public License v3.0（AGPLv3）发布。</div></div><div class="about-section about-contact"><div class="about-heading">联系作者</div><a class="about-contact-link" href="mailto:peratx&#64;itxtech.org">PeratX · peratx&#64;itxtech.org</a></div><div class="about-section about-meta">解析器构建：{1}<br/>运行环境：{0}<br/>© 2019-2026 <a href="https://itxtech.org" target="_blank" rel="noopener noreferrer">iTX Technologies</a></div>'
 }

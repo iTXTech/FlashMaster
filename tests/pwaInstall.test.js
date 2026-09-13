@@ -101,6 +101,7 @@ test('rejected prompts recover to manual instructions and appinstalled closes th
   h.win.dispatchEvent(new Event('appinstalled'));
   assert.equal(h.available.value, false);
   assert.equal(h.state.dialog, false);
+  assert.equal(h.state.standalone, false, 'installation does not change the current browser window mode');
 });
 
 test('userChoice acceptance hides promotion even before appinstalled arrives', async t => {
@@ -111,6 +112,7 @@ test('userChoice acceptance hides promotion even before appinstalled arrives', a
   assert.equal(h.available.value, false);
   assert.equal(h.claimPromotion(), false);
   assert.equal(h.state.canPrompt, false);
+  assert.equal(h.state.standalone, false, 'accepting installation does not open this tab as a PWA');
 });
 
 test('tips are shared across routes/reloads in a tab and respect persisted 30 day dismissal', t => {
@@ -141,13 +143,22 @@ test('settings persist without suppressing manual entry and storage events updat
 
 test('standalone and iOS standalone hide promotion, browser mode alone is not proof of installation', t => {
   const h = setup(t, { standalone: true });
+  assert.equal(h.state.standalone, true);
   assert.equal(h.available.value, false);
   assert.equal(h.prompt().event.defaultPrevented, false);
   h.displayMode.matches = false;
   h.displayMode.dispatchEvent(new Event('change'));
   assert.equal(h.available.value, true);
+  assert.equal(h.state.standalone, false);
+  h.displayMode.matches = true;
+  h.displayMode.dispatchEvent(new Event('change'));
+  assert.equal(h.state.standalone, true);
   const ios = setup(t, { navigator: { standalone: true } });
   assert.equal(ios.claimPromotion(), false);
+  assert.equal(ios.state.standalone, true);
+  ios.win.navigator.standalone = false;
+  ios.win.dispatchEvent(new Event('pageshow'));
+  assert.equal(ios.state.standalone, false);
 });
 
 test('single-file builds never capture or offer installation, including on HTTPS', t => {
