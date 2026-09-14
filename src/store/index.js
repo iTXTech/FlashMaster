@@ -148,19 +148,6 @@ const getChangelogVersion = (version = getProjectVersion()) => {
     return versionWithoutBuildMetadata.replace(/-([0-9a-f]{7,40})$/i, "");
 };
 
-const getSeenChangelogVersion = () => {
-    return getChangelogVersion(localStorage.seenChangelogVersion || "");
-};
-
-const setSeenChangelogVersion = version => {
-    localStorage.seenChangelogVersion = getChangelogVersion(version);
-};
-
-const shouldShowChangelog = version => {
-    const normalized = getChangelogVersion(version);
-    return normalized && getSeenChangelogVersion() !== normalized;
-};
-
 const SERVICE_BANNER_DISMISS_MS = 48 * 60 * 60 * 1000;
 
 const getServiceBannerDismissed = () => {
@@ -326,9 +313,6 @@ export default {
     resetStat,
     getProjectVersion,
     getChangelogVersion,
-    getSeenChangelogVersion,
-    setSeenChangelogVersion,
-    shouldShowChangelog,
     setServiceBannerDismissed,
     shouldShowServiceBanner,
     isPwaInstallHintEnabled,

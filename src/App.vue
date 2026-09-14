@@ -53,8 +53,8 @@
             v-if="item.key === 'settings' && installAvailable"
             prepend-icon="mdi-download"
             :title="installTitle"
-            :subtitle="installNativeOnly && !installActionAvailable ? $t(installState.failed ? 'install.nativeFailed' : 'install.nativeUnavailable') : undefined"
-            :disabled="installState.busy || !installActionAvailable"
+            :subtitle="installState.busy ? $t('install.confirming') : undefined"
+            :disabled="installState.busy"
             rounded="sm"
             @click="openInstall"
           />
@@ -89,14 +89,15 @@
     <v-main
       class="main-surface"
       :class="{
-        'has-service-banner': commercialBannerAvailable && serviceBannerVisible,
+        'has-service-banner': (commercialBannerAvailable && serviceBannerVisible) || (!singleFile && installState.promotionVisible),
         'has-market-pulse': marketPulseAvailable && marketPulseEnabled
       }"
       :style="mainSurfaceStyle"
     >
       <MarketPulse v-if="marketPulseAvailable && marketPulseEnabled" @close="closeMarketPulse" />
       <router-view />
-      <div v-if="commercialBannerAvailable && serviceBannerVisible" class="service-banner-spacer" aria-hidden="true" />
+      <div v-if="(commercialBannerAvailable && serviceBannerVisible) || (!singleFile && installState.promotionVisible)" class="service-banner-spacer" aria-hidden="true" />
+      <PwaInstallPrompt v-if="!singleFile" @resize="updateServiceBannerHeight" />
       <CommercialServiceBanner
         v-if="commercialBannerAvailable && serviceBannerVisible"
         surface="commercial_banner"
@@ -130,6 +131,7 @@ import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import ChangelogDialog from '@/components/ChangelogDialog.vue';
 import PwaInstallDialog from '@/components/PwaInstallDialog.vue';
+import PwaInstallPrompt from '@/components/PwaInstallPrompt.vue';
 import { usePwaInstall } from '@/composables/usePwaInstall';
 import logo from '@/assets/app-icon.svg';
 import {
@@ -154,9 +156,9 @@ const vuetifyTheme = useTheme();
 const { mobile } = useDisplay();
 const { locale, messages, t } = useI18n();
 const {
-  state: installState, available: installAvailable, nativeOnly: installNativeOnly,
-  actionAvailable: installActionAvailable, title: installTitle, install
+  state: installState, entryVisible: installAvailable, title: installTitle, install
 } = usePwaInstall();
+const singleFile = __FLASHMASTER_SINGLEFILE__ === true;
 
 function openInstall() {
   if (mobile.value) drawer.value = false;
@@ -238,7 +240,10 @@ const languages = computed(() => Object.entries(messages.value).map(([code, mess
 
 const projectVersion = computed(() => store.getProjectVersion());
 const changelogVersion = computed(() => store.getChangelogVersion(projectVersion.value));
-const serviceBannerVisible = ref(commercialBannerAvailable && store.shouldShowServiceBanner(changelogVersion.value));
+const serviceBannerAllowed = ref(commercialBannerAvailable && store.shouldShowServiceBanner(changelogVersion.value));
+const serviceBannerVisible = __FLASHMASTER_SINGLEFILE__
+  ? serviceBannerAllowed
+  : computed(() => serviceBannerAllowed.value && !installState.promotionVisible);
 const serviceBannerHeight = ref(0);
 const mainSurfaceStyle = computed(() => (
   serviceBannerHeight.value > 0
@@ -246,7 +251,7 @@ const mainSurfaceStyle = computed(() => (
     : {}
 ));
 const snackbarStyle = computed(() => {
-  const offset = commercialBannerAvailable && serviceBannerVisible.value && serviceBannerHeight.value > 0
+  const offset = ((commercialBannerAvailable && serviceBannerVisible.value) || (!singleFile && installState.promotionVisible)) && serviceBannerHeight.value > 0
     ? serviceBannerHeight.value + (mobile.value ? 8 : 10)
     : 0;
   return { '--v-snackbar-offset': `${offset}px` };
@@ -303,7 +308,7 @@ const dismissServiceBanner = () => {
   if (!commercialBannerAvailable) return;
   store.setServiceBannerDismissed(changelogVersion.value);
   serviceBannerHeight.value = 0;
-  serviceBannerVisible.value = false;
+  serviceBannerAllowed.value = false;
 };
 
 const updateServiceBannerHeight = height => {
@@ -375,9 +380,6 @@ onMounted(() => {
   });
   mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
   mediaQuery.addEventListener?.('change', applyTheme);
-  if (store.shouldShowChangelog(changelogVersion.value)) {
-    changelogDialog.value = true;
-  }
 });
 
 onUnmounted(() => {
@@ -393,14 +395,9 @@ watch([() => route.fullPath, () => route.meta.title, () => route.meta.descriptio
 watch(mobile, value => {
   drawer.value = !value;
 });
-watch(changelogDialog, value => {
-  if (!value) {
-    store.setSeenChangelogVersion(changelogVersion.value);
-  }
-});
 watch(changelogVersion, value => {
-  serviceBannerVisible.value = commercialBannerAvailable && store.shouldShowServiceBanner(value);
-  if (!serviceBannerVisible.value) {
+  serviceBannerAllowed.value = commercialBannerAvailable && store.shouldShowServiceBanner(value);
+  if (!serviceBannerAllowed.value) {
     serviceBannerHeight.value = 0;
   }
 });

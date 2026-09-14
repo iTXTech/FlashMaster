@@ -4,17 +4,17 @@ export default {
     lang: 'English',
     group: 'QQ Group: 1139052001',
     productTagline: 'Memory Chip Intelligence Platform',
-    install: {
+    install: __FLASHMASTER_SINGLEFILE__ ? {} : {
         homeScreen: 'Add to Home Screen',
         desktop: 'Install FlashMaster',
         benefit: 'Open FlashMaster from its icon next time for quicker access.',
         viewSteps: 'View install steps',
+        add: 'Add',
         later: 'Later',
+        confirming: 'Waiting for installation confirmation',
         showHints: 'Show installation tips',
         failed: 'The install prompt could not open. Try the steps below.',
         offline: 'Once resources are cached, embedded decoding works offline. HTTP queries and market data need a connection.',
-        nativeUnavailable: 'Installation is not currently available',
-        nativeFailed: 'The install prompt could not open. Try again later.',
         iosMissing: 'If Add to Home Screen is missing, add it using Edit Actions at the bottom of the share menu.',
         browserHelp: 'Browser installation help',
         steps: {

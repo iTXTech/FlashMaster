@@ -35,7 +35,6 @@
       @search="searchRelated"
       @retry="retryLookup"
     />
-    <PwaInstallPrompt v-if="!singleFile" :successful="result?.status === 'ok' && !loading" />
   </div>
 </template>
 
@@ -44,7 +43,6 @@ import { nextTick, onBeforeUnmount, ref, shallowRef } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import DecodeResultPanel from '@/components/DecodeResultPanel.vue';
-import PwaInstallPrompt from '@/components/PwaInstallPrompt.vue';
 import QuerySuggestionInput from '@/components/QuerySuggestionInput.vue';
 import { copyText } from '@/services/clipboard';
 import { decodePartNumber, searchPartNumber } from '@/services/flashApi';
@@ -56,6 +54,7 @@ import {
 import { trackCoverageSignal, trackPartNumberLookup } from '@/services/analytics';
 import { useFormattedQueryInput } from '@/composables/useFormattedQueryInput';
 import { useRouteLookup } from '@/composables/useRouteLookup';
+import { pwaInstall } from '@/composables/usePwaInstall';
 import { partRoute, partsSearchRoute, routeParamText } from '@/router/locations';
 import bus from '@/store/bus';
 import store from '@/store';
@@ -64,7 +63,6 @@ const { locale, t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const input = ref(null);
-const singleFile = __FLASHMASTER_SINGLEFILE__;
 
 const partNumber = ref('');
 const suggestions = ref([]);
@@ -325,7 +323,7 @@ function resetLookup(query) {
   result.value = null;
   requestFailure.value = null;
   clearSuggestions();
-  if (!query) {
+  if (!query && (__FLASHMASTER_SINGLEFILE__ || !pwaInstall.state.mobile)) {
     focusInput();
   }
 }

@@ -4,9 +4,11 @@ Copyright (c) 2019-2026 iTX Technologies
 Version 2.7.0-dev (Snapshot date: 2026-09-13)
 
 FlashMaster updates:
+- Reduced single-file size by excluding PWA installation code and text at build time; optimized vendor images without changing their appearance. All builds now include only the current version's changelog.
 - Simplified the About copy, grouped parser build information in the footer, and identified browser versus standalone PWA runtime.
-- Fixed the missing installation entry on LAN HTTP pages while retaining Safari home screen/Dock instructions. Chrome/Edge use only native installation; the entry remains visible but disabled until the browser provides an install event, without showing instructions.
-- Added a sidebar installation entry, browser-specific home screen/Dock instructions, and a quiet tip after successful PN/Flash ID decoding. Tips appear once per tab session, pause for 30 days after dismissal, and can be disabled in Settings without losing manual installation. Standalone windows and single-file builds hide installation promotion.
+- Fixed the missing installation entry on LAN HTTP pages while retaining Safari home screen/Dock instructions. Chrome/Edge use only native installation, without showing instructions.
+- Removed post-query installation tips and automatic changelog opening. Mobile browsers show a bottom installation tip about 3 seconds after opening, skipping the visit if typing starts. Dismissal pauses tips for 7 days; the bottom ad is temporarily hidden while a tip is visible. Desktop, standalone and single-file builds never show automatic tips.
+- Hide the sidebar installation entry when the browser offers no install action or installation tips are disabled. Show a waiting state during system confirmation instead of incorrectly reporting installation as unavailable.
 - Removed the Edit input buttons from PN/Flash ID states and restored the mobile sidebar scrim; tapping the scrim closes navigation.
 - Improved PN/Flash ID empty states with concise guidance and fillable examples, distinct no-match, invalid-input and persistent request-error messages, and actions to search related records or retry. Corrected the label for unmatched IDs and removed empty vendor/summary controls while retaining partial results, candidates, warnings and external links. Queries continue to use only the input progress bar.
 - Align Micron short and complete marking results on the same actual part number and specifications. Show the full queried marking in the page and both summaries without a separate Input row. Complete markings add compact year, week, die revision and origin fields; the year label explains its last-digit meaning on hover, focus or tap.

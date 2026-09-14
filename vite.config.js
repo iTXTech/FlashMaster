@@ -6,6 +6,7 @@ import vue from '@vitejs/plugin-vue';
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import { viteSingleFile } from 'vite-plugin-singlefile';
+import { currentChangelogPlugin } from './build/currentChangelog.js';
 
 const packageJson = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'));
 const fdnextPackageJson = (() => {
@@ -244,6 +245,16 @@ export default defineConfig(({ mode }) => {
   const appBase = process.env.VITE_FLASHMASTER_BASE || (routerMode === 'history' ? '/' : './');
   const appSrc = fileURLToPath(new URL('./src', import.meta.url));
   const aliases = [
+    ...(singleFile ? [
+      {
+        find: '@/composables/usePwaInstall',
+        replacement: fileURLToPath(new URL('./src/composables/usePwaInstall-noop.js', import.meta.url))
+      },
+      ...['PwaInstallDialog', 'PwaInstallPrompt'].map(component => ({
+        find: `@/components/${component}.vue`,
+        replacement: fileURLToPath(new URL('./src/components/NoopFeature.js', import.meta.url))
+      }))
+    ] : []),
     ...(!analyticsEnabled ? [{
       find: '@/services/analytics',
       replacement: fileURLToPath(new URL('./src/services/analytics-noop.js', import.meta.url))
@@ -290,6 +301,7 @@ export default defineConfig(({ mode }) => {
   return {
     base: appBase,
     plugins: [
+      currentChangelogPlugin(fileURLToPath(new URL('.', import.meta.url)), packageJson.version),
       vue(),
       ...(singleFile ? [
         singleFileHtmlPlugin({

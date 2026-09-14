@@ -8,7 +8,7 @@ import { renderToString } from 'vue/server-renderer';
 import * as i18n from 'vue-i18n';
 import * as display from '../src/services/display.js';
 
-const context = createContext({ URL });
+const context = createContext({ URL, __FLASHMASTER_SINGLEFILE__: false });
 const synthetic = exports => new SyntheticModule(Object.keys(exports), function () {
   for (const [key, value] of Object.entries(exports)) this.setExport(key, value);
 }, { context });

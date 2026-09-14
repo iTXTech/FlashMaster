@@ -1,9 +1,8 @@
 import { computed, reactive, readonly } from 'vue';
 
-const REMIND_AFTER_MS = 30 * 24 * 60 * 60 * 1000;
-const SESSION_KEY = 'pwaInstallHintShown';
+const REMIND_AFTER_MS = 7 * 24 * 60 * 60 * 1000;
 
-// Platform detection selects help text only. Native installation always requires an event.
+// Platform detection selects help and mobile promotion. Native installation requires an event.
 export function installPlatform(navigator = {}) {
   const ua = navigator.userAgent || '';
   const ios = /iPad|iPhone|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
@@ -31,29 +30,36 @@ export function createPwaInstall({ window: win, enabled, preferences, now = Date
     failed: false,
     hintsEnabled: true,
     dismissedAt: 0,
-    checkedAt: now(),
-    hintShown: false
+    promotionVisible: false
   });
   let deferredPrompt;
   let started = false;
   let displayMode;
+  // Freeze eligibility to this visit; expiry in an open tab cannot show a tip.
+  const visitStartedAt = now();
+  let promotionChecked = false;
+  let cancelPromotion;
 
   const available = computed(() => state.enabled && !state.standalone && !state.accepted);
   const nativeOnly = computed(() => state.guide === 'native');
   const actionAvailable = computed(() => available.value && (!nativeOnly.value || state.canPrompt));
-  const promotionAllowed = computed(() => actionAvailable.value && state.hintsEnabled && !state.busy &&
-    (!state.dismissedAt || state.checkedAt - state.dismissedAt >= REMIND_AFTER_MS));
+  const entryVisible = computed(() => available.value && state.hintsEnabled && (actionAvailable.value || state.busy));
+  const promotionAllowed = computed(() => state.mobile && actionAvailable.value && state.hintsEnabled && !state.busy &&
+    (!state.dismissedAt || visitStartedAt - state.dismissedAt >= REMIND_AFTER_MS));
 
   function refreshPreferences() {
-    state.checkedAt = now();
     state.hintsEnabled = preferences.isPwaInstallHintEnabled();
     state.dismissedAt = preferences.getPwaInstallDismissedAt();
+    if (!promotionAllowed.value) state.promotionVisible = false;
   }
 
   function syncDisplayMode() {
     // This describes the current window, not whether another installed copy exists.
     state.standalone = Boolean(displayMode?.matches || win.navigator.standalone === true);
-    if (state.standalone) state.dialog = false;
+    if (state.standalone) {
+      state.dialog = false;
+      state.promotionVisible = false;
+    }
   }
 
   function capturePrompt(event) {
@@ -65,13 +71,46 @@ export function createPwaInstall({ window: win, enabled, preferences, now = Date
   }
 
   function claimPromotion() {
-    if (!promotionAllowed.value || state.hintShown) return false;
-    state.hintShown = true;
-    try { win.sessionStorage.setItem(SESSION_KEY, '1'); } catch { /* Keep session state in memory. */ }
+    if (promotionChecked) return false;
+    promotionChecked = true;
+    if (!promotionAllowed.value) return false;
+    state.promotionVisible = true;
     return true;
   }
 
+  function schedulePromotion() {
+    if (!state.mobile || !available.value || promotionChecked || cancelPromotion) return;
+    const doc = win.document;
+    const editing = element => element?.matches('input, textarea, [contenteditable="true"]');
+    const cancelOnInput = event => {
+      if (editing(event.target)) {
+        promotionChecked = true;
+        cancelPromotion();
+      }
+    };
+    const timer = win.setTimeout(() => {
+      cancelPromotion();
+      const viewport = win.visualViewport;
+      if (doc.hidden || editing(doc.activeElement) ||
+        doc.querySelector('.v-overlay--active, .v-navigation-drawer--temporary.v-navigation-drawer--active') ||
+        (viewport && viewport.height * viewport.scale < win.innerHeight - 120)) {
+        promotionChecked = true;
+        return;
+      }
+      claimPromotion();
+    }, 3000);
+    cancelPromotion = () => {
+      win.clearTimeout(timer);
+      doc.removeEventListener('input', cancelOnInput);
+      doc.removeEventListener('focusin', cancelOnInput);
+    };
+    doc.addEventListener('input', cancelOnInput);
+    doc.addEventListener('focusin', cancelOnInput);
+    return cancelPromotion;
+  }
+
   function dismiss() {
+    state.promotionVisible = false;
     state.dismissedAt = now();
     preferences.setPwaInstallDismissedAt(state.dismissedAt);
   }
@@ -86,6 +125,7 @@ export function createPwaInstall({ window: win, enabled, preferences, now = Date
 
   function setHintsEnabled(value) {
     state.hintsEnabled = Boolean(value);
+    if (!state.hintsEnabled) state.promotionVisible = false;
     preferences.setPwaInstallHintEnabled(state.hintsEnabled);
   }
 
@@ -107,7 +147,9 @@ export function createPwaInstall({ window: win, enabled, preferences, now = Date
       const response = await event.prompt();
       const choice = event.userChoice ? await event.userChoice : response;
       if (choice?.outcome === 'accepted') installed();
+      else dismiss();
     } catch {
+      dismiss();
       if (available.value) {
         state.failed = true;
         state.dialog = !nativeOnly.value;
@@ -121,7 +163,6 @@ export function createPwaInstall({ window: win, enabled, preferences, now = Date
     if (started || !state.enabled) return;
     started = true;
     refreshPreferences();
-    try { state.hintShown = win.sessionStorage.getItem(SESSION_KEY) === '1'; } catch { /* Optional storage. */ }
     displayMode = win.matchMedia('(display-mode: standalone)');
     syncDisplayMode();
     displayMode.addEventListener('change', syncDisplayMode);
@@ -135,6 +176,8 @@ export function createPwaInstall({ window: win, enabled, preferences, now = Date
 
   function stop() {
     if (!started) return;
+    cancelPromotion?.();
+    state.promotionVisible = false;
     displayMode.removeEventListener('change', syncDisplayMode);
     win.removeEventListener('beforeinstallprompt', capturePrompt);
     win.removeEventListener('appinstalled', installed);
@@ -148,8 +191,8 @@ export function createPwaInstall({ window: win, enabled, preferences, now = Date
   }
 
   return {
-    state: readonly(state), available, nativeOnly, actionAvailable, promotionAllowed,
-    start, stop, install, dismiss, claimPromotion, setHintsEnabled,
-    closeGuide: () => { state.dialog = false; }
+    state: readonly(state), available, nativeOnly, actionAvailable, entryVisible, promotionAllowed,
+    start, stop, install, dismiss, claimPromotion, schedulePromotion, setHintsEnabled,
+    closeGuide: () => { state.dialog = false; dismiss(); }
   };
 }

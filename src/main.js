@@ -36,11 +36,13 @@ import router from './router';
 import store from './store';
 import { aliases, mdi } from './theme/icons';
 import theme from './theme';
-import { pwaInstall } from './composables/usePwaInstall';
+import { pwaInstall } from '@/composables/usePwaInstall';
 
 // Capture installability before the initial route and async components mount.
-pwaInstall.start();
-if (import.meta.hot) import.meta.hot.dispose(() => pwaInstall.stop());
+if (!__FLASHMASTER_SINGLEFILE__) {
+    pwaInstall.start();
+    if (import.meta.hot) import.meta.hot.dispose(() => pwaInstall.stop());
+}
 
 const initialThemeName = theme.resolveThemeName(store.getTheme());
 theme.applyDocumentTheme(initialThemeName);

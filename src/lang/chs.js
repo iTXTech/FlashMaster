@@ -4,17 +4,17 @@ export default {
     lang: '简体中文',
     group: 'QQ群：1139052001',
     productTagline: '存储芯片智能解析平台',
-    install: {
+    install: __FLASHMASTER_SINGLEFILE__ ? {} : {
         homeScreen: '添加到主屏幕',
         desktop: '安装 FlashMaster',
         benefit: '下次直接点 FlashMaster 图标打开，查询更方便。',
         viewSteps: '查看添加方法',
+        add: '添加',
         later: '稍后',
+        confirming: '等待安装确认',
         showHints: '显示安装提示',
         failed: '暂时无法打开安装确认，请按下面的方法添加。',
         offline: '资源缓存完成后，内嵌解析可离线使用；HTTP 查询和行情需要联网。',
-        nativeUnavailable: '浏览器暂未提供安装选项',
-        nativeFailed: '安装确认未能打开，请稍后重试',
         iosMissing: '如果没有“添加到主屏幕”，可在共享菜单底部的“编辑操作”中添加。',
         browserHelp: '查看浏览器安装说明',
         steps: {

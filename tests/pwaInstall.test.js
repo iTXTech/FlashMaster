@@ -6,20 +6,24 @@ import { createPwaInstall, installPlatform } from '../src/services/pwaInstall.js
 
 const DAY = 24 * 60 * 60 * 1000;
 function setup(t, options = {}) {
-  let clock = 100 * DAY;
+  let clock = options.clock ?? 100 * DAY;
   const data = options.data || new Map();
-  const session = options.session || new Map();
+  const timers = new Map();
+  const doc = new EventTarget();
+  doc.querySelector = () => options.overlay || null;
+  doc.hidden = Boolean(options.hidden);
   const win = new EventTarget();
   const displayMode = new EventTarget();
   displayMode.matches = Boolean(options.standalone);
   Object.assign(win, {
     isSecureContext: options.secure ?? true,
-    navigator: options.navigator || {},
-    matchMedia: () => displayMode,
-    sessionStorage: {
-      getItem: key => session.get(key),
-      setItem: (key, value) => session.set(key, value)
-    }
+    navigator: options.navigator || { userAgent: 'iPhone Safari' },
+    document: doc,
+    innerHeight: 844,
+    visualViewport: options.viewport,
+    setTimeout: (callback, delay) => { const id = Symbol(); timers.set(id, { callback, due: clock + delay }); return id; },
+    clearTimeout: id => timers.delete(id),
+    matchMedia: () => displayMode
   });
   const preferences = {
     isPwaInstallHintEnabled: () => data.get('hints') !== false,
@@ -31,7 +35,14 @@ function setup(t, options = {}) {
   install.start();
   t.after(install.stop);
   return {
-    ...install, win, displayMode, data, session,
+    ...install, win, doc, displayMode, data,
+    get clock() { return clock; },
+    tick(ms) {
+      clock += ms;
+      for (const [id, timer] of timers) {
+        if (timer.due <= clock) { timers.delete(id); timer.callback(); }
+      }
+    },
     advance(days) { clock += days * DAY; win.dispatchEvent(new Event('storage')); },
     prompt(outcome = 'dismissed', handler) {
       let calls = 0;
@@ -84,6 +95,7 @@ test('prompt is invoked synchronously and concurrent clicks cannot reuse it', as
   const pending = h.install();
   assert.equal(event.calls(), 1);
   assert.equal(h.state.busy, true);
+  assert.equal(h.entryVisible.value, true, 'consuming the event must not hide the pending confirmation');
   await h.install();
   assert.equal(event.calls(), 1);
   resolve({ outcome: 'dismissed' });
@@ -115,30 +127,30 @@ test('userChoice acceptance hides promotion even before appinstalled arrives', a
   assert.equal(h.state.standalone, false, 'accepting installation does not open this tab as a PWA');
 });
 
-test('tips are shared across routes/reloads in a tab and respect persisted 30 day dismissal', t => {
+test('dismissal lasts seven days and expiry only makes a new visit eligible', t => {
   const h = setup(t);
   assert.equal(h.claimPromotion(), true);
   assert.equal(h.claimPromotion(), false);
-  const reload = setup(t, { session: h.session, data: h.data });
-  assert.equal(reload.claimPromotion(), false);
   h.dismiss();
-  const nextVisit = setup(t, { data: h.data });
-  assert.equal(nextVisit.claimPromotion(), false);
-  nextVisit.advance(29);
-  assert.equal(nextVisit.claimPromotion(), false);
-  nextVisit.advance(1);
+  assert.equal(h.state.promotionVisible, false);
+  const during = setup(t, { data: h.data, clock: h.clock + 7 * DAY - 1 });
+  assert.equal(during.promotionAllowed.value, false);
+  during.advance(1);
+  assert.equal(during.promotionAllowed.value, false, 'open tabs do not become eligible at expiry');
+  const nextVisit = setup(t, { data: h.data, clock: h.clock + 7 * DAY });
   assert.equal(nextVisit.claimPromotion(), true);
 });
 
-test('settings persist without suppressing manual entry and storage events update open tabs', t => {
+test('settings hide both installation surfaces and storage events update open tabs', t => {
   const first = setup(t);
   first.setHintsEnabled(false);
   const second = setup(t, { data: first.data });
   assert.equal(second.state.hintsEnabled, false);
-  assert.equal(second.available.value, true);
+  assert.equal(second.entryVisible.value, false);
   first.setHintsEnabled(true);
   second.win.dispatchEvent(new Event('storage'));
   assert.equal(second.state.hintsEnabled, true);
+  assert.equal(second.entryVisible.value, true);
 });
 
 test('standalone and iOS standalone hide promotion, browser mode alone is not proof of installation', t => {
@@ -171,14 +183,14 @@ test('single-file builds never capture or offer installation, including on HTTPS
   }
 });
 
-test('LAN HTTP retains Safari manual installation and tips', async t => {
+test('LAN HTTP retains Safari manual installation, with automatic tips only on mobile', async t => {
   for (const [userAgent, guide] of [['iPhone Safari', 'ios'], ['Macintosh Safari', 'macos']]) {
     const h = setup(t, { secure: false, navigator: { userAgent } });
     assert.equal(h.state.enabled, true);
     assert.equal(h.state.secureContext, false);
     assert.equal(h.state.guide, guide);
     assert.equal(h.available.value, true);
-    assert.equal(h.claimPromotion(), true);
+    assert.equal(h.claimPromotion(), guide === 'ios');
     assert.equal(h.prompt().event.defaultPrevented, false);
     assert.equal(h.state.canPrompt, false);
     h.setHintsEnabled(false);
@@ -188,19 +200,21 @@ test('LAN HTTP retains Safari manual installation and tips', async t => {
   }
 });
 
-test('Chromium keeps a native-only entry, enabling it only when an install event arrives', async t => {
+test('Chromium hides the entry until an install event arrives and hides it after cancellation', async t => {
   for (const userAgent of ['Macintosh Chrome Safari', 'Windows Chrome Edg', 'Android Chrome SamsungBrowser']) {
     const h = setup(t, { navigator: { userAgent } });
     assert.equal(h.nativeOnly.value, true);
     assert.equal(h.available.value, true);
     assert.equal(h.actionAvailable.value, false);
-    assert.equal(h.claimPromotion(), false);
+    assert.equal(h.promotionAllowed.value, false);
+    assert.equal(h.entryVisible.value, false);
     await h.install();
     assert.equal(h.state.dialog, false);
     assert.equal(h.state.dismissedAt, 0);
     const event = h.prompt();
     assert.equal(h.actionAvailable.value, true);
-    assert.equal(h.claimPromotion(), true);
+    assert.equal(h.entryVisible.value, true);
+    assert.equal(h.claimPromotion(), h.state.mobile);
     await h.install();
     assert.equal(event.calls(), 1);
     assert.equal(h.actionAvailable.value, false);
@@ -210,7 +224,7 @@ test('Chromium keeps a native-only entry, enabling it only when an install event
   }
 });
 
-test('Chromium on LAN HTTP retains a disabled entry and never opens instructions', async t => {
+test('Chromium on LAN HTTP hides its entry and never opens instructions', async t => {
   const h = setup(t, { secure: false, navigator: { userAgent: 'Windows Chrome Edg' } });
   assert.equal(h.available.value, true);
   assert.equal(h.actionAvailable.value, false);
@@ -278,4 +292,97 @@ test('installation preferences tolerate blocked storage and ignore corrupt times
   assert.equal(store.getPwaInstallDismissedAt(), 0);
   assert.doesNotThrow(() => store.setPwaInstallHintEnabled(false));
   assert.doesNotThrow(() => store.setPwaInstallDismissedAt(1234));
+});
+
+test('mobile startup offers once after three seconds and dismissal stays hidden', t => {
+  const h = setup(t);
+  h.schedulePromotion();
+  h.tick(2999);
+  assert.equal(h.state.promotionVisible, false);
+  h.tick(1);
+  assert.equal(h.state.promotionVisible, true);
+  h.dismiss();
+  h.schedulePromotion();
+  h.tick(3000);
+  assert.equal(h.state.promotionVisible, false);
+});
+
+test('typing or focusing an input during startup skips the whole visit, even after blur', t => {
+  for (const type of ['input', 'focusin']) {
+    const h = setup(t);
+    h.schedulePromotion();
+    h.tick(1000);
+    const event = new Event(type);
+    Object.defineProperty(event, 'target', { value: { matches: () => true } });
+    h.doc.dispatchEvent(event);
+    h.doc.activeElement = null;
+    h.tick(2000);
+    h.schedulePromotion();
+    h.tick(3000);
+    assert.equal(h.state.promotionVisible, false);
+  }
+});
+
+test('desktop, standalone, disabled tips, hidden pages, overlays and keyboards skip startup', t => {
+  for (const options of [
+    { navigator: { userAgent: 'Macintosh Safari' } },
+    { standalone: true },
+    { enabled: false },
+    { data: new Map([['hints', false]]) },
+    { hidden: true },
+    { overlay: true },
+    { viewport: { height: 480, scale: 1 } }
+  ]) {
+    const h = setup(t, options);
+    h.schedulePromotion();
+    h.tick(3000);
+    assert.equal(h.state.promotionVisible, false, JSON.stringify(options));
+    h.doc.hidden = false;
+    h.doc.querySelector = () => null;
+    h.win.visualViewport = undefined;
+    h.schedulePromotion();
+    h.tick(3000);
+    assert.equal(h.state.promotionVisible, false);
+  }
+});
+
+test('native events arriving after the startup check only enable the sidebar', t => {
+  const h = setup(t, { navigator: { userAgent: 'Android Chrome' } });
+  h.schedulePromotion();
+  h.tick(3000);
+  h.prompt();
+  h.schedulePromotion();
+  h.tick(3000);
+  assert.equal(h.entryVisible.value, true);
+  assert.equal(h.state.promotionVisible, false);
+});
+
+test('pending native confirmation keeps the sidebar visible, cancellation waits for a new event', async t => {
+  const h = setup(t, { navigator: { userAgent: 'Android Chrome' } });
+  let respond;
+  h.prompt('dismissed', () => new Promise(resolve => { respond = resolve; }));
+  h.schedulePromotion();
+  h.tick(3000);
+  assert.equal(h.state.promotionVisible, true);
+  const pending = h.install();
+  assert.equal(h.state.promotionVisible, false);
+  assert.equal(h.state.canPrompt, false);
+  assert.equal(h.entryVisible.value, true);
+  assert.equal(h.state.busy, true);
+  respond({ outcome: 'dismissed' });
+  await pending;
+  assert.equal(h.entryVisible.value, false);
+  h.prompt();
+  assert.equal(h.entryVisible.value, true);
+  assert.equal(h.promotionAllowed.value, false);
+  h.setHintsEnabled(false);
+  assert.equal(h.entryVisible.value, false);
+});
+
+test('stopping before startup removes the delayed promotion', t => {
+  const h = setup(t);
+  h.schedulePromotion();
+  h.stop();
+  h.tick(3000);
+  assert.equal(h.state.promotionVisible, false);
 });
