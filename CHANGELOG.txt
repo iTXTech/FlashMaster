@@ -1,7 +1,7 @@
 FlashMaster by PeratX <peratx@itxtech.org>
 Copyright (c) 2019-2026 iTX Technologies
 ===================================
-Version 2.7.0-dev (Snapshot date: 2026-09-13)
+Version 2.7.0-dev (Snapshot date: 2026-09-15)
 
 FlashMaster updates:
 - Reduced single-file size by excluding PWA installation code and text at build time; optimized vendor images without changing their appearance. All builds now include only the current version's changelog.
@@ -26,7 +26,10 @@ FlashMaster updates:
 - Updated frontend framework, component-library, and build-tool dependencies; pinned the project package manager to pnpm 12.4.1.
 
 fdnext v3.3.0 highlights:
-- Updated the embedded parser to fdnext v3.3.0 (5080b59), with typed brief/full summaries, DRAM speed/voltage and managed-storage component details.
+- Updated the embedded parser to fdnext v3.3.0 (460254c), with typed brief/full summaries, DRAM speed/voltage and managed-storage component details.
+- Refreshed FDB V87 with more precise PN/Flash ID relations: remove confirmed die, capacity, cell-type and per-CE topology conflicts while retaining uncertain source associations and referenced PN aliases.
+- Preserve complete Micron/SpecTek part numbers, including speed, revision, package and grading suffixes; restore SpecTek related IDs and controller information without replacing PN specifications.
+- Keep Flash ID manufacturer identity independent of related PN brands (B5: SpecTek; 2C: Micron), retain distinct die profiles with the same process label, and correct SK hynix HYV6/HYV8 per-die capacity handling.
 - Preserve NAND device interface ratings and die capabilities together, including differing protocol versions or speeds; FDB ratings supplement missing device grades without overwriting PN specifications.
 - Normalize fields at their rule sources: separate component capacity, width and voltage, DRAM timing and host-interface versions; remove repeated type/controller descriptions while retaining distinct generation, series and process information.
 - Correct Nanya LPDDR read latency to a dedicated field instead of CAS latency, preserving speed units, grades and cycle times; separate ISSI DRAM voltage from type descriptions.
