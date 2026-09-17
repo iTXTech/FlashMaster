@@ -48,10 +48,7 @@
           <div v-for="row in detailRows" :key="row.label" class="capability-kv-row">
             <dt>{{ row.label }}</dt>
             <dd>
-              <template v-if="row.date">
-                <time>{{ formatDate(row.value) }}</time>
-                <span class="capability-raw-date">{{ row.value }}</span>
-              </template>
+              <time v-if="row.date" :datetime="row.value">{{ formatLocalDateTime(row.value, locale) }}</time>
               <template v-else>{{ row.value }}</template>
             </dd>
           </div>
@@ -118,6 +115,7 @@
 import { computed, ref, useId, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { chipLabel } from '@/services/fdnextResultView';
+import { formatLocalDateTime } from '@/services/localDateTime';
 import { useCapabilityInventory } from '@/composables/useCapabilityInventory';
 
 const props = defineProps({ data: { type: Object, default: () => ({}) } });
@@ -165,7 +163,6 @@ const detailRows = computed(() => [
   ['commitHash', props.data.server?.build?.commitHash],
   ['buildTime', props.data.server?.build?.buildTime, true],
   ['generated', props.data.fdb?.time, true],
-  ['website', props.data.fdb?.website],
   ['defaultControllerGroups', defaultControllerGroupsLabel.value]
 ].filter(([, value]) => value != null && String(value).trim()).map(([key, value, date]) => ({ label: t(`settings.capabilityInfo.${key}`), value, date })));
 
@@ -188,14 +185,6 @@ function navigateTabs(event, index) {
 function formatCount(value) {
   const number = Number(value);
   return Number.isFinite(number) ? number.toLocaleString(locale.value === 'chs' ? 'zh-CN' : 'en-US') : String(value ?? '-');
-}
-function formatDate(value) {
-  const date = new Date(value);
-  if (!Number.isFinite(date.getTime())) return value;
-  return new Intl.DateTimeFormat(locale.value === 'chs' ? 'zh-CN' : 'en-GB', {
-    year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit',
-    timeZone: 'UTC', timeZoneName: 'short', hourCycle: 'h23'
-  }).format(date);
 }
 function capabilityTitle(item) {
   const names = {

@@ -7,6 +7,7 @@ import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import { viteSingleFile } from 'vite-plugin-singlefile';
 import { currentChangelogPlugin } from './build/currentChangelog.js';
+import { buildTime } from './build/buildTime.js';
 
 const packageJson = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'));
 const fdnextPackageJson = (() => {
@@ -33,8 +34,8 @@ const fdnextCommitHash = (() => {
 })();
 const shortFdnextCommitHash = value => String(value || '').trim().slice(0, 7) || 'dev';
 const fdnextBuildCommitHash = shortFdnextCommitHash(process.env.FDNEXT_COMMIT_HASH || fdnextCommitHash);
-const fdnextBuildTime = process.env.FDNEXT_BUILD_TIME || new Date().toISOString();
-const appBuildTime = process.env.FLASHMASTER_BUILD_TIME || process.env.VITE_FLASHMASTER_BUILD_TIME || new Date().toISOString();
+const fdnextBuildTime = buildTime(process.env.FDNEXT_BUILD_TIME, 'FDNEXT_BUILD_TIME');
+const appBuildTime = buildTime(process.env.FLASHMASTER_BUILD_TIME || process.env.VITE_FLASHMASTER_BUILD_TIME, 'FLASHMASTER_BUILD_TIME / VITE_FLASHMASTER_BUILD_TIME');
 const sitemapLastmod = appBuildTime.slice(0, 10);
 const fdnextVersion = fdnextPackageJson.version;
 const pwaDescription = 'Memory Chip Intelligence Platform for memory-chip part-number lookup, NAND Flash ID decoding, database search, and result inspection.';

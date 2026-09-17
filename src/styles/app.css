@@ -2615,8 +2615,7 @@ a.nav-footer-notice:hover {
   gap: 12px;
 }
 
-.capability-kv-row dt,
-.capability-raw-date {
+.capability-kv-row dt {
   color: rgba(var(--v-theme-on-surface), var(--app-muted-text-opacity));
   font-size: 0.75rem;
 }
@@ -2625,10 +2624,6 @@ a.nav-footer-notice:hover {
   min-width: 0;
   margin: 0;
   overflow-wrap: anywhere;
-}
-
-.capability-raw-date {
-  display: block;
 }
 
 .capability-browser {

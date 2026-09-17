@@ -170,7 +170,6 @@ export default {
             commitHash: 'Commit Hash',
             buildTime: 'Build Time',
             generated: 'FDB generated at',
-            website: 'Website',
             controllers: 'Controllers',
             controllerInventory: 'Controller Inventory',
             defaultControllerGroups: 'Engine default groups',

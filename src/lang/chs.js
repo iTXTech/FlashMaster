@@ -170,7 +170,6 @@ export default {
             commitHash: '提交哈希',
             buildTime: '构建时间',
             generated: 'FDB 生成时间',
-            website: '网站',
             controllers: '控制器',
             controllerInventory: '控制器清单',
             defaultControllerGroups: '引擎默认分组',

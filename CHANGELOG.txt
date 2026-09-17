@@ -1,45 +1,25 @@
 FlashMaster by PeratX <peratx@itxtech.org>
 Copyright (c) 2019-2026 iTX Technologies
 ===================================
-Version 2.7.0-dev (Snapshot date: 2026-09-15)
+Version 2.7.0-dev (Snapshot date: 2026-09-18)
 
 FlashMaster updates:
-- Reorganized parser capabilities into Overview, Controllers and Decoders tabs, with local search, group filters, pagination and readable build details; widened the dialog and improved mobile layout. Inventory cards now use compact inline labels and values, and the FDB generation timestamp is explicitly labeled.
-- Reduced single-file size by excluding PWA installation code and text at build time; optimized vendor images without changing their appearance. All builds now include only the current version's changelog.
-- Simplified the About copy, grouped parser build information in the footer, and identified browser versus standalone PWA runtime.
-- Fixed the missing installation entry on LAN HTTP pages while retaining Safari home screen/Dock instructions. Chrome/Edge use only native installation, without showing instructions.
-- Removed post-query installation tips and automatic changelog opening. Mobile browsers show a bottom installation tip about 3 seconds after opening, skipping the visit if typing starts. Dismissal pauses tips for 7 days; the bottom ad is temporarily hidden while a tip is visible. Desktop, standalone and single-file builds never show automatic tips.
-- Hide the sidebar installation entry when the browser offers no install action or installation tips are disabled. Show a waiting state during system confirmation instead of incorrectly reporting installation as unavailable.
-- Removed the Edit input buttons from PN/Flash ID states and restored the mobile sidebar scrim; tapping the scrim closes navigation.
-- Improved PN/Flash ID empty states with concise guidance and fillable examples, distinct no-match, invalid-input and persistent request-error messages, and actions to search related records or retry. Corrected the label for unmatched IDs and removed empty vendor/summary controls while retaining partial results, candidates, warnings and external links. Queries continue to use only the input progress bar.
-- Align Micron short and complete marking results on the same actual part number and specifications. Show the full queried marking in the page and both summaries without a separate Input row. Complete markings add compact year, week, die revision and origin fields; the year label explains its last-digit meaning on hover, focus or tap.
-- Separate PN/Flash ID suggestion fields with subtle dividers and fixed spacing, preserve spaces and slashes inside identifiers, and align suggestion typography including server address presets.
-- Use native system fonts for the interface and consistent monospace fonts for PN, Flash ID, marking and controller values across inputs, suggestions, results and related links, without bundling font files.
-- Let wide-screen specification fields span as many columns as their text needs, reducing wrapping in speed, package and NAND details while preserving the compact mobile layout.
-- Rebuilt PN/Flash ID results as compact grouped specifications, preserving all parameters with clearer Chinese/English wrapping and alignment. Controller lists expand in place, and related part numbers and IDs align in columns with direct navigation.
-- Simplified result headers with responsive type, marking, and “Summary” actions. The main button copies the full summary; the menu offers a brief summary, and each specification group can be copied separately. Copies exclude external links and ads. Technical-source copy is temporarily hidden, and clipped copy icons are fixed.
-- Standardized decode/search inputs and action buttons. Suggestions stay below the input and adapt their width to the content and viewport, fixing overlap and flicker during resizing.
-- Fixed input/result synchronization when navigating back and forward, and allowed the same query to be submitted again. Language changes preserve input drafts on empty query pages and refresh existing results without counting another use.
-- Improved large-result handling and request scheduling: render only the current page, avoid duplicate processing and hidden tables, cancel queued stale suggestions, prioritize manual queries, and reuse the current result when copying summaries.
-- Improved narrow-screen interaction: kept snackbar messages and their close button within the viewport, including long unbroken error text.
-- Fixed Market Pulse quote/chart mismatches by binding live quotes, historical candles, and caches to the actual market, preventing data from different markets or providers from being mixed.
-- Improved full/nano single-file compatibility when opening local HTML files in Chromium-based browsers. Embedded parser warmup and runtime failures retain their original diagnostics instead of being hidden or replaced by an unavailable-fallback error.
-- Updated frontend framework, component-library, and build-tool dependencies; pinned the project package manager to pnpm 12.4.1.
+- Rebuilt PN/Flash ID results as compact grouped specifications with all parameters retained, adaptive wide fields, expandable controllers and direct related PN/ID navigation; refined Chinese, English and narrow-screen layouts.
+- Unified result headers and copy actions: copy the full summary by default, choose a brief summary or copy a whole group; copied summaries exclude external links and ads.
+- Unified decode, search and suggestion inputs: menus stay below inputs and adapt to available width, with subtle field dividers; use system UI fonts and monospace identifiers, markings and controllers.
+- Improved empty, unmatched, invalid-input and request-error states with fillable examples, related search and retry; fixed input, result and usage-count synchronization across history navigation, repeated queries and language changes.
+- Organized parser capabilities into Overview, Controllers and Decoders with search, group filters and pagination; adopted updated capabilities metadata, removed the FDB website field and display build/database times in the user's local time zone.
+- Added browser-aware installation controls and a Settings toggle: native installation in Chrome/Edge and home screen/Dock guidance in Safari. Mobile tips appear about 3 seconds after opening, skip active typing and pause for 7 days after dismissal; desktop, standalone PWA and single-file builds show no automatic tips.
+- Simplified About and identified browser/PWA runtime; changelogs now open manually. Improved mobile navigation scrims, narrow-screen messages and dismissal controls.
+- Optimized page rendering and request scheduling, prioritizing manual queries, canceling stale suggestions and reusing summary results; fixed market identity mismatches between Market Pulse quotes, candles and caches.
+- Reduced build size and improved single-file compatibility: bundle only the current changelog, optimize vendor images and exclude installation code from single-file builds; full/nano support local Chromium use and retain parser failure diagnostics. Updated dependencies and pnpm to 12.4.1.
 
 fdnext v3.3.0 highlights:
-- Updated the embedded parser to fdnext v3.3.0 (460254c), with typed brief/full summaries, DRAM speed/voltage and managed-storage component details.
-- Refreshed FDB V87 with more precise PN/Flash ID relations: remove confirmed die, capacity, cell-type and per-CE topology conflicts while retaining uncertain source associations and referenced PN aliases.
-- Preserve complete Micron/SpecTek part numbers, including speed, revision, package and grading suffixes; restore SpecTek related IDs and controller information without replacing PN specifications.
-- Keep Flash ID manufacturer identity independent of related PN brands (B5: SpecTek; 2C: Micron), retain distinct die profiles with the same process label, and correct SK hynix HYV6/HYV8 per-die capacity handling.
-- Preserve NAND device interface ratings and die capabilities together, including differing protocol versions or speeds; FDB ratings supplement missing device grades without overwriting PN specifications.
-- Normalize fields at their rule sources: separate component capacity, width and voltage, DRAM timing and host-interface versions; remove repeated type/controller descriptions while retaining distinct generation, series and process information.
-- Correct Nanya LPDDR read latency to a dedicated field instead of CAS latency, preserving speed units, grades and cycle times; separate ISSI DRAM voltage from type descriptions.
-- Unified five- and ten-character Micron marking lookup, including JZ215/1CB2DJZ215; preserve actual part numbers in search and summaries, remove duplicate marking records, and validate tracing fields without inferring complete years.
-- Unified field grouping and numeric capacities with explicit Mbit units, preserving formatted GB/Gb values and alternative component capacities; refined DRAM topology, NAND interface and marking groups.
-- Migrated directly to fdnext.result.v2 and abbreviated link categories (vnd/ds/mkt/ref/tl/com/ads); configured HTTP servers must use the new contract.
-- Corrected catalog-based canonical part-number resolution and preserved ambiguous candidates when using prepared catalogs.
-- Expanded Micron NAND/eMMC/uMCP and Micron, Elpida, and SpecTek DRAM decoding, including legacy Micron `AMD...` DDR3 aliases.
-- Refined package, speed, and suffix parsing; unknown Micron families retain vendor identity without speculative types or fields.
+- Updated the embedded parser to fdnext v3.3.0 (a4ef82c) and FDB V87, adopting fdnext.result.v2, typed summaries and abbreviated link categories; custom HTTP servers must support the new contract.
+- Refined PN/Flash ID relations by removing confirmed die, capacity, cell-type and per-CE topology conflicts while retaining uncertain associations and referenced aliases; preserved complete Micron/SpecTek suffixes, independent Flash ID vendor identity and SpecTek controller data, and corrected SK hynix HYV6/HYV8 capacity.
+- Standardized PN separators across decoding, catalogs and search, prioritizing complete PNs while retaining unknown suffixes and ambiguous candidates; unified actual PNs and specifications for five-/ten-character Micron markings, with year digit, week, die revision and origin details for complete markings.
+- Normalized field groups and numeric capacities while retaining GB/Gb display and capacity alternatives; distinguished device/component specifications, NAND device ratings/die capabilities, host-interface versions and DRAM timings, removing duplicate descriptions without losing distinct specifications.
+- Expanded Micron NAND/eMMC/uMCP and Micron, Elpida and SpecTek DRAM decoding, including Micron `AMD...` DDR3 aliases; refined packages, speeds and suffixes, corrected Nanya read latency and ISSI voltage, and avoided unsupported parameter inference for unknown families.
 
 ===================================
 Version 2.6.0 (Release date: 2026-08-26)
