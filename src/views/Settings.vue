@@ -180,10 +180,14 @@
       max-width="760"
       class="server-info-dialog"
       content-class="server-info-dialog-content"
+      :aria-labelledby="infoDialogTitleId"
     >
       <section class="panel server-info-panel">
         <div class="panel-header">
-          <div class="panel-title">{{ infoDialogTitle }}</div>
+          <div class="server-info-heading">
+            <div :id="infoDialogTitleId" class="panel-title">{{ infoDialogTitle }}</div>
+            <span class="server-info-source">{{ isHttpParser ? 'HTTP' : $t('settings.capabilityInfo.embedded') }}</span>
+          </div>
           <v-btn
             icon="mdi-close"
             variant="text"
@@ -200,7 +204,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref, useId, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 import CapabilityInfo from '@/components/CapabilityInfo.vue';
@@ -282,6 +286,7 @@ const serverItems = computed(() => store.getServerPresets().map(item => ({
 })));
 const isHttpParser = computed(() => parserMode.value === store.PARSER_HTTP);
 const infoButtonLabel = computed(() => isHttpParser.value ? t('settings.serverInfo') : t('settings.parserInfo'));
+const infoDialogTitleId = useId();
 const infoDialogTitle = computed(() => infoButtonLabel.value);
 const canRemoveControllerGroups = computed(() => controllerGroups.value.length > 1);
 

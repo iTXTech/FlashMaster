@@ -4,6 +4,7 @@ Copyright (c) 2019-2026 iTX Technologies
 Version 2.7.0-dev (Snapshot date: 2026-09-15)
 
 FlashMaster updates:
+- Reorganized parser capabilities into Overview, Controllers and Decoders tabs, with local search, group filters, pagination and readable build details; widened the dialog and improved mobile layout. Inventory cards now use compact inline labels and values, and the FDB generation timestamp is explicitly labeled.
 - Reduced single-file size by excluding PWA installation code and text at build time; optimized vendor images without changing their appearance. All builds now include only the current version's changelog.
 - Simplified the About copy, grouped parser build information in the footer, and identified browser versus standalone PWA runtime.
 - Fixed the missing installation entry on LAN HTTP pages while retaining Safari home screen/Dock instructions. Chrome/Edge use only native installation, without showing instructions.
